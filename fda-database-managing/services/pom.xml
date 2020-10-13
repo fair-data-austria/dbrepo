@@ -11,5 +11,17 @@
 
     <artifactId>services</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>gateways</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
