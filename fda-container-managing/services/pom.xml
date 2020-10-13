@@ -11,5 +11,18 @@
 
     <artifactId>services</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+    </dependencies>
 
 </project>
