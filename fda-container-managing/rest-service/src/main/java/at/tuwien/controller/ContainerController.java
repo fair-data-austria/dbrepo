@@ -8,11 +8,9 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @RestController
@@ -23,13 +21,24 @@ public class ContainerController {
     @Autowired
     private ContainerService service;
 
-    @PostMapping(value = "/databaseContainers")
+    @PostMapping(value = "/createDatabaseContainer")
     @ApiOperation(value = "creating a new database container")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "database container created")})
     public Response createDatabaseContainer(@RequestBody CreateDatabaseContainerDTO dto) {
         LOGGER.debug("creating new database container");
+        //return "Hi, I am sending the message from fda-container-manging";
+
         service.createDatabaseContainer(dto);
-        return Response.status(Response.Status.CREATED).build();
+        return Response
+                .status(Response.Status.CREATED)
+                .entity("Database container successfully created and started!")
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @GetMapping(value="/item")
+    public String item(){
+        return "yes, successful!";
     }
 
 

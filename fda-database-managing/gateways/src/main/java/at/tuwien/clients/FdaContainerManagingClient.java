@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -22,15 +23,32 @@ public class FdaContainerManagingClient {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    public void createDatabaseContainer(CreateDatabaseDTO dto) {
+    public boolean createDatabaseContainer(CreateDatabaseDTO dto)  {
         LOGGER.debug("request fda-container-managing service for createDatabaseContainer");
-        Mono<ClientResponse> response = webClientBuilder
+        ClientResponse clientResponse = webClientBuilder
                 .build()
                 .post()
-                .uri("http://fda-container-managing/api/createDatabaseContainer", dto)
-                .body(dto, CreateDatabaseDTO.class)
-                .exchange();
+                .uri("http://fda-container-managing/api/createDatabaseContainer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(dto), CreateDatabaseDTO.class)
+                .exchange()
+                .block();
 
-        System.out.println("Hallo: "+response.toString());
+        if (clientResponse.statusCode().is2xxSuccessful()) {
+            return true;
+        }
+        return false;
+
+
+//                .flatMap(clientResponse -> clientResponse.bodyToMono(String.class)
+//                        .doOnSuccess(body -> {
+//                            if (clientResponse.statusCode().isError()) {
+//                                LOGGER.error("HttpStatusCode = {}", clientResponse.statusCode());
+//                                LOGGER.error("HttpHeaders = {}", clientResponse.headers().asHttpHeaders());
+//                                LOGGER.error("ResponseBody = {}", body);
+//                            }
+//                        }))
+//                .block();
+
     }
 }

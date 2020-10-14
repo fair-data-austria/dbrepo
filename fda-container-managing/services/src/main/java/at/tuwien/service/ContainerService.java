@@ -34,7 +34,7 @@ public class ContainerService {
                 .withHostConfig(hostConfig).exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
-
+        
     }
 
 }
