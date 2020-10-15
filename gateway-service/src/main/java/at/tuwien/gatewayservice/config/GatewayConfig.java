@@ -12,10 +12,10 @@ public class GatewayConfig {
 
 
     @Bean
-    public RouteLocator myRoutes(RouteLocatorBuilder builder) {
+    public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(p -> p
-                        .path("/database/**")
+                        .path("/api/**")
                         .filters(f -> f.addRequestHeader("Hello", "World"))
                         .uri("lb://fda-database-managing")
                         .id("fda-database-managing"))
