@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @RestController
-@RequestMapping("/database")
+@RequestMapping("/api")
 public class DatabaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseController.class);
 
@@ -40,5 +40,13 @@ public class DatabaseController {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+
+
+    @PostMapping(value = "/listDatabases")
+    public void listDatabases(){
+
+
+    }
+
 
 }

@@ -41,5 +41,22 @@ public class ContainerController {
         return "yes, successful!";
     }
 
+    public void startContainer(){
+
+    }
+
+    public void stopContainer(){
+
+    }
+
+    public void deleteDatabaseContainer(){
+
+    }
+
+    public void getConnectionByDBID(){
+
+
+    }
+
 
 }
