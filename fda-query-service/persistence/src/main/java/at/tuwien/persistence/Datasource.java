@@ -1,7 +1,7 @@
 package at.tuwien.persistence;
 
-import at.tuwien.config.SpringJdbcPostgresConfig;
 import at.tuwien.dto.QueryDatabaseDTO;
+import at.tuwien.pojo.DatabaseConnectionDataPOJO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Repository;
@@ -13,46 +13,43 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 @Repository
-public class DatasourceDAO {
-    @Autowired
+public class Datasource {
+
     private DataSource postgresDataSource;
 
 
-    public ResultSet executeQuery(String query) {
-        configureDatasource();
+    public ResultSet executeQuery(QueryDatabaseDTO dto, DatabaseConnectionDataPOJO pojo) {
+        configureDatasource(pojo);
         Statement stmt = null;
         Connection connection = null;
         ResultSet rs = null;
         try {
             connection = postgresDataSource.getConnection();
             stmt = connection.createStatement();
-            rs = stmt.executeQuery(query);
+            rs = stmt.executeQuery(dto.getQuery());
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-//            try {
-//                if (stmt != null) {
-//                    stmt.close();
-//                }
-//                if (connection != null) {
-//                    connection.close();
-//                }
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+
         return rs;
     }
 
-    public void configureDatasource() {
-/*        ((DriverManagerDataSource)postgresDataSource).setUrl("jdbc:postgresql://172.17.0.3/testC2");
-        ((DriverManagerDataSource)postgresDataSource).setUsername("postgres");
-        ((DriverManagerDataSource)postgresDataSource).setPassword("mysecretpassword");*/
-
+    public void configureDatasource(DatabaseConnectionDataPOJO pojo) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://172.17.0.3/testD");
+        dataSource.setUrl("jdbc:postgresql://" + pojo.getIpAddress() + "/" + pojo.getDbName());
+        //should be entered from user!
         dataSource.setUsername("postgres");
         dataSource.setPassword("mysecretpassword");
         postgresDataSource = dataSource;

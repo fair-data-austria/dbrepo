@@ -16,7 +16,6 @@ public class GatewayConfig {
         return builder.routes()
                 .route(p -> p
                         .path("/api/**")
-                        .filters(f -> f.addRequestHeader("Hello", "World"))
                         .uri("lb://fda-database-managing")
                         .id("fda-database-managing"))
                 .route(p -> p
