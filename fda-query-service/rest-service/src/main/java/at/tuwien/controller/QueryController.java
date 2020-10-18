@@ -1,11 +1,9 @@
 package at.tuwien.controller;
 
+import at.tuwien.dto.QueryDatabaseDTO;
 import at.tuwien.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,10 +20,10 @@ public class QueryController {
     private QueryService service;
 
     @GetMapping("/executeQuery")
-    public Response executeQuery(@RequestParam String query) {
+    public Response executeQuery(@RequestBody QueryDatabaseDTO dto) {
         List<Map<String, Object>> rs = null;
         try {
-            rs = service.queryDatabase(query);
+            rs = service.queryDatabase(dto);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

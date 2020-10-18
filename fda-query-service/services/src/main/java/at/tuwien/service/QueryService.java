@@ -1,10 +1,12 @@
 package at.tuwien.service;
 
-import at.tuwien.persistence.DatasourceDAO;
+import at.tuwien.pojo.DatabaseConnectionDataPOJO;
+import at.tuwien.client.FdaContainerManagingClient;
+import at.tuwien.dto.QueryDatabaseDTO;
+import at.tuwien.persistence.Datasource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -17,10 +19,14 @@ import java.util.Map;
 public class QueryService {
 
     @Autowired
-    private DatasourceDAO dataSourceDAO;
+    private Datasource dataSource;
+    @Autowired
+    private FdaContainerManagingClient containerClient;
 
-    public List<Map<String, Object>> queryDatabase(String query) throws SQLException{
-        return resultSetToList(dataSourceDAO.executeQuery(query));
+    public List<Map<String, Object>> queryDatabase(QueryDatabaseDTO dto) throws SQLException{
+        DatabaseConnectionDataPOJO databaseConnectionDataPOJO = containerClient.getDatabaseConnectionDataPOJO(dto);
+        
+        return resultSetToList(dataSource.executeQuery(dto,databaseConnectionDataPOJO));
     }
 
     public  List<Map<String, Object>> resultSetToList(ResultSet rs) throws SQLException {

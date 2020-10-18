@@ -35,29 +35,28 @@ public class ContainerController {
                 .build();
     }
 
-    public void startContainer(String containerID) {
-
-    }
-
-    public void stopContainer(String containerID) {
-
-    }
-
-    public void deleteDatabaseContainer(String containerID) {
-
-    }
-
-    @GetMapping(value = "/getDatabaseConnectionDataByContainerID")
-    public Response getDatabaseConnectionDataByContainerID(@RequestParam("ContainerID") String containerID) {
+    @GetMapping(value = "/getDatabaseConnectionDataByContainerID/{containerID}")
+    public CreateDatabaseConnectionDataDTO getDatabaseConnectionDataByContainerID(@PathVariable String containerID) {
         LOGGER.debug("getting data for connection with database");
-        CreateDatabaseConnectionDataDTO connectionDataForDB = service.getContainerUrlByContainerID(containerID);
-        return Response
+        return service.getContainerUrlByContainerID(containerID);
+      /*  return Response
                 .status(Response.Status.FOUND)
                 .entity(connectionDataForDB)
                 .type(MediaType.APPLICATION_JSON)
-                .build();
+                .build();*/
 
     }
 
+    public void startContainer(String containerID) {
+        //TODO
+    }
+
+    public void stopContainer(String containerID) {
+        //TODO
+    }
+
+    public void deleteDatabaseContainer(String containerID) {
+        //TODO
+    }
 
 }
