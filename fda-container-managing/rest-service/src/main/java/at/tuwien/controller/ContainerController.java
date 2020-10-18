@@ -1,5 +1,6 @@
 package at.tuwien.controller;
 
+import at.tuwien.dto.CreateDatabaseConnectionDataDTO;
 import at.tuwien.dto.CreateDatabaseContainerDTO;
 import at.tuwien.service.ContainerService;
 import io.swagger.annotations.ApiOperation;
@@ -26,35 +27,35 @@ public class ContainerController {
     @ApiResponses(value = {@ApiResponse(code = 201, message = "database container created")})
     public Response createDatabaseContainer(@RequestBody CreateDatabaseContainerDTO dto) {
         LOGGER.debug("creating new database container");
-        //return "Hi, I am sending the message from fda-container-manging";
-
-        service.createDatabaseContainer(dto);
+        String containerId = service.createDatabaseContainer(dto);
         return Response
                 .status(Response.Status.CREATED)
-                .entity("Database container successfully created and started!")
+                .entity("Database container with containerID: " + containerId + "successfully created and started!")
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 
-    @GetMapping(value="/item")
-    public String item(){
-        return "yes, successful!";
-    }
-
-    public void startContainer(){
+    public void startContainer(String containerID) {
 
     }
 
-    public void stopContainer(){
+    public void stopContainer(String containerID) {
 
     }
 
-    public void deleteDatabaseContainer(){
+    public void deleteDatabaseContainer(String containerID) {
 
     }
 
-    public void getConnectionByDBID(){
-
+    @GetMapping(value = "/getDatabaseConnectionDataByContainerID")
+    public Response getDatabaseConnectionDataByContainerID(@RequestParam("ContainerID") String containerID) {
+        LOGGER.debug("getting data for connection with database");
+        CreateDatabaseConnectionDataDTO connectionDataForDB = service.getContainerUrlByContainerID(containerID);
+        return Response
+                .status(Response.Status.FOUND)
+                .entity(connectionDataForDB)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
 
     }
 
