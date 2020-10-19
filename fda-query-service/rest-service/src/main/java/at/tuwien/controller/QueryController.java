@@ -19,7 +19,7 @@ public class QueryController {
     @Autowired
     private QueryService service;
 
-    @GetMapping("/executeQuery")
+    @PostMapping("/executeQuery")
     public Response executeQuery(@RequestBody QueryDatabaseDTO dto) {
         List<Map<String, Object>> rs = null;
         try {
