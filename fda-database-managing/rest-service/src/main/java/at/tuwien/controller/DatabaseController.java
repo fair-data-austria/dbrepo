@@ -42,11 +42,11 @@ public class DatabaseController {
     }
 
 
-    @PostMapping(value = "/listDatabases")
+   /* @PostMapping(value = "/listDatabases")
     public void listDatabases(){
 
 
-    }
+    */
 
 
 }
