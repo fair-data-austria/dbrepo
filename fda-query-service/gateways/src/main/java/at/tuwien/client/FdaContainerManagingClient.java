@@ -1,6 +1,6 @@
 package at.tuwien.client;
 
-import at.tuwien.pojo.DatabaseConnectionDataPOJO;
+import at.tuwien.pojo.DatabaseContainer;
 import at.tuwien.dto.QueryDatabaseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,20 +12,25 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class FdaContainerManagingClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(FdaContainerManagingClient.class);
 
-    @Autowired
+
     private WebClient.Builder webClientBuilder;
 
-    public DatabaseConnectionDataPOJO getDatabaseConnectionDataPOJO(QueryDatabaseDTO dto) {
-        LOGGER.debug("request fda-container-managing service for getting database connection data");
-        DatabaseConnectionDataPOJO dataPOJO = webClientBuilder
+    @Autowired
+    public FdaContainerManagingClient(WebClient.Builder webClientBuilder){
+        this.webClientBuilder = webClientBuilder;
+    }
+
+    public DatabaseContainer getDatabaseContainer(QueryDatabaseDTO dto) {
+        LOGGER.debug("request fda-container-managing service for getting database container");
+        DatabaseContainer databaseContainer = webClientBuilder
                 .build()
                 .get()
-                .uri("http://fda-container-managing/api/getDatabaseConnectionDataByContainerID/" + dto.getContainerID())
+                .uri("http://fda-container-managing/api/getDatabaseContainerByContainerID?containerID=" + dto.getContainerID())
                 .retrieve()
-                .bodyToMono(DatabaseConnectionDataPOJO.class)
+                .bodyToMono(DatabaseContainer.class)
                 .block();
 
-        return dataPOJO;
+        return databaseContainer;
 
     }
 }

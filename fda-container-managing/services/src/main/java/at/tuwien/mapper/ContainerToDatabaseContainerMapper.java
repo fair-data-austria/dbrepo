@@ -2,14 +2,9 @@ package at.tuwien.mapper;
 
 import at.tuwien.model.DatabaseContainer;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.Ports;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ContainerToDatabaseContainerMapper {
