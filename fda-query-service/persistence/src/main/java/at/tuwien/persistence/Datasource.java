@@ -1,8 +1,7 @@
 package at.tuwien.persistence;
 
 import at.tuwien.dto.QueryDatabaseDTO;
-import at.tuwien.pojo.DatabaseConnectionDataPOJO;
-import org.springframework.beans.factory.annotation.Autowired;
+import at.tuwien.pojo.DatabaseContainer;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Repository;
 
@@ -18,8 +17,8 @@ public class Datasource {
     private DataSource postgresDataSource;
 
 
-    public ResultSet executeQuery(QueryDatabaseDTO dto, DatabaseConnectionDataPOJO pojo) {
-        configureDatasource(pojo);
+    public ResultSet executeQuery(QueryDatabaseDTO dto, DatabaseContainer databaseContainer) {
+        configureDatasource(databaseContainer);
         Statement stmt = null;
         Connection connection = null;
         ResultSet rs = null;
@@ -45,10 +44,10 @@ public class Datasource {
         return rs;
     }
 
-    public void configureDatasource(DatabaseConnectionDataPOJO pojo) {
+    public void configureDatasource(DatabaseContainer databaseContainer) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://" + pojo.getIpAddress() + "/" + pojo.getDbName());
+        dataSource.setUrl("jdbc:postgresql://" + databaseContainer.getIpAddress() + "/" + databaseContainer.getDbName());
         //should be entered from user!
         dataSource.setUsername("postgres");
         dataSource.setPassword("mysecretpassword");

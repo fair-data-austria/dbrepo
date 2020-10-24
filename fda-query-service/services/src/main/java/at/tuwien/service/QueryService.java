@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.pojo.DatabaseConnectionDataPOJO;
+import at.tuwien.pojo.DatabaseContainer;
 import at.tuwien.client.FdaContainerManagingClient;
 import at.tuwien.dto.QueryDatabaseDTO;
 import at.tuwien.persistence.Datasource;
@@ -18,15 +18,22 @@ import java.util.Map;
 @Service
 public class QueryService {
 
-    @Autowired
+
     private Datasource dataSource;
-    @Autowired
+
     private FdaContainerManagingClient containerClient;
 
+    @Autowired
+    public QueryService(Datasource dataSource,FdaContainerManagingClient containerClient){
+        this.dataSource = dataSource;
+        this.containerClient = containerClient;
+    }
+
+
     public List<Map<String, Object>> queryDatabase(QueryDatabaseDTO dto) throws SQLException{
-        DatabaseConnectionDataPOJO databaseConnectionDataPOJO = containerClient.getDatabaseConnectionDataPOJO(dto);
+        DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto);
         
-        return resultSetToList(dataSource.executeQuery(dto,databaseConnectionDataPOJO));
+        return resultSetToList(dataSource.executeQuery(dto,databaseContainer));
     }
 
     public  List<Map<String, Object>> resultSetToList(ResultSet rs) throws SQLException {

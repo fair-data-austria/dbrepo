@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>at.tuwien</groupId>
-    <artifactId>discovery-server</artifactId>
+    <artifactId>fda-discovery-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>discovery-server</name>
+    <name>fda-discovery-server</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
