@@ -15,9 +15,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>at.tuwien</groupId>
-    <artifactId>fda-container-managing</artifactId>
+    <artifactId>fda-container-managing-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-container-managing</name>
+    <name>fda-container-managing-service</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
