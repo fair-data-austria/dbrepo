@@ -1,6 +1,7 @@
 package at.tuwien.controller;
 
 import at.tuwien.dto.CreateDatabaseDTO;
+import at.tuwien.model.Database;
 import at.tuwien.service.DatabaseService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -13,6 +14,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -42,11 +44,10 @@ public class DatabaseController {
     }
 
 
-   /* @PostMapping(value = "/listDatabases")
-    public void listDatabases(){
-
-
-    */
+    @PostMapping(value = "/listDatabases")
+    public List<Database> listDatabases() {
+        return service.findAllCreatedDatabases();
+    }
 
 
 }
