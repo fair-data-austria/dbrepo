@@ -1,6 +1,7 @@
 package at.tuwien.clients;
 
 import at.tuwien.dto.CreateDatabaseDTO;
+import at.tuwien.model.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import javax.ws.rs.core.Response;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 public class FdaContainerManagingClient {
@@ -49,6 +51,21 @@ public class FdaContainerManagingClient {
 //                            }
 //                        }))
 //                .block();
+
+    }
+
+    public List<Database> getCreatedDatabases() {
+        LOGGER.debug("request fda-container-managing service for getting all created databases");
+        List<Database> databases = webClientBuilder
+                .build()
+                .get()
+                .uri("http://fda-container-managing/api/getCreatedDatabaseContainers")
+                .retrieve()
+                .bodyToFlux(Database.class)
+                .collectList()
+                .block();
+
+       return databases;
 
     }
 }
