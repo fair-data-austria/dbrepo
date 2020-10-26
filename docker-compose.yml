@@ -1,0 +1,34 @@
+version: "2.4"
+services:
+    fda-discovery-server:
+        container_name: fda-discovery-server
+        build:
+            context: ./fda-discovery-server
+        image: fda-discovery-server:latest
+        expose:
+             - 9090
+        ports:
+             - 9090:9090
+        
+
+    fda-container-managing-service:
+        container_name: fda-container-managing-service
+        build:
+            context: ./fda-container-managing-service
+        image: fda-container-managing-service:latest
+        environment:
+             - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+       
+        expose:
+            - 9091
+        ports:
+            - 9091:9091
+        volumes: 
+            - /var/run/docker.sock:/var/run/docker.sock
+        links:
+             - fda-discovery-server
+        depends_on:
+             - fda-discovery-server
+        logging:
+            driver: json-file
+   
