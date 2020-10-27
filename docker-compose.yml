@@ -49,4 +49,20 @@ services:
              - fda-discovery-server
         logging:
             driver: json-file
-   
+    fda-query-service:
+        container_name: fda-query-service
+        build:
+            context: ./fda-query-service
+        image: fda-query-service:latest
+        environment:
+             - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+        expose:
+            - 9093
+        ports:
+            - 9093:9093
+        links:
+             - fda-discovery-server
+        depends_on:
+             - fda-discovery-server
+        logging:
+            driver: json-file
