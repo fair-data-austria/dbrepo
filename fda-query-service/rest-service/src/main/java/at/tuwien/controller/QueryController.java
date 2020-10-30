@@ -16,8 +16,12 @@ import java.util.Map;
 @RequestMapping("/api")
 public class QueryController {
 
-    @Autowired
     private QueryService service;
+
+    @Autowired
+    public QueryController(QueryService service){
+        this.service = service;
+    }
 
     @PostMapping("/executeQuery")
     public Response executeQuery(@RequestBody QueryDatabaseDTO dto) {
