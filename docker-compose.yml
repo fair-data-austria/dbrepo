@@ -5,6 +5,7 @@ services:
         build:
             context: ./fda-discovery-server
         image: fda-discovery-server:latest
+        network_mode: bridge
         expose:
              - 9090
         ports:
@@ -15,6 +16,7 @@ services:
         build:
             context: ./fda-database-managing-service
         image: fda-database-managing-service:latest
+        network_mode: bridge
         environment:
              - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
        
@@ -24,6 +26,7 @@ services:
             - 9092:9092
         links:
              - fda-discovery-server
+             - fda-container-managing-service
         depends_on:
              - fda-discovery-server
         logging:
@@ -34,6 +37,7 @@ services:
         build:
             context: ./fda-container-managing-service
         image: fda-container-managing-service:latest
+        network_mode: bridge
         environment:
              - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
        
@@ -54,6 +58,7 @@ services:
         build:
             context: ./fda-query-service
         image: fda-query-service:latest
+        network_mode: bridge
         environment:
              - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
         expose:

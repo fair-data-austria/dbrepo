@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -48,7 +49,7 @@ public class ContainerService {
     }
 
     public List<DatabaseContainer> findAllDatabaseContainers() {
-        List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
+        List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).withAncestorFilter(Arrays.asList("rdr-postgres:1.0")).exec();
         List<DatabaseContainer> databaseContainers = new ArrayList<>();
         containers.forEach(container -> {
             DatabaseContainer databaseContainerByContainerByID = getDatabaseContainerByContainerID(container.getId());
