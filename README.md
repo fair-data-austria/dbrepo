@@ -7,7 +7,7 @@
 $ mvn clean package
 
 # start application
-$ docker-compose up --build (use -d for detach mode)
+$ docker-compose up --build #(use -d for detach mode)
 
 # stop application
 $ docker-compose down
