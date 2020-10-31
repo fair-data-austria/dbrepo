@@ -3,7 +3,7 @@
 ## Build Setup
 
 ```bash
-# First generate jar for each service-project
+# First generate jars for discovery,database and container services
 $ mvn clean package
 
 # start application
