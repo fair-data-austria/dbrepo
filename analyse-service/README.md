@@ -31,7 +31,7 @@ The reponse is a JSON object of the following form:
 They can also be installed using `pip install -r requirements.txt`
 
 ### Running (Development)
-run `python3 app.py`
+run `python3 app.py` add '/upload' to url 
 
 ### Running with Docker
 
