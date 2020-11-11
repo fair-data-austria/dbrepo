@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.dto.ExecuteStatementDTO;
 import at.tuwien.pojo.DatabaseContainer;
 import at.tuwien.client.FdaContainerManagingClient;
 import at.tuwien.dto.QueryDatabaseDTO;
@@ -31,9 +32,14 @@ public class QueryService {
 
 
     public List<Map<String, Object>> queryDatabase(QueryDatabaseDTO dto) throws SQLException{
-        DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto);
+        DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto.getContainerID());
         
         return resultSetToList(dataSource.executeQuery(dto,databaseContainer));
+    }
+
+    public boolean executeStatement(ExecuteStatementDTO dto) {
+        DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto.getContainerID());
+        return dataSource.executeStatement(dto,databaseContainer);
     }
 
     public  List<Map<String, Object>> resultSetToList(ResultSet rs) throws SQLException {
@@ -53,5 +59,6 @@ public class QueryService {
         }
         return rows;
     }
+
 
 }

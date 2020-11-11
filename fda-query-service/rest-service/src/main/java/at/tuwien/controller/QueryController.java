@@ -1,5 +1,6 @@
 package at.tuwien.controller;
 
+import at.tuwien.dto.ExecuteStatementDTO;
 import at.tuwien.dto.QueryDatabaseDTO;
 import at.tuwien.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class QueryController {
     private QueryService service;
 
     @Autowired
-    public QueryController(QueryService service){
+    public QueryController(QueryService service) {
         this.service = service;
     }
 
@@ -34,6 +35,17 @@ public class QueryController {
         return Response
                 .status(Response.Status.OK)
                 .entity(rs)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @PostMapping("/executeStatement")
+    public Response executeStatement(@RequestBody ExecuteStatementDTO dto) {
+        List<Map<String, Object>> rs = null;
+        service.executeStatement(dto);
+
+        return Response
+                .status(Response.Status.OK)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }

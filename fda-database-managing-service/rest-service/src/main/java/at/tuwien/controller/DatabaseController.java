@@ -21,10 +21,14 @@ import java.util.List;
 public class DatabaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseController.class);
 
-    @Autowired
     private DatabaseService service;
 
-    @PostMapping(value = "/createDatabase")
+    @Autowired
+    public DatabaseController(DatabaseService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/createDatabase")
     @ApiOperation(value = "creating a new database")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "database created")})
     public Response createDatabase(@RequestBody CreateDatabaseDTO dto) {
@@ -44,8 +48,9 @@ public class DatabaseController {
     }
 
 
-    @PostMapping(value = "/listDatabases")
+    @GetMapping("/listDatabases")
     public List<Database> listDatabases() {
+        LOGGER.debug("getting a list of created databases");
         return service.findAllCreatedDatabases();
     }
 

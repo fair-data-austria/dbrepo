@@ -20,12 +20,12 @@ public class FdaContainerManagingClient {
         this.webClientBuilder = webClientBuilder;
     }
 
-    public DatabaseContainer getDatabaseContainer(QueryDatabaseDTO dto) {
+    public DatabaseContainer getDatabaseContainer(String containerID) {
         LOGGER.debug("request fda-container-managing service for getting database container");
         DatabaseContainer databaseContainer = webClientBuilder
                 .build()
                 .get()
-                .uri("http://fda-container-managing/api/getDatabaseContainerByContainerID?containerID=" + dto.getContainerID())
+                .uri("http://fda-container-managing/api/getDatabaseContainerByContainerID?containerID=" + containerID)
                 .retrieve()
                 .bodyToMono(DatabaseContainer.class)
                 .block();
