@@ -2,6 +2,7 @@ package at.tuwien.service;
 
 import at.tuwien.client.FdaQueryServiceClient;
 import at.tuwien.dto.CreateTableViaCsvDTO;
+import at.tuwien.utils.HistoryTableGenerator;
 import com.opencsv.CSVReader;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +20,18 @@ public class TableService {
     private String CREATE_TABLE_STMT = "CREATE TABLE %s (%s);";
     private String INSERT_STMT = "INSERT INTO %s VALUES %s;";
 
+    private HistoryTableGenerator generator;
     private FdaQueryServiceClient client;
 
     @Autowired
-    public TableService(FdaQueryServiceClient client) {
+    public TableService(FdaQueryServiceClient client, HistoryTableGenerator generator) {
         this.client = client;
+        this.generator = generator;
     }
 
     public void createTableViaCsv(CreateTableViaCsvDTO dto) {
         try {
-            File file = new ClassPathResource("VornamenTirol.csv").getFile();
+            File file = new ClassPathResource("namen.csv").getFile();
 
             String records = "";
             CSVReader csvReader = new CSVReader(new FileReader(file));
@@ -45,11 +48,15 @@ public class TableService {
 
             }
             records = records.substring(0, records.length() - 1);
-            String createTableStmt = String.format(CREATE_TABLE_STMT, file.getName().replace(".csv", ""), columnNames);
-            String insertIntoTableStmt = String.format(INSERT_STMT, file.getName().replace(".csv", ""), records);
+            String tableName=file.getName().replace(".csv", "");
+            String createTableStmt = String.format(CREATE_TABLE_STMT, tableName, columnNames);
+            String insertIntoTableStmt = String.format(INSERT_STMT, tableName, records);
 
             client.executeStatement(dto, createTableStmt);
+            client.executeStatement(dto,generator.generate(tableName));
             client.executeStatement(dto, insertIntoTableStmt);
+
+
 
         } catch (IOException e) {
             e.printStackTrace();

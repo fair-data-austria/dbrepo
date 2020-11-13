@@ -2,6 +2,7 @@ package at.tuwien.controller;
 
 import at.tuwien.dto.ExecuteStatementDTO;
 import at.tuwien.dto.QueryDatabaseDTO;
+import at.tuwien.querystore.TablePojo;
 import at.tuwien.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +47,18 @@ public class QueryController {
 
         return Response
                 .status(Response.Status.OK)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @PostMapping("/resolvePID")
+    public Response resolvePID(@RequestParam int pid) {
+        List<Map<String, Object>> rs = null;
+        TablePojo tablePojo = service.resolvePID(pid);
+
+        return Response
+                .status(Response.Status.OK)
+                .entity(tablePojo)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
