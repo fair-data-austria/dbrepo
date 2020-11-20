@@ -1,4 +1,4 @@
-package at.tuwien.mapping;
+package at.tuwien.mapper;
 
 import at.tuwien.dto.CreateTableViaCsvDTO;
 import at.tuwien.model.ExecuteStatementDTO;

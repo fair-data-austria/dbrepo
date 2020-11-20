@@ -1,7 +1,6 @@
 package at.tuwien.client;
 
 import at.tuwien.pojo.DatabaseContainer;
-import at.tuwien.dto.QueryDatabaseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

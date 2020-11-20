@@ -1,8 +1,11 @@
 package at.tuwien.client;
 
 import at.tuwien.dto.CreateTableViaCsvDTO;
-import at.tuwien.mapping.CreateTableViaCsvToExecuteStatementMapper;
+import at.tuwien.mapper.ContainerIdAndQueryToExecuteInternalQueryMapper;
+import at.tuwien.mapper.CreateTableViaCsvToExecuteStatementMapper;
+import at.tuwien.model.ExecuteInternalQueryDTO;
 import at.tuwien.model.ExecuteStatementDTO;
+import at.tuwien.model.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,23 @@ public class FdaQueryServiceClient {
                 .block();
 
         return true;
+    }
+
+    public QueryResult executeInternalQuery(String containerID, String query) {
+        ContainerIdAndQueryToExecuteInternalQueryMapper mapper = new ContainerIdAndQueryToExecuteInternalQueryMapper();
+        ExecuteInternalQueryDTO execInternalQueryDTO = mapper.map(containerID, query);
+        QueryResult queryResult = webClientBuilder
+                .build()
+                .post()
+                .uri("http://fda-query-service/api/executeInternalQuery")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(execInternalQueryDTO), ExecuteInternalQueryDTO.class)
+                .retrieve()
+                .bodyToMono(QueryResult.class)
+                .block();
+
+        return queryResult;
+
     }
 
 }

@@ -1,7 +1,7 @@
 package at.tuwien.querystore;
 
 
-import at.tuwien.dto.QueryDatabaseDTO;
+import at.tuwien.dto.ExecuteInternalQueryDTO;
 import at.tuwien.pojo.DatabaseContainer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +29,7 @@ public class QueryStoreService {
     }
 
 
-    public void storeQuery(QueryDatabaseDTO dto, List<Map<String, Object>> rsList, String tableName,DatabaseContainer databaseContainer) {
+    public void storeQuery(ExecuteInternalQueryDTO dto, List<Map<String, Object>> rsList, String tableName, DatabaseContainer databaseContainer) {
         if (checkIfResultSetExists(rsList)) {
             return;
         }

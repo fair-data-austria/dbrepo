@@ -1,20 +1,13 @@
 package at.tuwien.controller;
 
 import at.tuwien.dto.CreateTableViaCsvDTO;
+import at.tuwien.model.QueryResult;
 import at.tuwien.service.TableService;
-import com.opencsv.CSVReader;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @RestController
 @RequestMapping("/api")
@@ -27,36 +20,28 @@ public class TableController {
         this.service = service;
     }
 
-
-
-    @PostMapping("/fileupload")
-    public void processUpload(@RequestParam MultipartFile file) throws IOException {
-        // process your file
-
-        if("text/csv".equals(file.getContentType())){
-            BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
-            CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT);
-
-            Iterable<CSVRecord> csvRecords = csvParser.getRecords();
-            System.out.println(csvRecords);
-
-
-        }
-    }
     @PostMapping("/createTableViaCSV")
     public void createTableViaCsv(@RequestBody CreateTableViaCsvDTO dto){
         service.createTableViaCsv(dto);
 
     }
 
-    public void generateInsertSql(){
+    @GetMapping("/listTables")
+    public Response listTables(@RequestParam String containerID){
+        QueryResult result =service.getListOfTablesForContainerID(containerID);
 
-        //return "INSERT INTO TABLE Values"
+        if(result != null){
+            return Response
+                    .status(Response.Status.OK)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(result)
+                    .build();
+        }
+        return Response
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    private String generateValuesPart(CSVRecord record){
-        return null;
-       // return "("+record.getParser().")";
-    }
 
 }

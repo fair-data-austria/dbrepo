@@ -2,9 +2,9 @@ package at.tuwien.service;
 
 import at.tuwien.client.FdaQueryServiceClient;
 import at.tuwien.dto.CreateTableViaCsvDTO;
+import at.tuwien.model.QueryResult;
 import at.tuwien.utils.HistoryTableGenerator;
 import com.opencsv.CSVReader;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -48,19 +48,23 @@ public class TableService {
 
             }
             records = records.substring(0, records.length() - 1);
-            String tableName=file.getName().replace(".csv", "");
+            String tableName = file.getName().replace(".csv", "");
             String createTableStmt = String.format(CREATE_TABLE_STMT, tableName, columnNames);
             String insertIntoTableStmt = String.format(INSERT_STMT, tableName, records);
 
             client.executeStatement(dto, createTableStmt);
-            client.executeStatement(dto,generator.generate(tableName));
+            client.executeStatement(dto, generator.generate(tableName));
             client.executeStatement(dto, insertIntoTableStmt);
-
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public QueryResult getListOfTablesForContainerID(String containerID) {
+        String listTablesSQL = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND " +
+                "schemaname != 'information_schema' and tablename NOT like '%_history%' and not tablename='query_store';";
+
+       return client.executeInternalQuery(containerID,listTablesSQL);
+
+    }
 }
