@@ -1,9 +1,8 @@
 package at.tuwien.persistence;
 
+import at.tuwien.dto.ExecuteQueryDTO;
 import at.tuwien.dto.ExecuteStatementDTO;
-import at.tuwien.dto.ExecuteInternalQueryDTO;
 import at.tuwien.pojo.DatabaseContainer;
-import at.tuwien.util.ResultUtil;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +20,7 @@ public class Datasource {
     private DataSource postgresDataSource;
 
 
-    public List<Map<String, Object>>executeQuery(ExecuteInternalQueryDTO dto, DatabaseContainer databaseContainer) {
+    public ResultSet executeQuery(ExecuteQueryDTO dto, DatabaseContainer databaseContainer) {
         configureDatasource(databaseContainer);
         List<Map<String, Object>> resultListOfMaps = null;
         Statement stmt = null;
@@ -31,7 +30,7 @@ public class Datasource {
             connection = postgresDataSource.getConnection();
             stmt = connection.createStatement();
             rs = stmt.executeQuery(dto.getQuery());
-            resultListOfMaps = ResultUtil.resultSetToListOfMap(rs);
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -47,7 +46,7 @@ public class Datasource {
             }
         }
 
-        return resultListOfMaps;
+        return rs;
     }
 
     public boolean executeStatement(ExecuteStatementDTO dto, DatabaseContainer databaseContainer) {
@@ -74,6 +73,27 @@ public class Datasource {
         }
 
         return true;
+    }
+
+
+
+
+    private  void readCsvUsingLoad()
+
+    {
+        try (Connection connection = postgresDataSource.getConnection())
+        {
+
+            String loadQuery = "LOAD DATA LOCAL INFILE '" + "resource/COVID19.csv" + "' INTO TABLE covid19 FIELDS TERMINATED BY ','"
+                    + " LINES TERMINATED BY '\n' (Direction,Year,Date,Weekday,Current_Match,Country,Commodity,Transport_Mode,Measure,Value,Cumulative) ";
+            System.out.println(loadQuery);
+            Statement stmt = connection.createStatement();
+            stmt.execute(loadQuery);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public void configureDatasource(DatabaseContainer databaseContainer) {

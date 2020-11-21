@@ -44,13 +44,13 @@ public class FdaQueryServiceClient {
         return true;
     }
 
-    public QueryResult executeInternalQuery(String containerID, String query) {
+    public QueryResult executeQuery(String containerID, String query) {
         ContainerIdAndQueryToExecuteInternalQueryMapper mapper = new ContainerIdAndQueryToExecuteInternalQueryMapper();
         ExecuteInternalQueryDTO execInternalQueryDTO = mapper.map(containerID, query);
         QueryResult queryResult = webClientBuilder
                 .build()
                 .post()
-                .uri("http://fda-query-service/api/executeInternalQuery")
+                .uri("http://fda-query-service/api/executeQuery")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(execInternalQueryDTO), ExecuteInternalQueryDTO.class)
                 .retrieve()

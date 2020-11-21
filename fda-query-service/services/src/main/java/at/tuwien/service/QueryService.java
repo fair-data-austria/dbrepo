@@ -1,43 +1,47 @@
 package at.tuwien.service;
 
 import at.tuwien.client.FdaContainerManagingClient;
-import at.tuwien.dto.ExecuteInternalQueryDTO;
+import at.tuwien.dto.ExecuteQueryDTO;
 import at.tuwien.dto.ExecuteStatementDTO;
 import at.tuwien.mapper.ResultSetToQueryResultMapper;
 import at.tuwien.model.QueryResult;
 import at.tuwien.persistence.Datasource;
 import at.tuwien.pojo.DatabaseContainer;
-import at.tuwien.querystore.QueryStoreService;
-import at.tuwien.querystore.TablePojo;
+import at.tuwien.util.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class QueryService {
 
 
     private Datasource dataSource;
-
     private FdaContainerManagingClient containerClient;
-    private QueryStoreService storeService;
 
     @Autowired
-    public QueryService(Datasource dataSource, FdaContainerManagingClient containerClient, QueryStoreService storeService) {
+    public QueryService(Datasource dataSource, FdaContainerManagingClient containerClient) {
         this.dataSource = dataSource;
         this.containerClient = containerClient;
-        this.storeService = storeService;
     }
 
 
-    public QueryResult executeInternalQuery(ExecuteInternalQueryDTO dto)  {
+    public QueryResult executeQuery(ExecuteQueryDTO dto) {
         DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto.getContainerID());
         ResultSetToQueryResultMapper mapper = new ResultSetToQueryResultMapper();
-        return mapper.map(dataSource.executeQuery(dto, databaseContainer));
-    }
-
-    public QueryResult executeExternalQuery(){
-        // TODO
-        return null;
+        ResultSet rs = dataSource.executeQuery(dto, databaseContainer);
+        List<Map<String, Object>> resultListOfMaps = null;
+        try{
+            resultListOfMaps = ResultUtil.resultSetToListOfMap(rs);
+            rs.close();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return mapper.map(resultListOfMaps);
     }
 
     public boolean executeStatement(ExecuteStatementDTO dto) {
@@ -45,9 +49,6 @@ public class QueryService {
         return dataSource.executeStatement(dto, databaseContainer);
     }
 
-    public TablePojo resolvePID(int pid){
-       return storeService.resolvePID(pid);
-    }
 
 
 }

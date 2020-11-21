@@ -29,22 +29,22 @@ public class TableService {
         this.generator = generator;
     }
 
-    public void createTableViaCsv(CreateTableViaCsvDTO dto) {
+    public boolean createTableViaCsv(CreateTableViaCsvDTO dto) {
         try {
-            File file = new ClassPathResource("namen.csv").getFile();
+            File file = new ClassPathResource("COVID19.csv").getFile();
 
             String records = "";
-            CSVReader csvReader = new CSVReader(new FileReader(file));
+            CSVReader csvReader = new CSVReader(new FileReader(file),',');
             String[] values = null;
             String[] header = null;
             header = csvReader.readNext();
-            String[] splittedHeader = header[0].split(";");
-            String columnNames = Arrays.asList(splittedHeader).stream().collect(Collectors.joining(" varchar(255), ")) + "  varchar(255)";
+            //String[] splittedHeader = header[0].split(",");
+            String columnNames = Arrays.asList(header).stream().collect(Collectors.joining(" varchar(255), ")) + "  varchar(255)";
 
             while ((values = csvReader.readNext()) != null) {
-                String[] split = values[0].split(";");
+                //String[] split = values[0].split(",");
 
-                records += "(" + Arrays.asList(split).stream().map(elem -> "'" + elem + "'").collect(Collectors.joining(", ")) + "),";
+                records += "(" + Arrays.asList(values).stream().map(elem -> "'" + elem + "'").collect(Collectors.joining(", ")) + "),";
 
             }
             records = records.substring(0, records.length() - 1);
@@ -58,13 +58,14 @@ public class TableService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     public QueryResult getListOfTablesForContainerID(String containerID) {
         String listTablesSQL = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND " +
                 "schemaname != 'information_schema' and tablename NOT like '%_history%' and not tablename='query_store';";
 
-       return client.executeInternalQuery(containerID,listTablesSQL);
+       return client.executeQuery(containerID,listTablesSQL);
 
     }
 }

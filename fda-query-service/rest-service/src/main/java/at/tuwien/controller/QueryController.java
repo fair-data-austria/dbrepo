@@ -1,12 +1,17 @@
 package at.tuwien.controller;
 
-import at.tuwien.dto.ExecuteInternalQueryDTO;
+import at.tuwien.dto.ExecuteQueryDTO;
 import at.tuwien.dto.ExecuteStatementDTO;
 import at.tuwien.model.QueryResult;
-import at.tuwien.querystore.TablePojo;
 import at.tuwien.service.QueryService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,12 +27,17 @@ public class QueryController {
         this.service = service;
     }
 
-    @PostMapping("/executeInternalQuery")
-    public QueryResult executeInternalQuery(@RequestBody ExecuteInternalQueryDTO dto) {
-        return service.executeInternalQuery(dto);
+    @PostMapping("/executeQuery")
+    @ApiOperation(value = "executes a query an gives the result as QueryResult object")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query", response = QueryResult.class)})
+    public QueryResult executeQuery(@RequestBody ExecuteQueryDTO dto) {
+        return service.executeQuery(dto);
     }
 
+
     @PostMapping("/executeStatement")
+    @ApiOperation(value = "executes a query an gives the result as response")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Statement", response = Response.class)})
     public Response executeStatement(@RequestBody ExecuteStatementDTO dto) {
         service.executeStatement(dto);
 
@@ -36,17 +46,4 @@ public class QueryController {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
-
-    @PostMapping("/resolvePID")
-    public Response resolvePID(@RequestParam int pid) {
-        TablePojo tablePojo = service.resolvePID(pid);
-
-        return Response
-                .status(Response.Status.OK)
-                .entity(tablePojo)
-                .type(MediaType.APPLICATION_JSON)
-                .build();
-    }
-
-
 }
