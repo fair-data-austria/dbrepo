@@ -1,11 +1,14 @@
 package at.tuwien.controller;
 
+import at.tuwien.client.FdaQueryServiceClient;
 import at.tuwien.dto.CreateTableViaCsvDTO;
 import at.tuwien.model.QueryResult;
 import at.tuwien.service.TableService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,26 +18,24 @@ import javax.ws.rs.core.Response;
 @RestController
 @RequestMapping("/api")
 public class TableController {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(FdaQueryServiceClient.class);
     private TableService service;
 
     @Autowired
-    public TableController(TableService service){
+    public TableController(TableService service) {
         this.service = service;
     }
 
     @PostMapping("/createTableViaCSV")
-    @ApiOperation(value = "loads a CSV file, creates and executes corresponding SQL commands")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "list of tables", response = Response.class)})
-    public Response createTableViaCsv(@RequestBody CreateTableViaCsvDTO dto){
-        //method 2 - via Date
-       // Date date = new Date();
-        //System.out.println("Anfang: "+new Timestamp(date.getTime()));
+    @ApiOperation(value = "loads a CSV file, creates and executes the corresponding SQL commands")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "db-table with CSV dataset created", response = Response.class)})
+    public Response createTableViaCsv(@RequestBody CreateTableViaCsvDTO dto) {
+
+        long time = System.currentTimeMillis();
         boolean success = service.createTableViaCsv(dto);
-        //System.out.println(System.currentTimeMillis());
-        //date = new Date();
-        //System.out.println("Ende: "+new Timestamp(date.getTime()));
-        if(success){
+        long responseTime = (System.currentTimeMillis() - time);
+        LOGGER.info("The loading response time for: " + dto.getPathToFile() + " is: " + responseTime + "ms");
+        if (success) {
             return Response
                     .status(Response.Status.CREATED)
                     .type(MediaType.APPLICATION_JSON)
@@ -49,10 +50,10 @@ public class TableController {
     @GetMapping("/listTables")
     @ApiOperation(value = "loads a list of created tables in the database")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "list of tables", response = Response.class)})
-    public Response listTables(@RequestParam String containerID){
-        QueryResult result =service.getListOfTablesForContainerID(containerID);
+    public Response listTables(@RequestParam String containerID) {
+        QueryResult result = service.getListOfTablesForContainerID(containerID);
 
-        if(result != null){
+        if (result != null) {
             return Response
                     .status(Response.Status.OK)
                     .type(MediaType.APPLICATION_JSON)

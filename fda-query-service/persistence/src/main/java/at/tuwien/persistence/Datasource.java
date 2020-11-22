@@ -1,12 +1,18 @@
 package at.tuwien.persistence;
 
+import at.tuwien.dto.CopyCSVIntoTableDTO;
 import at.tuwien.dto.ExecuteQueryDTO;
 import at.tuwien.dto.ExecuteStatementDTO;
 import at.tuwien.pojo.DatabaseContainer;
+import org.postgresql.PGConnection;
+import org.postgresql.copy.CopyManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -76,22 +82,19 @@ public class Datasource {
     }
 
 
+    public void readCsvUsingLoad(CopyCSVIntoTableDTO dto, DatabaseContainer databaseContainer) {
+        configureDatasource(databaseContainer);
 
+        try {
+            CopyManager mgr = ((PGConnection) postgresDataSource.getConnection()).getCopyAPI();
 
-    private  void readCsvUsingLoad()
+            BufferedReader in = new BufferedReader(new FileReader(new File(dto.getPathToCSVFile())));
+            //String[] splittedHeader = in.readLine().split(",");
+            in.readLine(); // skip the header line
 
-    {
-        try (Connection connection = postgresDataSource.getConnection())
-        {
+            mgr.copyIn("COPY " + dto.getTableName() + "(" + dto.getColumnNames() + ")" + " FROM STDIN WITH CSV", in);
 
-            String loadQuery = "LOAD DATA LOCAL INFILE '" + "resource/COVID19.csv" + "' INTO TABLE covid19 FIELDS TERMINATED BY ','"
-                    + " LINES TERMINATED BY '\n' (Direction,Year,Date,Weekday,Current_Match,Country,Commodity,Transport_Mode,Measure,Value,Cumulative) ";
-            System.out.println(loadQuery);
-            Statement stmt = connection.createStatement();
-            stmt.execute(loadQuery);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

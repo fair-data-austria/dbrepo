@@ -1,5 +1,6 @@
 package at.tuwien.controller;
 
+import at.tuwien.dto.CopyCSVIntoTableDTO;
 import at.tuwien.dto.ExecuteQueryDTO;
 import at.tuwien.dto.ExecuteStatementDTO;
 import at.tuwien.model.QueryResult;
@@ -40,6 +41,18 @@ public class QueryController {
     @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Statement", response = Response.class)})
     public Response executeStatement(@RequestBody ExecuteStatementDTO dto) {
         service.executeStatement(dto);
+
+        return Response
+                .status(Response.Status.OK)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @PostMapping("/copyCSVIntoTable")
+    @ApiOperation(value = "executes a query an gives the result as response")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Statement", response = Response.class)})
+    public Response copyCSVIntoTable(@RequestBody CopyCSVIntoTableDTO dto) {
+        service.copyCSVIntoTable(dto);
 
         return Response
                 .status(Response.Status.OK)

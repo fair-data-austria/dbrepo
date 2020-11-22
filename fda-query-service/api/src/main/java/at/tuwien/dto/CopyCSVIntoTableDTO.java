@@ -8,14 +8,14 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class CreateTableViaCsvDTO {
-
+public class CopyCSVIntoTableDTO {
     @JsonProperty("ContainerID")
     private String containerID;
-    @JsonProperty("PathToFile")
-    private String pathToFile;
-    @JsonProperty("Separator")
-    private char seperator;
-
+    @JsonProperty("PathToCSVFile")
+    private String pathToCSVFile;
+    @JsonProperty("TableName")
+    private String tableName;
+    @JsonProperty("ColumnNames")
+    private String columnNames;
 
 }

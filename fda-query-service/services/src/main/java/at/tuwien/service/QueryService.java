@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.client.FdaContainerManagingClient;
+import at.tuwien.dto.CopyCSVIntoTableDTO;
 import at.tuwien.dto.ExecuteQueryDTO;
 import at.tuwien.dto.ExecuteStatementDTO;
 import at.tuwien.mapper.ResultSetToQueryResultMapper;
@@ -47,6 +48,11 @@ public class QueryService {
     public boolean executeStatement(ExecuteStatementDTO dto) {
         DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto.getContainerID());
         return dataSource.executeStatement(dto, databaseContainer);
+    }
+
+    public void copyCSVIntoTable(CopyCSVIntoTableDTO dto){
+        DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto.getContainerID());
+        dataSource.readCsvUsingLoad(dto,databaseContainer);
     }
 
 

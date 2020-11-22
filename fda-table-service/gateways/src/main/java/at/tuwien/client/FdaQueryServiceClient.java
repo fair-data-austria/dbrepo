@@ -3,6 +3,7 @@ package at.tuwien.client;
 import at.tuwien.dto.CreateTableViaCsvDTO;
 import at.tuwien.mapper.ContainerIdAndQueryToExecuteInternalQueryMapper;
 import at.tuwien.mapper.CreateTableViaCsvToExecuteStatementMapper;
+import at.tuwien.model.CreateCSVTableWithDataset;
 import at.tuwien.model.ExecuteInternalQueryDTO;
 import at.tuwien.model.ExecuteStatementDTO;
 import at.tuwien.model.QueryResult;
@@ -61,4 +62,14 @@ public class FdaQueryServiceClient {
 
     }
 
+    public void copyCSVIntoTable(CreateCSVTableWithDataset tableWithDataset) {
+        ClientResponse response = webClientBuilder
+                .build()
+                .post()
+                .uri("http://fda-query-service/api/copyCSVIntoTable")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(tableWithDataset), CreateCSVTableWithDataset.class)
+                .exchange()
+                .block();
+    }
 }
