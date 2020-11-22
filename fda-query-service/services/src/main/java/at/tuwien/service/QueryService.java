@@ -50,9 +50,9 @@ public class QueryService {
         return dataSource.executeStatement(dto, databaseContainer);
     }
 
-    public void copyCSVIntoTable(CopyCSVIntoTableDTO dto){
+    public boolean copyCSVIntoTable(CopyCSVIntoTableDTO dto){
         DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto.getContainerID());
-        dataSource.readCsvUsingLoad(dto,databaseContainer);
+       return dataSource.copyCSVIntoTable(dto,databaseContainer);
     }
 
 

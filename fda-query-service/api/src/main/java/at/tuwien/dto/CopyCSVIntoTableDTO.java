@@ -17,5 +17,7 @@ public class CopyCSVIntoTableDTO {
     private String tableName;
     @JsonProperty("ColumnNames")
     private String columnNames;
+    @JsonProperty("Delimiter")
+    private char delimiter;
 
 }

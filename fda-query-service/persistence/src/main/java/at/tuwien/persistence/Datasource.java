@@ -82,7 +82,7 @@ public class Datasource {
     }
 
 
-    public void readCsvUsingLoad(CopyCSVIntoTableDTO dto, DatabaseContainer databaseContainer) {
+    public boolean copyCSVIntoTable(CopyCSVIntoTableDTO dto, DatabaseContainer databaseContainer) {
         configureDatasource(databaseContainer);
 
         try {
@@ -91,12 +91,14 @@ public class Datasource {
             BufferedReader in = new BufferedReader(new FileReader(new File(dto.getPathToCSVFile())));
             //String[] splittedHeader = in.readLine().split(",");
             in.readLine(); // skip the header line
-
-            mgr.copyIn("COPY " + dto.getTableName() + "(" + dto.getColumnNames() + ")" + " FROM STDIN WITH CSV", in);
+            String command = "COPY %s(%s) FROM STDIN WITH CSV DELIMITER '%s'";
+            command = String.format(command,dto.getTableName(), dto.getColumnNames(), dto.getDelimiter());
+            mgr.copyIn(command, in);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     public void configureDatasource(DatabaseContainer databaseContainer) {

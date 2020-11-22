@@ -49,13 +49,19 @@ public class QueryController {
     }
 
     @PostMapping("/copyCSVIntoTable")
-    @ApiOperation(value = "executes a query an gives the result as response")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Statement", response = Response.class)})
+    @ApiOperation(value = "copy CSV Dataset into corresponding table")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "status", response = Response.class)})
     public Response copyCSVIntoTable(@RequestBody CopyCSVIntoTableDTO dto) {
-        service.copyCSVIntoTable(dto);
+       boolean success = service.copyCSVIntoTable(dto);
 
+       if(success){
+           return Response
+                   .status(Response.Status.CREATED)
+                   .type(MediaType.APPLICATION_JSON)
+                   .build();
+       }
         return Response
-                .status(Response.Status.OK)
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }

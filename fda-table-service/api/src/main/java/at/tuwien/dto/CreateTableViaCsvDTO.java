@@ -14,8 +14,8 @@ public class CreateTableViaCsvDTO {
     private String containerID;
     @JsonProperty("PathToFile")
     private String pathToFile;
-    @JsonProperty("Separator")
-    private char seperator;
+    @JsonProperty("Delimiter")
+    private char delimiter;
 
 
 }

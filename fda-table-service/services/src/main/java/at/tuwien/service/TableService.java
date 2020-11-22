@@ -36,12 +36,12 @@ public class TableService {
             File file = new File(dto.getPathToFile());
 
             String records = "";
-            CSVReader csvReader = new CSVReader(new FileReader(file),dto.getSeperator());
+            CSVReader csvReader = new CSVReader(new FileReader(file), dto.getDelimiter());
             String[] values = null;
             String[] header = null;
             header = csvReader.readNext();
             //String[] splittedHeader = header[0].split(",");
-            String columnNames=Arrays.asList(header).stream().collect(Collectors.joining(","));
+            String columnNames = Arrays.asList(header).stream().collect(Collectors.joining(","));
             String columnNamesWithDataTypes = Arrays.asList(header).stream().collect(Collectors.joining(" varchar(255), ")) + "  varchar(255)";
 
 //            while ((values = csvReader.readNext()) != null) {
@@ -68,19 +68,21 @@ public class TableService {
             tableWithDataset.setPathToCSVFile(dto.getPathToFile());
             tableWithDataset.setContainerID(dto.getContainerID());
             tableWithDataset.setTableName(tableName);
+            tableWithDataset.setDelimiter(dto.getDelimiter());
             //client.executeStatement(dto, insertIntoTableStmt);
-            client.copyCSVIntoTable(tableWithDataset);
-
+            boolean success = client.copyCSVIntoTable(tableWithDataset);
+            return success;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
+
     public QueryResult getListOfTablesForContainerID(String containerID) {
         String listTablesSQL = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND " +
                 "schemaname != 'information_schema' and tablename NOT like '%_history%' and not tablename='query_store';";
 
-       return client.executeQuery(containerID,listTablesSQL);
+        return client.executeQuery(containerID, listTablesSQL);
 
     }
 }

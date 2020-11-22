@@ -62,7 +62,7 @@ public class FdaQueryServiceClient {
 
     }
 
-    public void copyCSVIntoTable(CreateCSVTableWithDataset tableWithDataset) {
+    public boolean copyCSVIntoTable(CreateCSVTableWithDataset tableWithDataset) {
         ClientResponse response = webClientBuilder
                 .build()
                 .post()
@@ -71,5 +71,10 @@ public class FdaQueryServiceClient {
                 .body(Mono.just(tableWithDataset), CreateCSVTableWithDataset.class)
                 .exchange()
                 .block();
+
+        if(response.statusCode().is2xxSuccessful()){
+            return true;
+        }
+        return false;
     }
 }
