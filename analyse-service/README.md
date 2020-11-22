@@ -27,6 +27,7 @@ The reponse is a JSON object of the following form:
 * python3 
 * flask
 * messytables 
+* sql-metadata
 
 They can also be installed using `pip install -r requirements.txt`
 

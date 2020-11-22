@@ -1,8 +1,9 @@
 import os
 import uuid
-from flask import Flask, flash, request, redirect, url_for, Response
+from flask import Flask, flash, request, redirect, url_for, Response, abort, jsonify
 from werkzeug.utils import secure_filename
 from determine_dt import determine_datatypes
+from extract_tables import extract_tbl 
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'csv'}
@@ -37,6 +38,16 @@ def upload_file():
       <input type=submit value=Upload>
     </form>
     '''
+
+@app.route('/extract-tables', methods=['POST'])
+def extract_tables():
+    print(request.json)
+    if not request.json or not 'query' in request.json:
+        abort(400)
+    sql = request.json['query']
+
+    # TODO add error handling in case of invalid SQL etc.
+    return jsonify(extract_tbl(sql)), 200
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

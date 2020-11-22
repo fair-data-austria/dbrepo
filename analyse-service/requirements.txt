@@ -1,2 +1,3 @@
 messytables==0.15.2
 flask==1.1.2
+sql-metadata==1.9.1
