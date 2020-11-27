@@ -14,9 +14,5 @@ public class CreateDatabaseContainerDTO {
     private String containerName;
     @JsonProperty("DatabaseName")
     private String dbName;
-    @JsonProperty("MasterUser")
-    private String masterUser;
-    @JsonProperty("Password")
-    private String password;
 
 }
