@@ -1,2 +1,3 @@
 messytables==0.15.2
 flask==1.1.2
+py_eureka_client==0.8.9

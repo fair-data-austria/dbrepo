@@ -7,11 +7,18 @@ import at.tuwien.model.QueryResult;
 import at.tuwien.utils.HistoryTableGenerator;
 import com.opencsv.CSVReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -23,11 +30,27 @@ public class TableService {
 
     private HistoryTableGenerator generator;
     private FdaQueryServiceClient client;
+    @Value("${multipart.location}")
+    public String uploadDir;
 
     @Autowired
     public TableService(FdaQueryServiceClient client, HistoryTableGenerator generator) {
         this.client = client;
         this.generator = generator;
+    }
+
+    public String uploadFile(MultipartFile file) {
+        Path copyLocation = null;
+        try {
+             copyLocation = Paths
+                    .get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+            Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new FileStorageException("Could not store file " + file.getOriginalFilename()
+                    + ". Please try again!");
+        }
+        return copyLocation.toAbsolutePath().toString();
     }
 
     public boolean createTableViaCsv(CreateTableViaCsvDTO dto) {
@@ -41,8 +64,12 @@ public class TableService {
             String[] header = null;
             header = csvReader.readNext();
             //String[] splittedHeader = header[0].split(",");
-            String columnNames = Arrays.asList(header).stream().collect(Collectors.joining(","));
-            String columnNamesWithDataTypes = Arrays.asList(header).stream().collect(Collectors.joining(" varchar(255), ")) + "  varchar(255)";
+            String columnNames = Arrays.asList(header).stream()
+                    .map(column -> column.replaceAll("\\s+",""))
+                    .collect(Collectors.joining(","));
+            String columnNamesWithDataTypes = Arrays.asList(header).stream()
+                    .map(column -> column.replaceAll("\\s+",""))
+                    .collect(Collectors.joining(" varchar(255), ")) + "  varchar(255)";
 
 //            while ((values = csvReader.readNext()) != null) {
 //                //String[] split = values[0].split(",");

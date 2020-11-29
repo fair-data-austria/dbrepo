@@ -28,7 +28,8 @@ public class ContainerService {
     public String createDatabaseContainer(CreateDatabaseContainerDTO dto) {
         int availableTcpPort = SocketUtils.findAvailableTcpPort(8180, 8500);
         HostConfig hostConfig = HostConfig.newHostConfig()
-                .withPortBindings(PortBinding.parse(availableTcpPort + ":5432"));
+                .withPortBindings(PortBinding.parse(availableTcpPort + ":5432"))
+                .withRestartPolicy(RestartPolicy.alwaysRestart());
 
         CreateContainerResponse container = dockerClient.createContainerCmd("rdr-postgres:1.0")
                 .withName(dto.getContainerName())
