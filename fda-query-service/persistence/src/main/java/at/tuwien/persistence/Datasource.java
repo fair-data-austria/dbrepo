@@ -13,10 +13,7 @@ import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +33,6 @@ public class Datasource {
             connection = postgresDataSource.getConnection();
             stmt = connection.createStatement();
             rs = stmt.executeQuery(dto.getQuery());
-
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -80,6 +76,7 @@ public class Datasource {
 
         return true;
     }
+
 
 
     public boolean copyCSVIntoTable(CopyCSVIntoTableDTO dto, DatabaseContainer databaseContainer) {

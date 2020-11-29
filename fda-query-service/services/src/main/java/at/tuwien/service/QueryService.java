@@ -8,6 +8,7 @@ import at.tuwien.mapper.ResultSetToQueryResultMapper;
 import at.tuwien.model.QueryResult;
 import at.tuwien.persistence.Datasource;
 import at.tuwien.pojo.DatabaseContainer;
+import at.tuwien.querystore.service.QueryStoreService;
 import at.tuwien.util.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class QueryService {
 
     private Datasource dataSource;
     private FdaContainerManagingClient containerClient;
+    private QueryStoreService queryStoreService;
 
     @Autowired
     public QueryService(Datasource dataSource, FdaContainerManagingClient containerClient) {
@@ -35,6 +37,8 @@ public class QueryService {
         DatabaseContainer databaseContainer = containerClient.getDatabaseContainer(dto.getContainerID());
         ResultSetToQueryResultMapper mapper = new ResultSetToQueryResultMapper();
         ResultSet rs = dataSource.executeQuery(dto, databaseContainer);
+       //queryStoreService.storeQuery(dto,rs);
+
         List<Map<String, Object>> resultListOfMaps = null;
         try{
             resultListOfMaps = ResultUtil.resultSetToListOfMap(rs);
