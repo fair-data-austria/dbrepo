@@ -18,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/query")
 public class QueryController {
 
     private QueryService service;
@@ -37,7 +37,7 @@ public class QueryController {
 
 
     @PostMapping("/executeStatement")
-    @ApiOperation(value = "executes a query an gives the result as response")
+    @ApiOperation(value = "executes a query an gives a status as response")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Statement", response = Response.class)})
     public Response executeStatement(@RequestBody ExecuteStatementDTO dto) {
         service.executeStatement(dto);

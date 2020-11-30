@@ -22,6 +22,11 @@ public class GatewayConfig {
                         .method("POST","GET")
                         .and()
                         .uri("lb://FDA-Table-Service"))
+                .route("query-service", r -> r.path("/query/executeQuery")
+                        .and()
+                        .method("POST")
+                        .and()
+                        .uri("lb://FDA-Query-Service"))
                 .build();
     }
 

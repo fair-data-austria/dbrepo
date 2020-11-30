@@ -8,8 +8,8 @@ Create the database container image:
     docker build --tag rdr-postgres:1.0 .
 
 ```bash
-# First generate jars for discovery,database,container and query services
-$ mvn clean package
+# First generate jars for discovery,gateway,database,container and query services
+$ mvn clean install
 
 # start application
 $ docker-compose up --build #(use -d for detach mode)

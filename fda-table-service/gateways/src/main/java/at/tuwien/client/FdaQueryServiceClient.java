@@ -36,7 +36,7 @@ public class FdaQueryServiceClient {
         ClientResponse response = webClientBuilder
                 .build()
                 .post()
-                .uri("http://fda-query-service/api/executeStatement")
+                .uri("http://fda-query-service/query/executeStatement")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(statementDTO), ExecuteStatementDTO.class)
                 .exchange()
@@ -51,7 +51,7 @@ public class FdaQueryServiceClient {
         QueryResult queryResult = webClientBuilder
                 .build()
                 .post()
-                .uri("http://fda-query-service/api/executeQuery")
+                .uri("http://fda-query-service/query/executeQuery")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(execInternalQueryDTO), ExecuteInternalQueryDTO.class)
                 .retrieve()
@@ -66,7 +66,7 @@ public class FdaQueryServiceClient {
         ClientResponse response = webClientBuilder
                 .build()
                 .post()
-                .uri("http://fda-query-service/api/copyCSVIntoTable")
+                .uri("http://fda-query-service/query/copyCSVIntoTable")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(tableWithDataset), CreateCSVTableWithDataset.class)
                 .exchange()

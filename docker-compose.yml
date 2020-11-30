@@ -24,8 +24,16 @@ services:
             - 9095:9095
         links:
              - fda-discovery-server
+             - fda-database-managing-service
+             - fda-container-managing-service
+             - fda-query-service
+             - fda-table-service
         depends_on:
              - fda-discovery-server
+             - fda-database-managing-service
+             - fda-container-managing-service
+             - fda-query-service
+             - fda-table-service
         logging:
             driver: json-file
     fda-database-managing-service:
@@ -46,6 +54,7 @@ services:
              - fda-container-managing-service
         depends_on:
              - fda-discovery-server
+             - fda-container-managing-service
         logging:
             driver: json-file
         
@@ -57,7 +66,6 @@ services:
         network_mode: bridge
         environment:
              - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
-       
         expose:
             - 9091
         ports:
@@ -87,6 +95,7 @@ services:
              - fda-container-managing-service
         depends_on:
              - fda-discovery-server
+             - fda-container-managing-service
         logging:
             driver: json-file
     fda-table-service:
