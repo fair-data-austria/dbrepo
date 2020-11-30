@@ -7,22 +7,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableHystrix
 public class GatewayConfig {
-
 
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route(p -> p
-                        .path("/api/**")
-                        .uri("lb://fda-database-managing")
-                        .id("fda-database-managing"))
-                .route(p -> p
-                        .host("*.hystrix.com")
-                        .filters(f -> f.hystrix(config -> config.setName("mycmd")))
-                        .uri("http://httpbin.org:80")).
-                        build();
+                .route("database-managing-service", r -> r.path("/database/**")
+                        .and()
+                        .method("POST","GET")
+                        .and()
+                        .uri("lb://FDA-Database-Managing"))
+                .route("table-service", r -> r.path("/table/**")
+                        .and()
+                        .method("POST","GET")
+                        .and()
+                        .uri("lb://FDA-Table-Service"))
+                .build();
     }
 
 }

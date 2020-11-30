@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>at.tuwien</groupId>
-    <artifactId>gateway-service</artifactId>
+    <artifactId>fda-gateway-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>gateway-service</name>
+    <name>fda-gateway-service</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
@@ -76,8 +76,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <finalName>${project.artifactId}-${project.version}</finalName>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

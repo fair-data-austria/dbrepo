@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/database")
 public class DatabaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseController.class);
 

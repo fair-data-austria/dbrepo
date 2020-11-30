@@ -18,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/table")
 public class TableController {
     private static final Logger LOGGER = LoggerFactory.getLogger(FdaQueryServiceClient.class);
     private TableService service;

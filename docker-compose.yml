@@ -10,7 +10,24 @@ services:
              - 9090
         ports:
              - 9090:9090
-    
+    fda-gateway-service:
+        container_name: fda-gateway-service
+        build:
+            context: ./fda-gateway-service
+        image: fda-gateway-service:latest
+        network_mode: bridge
+        environment:
+             - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+        expose:
+            - 9095
+        ports:
+            - 9095:9095
+        links:
+             - fda-discovery-server
+        depends_on:
+             - fda-discovery-server
+        logging:
+            driver: json-file
     fda-database-managing-service:
         container_name: fda-database-managing-service
         build:
