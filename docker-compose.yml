@@ -90,6 +90,8 @@ services:
             - 9093
         ports:
             - 9093:9093
+        volumes: 
+            - /tmp:/tmp    
         links:
              - fda-discovery-server
              - fda-container-managing-service
@@ -106,15 +108,18 @@ services:
         network_mode: bridge
         environment:
              - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+             - multipart.location=/tmp
         expose:
             - 9094
         ports:
             - 9094:9094
+        volumes: 
+            - /tmp:/tmp
         links:
              - fda-discovery-server
              - fda-query-service
         depends_on:
              - fda-discovery-server
-             - fda-query-service
+             - fda-query-service   
         logging:
             driver: json-file
