@@ -1,14 +1,25 @@
 import os
 import uuid
-from flask import Flask, flash, request, redirect, url_for, Response
+from flask import Flask, flash, request, redirect, url_for, Response, abort
 from werkzeug.utils import secure_filename
 from determine_dt import determine_datatypes
+from extract_sqlmetadata import extract_sqlmetadata
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/extract-metadata', methods=['POST'])
+def extract_metadata():
+    json = request.json
+    if not json or not "cname" in json:
+        abort(400)
+    extract_sqlmetadata(json['cname'])
+
+    return "OK",200
+    
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -37,6 +48,16 @@ def upload_file():
       <input type=submit value=Upload>
     </form>
     '''
+
+@app.route('/extract-tables', methods=['POST'])
+def extract_tables():
+    print(request.json)
+    if not request.json or not 'query' in request.json:
+        abort(400)
+    sql = request.json['query']
+
+    # TODO add error handling in case of invalid SQL etc.
+    return jsonify(extract_tbl(sql)), 200
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

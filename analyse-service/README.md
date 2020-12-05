@@ -1,6 +1,6 @@
 # Analyse Service
 
-Service to analyse datatypes ...
+Service to analyse datatypes, create Metadatabase, extract metainfo from an SQL-script 
 
 ## API
 
@@ -22,11 +22,24 @@ The reponse is a JSON object of the following form:
 }
 ```
 
+### `POST /extract-metadata`
+
+Response is JSON object of the following form 
+
+```JSON
+{
+	"cname": "testdb"
+}
+```
+
+where cname is the container name of a Docker container. 
+
 ## How to use 
 ### Dependencies 
 * python3 
 * flask
 * messytables 
+* psycopg2-binary
 
 They can also be installed using `pip install -r requirements.txt`
 
