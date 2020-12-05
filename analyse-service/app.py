@@ -4,12 +4,23 @@ from flask import Flask, flash, request, redirect, url_for, Response, abort, jso
 from werkzeug.utils import secure_filename
 from determine_dt import determine_datatypes
 from extract_tables import extract_tbl 
+from extract_sqlmetadata import extract_sqlmetadata
 
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/extract-metadata', methods=['POST'])
+def extract_metadata():
+    json = request.json
+    if not json or not "cname" in json:
+        abort(400)
+    extract_sqlmetadata(json['cname'])
+
+    return "OK",200
+    
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
