@@ -39,11 +39,8 @@ where cname is the container name of a Docker container.
 * python3 
 * flask
 * messytables 
-<<<<<<< HEAD
 * sql-metadata
-=======
 * psycopg2-binary
->>>>>>> master
 
 They can also be installed using `pip install -r requirements.txt`
 
