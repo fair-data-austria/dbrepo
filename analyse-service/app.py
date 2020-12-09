@@ -1,16 +1,17 @@
 import os
 import uuid
+import logging
 import py_eureka_client.eureka_client as eureka_client
 from flask import Flask, flash, request, redirect, url_for, Response
 from werkzeug.utils import secure_filename
 from determine_dt import determine_datatypes
 
+logging.basicConfig()
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -39,12 +40,15 @@ def upload_file():
     </form>
     '''
 
+rest_server_port = 5050
+eureka_client.init(eureka_server="http://localhost:9090/eureka/",
+                   app_name="fda-analyse-service",
+                   instance_port=rest_server_port)
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
 
 
 
-your_rest_server_port = 5000
-eureka_client.init(eureka_server="http://localhost:9090/eureka/",
-                                app_name="python_module_1",
-                                instance_port=your_rest_server_port)
+
+
