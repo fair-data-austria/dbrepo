@@ -1,4 +1,4 @@
-version: "2.4"
+version: "3.6"
 services:
     fda-discovery-server:
         container_name: fda-discovery-server
@@ -120,6 +120,22 @@ services:
              - fda-query-service
         depends_on:
              - fda-discovery-server
-             - fda-query-service   
+    fda-analyse-service:
+        container_name: fda-analyse-service
+        build:
+            context: ./analyse-service
+        image: analyse-service:latest
+        network_mode: bridge
+        environment:
+             - EUREKA_SERVER=http://fda-discovery-server:9090/eureka
+        command: sh -c "/wait && flask run"
+        expose:
+            - 5000
+        ports:
+            - 5000:5000
+        links:
+             - fda-discovery-server
+        depends_on:
+             - fda-discovery-server
         logging:
             driver: json-file
