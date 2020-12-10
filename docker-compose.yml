@@ -126,9 +126,13 @@ services:
             context: ./analyse-service
         image: analyse-service:latest
         network_mode: bridge
+        command: sh -c "/wait && flask run"
         environment:
              - EUREKA_SERVER=http://fda-discovery-server:9090/eureka
-        command: sh -c "/wait && flask run"
+             - WAIT_HOSTS=fda-discovery-server:9090
+             - WAIT_HOSTS_TIMEOUT=300
+             - WAIT_SLEEP_INTERVAL=30
+             - WAIT_HOST_CONNECT_TIMEOUT=30
         expose:
             - 5000
         ports:
