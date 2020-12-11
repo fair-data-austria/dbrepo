@@ -1,14 +1,34 @@
 import os
 import uuid
+from flask import Flask, flash, request, redirect, url_for, Response, abort, jsonify
+from werkzeug.utils import secure_filename
+from determine_dt import determine_datatypes
+from extract_tables import extract_tbl
+from extract_sqlmetadata import extract_sqlmetadata
+import logging
+import py_eureka_client.eureka_client as eureka_client
 from flask import Flask, flash, request, redirect, url_for, Response
 from werkzeug.utils import secure_filename
 from determine_dt import determine_datatypes
+from os import environ
 
+
+logging.basicConfig()
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/extract-metadata', methods=['POST'])
+def extract_metadata():
+    json = request.json
+    if not json or not "cname" in json:
+        abort(400)
+    extract_sqlmetadata(json['cname'])
+
+    return "OK",200
+    
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -38,5 +58,27 @@ def upload_file():
     </form>
     '''
 
+
+@app.route('/extract-tables', methods=['POST'])
+def extract_tables():
+    print(request.json)
+    if not request.json or not 'query' in request.json:
+        abort(400)
+    sql = request.json['query']
+
+    # TODO add error handling in case of invalid SQL etc.
+    return jsonify(extract_tbl(sql)), 200
+
+rest_server_port = 5000
+eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
+                   app_name="fda-analyse-service",
+                   instance_port=rest_server_port)
+
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
+
+
+
+
+
