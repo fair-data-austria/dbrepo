@@ -3,7 +3,7 @@ import uuid
 from flask import Flask, flash, request, redirect, url_for, Response, abort, jsonify
 from werkzeug.utils import secure_filename
 from determine_dt import determine_datatypes
-from extract_tables import extract_tbl 
+from extract_tables import extract_tbl
 from extract_sqlmetadata import extract_sqlmetadata
 import logging
 import py_eureka_client.eureka_client as eureka_client
