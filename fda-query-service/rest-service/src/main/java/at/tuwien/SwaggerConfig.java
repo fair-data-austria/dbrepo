@@ -19,7 +19,7 @@ public class SwaggerConfig {
 
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .paths(PathSelectors.ant("/api/*"))
+                .paths(PathSelectors.ant("/query/*"))
                 .apis(RequestHandlerSelectors.basePackage("at.tuwien.controller"))
                 .build()
                 .apiInfo(apiInfo());

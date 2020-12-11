@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -27,7 +28,8 @@ public class ContainerService {
     public String createDatabaseContainer(CreateDatabaseContainerDTO dto) {
         int availableTcpPort = SocketUtils.findAvailableTcpPort(8180, 8500);
         HostConfig hostConfig = HostConfig.newHostConfig()
-                .withPortBindings(PortBinding.parse(availableTcpPort + ":5432"));
+                .withPortBindings(PortBinding.parse(availableTcpPort + ":5432"))
+                .withRestartPolicy(RestartPolicy.alwaysRestart());
 
         CreateContainerResponse container = dockerClient.createContainerCmd("rdr-postgres:1.0")
                 .withName(dto.getContainerName())
@@ -48,7 +50,7 @@ public class ContainerService {
     }
 
     public List<DatabaseContainer> findAllDatabaseContainers() {
-        List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
+        List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).withAncestorFilter(Arrays.asList("rdr-postgres:1.0")).exec();
         List<DatabaseContainer> databaseContainers = new ArrayList<>();
         containers.forEach(container -> {
             DatabaseContainer databaseContainerByContainerByID = getDatabaseContainerByContainerID(container.getId());
