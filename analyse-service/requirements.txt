@@ -2,5 +2,4 @@ messytables==0.15.2
 flask==1.1.2
 sql-metadata==1.9.1
 psycopg2-binary==2.8.6
-py_eureka_client==0.9.1
-
+py-eureka-client==0.9.1

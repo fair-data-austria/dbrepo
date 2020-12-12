@@ -58,6 +58,12 @@ def upload_file():
     </form>
     '''
 
+@app.route('/datatypesbypath',methods=['GET'])
+def datatypesbypath(): 
+    path = request.args.get('filepath')
+    result = determine_datatypes(path)
+
+    return result,200
 
 @app.route('/extract-tables', methods=['POST'])
 def extract_tables():
