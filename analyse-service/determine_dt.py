@@ -14,9 +14,9 @@ import messytables
 from messytables import CSVTableSet, type_guess, \
   headers_guess, headers_processor, offset_processor
   
-def determine_datatypes(filename):
+def determine_datatypes(path):
     
-    fh = open(filename, 'rb')
+    fh = open(path, 'rb')
 
     # Load a file object:
     table_set = CSVTableSet(fh)
