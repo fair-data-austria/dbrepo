@@ -118,6 +118,7 @@ services:
         links:
              - fda-discovery-server
              - fda-query-service
+             - fda-analyse-service
         depends_on:
              - fda-discovery-server
     fda-analyse-service:
@@ -137,6 +138,8 @@ services:
             - 5000
         ports:
             - 5000:5000
+        volumes: 
+            - /tmp:/tmp
         links:
              - fda-discovery-server
         depends_on:

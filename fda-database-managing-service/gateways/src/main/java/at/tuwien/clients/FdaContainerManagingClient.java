@@ -41,17 +41,6 @@ public class FdaContainerManagingClient {
         }
         return false;
 
-
-//                .flatMap(clientResponse -> clientResponse.bodyToMono(String.class)
-//                        .doOnSuccess(body -> {
-//                            if (clientResponse.statusCode().isError()) {
-//                                LOGGER.error("HttpStatusCode = {}", clientResponse.statusCode());
-//                                LOGGER.error("HttpHeaders = {}", clientResponse.headers().asHttpHeaders());
-//                                LOGGER.error("ResponseBody = {}", body);
-//                            }
-//                        }))
-//                .block();
-
     }
 
     public List<Database> getCreatedDatabases() {

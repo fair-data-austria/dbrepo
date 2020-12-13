@@ -53,7 +53,7 @@ def determine_datatypes(path):
     
     s ={ 'columns' : r } 
                 
-    return json.dumps(s)
+    return s
 
 """ 
 {
