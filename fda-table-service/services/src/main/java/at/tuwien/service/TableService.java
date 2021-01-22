@@ -1,7 +1,9 @@
 package at.tuwien.service;
 
+import at.tuwien.client.FdaAnalyseServiceClient;
 import at.tuwien.client.FdaQueryServiceClient;
 import at.tuwien.dto.CreateTableViaCsvDTO;
+import at.tuwien.model.CSVColumnsResult;
 import at.tuwien.model.CreateCSVTableWithDataset;
 import at.tuwien.model.QueryResult;
 import at.tuwien.utils.HistoryTableGenerator;
@@ -20,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,26 +32,36 @@ public class TableService {
     private String copyInDB = "COPY table_name(city, zipcode) FROM STDIN WITH CSV";
 
     private HistoryTableGenerator generator;
-    private FdaQueryServiceClient client;
+    private FdaQueryServiceClient queryServiceClient;
+    private FdaAnalyseServiceClient analyseServiceClient;
     @Value("${multipart.location}")
     public String uploadDir;
 
     @Autowired
-    public TableService(FdaQueryServiceClient client, HistoryTableGenerator generator) {
-        this.client = client;
+    public TableService(FdaQueryServiceClient client, FdaAnalyseServiceClient analyseServiceClient, HistoryTableGenerator generator) {
+        this.queryServiceClient = client;
+        this.analyseServiceClient = analyseServiceClient;
         this.generator = generator;
     }
 
-    public String uploadFile(MultipartFile file) {
+    public CSVColumnsResult storeFileAndDetermineDatatypes(MultipartFile file) {
+        String pathToCSVFile = storeFile(file);
+        CSVColumnsResult csvTableData =analyseServiceClient.determineDatatypes(pathToCSVFile);
+        csvTableData.setPathToFile(pathToCSVFile);
+        return csvTableData;
+    }
+
+    public String storeFile(MultipartFile file) {
+        UUID fileName = UUID.randomUUID();
+
         Path copyLocation = null;
         try {
-             copyLocation = Paths
-                    .get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+            copyLocation = Paths
+                    .get(uploadDir + File.separator + StringUtils.cleanPath(fileName.toString() + ".csv"));
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new FileStorageException("Could not store file " + file.getOriginalFilename()
-                    + ". Please try again!");
+            throw new FileStorageException("Could not store file " + file.getOriginalFilename());
         }
         return copyLocation.toAbsolutePath().toString();
     }
@@ -65,10 +78,10 @@ public class TableService {
             header = csvReader.readNext();
             //String[] splittedHeader = header[0].split(",");
             String columnNames = Arrays.asList(header).stream()
-                    .map(column -> column.replaceAll("\\s+",""))
+                    .map(column -> column.replaceAll("\\s+", ""))
                     .collect(Collectors.joining(","));
             String columnNamesWithDataTypes = Arrays.asList(header).stream()
-                    .map(column -> column.replaceAll("\\s+",""))
+                    .map(column -> column.replaceAll("\\s+", ""))
                     .collect(Collectors.joining(" varchar(255), ")) + "  varchar(255)";
 
 //            while ((values = csvReader.readNext()) != null) {
@@ -87,8 +100,8 @@ public class TableService {
             //String insertIntoTableStmt = String.format(INSERT_STMT, tableName,columnNames, records);
 
             //Create Table
-            client.executeStatement(dto, createTableStmt);
-            client.executeStatement(dto, generator.generate(tableName));
+            queryServiceClient.executeStatement(dto, createTableStmt);
+            queryServiceClient.executeStatement(dto, generator.generate(tableName));
 
             CreateCSVTableWithDataset tableWithDataset = new CreateCSVTableWithDataset();
             tableWithDataset.setColumnNames(columnNames);
@@ -97,7 +110,7 @@ public class TableService {
             tableWithDataset.setTableName(tableName);
             tableWithDataset.setDelimiter(dto.getDelimiter());
             //client.executeStatement(dto, insertIntoTableStmt);
-            boolean success = client.copyCSVIntoTable(tableWithDataset);
+            boolean success = queryServiceClient.copyCSVIntoTable(tableWithDataset);
             return success;
         } catch (IOException e) {
             e.printStackTrace();
@@ -109,7 +122,7 @@ public class TableService {
         String listTablesSQL = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND " +
                 "schemaname != 'information_schema' and tablename NOT like '%_history%' and not tablename='query_store';";
 
-        return client.executeQuery(containerID, listTablesSQL);
+        return queryServiceClient.executeQuery(containerID, listTablesSQL);
 
     }
 }

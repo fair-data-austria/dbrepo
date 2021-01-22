@@ -2,6 +2,7 @@ package at.tuwien.controller;
 
 import at.tuwien.client.FdaQueryServiceClient;
 import at.tuwien.dto.CreateTableViaCsvDTO;
+import at.tuwien.model.CSVColumnsResult;
 import at.tuwien.model.QueryResult;
 import at.tuwien.service.TableService;
 import io.swagger.annotations.ApiOperation;
@@ -33,15 +34,14 @@ public class TableController {
     @ApiOperation(value = "uploads the CSV file, creates and executes the corresponding SQL commands")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "db-table with CSV dataset created", response = Response.class)})
     public Response createTableViaCsv(@RequestParam String containerID, @RequestParam char delimiter, @RequestParam("file") MultipartFile file) {
-        String filePath = service.uploadFile(file);
+        String filePath = service.storeFile(file);
         CreateTableViaCsvDTO dto = new CreateTableViaCsvDTO();
         dto.setContainerID(containerID);
         dto.setPathToFile(filePath);
         dto.setDelimiter(delimiter);
-        // long time = System.currentTimeMillis();
+
         boolean success = service.createTableViaCsv(dto);
-        //long responseTime = (System.currentTimeMillis() - time);
-        // LOGGER.info("The loading response time for: " + dto.getPathToFile() + " is: " + responseTime + "ms");
+
         if (success) {
             return Response
                     .status(Response.Status.CREATED)
@@ -51,6 +51,20 @@ public class TableController {
         return Response
                 .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @PostMapping("/uploadCSVFileAndDetermineDatatypes")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ApiOperation(value = "uploads CSV file, determines datatypes of columns")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "determined datatypes of CSV file", response = Response.class)})
+    public Response uploadCSVFileAndDetermineDatatypes(@RequestParam("file") MultipartFile file) {
+        CSVColumnsResult csvColumnsResult = service.storeFileAndDetermineDatatypes(file);
+
+        return Response
+                .status(Response.Status.OK)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(csvColumnsResult)
                 .build();
     }
 
