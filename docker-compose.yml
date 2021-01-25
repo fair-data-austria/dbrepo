@@ -146,3 +146,19 @@ services:
       - fda-discovery-server
     logging:
       driver: json-file
+
+  fda-ui:
+    container_name: fda-ui
+    build: ../fda-ui
+    image: fda-ui
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    links:
+      - fda-discovery-server
+      - fda-container-managing-service
+      - fda-query-service
+      - fda-analyse-service
+    depends_on:
+      - fda-discovery-server
