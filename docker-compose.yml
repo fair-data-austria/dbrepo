@@ -162,3 +162,5 @@ services:
       - fda-analyse-service
     depends_on:
       - fda-discovery-server
+    environment:
+      HOST: 0.0.0.0
