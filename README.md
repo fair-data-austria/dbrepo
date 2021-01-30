@@ -1,19 +1,23 @@
-# fda-services (java)
+# FAIR Data Austria Services
 
-## Build Setup
+### Build
 
-Create the database container image:
-
-    cd fda-container-managing-service/rest-service/src/main/resources
-    docker build --tag rdr-postgres:1.0 .
+Everything is handled by compose, just build it by running:
 
 ```bash
-# First generate jars for discovery,gateway,database,container and query services
-$ mvn clean install
+docker-compose build
+```
 
-# start application
-$ docker-compose up --build #(use -d for detach mode)
+### Start
 
-# stop application
-$ docker-compose down
+Now start all services by running:
+
+```bash
+docker-compose up fda-discovery-server fda-gateway-service fda-database-managing-service fda-container-managing-service fda-query-service fda-table-service fda-analyse-service
+```
+
+Optionally, start the user interface by running:
+
+```bash
+docker-compose up fda-ui
 ```
