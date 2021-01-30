@@ -1,148 +1,166 @@
 version: "3.6"
+
 services:
-    fda-discovery-server:
-        container_name: fda-discovery-server
-        build:
-            context: ./fda-discovery-server
-        image: fda-discovery-server:latest
-        network_mode: bridge
-        expose:
-             - 9090
-        ports:
-             - 9090:9090
-    fda-gateway-service:
-        container_name: fda-gateway-service
-        build:
-            context: ./fda-gateway-service
-        image: fda-gateway-service:latest
-        network_mode: bridge
-        environment:
-             - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
-        expose:
-            - 9095
-        ports:
-            - 9095:9095
-        links:
-             - fda-discovery-server
-             - fda-database-managing-service
-             - fda-container-managing-service
-             - fda-query-service
-             - fda-table-service
-        depends_on:
-             - fda-discovery-server
-             - fda-database-managing-service
-             - fda-container-managing-service
-             - fda-query-service
-             - fda-table-service
-        logging:
-            driver: json-file
-    fda-database-managing-service:
-        container_name: fda-database-managing-service
-        build:
-            context: ./fda-database-managing-service
-        image: fda-database-managing-service:latest
-        network_mode: bridge
-        environment:
-             - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
-       
-        expose:
-            - 9092
-        ports:
-            - 9092:9092
-        links:
-             - fda-discovery-server
-             - fda-container-managing-service
-        depends_on:
-             - fda-discovery-server
-             - fda-container-managing-service
-        logging:
-            driver: json-file
-        
-    fda-container-managing-service:
-        container_name: fda-container-managing-service
-        build:
-            context: ./fda-container-managing-service
-        image: fda-container-managing-service:latest
-        network_mode: bridge
-        environment:
-             - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
-        expose:
-            - 9091
-        ports:
-            - 9091:9091
-        volumes: 
-            - /var/run/docker.sock:/var/run/docker.sock
-        links:
-             - fda-discovery-server
-        depends_on:
-             - fda-discovery-server
-        logging:
-            driver: json-file
-    fda-query-service:
-        container_name: fda-query-service
-        build:
-            context: ./fda-query-service
-        image: fda-query-service:latest
-        network_mode: bridge
-        environment:
-             - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
-        expose:
-            - 9093
-        ports:
-            - 9093:9093
-        volumes: 
-            - /tmp:/tmp    
-        links:
-             - fda-discovery-server
-             - fda-container-managing-service
-        depends_on:
-             - fda-discovery-server
-             - fda-container-managing-service
-        logging:
-            driver: json-file
-    fda-table-service:
-        container_name: fda-table-service
-        build:
-            context: ./fda-table-service
-        image: fda-table-service:latest
-        network_mode: bridge
-        environment:
-             - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
-             - multipart.location=/tmp
-        expose:
-            - 9094
-        ports:
-            - 9094:9094
-        volumes: 
-            - /tmp:/tmp
-        links:
-             - fda-discovery-server
-             - fda-query-service
-             - fda-analyse-service
-        depends_on:
-             - fda-discovery-server
-    fda-analyse-service:
-        container_name: fda-analyse-service
-        build:
-            context: ./analyse-service
-        image: analyse-service:latest
-        network_mode: bridge
-        command: sh -c "/wait && flask run"
-        environment:
-             - EUREKA_SERVER=http://fda-discovery-server:9090/eureka
-             - WAIT_HOSTS=fda-discovery-server:9090
-             - WAIT_HOSTS_TIMEOUT=300
-             - WAIT_SLEEP_INTERVAL=30
-             - WAIT_HOST_CONNECT_TIMEOUT=30
-        expose:
-            - 5000
-        ports:
-            - 5000:5000
-        volumes: 
-            - /tmp:/tmp
-        links:
-             - fda-discovery-server
-        depends_on:
-             - fda-discovery-server
-        logging:
-            driver: json-file
+
+  fda-discovery-server:
+    container_name: fda-discovery-server
+    build: ./fda-discovery-server
+    image: fda-discovery-server
+    network_mode: bridge
+    expose:
+      - 9090
+    ports:
+      - 9090:9090
+
+  fda-gateway-service:
+    container_name: fda-gateway-service
+    build: ./fda-gateway-service
+    image: fda-gateway-service
+    network_mode: bridge
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+    expose:
+      - 9095
+    ports:
+      - 9095:9095
+    links:
+      - fda-discovery-server
+      - fda-database-managing-service
+      - fda-container-managing-service
+      - fda-query-service
+      - fda-table-service
+    depends_on:
+      - fda-discovery-server
+      - fda-database-managing-service
+      - fda-container-managing-service
+      - fda-query-service
+      - fda-table-service
+    logging:
+      driver: json-file
+
+  fda-database-managing-service:
+    container_name: fda-database-managing-service
+    build:
+      context: ./fda-database-managing-service
+    image: fda-database-managing-service
+    network_mode: bridge
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+    expose:
+      - 9092
+    ports:
+      - 9092:9092
+    links:
+      - fda-discovery-server
+      - fda-container-managing-service
+    depends_on:
+      - fda-discovery-server
+      - fda-container-managing-service
+    logging:
+      driver: json-file
+
+  fda-container-managing-service:
+    container_name: fda-container-managing-service
+    build: ./fda-container-managing-service
+    image: fda-container-managing-service
+    network_mode: bridge
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+    expose:
+      - 9091
+    ports:
+      - 9091:9091
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - fda-discovery-server
+    depends_on:
+      - fda-discovery-server
+    logging:
+      driver: json-file
+
+  fda-query-service:
+    container_name: fda-query-service
+    build: ./fda-query-service
+    image: fda-query-service
+    network_mode: bridge
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+    expose:
+      - 9093
+    ports:
+      - 9093:9093
+    volumes:
+      - /tmp:/tmp
+    links:
+      - fda-discovery-server
+      - fda-container-managing-service
+    depends_on:
+      - fda-discovery-server
+      - fda-container-managing-service
+    logging:
+      driver: json-file
+
+  fda-table-service:
+    container_name: fda-table-service
+    build: ./fda-table-service
+    image: fda-table-service
+    network_mode: bridge
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+      - multipart.location=/tmp
+    expose:
+      - 9094
+    ports:
+      - 9094:9094
+    volumes:
+      - /tmp:/tmp
+    links:
+      - fda-discovery-server
+      - fda-query-service
+      - fda-analyse-service
+    depends_on:
+      - fda-discovery-server
+
+  fda-analyse-service:
+    container_name: fda-analyse-service
+    build: ./fda-analyse-service
+    image: analyse-service
+    network_mode: bridge
+    command: sh -c "/wait && flask run"
+    environment:
+      - EUREKA_SERVER=http://fda-discovery-server:9090/eureka
+      - WAIT_HOSTS=fda-discovery-server:9090
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+    expose:
+      - 5000
+    ports:
+      - 5000:5000
+    volumes:
+      - /tmp:/tmp
+    links:
+      - fda-discovery-server
+    depends_on:
+      - fda-discovery-server
+    logging:
+      driver: json-file
+
+  fda-ui:
+    container_name: fda-ui
+    build: ../fda-ui
+    image: fda-ui
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    links:
+      - fda-discovery-server
+      - fda-container-managing-service
+      - fda-query-service
+      - fda-analyse-service
+    depends_on:
+      - fda-discovery-server
+    environment:
+      HOST: 0.0.0.0
