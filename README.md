@@ -26,6 +26,8 @@ docker-compose up fda-ui
 
 Ubuntu 20.04 LTS
 
+Use openjdk-11...openjdk-8 does not work.
+
 Do not use maven provided my Ubuntu 20.4 LTS. It cannot handle those injections spring-boot wants it to do.
 
 It says: WARNING: An illegal reflective access operation has occurred
