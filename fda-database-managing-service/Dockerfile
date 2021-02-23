@@ -18,7 +18,7 @@ RUN mvn -q clean package -DskipTests > /dev/null
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-COPY --from=build ./rest-service/target/rest-service-*.jar ./rest.jar
+COPY --from=build ./rest-service/target/fda-database-managing-service-*.jar ./rest.jar
 
 EXPOSE 9092
 
