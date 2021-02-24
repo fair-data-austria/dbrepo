@@ -2,14 +2,15 @@
 FROM maven:slim as build
 MAINTAINER Martin Weise <martin.weise@tuwien.ac.at>
 
+COPY ./pom.xml ./
+
+RUN mvn -fn -B dependency:go-offline > /dev/null
+
 COPY ./api ./api
 COPY ./gateways ./gateways
 COPY ./persistence ./persistence
 COPY ./rest-service ./rest-service
 COPY ./services ./services
-COPY ./pom.xml ./
-
-RUN mvn -fn -B dependency:go-offline > /dev/null
 
 RUN mvn -q clean package > /dev/null
 
