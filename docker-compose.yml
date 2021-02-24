@@ -7,8 +7,8 @@ services:
     hostname: fda-discovery-server
     build: ./fda-discovery-server
     image: fda-discovery-server
-    #environment:
-    #  SPRING_PROFILES_ACTIVE: docker
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     network_mode: bridge
     ports:
       - 9090:9090
@@ -19,8 +19,8 @@ services:
     build: ./fda-gateway-service
     image: fda-gateway-service
     network_mode: bridge
-    #environment:
-    #  SPRING_PROFILES_ACTIVE: docker
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9095:9095
     links:
@@ -45,8 +45,8 @@ services:
       context: ./fda-database-managing-service
     image: fda-database-managing-service
     network_mode: bridge
-    #environment:
-    #  SPRING_PROFILES_ACTIVE: docker
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9092:9092
     links:
@@ -64,8 +64,8 @@ services:
     build: ./fda-container-managing-service
     image: fda-container-managing-service
     network_mode: bridge
-    #environment:
-    #  SPRING_PROFILES_ACTIVE: docker
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9091:9091
     volumes:
@@ -83,8 +83,8 @@ services:
     build: ./fda-query-service
     image: fda-query-service
     network_mode: bridge
-    #environment:
-    #  SPRING_PROFILES_ACTIVE: docker
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9093:9093
     volumes:
@@ -105,7 +105,7 @@ services:
     image: fda-table-service
     network_mode: bridge
     environment:
-    #  SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker
       multipart.location: /tmp
     ports:
       - 9094:9094
@@ -128,7 +128,7 @@ services:
     environment:
       EUREKA_SERVER: http://fda-discovery-server:9090/eureka
       WAIT_HOSTS: fda-discovery-server:9090
-      WAIT_HOSTS_TIMEOUT: 300
+      WAIT_HOSTS_TIMEOUT: 600
       WAIT_SLEEP_INTERVAL: 30
       WAIT_HOST_CONNECT_TIMEOUT: 30
     ports:
