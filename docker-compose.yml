@@ -6,6 +6,8 @@ services:
     container_name: fda-discovery-server
     build: ./fda-discovery-server
     image: fda-discovery-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     network_mode: bridge
     expose:
       - 9090
@@ -18,7 +20,7 @@ services:
     image: fda-gateway-service
     network_mode: bridge
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+      SPRING_PROFILES_ACTIVE: docker
     expose:
       - 9095
     ports:
@@ -45,7 +47,7 @@ services:
     image: fda-database-managing-service
     network_mode: bridge
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+      SPRING_PROFILES_ACTIVE: docker
     expose:
       - 9092
     ports:
@@ -65,7 +67,7 @@ services:
     image: fda-container-managing-service
     network_mode: bridge
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+      SPRING_PROFILES_ACTIVE: docker
     expose:
       - 9091
     ports:
@@ -85,7 +87,7 @@ services:
     image: fda-query-service
     network_mode: bridge
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
+      SPRING_PROFILES_ACTIVE: docker
     expose:
       - 9093
     ports:
@@ -107,8 +109,8 @@ services:
     image: fda-table-service
     network_mode: bridge
     environment:
-      - eureka.client.serviceUrl.defaultZone=http://fda-discovery-server:9090/eureka
-      - multipart.location=/tmp
+      SPRING_PROFILES_ACTIVE: docker
+      multipart.location: /tmp
     expose:
       - 9094
     ports:
@@ -149,7 +151,7 @@ services:
 
   fda-ui:
     container_name: fda-ui
-    build: ../fda-ui
+    build: ./fda-ui
     image: fda-ui
     expose:
       - 3000
@@ -164,3 +166,4 @@ services:
       - fda-discovery-server
     environment:
       HOST: 0.0.0.0
+      API_URL: //fda-database-managing-service:9092/api
