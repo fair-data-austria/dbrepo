@@ -4,6 +4,7 @@ services:
 
   fda-discovery-server:
     container_name: fda-discovery-server
+    hostname: fda-discovery-server
     build: ./fda-discovery-server
     image: fda-discovery-server
     environment:
@@ -16,6 +17,7 @@ services:
 
   fda-gateway-service:
     container_name: fda-gateway-service
+    hostname: fda-gateway-service
     build: ./fda-gateway-service
     image: fda-gateway-service
     network_mode: bridge
@@ -42,6 +44,7 @@ services:
 
   fda-database-managing-service:
     container_name: fda-database-managing-service
+    hostname: fda-database-managing-service
     build:
       context: ./fda-database-managing-service
     image: fda-database-managing-service
@@ -63,6 +66,7 @@ services:
 
   fda-container-managing-service:
     container_name: fda-container-managing-service
+    hostname: fda-container-managing-service
     build: ./fda-container-managing-service
     image: fda-container-managing-service
     network_mode: bridge
@@ -83,6 +87,7 @@ services:
 
   fda-query-service:
     container_name: fda-query-service
+    hostname: fda-query-service
     build: ./fda-query-service
     image: fda-query-service
     network_mode: bridge
@@ -105,6 +110,7 @@ services:
 
   fda-table-service:
     container_name: fda-table-service
+    hostname: fda-table-service
     build: ./fda-table-service
     image: fda-table-service
     network_mode: bridge
@@ -126,6 +132,7 @@ services:
 
   fda-analyse-service:
     container_name: fda-analyse-service
+    hostname: fda-analyse-service
     build: ./fda-analyse-service
     image: analyse-service
     network_mode: bridge
@@ -151,6 +158,7 @@ services:
 
   fda-ui:
     container_name: fda-ui
+    hostname: fda-ui
     build: ./fda-ui
     image: fda-ui
     expose:

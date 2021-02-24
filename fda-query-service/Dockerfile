@@ -9,8 +9,6 @@ COPY ./rest-service ./rest-service
 COPY ./services ./services
 COPY ./pom.xml ./
 
-ENV SPRING_MAIN_BANNER-MODE=off
-
 RUN mvn -fn -B dependency:go-offline > /dev/null
 
 RUN mvn -q clean package > /dev/null
