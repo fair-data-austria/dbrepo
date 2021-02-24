@@ -1,6 +1,6 @@
 # FAIR Data Austria Services
 
-### Build
+## Build
 
 Everything is handled by compose, just build it by running:
 
@@ -8,18 +8,12 @@ Everything is handled by compose, just build it by running:
 docker-compose build
 ```
 
-### Start
+## Start
 
 Now start all services by running:
 
 ```bash
-docker-compose up fda-discovery-server fda-gateway-service fda-database-managing-service fda-container-managing-service fda-query-service fda-table-service fda-analyse-service
-```
-
-Optionally, start the user interface by running:
-
-```bash
-docker-compose up fda-ui
+docker-compose up
 ```
 
 ### Troubleshooting
@@ -35,14 +29,26 @@ WARNING: Illegal reflective access by com.google.inject.internal.cglib.core.$Ref
 
 Install maven from Apache Org.:
 
-# Download maven e.g. 3.6.3
+Download maven e.g. 3.6.3
+
+```bash
 wget https://www-us.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -P /tmp
+```
 
-# Untar downloaded file to /opt
+Untar downloaded file to /opt
+
+```bash
 sudo tar xf /tmp/apache-maven-*.tar.gz -C /opt
+```
 
-# Install the alternative version for the mvn in your system
+Install the alternative version for the mvn in your system
+
+```bash
 sudo update-alternatives --install /usr/bin/mvn mvn /opt/apache-maven-3.6.3/bin/mvn 363
+```
 
-# Check if your configuration is ok. You may use your current or the 3.6.3 whenever you wish, running the command below.
+Check if your configuration is ok. You may use your current or the 3.6.3 whenever you wish, running the command below.
+
+```bash
 sudo update-alternatives --config mvn
+```

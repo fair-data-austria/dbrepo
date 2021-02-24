@@ -2,9 +2,7 @@
 FROM maven:slim as build
 MAINTAINER Martin Weise <martin.weise@tuwien.ac.at>
 
-COPY ./api ./api
-COPY ./rest-service ./rest-service
-COPY ./services ./services
+COPY ./src ./src
 COPY ./pom.xml ./
 
 RUN mvn -fn -B dependency:go-offline > /dev/null
@@ -14,8 +12,6 @@ RUN mvn -q clean package > /dev/null
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-COPY --from=build ./rest-service/target/fda-container-managing-service-*.jar ./rest.jar
+COPY --from=build ./rest-service/target/hystrix-dashboard-*.jar ./hystrix.jar
 
-EXPOSE 9091
-
-ENTRYPOINT ["java", "-jar", "./rest.jar"]
+ENTRYPOINT ["java", "-jar", "./hystrix.jar"]
