@@ -2,6 +2,12 @@
 
 ## Build
 
+Get the latest version of the fda-services repository and pull the submodule changes:
+
+```bash
+git submodule update --init --recursive
+```
+
 Everything is handled by compose, just build it by running:
 
 ```bash
