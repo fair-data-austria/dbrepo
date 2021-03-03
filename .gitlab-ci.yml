@@ -4,9 +4,8 @@ services:
   - docker:dind
 
 before_script:
-  - apk add --update python py-pip python-dev && pip install docker-compose # install docker-compose
   - docker version
-  - docker-compose version
+  - cd ./fda-ui && git pull
 
 cache:
   paths:
@@ -22,7 +21,13 @@ stages:
 build:
   stage: build
   script:
-    - docker-compose build
+    - docker build -t fda-discovery-server ./fda-discovery-server
+    - docker build -t fda-gateway-service ./fda-gateway-service
+    - docker build -t fda-database-managing-service ./fda-database-managing-service
+    - docker build -t fda-container-managing-service ./fda-container-managing-service
+    - docker build -t fda-query-service ./fda-query-service
+    - docker build -t fda-analyse-service ./fda-analyse-service
+    - docker build -t fda-ui ./fda-ui
 
 test:
   stage: test
