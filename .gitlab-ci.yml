@@ -1,0 +1,42 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+before_script:
+  - apk add --update python py-pip python-dev && pip install docker-compose # install docker-compose
+  - docker version
+  - docker-compose version
+
+cache:
+  paths:
+    - .m2/repository/
+    - target/
+
+stages:
+  - build
+  - test
+  - deploy
+  - production
+
+build:
+  stage: build
+  script:
+    - docker-compose build
+
+test:
+  stage: test
+  script:
+    - echo "todo"
+
+deploy:
+  stage: deploy
+  script:
+    - echo "todo"
+  only:
+    - master
+
+production:
+  stage: production
+  script:
+    - echo "todo"
