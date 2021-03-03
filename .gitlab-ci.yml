@@ -1,5 +1,8 @@
 image: docker/compose:latest
 
+services:
+  - docker:18.09-dind
+
 before_script:
   - docker version
   - docker-compose version
