@@ -1,11 +1,14 @@
-image: docker:latest
+image: docker/compose:latest
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
 
 services:
   - docker:dind
 
 before_script:
   - docker version
-  - cd ./fda-ui && git pull
 
 cache:
   paths:
@@ -21,13 +24,8 @@ stages:
 build:
   stage: build
   script:
-    - docker build -t fda-discovery-server ./fda-discovery-server
-    - docker build -t fda-gateway-service ./fda-gateway-service
-    - docker build -t fda-database-managing-service ./fda-database-managing-service
-    - docker build -t fda-container-managing-service ./fda-container-managing-service
-    - docker build -t fda-query-service ./fda-query-service
-    - docker build -t fda-analyse-service ./fda-analyse-service
-    - docker build -t fda-ui ./fda-ui
+    - docker-compose down
+    - docker-compose build
 
 test:
   stage: test
