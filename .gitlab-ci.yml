@@ -1,12 +1,5 @@
 image: docker/compose:latest
 
-variables:
-  DOCKER_DRIVER: overlay
-  DOCKER_GROUP: fda
-
-services:
-  - docker:dind
-
 before_script:
   - docker version
   - docker-compose version
