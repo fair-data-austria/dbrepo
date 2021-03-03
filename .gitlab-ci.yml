@@ -1,8 +1,5 @@
 image: docker/compose:latest
 
-services:
-  - docker:dind
-
 before_script:
   - docker version
   - docker-compose version
@@ -22,7 +19,7 @@ build:
   stage: build
   script:
     - docker-compose down
-    - docker-compose build
+    - docker-compose build fda-container-managing-service
 
 test:
   stage: test
