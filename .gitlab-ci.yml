@@ -4,6 +4,10 @@ before_script:
   - docker version
   - docker-compose version
 
+cache:
+  paths:
+    - /root/.m2/repository/
+
 stages:
   - build
   - test
