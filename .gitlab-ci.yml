@@ -2,7 +2,6 @@ image: docker:latest
 
 before_script:
   - docker version
-  - cat /etc/resolv.conf
 
 cache:
   paths:
