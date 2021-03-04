@@ -2,6 +2,8 @@ image: docker:latest
 
 before_script:
   - docker version
+  - cat /etc/resolv.conf
+  - ping google.com
 
 cache:
   paths:
