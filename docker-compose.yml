@@ -9,7 +9,6 @@ services:
     image: fda-discovery-server
     environment:
       SPRING_PROFILES_ACTIVE: docker
-    network_mode: bridge
     ports:
       - 9090:9090
 
@@ -18,7 +17,6 @@ services:
     hostname: fda-gateway-service
     build: ./fda-gateway-service
     image: fda-gateway-service
-    network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -44,7 +42,6 @@ services:
     build:
       context: ./fda-database-managing-service
     image: fda-database-managing-service
-    network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -63,7 +60,6 @@ services:
     hostname: fda-container-managing-service
     build: ./fda-container-managing-service
     image: fda-container-managing-service
-    network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -82,7 +78,6 @@ services:
     hostname: fda-query-service
     build: ./fda-query-service
     image: fda-query-service
-    network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -103,7 +98,6 @@ services:
     hostname: fda-table-service
     build: ./fda-table-service
     image: fda-table-service
-    network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
       multipart.location: /tmp
@@ -123,7 +117,6 @@ services:
     hostname: fda-analyse-service
     build: ./fda-analyse-service
     image: fda-analyse-service
-    network_mode: bridge
     command: sh -c "/wait && flask run"
     environment:
       EUREKA_SERVER: http://fda-discovery-server:9090/eureka
