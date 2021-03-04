@@ -1,7 +1,7 @@
 image: docker/compose:latest
 
+# until fda-ui is in repo it will not be built
 before_script:
-  - git submodule update --init --recursive
   - docker version
   - docker-compose version
 
@@ -19,7 +19,7 @@ build:
   stage: build
   script:
     - docker-compose down
-    - docker-compose build
+    - docker-compose build fda-discovery-server fda-gateway-service fda-database-managing-service fda-container-managing-service fda-query-service fda-table-service fda-analyse-service
 
 test:
   stage: test
