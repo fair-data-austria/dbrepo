@@ -1,7 +1,8 @@
-image: docker:latest
+image: docker/compose:latest
 
 before_script:
   - docker version
+  - docker-compose version
 
 cache:
   paths:
@@ -16,9 +17,8 @@ stages:
 build:
   stage: build
   script:
-    - docker build -t fda-container-managing-service ./fda-container-managing-service
-    - docker build -t fda-gateway-service ./fda-gateway-service
-    - echo "todo"
+    - docker-compose down
+    - docker-compose build
 
 test:
   stage: test
