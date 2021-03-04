@@ -24,6 +24,22 @@ docker-compose up
 
 ### Troubleshooting
 
+##### FDA Runner
+
+Hosted at TU Wien 128.130.202.89, only accessible from TU-Network
+
+**Important**
+
+Different MTU for HPC Cluster, edit for Docker to work with bridge mode the `/etc/docker/daemon.json`:
+
+```bash
+{
+    "mtu": 1450
+}
+```
+
+##### Virtual Machine
+
 Ubuntu 20.04 LTS
 
 Use openjdk-11...openjdk-8 does not work.
