@@ -4,6 +4,9 @@ before_script:
   - docker version
   - docker-compose version
 
+services:
+  - docker:dind
+
 cache:
   paths:
     - /root/.m2/repository/
