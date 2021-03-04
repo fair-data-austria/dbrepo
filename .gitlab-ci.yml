@@ -16,6 +16,7 @@ stages:
 build:
   stage: build
   script:
+    - docker build -t fda-container-managing-service ./fda-container-managing-service
     - docker build -t fda-gateway-service ./fda-gateway-service
     - echo "todo"
 
