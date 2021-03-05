@@ -1,12 +1,27 @@
 # FAIR Data Austria Services
 
-## Build
+## Install
 
-Get the latest version of the fda-services repository and pull the submodule changes:
+Pull the latest dev/master images on your client through:
 
 ```bash
-git submodule update --init --recursive
+docker login https://docker.martinweise.at
+> Username: fda
+> Password: fda-docker
 ```
+
+```bash
+docker pull docker.martinweise.at/fda-analyse-service
+docker pull docker.martinweise.at/fda-discovery-server
+docker pull docker.martinweise.at/fda-gateway-service
+docker pull docker.martinweise.at/fda-database-managing-service
+docker pull docker.martinweise.at/fda-container-managing-service
+docker pull docker.martinweise.at/fda-query-service
+docker pull docker.martinweise.at/fda-table-service
+docker pull docker.martinweise.at/fda-ui
+```
+
+## Build
 
 Everything is handled by compose, just build it by running:
 
