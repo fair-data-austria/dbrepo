@@ -1,0 +1,152 @@
+version: "3.6"
+
+services:
+
+  fda-discovery-server:
+    container_name: fda-discovery-server
+    hostname: fda-discovery-server
+    image: docker.martinweise.at/fda-discovery-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    network_mode: bridge
+    ports:
+      - 9090:9090
+
+  fda-gateway-service:
+    container_name: fda-gateway-service
+    hostname: docker.martinweise.at/fda-gateway-service
+    image: fda-gateway-service
+    network_mode: bridge
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - 9095:9095
+    links:
+      - fda-discovery-server
+      - fda-database-managing-service
+      - fda-container-managing-service
+      - fda-query-service
+      - fda-table-service
+    depends_on:
+      - fda-discovery-server
+      - fda-database-managing-service
+      - fda-container-managing-service
+      - fda-query-service
+      - fda-table-service
+    logging:
+      driver: json-file
+
+  fda-database-managing-service:
+    container_name: fda-database-managing-service
+    hostname: docker.martinweise.at/fda-database-managing-service
+    image: fda-database-managing-service
+    network_mode: bridge
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - 9092:9092
+    links:
+      - fda-discovery-server
+      - fda-container-managing-service
+    depends_on:
+      - fda-discovery-server
+      - fda-container-managing-service
+    logging:
+      driver: json-file
+
+  fda-container-managing-service:
+    container_name: fda-container-managing-service
+    hostname: fda-container-managing-service
+    image: docker.martinweise.at/fda-container-managing-service
+    network_mode: bridge
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - 9091:9091
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - fda-discovery-server
+    depends_on:
+      - fda-discovery-server
+    logging:
+      driver: json-file
+
+  fda-query-service:
+    container_name: fda-query-service
+    hostname: docker.martinweise.at/fda-query-service
+    image: fda-query-service
+    network_mode: bridge
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - 9093:9093
+    volumes:
+      - /tmp:/tmp
+    links:
+      - fda-discovery-server
+      - fda-container-managing-service
+    depends_on:
+      - fda-discovery-server
+      - fda-container-managing-service
+    logging:
+      driver: json-file
+
+  fda-table-service:
+    container_name: fda-table-service
+    hostname: fda-table-service
+    image: fda-table-service
+    network_mode: bridge
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      multipart.location: /tmp
+    ports:
+      - 9094:9094
+    volumes:
+      - /tmp:/tmp
+    links:
+      - fda-discovery-server
+      - fda-query-service
+      - fda-analyse-service
+    depends_on:
+      - fda-discovery-server
+
+  fda-analyse-service:
+    container_name: fda-analyse-service
+    hostname: docker.martinweise.at/fda-analyse-service
+    image: fda-analyse-service
+    network_mode: bridge
+    command: sh -c "/wait && flask run"
+    environment:
+      EUREKA_SERVER: http://fda-discovery-server:9090/eureka
+      WAIT_HOSTS: fda-discovery-server:9090
+      WAIT_HOSTS_TIMEOUT: 600
+      WAIT_SLEEP_INTERVAL: 30
+      WAIT_HOST_CONNECT_TIMEOUT: 30
+    ports:
+      - 5000:5000
+    volumes:
+      - /tmp:/tmp
+    links:
+      - fda-discovery-server
+    depends_on:
+      - fda-discovery-server
+    logging:
+      driver: json-file
+
+  fda-ui:
+    container_name: fda-ui
+    hostname: docker.martinweise.at/fda-ui
+    image: fda-ui
+    ports:
+      - 3000:3000
+    links:
+      - fda-discovery-server
+      - fda-container-managing-service
+      - fda-query-service
+      - fda-analyse-service
+    depends_on:
+      - fda-discovery-server
+    environment:
+      HOST: 0.0.0.0
+      API_URL: //fda-database-managing-service:9092/api

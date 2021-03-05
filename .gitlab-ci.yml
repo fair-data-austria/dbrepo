@@ -54,11 +54,19 @@ deploy:
     - docker push $CI_REGISTRY/fda-table-service:latest
     - docker build -t $CI_REGISTRY/fda-ui:latest ./fda-ui
     - docker push $CI_REGISTRY/fda-ui:latest
+    - docker logout $CI_REGISTRY
   only:
     - dev
     - master
 
 production:
+  image: junte/ssh-agent
   stage: production
+  variables:
+    SSH_PRIVATE_KEY: $SSH_PROD_PRIVATE_KEY
   script:
-    - echo "todo"
+    - scp docker-compose.prod.yml $PROD_CRED:~/deployment
+    - ssh $PROD_CRED "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - ssh $PROD_CRED "docker-compose --file ~/deployment/docker-compose.prod.yml pull"
+    - ssh $PROD_CRED "docker-compose --file ~/deployment/docker-compose.prod.yml down"
+    - ssh $PROD_CRED "docker-compose --file ~/deployment/docker-compose.prod.yml up -d"
