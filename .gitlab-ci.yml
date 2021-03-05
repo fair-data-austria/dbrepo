@@ -35,31 +35,57 @@ test-frontend:
   script:
     - echo "todo"
 
-deploy:
+deploy-dev:
   stage: deploy
+  environment:
+    TAG: latest
   script:
-    - docker build -t $CI_REGISTRY/fda-analyse-service:latest ./fda-analyse-service
-    - docker push $CI_REGISTRY/fda-analyse-service:latest
-    - docker build -t $CI_REGISTRY/fda-discovery-server:latest ./fda-discovery-server
-    - docker push $CI_REGISTRY/fda-discovery-server:latest
-    - docker build -t $CI_REGISTRY/fda-gateway-service:latest ./fda-gateway-service
-    - docker push $CI_REGISTRY/fda-gateway-service:latest
-    - docker build -t $CI_REGISTRY/fda-database-managing-service:latest ./fda-database-managing-service
-    - docker push $CI_REGISTRY/fda-database-managing-service:latest
-    - docker build -t $CI_REGISTRY/fda-container-managing-service:latest ./fda-container-managing-service
-    - docker push $CI_REGISTRY/fda-container-managing-service:latest
-    - docker build -t $CI_REGISTRY/fda-query-service:latest ./fda-query-service
-    - docker push $CI_REGISTRY/fda-query-service:latest
-    - docker build -t $CI_REGISTRY/fda-table-service:latest ./fda-table-service
-    - docker push $CI_REGISTRY/fda-table-service:latest
-    - docker build -t $CI_REGISTRY/fda-ui:latest ./fda-ui
-    - docker push $CI_REGISTRY/fda-ui:latest
+    - docker build -t $CI_REGISTRY/fda-analyse-service:$TAG ./fda-analyse-service
+    - docker push $CI_REGISTRY/fda-analyse-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-discovery-server:$TAG ./fda-discovery-server
+    - docker push $CI_REGISTRY/fda-discovery-server:$TAG
+    - docker build -t $CI_REGISTRY/fda-gateway-service:$TAG ./fda-gateway-service
+    - docker push $CI_REGISTRY/fda-gateway-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-database-managing-service:$TAG ./fda-database-managing-service
+    - docker push $CI_REGISTRY/fda-database-managing-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-container-managing-service:$TAG ./fda-container-managing-service
+    - docker push $CI_REGISTRY/fda-container-managing-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-query-service:$TAG ./fda-query-service
+    - docker push $CI_REGISTRY/fda-query-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-table-service:$TAG ./fda-table-service
+    - docker push $CI_REGISTRY/fda-table-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-ui:$TAG ./fda-ui
+    - docker push $CI_REGISTRY/fda-ui:$TAG
     - docker logout $CI_REGISTRY
   only:
     - dev
+
+deploy-prod:
+  stage: deploy
+  environment:
+    TAG: stable
+  script:
+    - docker build -t $CI_REGISTRY/fda-analyse-service:$TAG ./fda-analyse-service
+    - docker push $CI_REGISTRY/fda-analyse-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-discovery-server:$TAG ./fda-discovery-server
+    - docker push $CI_REGISTRY/fda-discovery-server:$TAG
+    - docker build -t $CI_REGISTRY/fda-gateway-service:$TAG ./fda-gateway-service
+    - docker push $CI_REGISTRY/fda-gateway-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-database-managing-service:$TAG ./fda-database-managing-service
+    - docker push $CI_REGISTRY/fda-database-managing-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-container-managing-service:$TAG ./fda-container-managing-service
+    - docker push $CI_REGISTRY/fda-container-managing-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-query-service:$TAG ./fda-query-service
+    - docker push $CI_REGISTRY/fda-query-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-table-service:$TAG ./fda-table-service
+    - docker push $CI_REGISTRY/fda-table-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-ui:$TAG ./fda-ui
+    - docker push $CI_REGISTRY/fda-ui:$TAG
+    - docker logout $CI_REGISTRY
+  only:
     - master
 
-production:
+production-dev:
   image: kroniak/ssh-client
   stage: production
   script:
@@ -76,4 +102,10 @@ production:
     - ssh $PROD_SSH_HOST "docker logout $CI_REGISTRY"
   only:
     - dev
+
+production-prod:
+  stage: production
+  script:
+    - echo "tbd"
+  only:
     - master
