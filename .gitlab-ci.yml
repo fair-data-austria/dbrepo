@@ -58,7 +58,6 @@ deploy:
   only:
     - dev
     - master
-    - docker/refactoring
 
 production:
   image: kroniak/ssh-client
@@ -78,4 +77,3 @@ production:
   only:
     - dev
     - master
-    - docker/refactoring
