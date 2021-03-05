@@ -19,7 +19,7 @@ build:
   stage: build
   script:
     - docker-compose down
-    - docker-compose build fda-discovery-server fda-gateway-service fda-database-managing-service fda-container-managing-service fda-query-service fda-table-service fda-analyse-service
+    - docker-compose build
 
 test:
   stage: test
