@@ -54,6 +54,9 @@ deploy:
     - docker push $CI_REGISTRY/fda-table-service:latest
     - docker build -t $CI_REGISTRY/fda-ui:latest ./fda-ui
     - docker push $CI_REGISTRY/fda-ui:latest
+  only:
+    - dev
+    - master
 
 production:
   stage: production
