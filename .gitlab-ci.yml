@@ -60,13 +60,17 @@ deploy:
     - master
 
 production:
-  image: junte/ssh-agent
+  image: kroniak/ssh-client
   stage: production
-  variables:
-    SSH_PRIVATE_KEY: $SSH_PROD_PRIVATE_KEY
   script:
-    - scp docker-compose.prod.yml $PROD_CRED:~/deployment
-    - ssh $PROD_CRED "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
-    - ssh $PROD_CRED "docker-compose --file ~/deployment/docker-compose.prod.yml pull"
-    - ssh $PROD_CRED "docker-compose --file ~/deployment/docker-compose.prod.yml down"
-    - ssh $PROD_CRED "docker-compose --file ~/deployment/docker-compose.prod.yml up -d"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - echo "$PROD_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - scp docker-compose.prod.yml $PROD_SSH_HOST:~/deployment
+    - ssh $PROD_SSH_HOST "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - ssh $PROD_SSH_HOST "docker-compose --file ~/deployment/docker-compose.prod.yml pull"
+    - ssh $PROD_SSH_HOST "docker-compose --file ~/deployment/docker-compose.prod.yml down"
+    - ssh $PROD_SSH_HOST "docker-compose --file ~/deployment/docker-compose.prod.yml up -d"
+    - ssh $PROD_SSH_HOST "docker logout $CI_REGISTRY"
