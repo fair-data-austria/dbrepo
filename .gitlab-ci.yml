@@ -4,10 +4,14 @@ image: docker/compose:latest
 before_script:
   - docker version
   - docker-compose version
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 cache:
   paths:
     - /root/.m2/repository/
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
 
 stages:
   - build
@@ -21,7 +25,12 @@ build:
     - docker-compose down
     - docker-compose build
 
-test:
+test-backend:
+  stage: test
+  script:
+    - echo "todo"
+
+test-frontend:
   stage: test
   script:
     - echo "todo"
@@ -29,9 +38,22 @@ test:
 deploy:
   stage: deploy
   script:
-    - echo "todo"
-  only:
-    - master
+    - docker build -t $CI_REGISTRY/fda-analyse-service:latest ./fda-analyse-service
+    - docker push $CI_REGISTRY/fda-analyse-service:latest
+    - docker build -t $CI_REGISTRY/fda-discovery-server:latest ./fda-discovery-server
+    - docker push $CI_REGISTRY/fda-discovery-server:latest
+    - docker build -t $CI_REGISTRY/fda-gateway-service:latest ./fda-gateway-service
+    - docker push $CI_REGISTRY/fda-gateway-service:latest
+    - docker build -t $CI_REGISTRY/fda-database-managing-service:latest ./fda-database-managing-service
+    - docker push $CI_REGISTRY/fda-database-managing-service:latest
+    - docker build -t $CI_REGISTRY/fda-container-managing-service:latest ./fda-container-managing-service
+    - docker push $CI_REGISTRY/fda-container-managing-service:latest
+    - docker build -t $CI_REGISTRY/fda-query-service:latest ./fda-query-service
+    - docker push $CI_REGISTRY/fda-query-service:latest
+    - docker build -t $CI_REGISTRY/fda-table-service:latest ./fda-table-service
+    - docker push $CI_REGISTRY/fda-table-service:latest
+    - docker build -t $CI_REGISTRY/fda-ui:latest ./fda-ui
+    - docker push $CI_REGISTRY/fda-ui:latest
 
 production:
   stage: production
