@@ -58,6 +58,7 @@ deploy:
   only:
     - dev
     - master
+    - docker/refactoring
 
 production:
   image: kroniak/ssh-client
@@ -74,3 +75,7 @@ production:
     - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml down"
     - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml up -d"
     - ssh $PROD_SSH_HOST "docker logout $CI_REGISTRY"
+  only:
+    - dev
+    - master
+    - docker/refactoring
