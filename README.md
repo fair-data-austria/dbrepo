@@ -29,6 +29,23 @@ Everything is handled by compose, just build it by running:
 docker-compose build
 ```
 
+## Deployment
+
+The pipeline is set-up to build and test all commits. A commit to dev or master branch triggers additional jobs.
+
+### Development
+
+A commit to `dev` triggers the following pipeline. It deploys the docker images to the docker registry hosted on the fda-runner server and deploys it also to a test server (fda-deployment) at TU Wien. 
+
+![pipeline dev](https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-docs/-/raw/master/figures/fda-pipeline-dev.png)
+
+### Production
+
+A commit to `master` triggers the following pipeline. It deploys the docker images to the docker registry hosted on the fda-runner server and deploys it also to a production server tbd.
+
+![pipeline master](https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-docs/-/raw/master/figures/fda-pipeline-prod.png)
+
+
 ## Start
 
 Now start all services by running:
