@@ -9,6 +9,8 @@ before_script:
 cache:
   paths:
     - /root/.m2/repository/
+    - /root/.npm/
+    - ./fda-ui/node_modules/
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
