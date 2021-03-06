@@ -1,4 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
+
 require('dotenv').config()
 
 export default {
@@ -29,8 +30,8 @@ export default {
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
-    '~/plugins/toast',
-    '~/plugins/vuex-persist'
+    { src: '~/plugins/toast', ssr: false }, // only server side
+    { src: '~/plugins/vuex-persist', ssr: false } // only server side
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -87,5 +88,16 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    babel: {
+      presets (env, [preset, options]) {
+        return [
+          ['@babel/preset-env', {
+            targets: {
+              node: 'current'
+            }
+          }]
+        ]
+      }
+    }
   }
 }
