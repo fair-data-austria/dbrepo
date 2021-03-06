@@ -6,8 +6,8 @@
     "dev": "nuxt",
     "docker": "nuxt > /dev/null",
     "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate",
+    "start": "node --max-old-space-size=4096 node_modules/nuxt/bin/nuxt.js start",
+    "generate": "node --max-old-space-size=4096 node_modules/nuxt/bin/nuxt.js generate",
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js"
   },

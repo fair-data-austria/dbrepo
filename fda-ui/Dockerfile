@@ -20,7 +20,7 @@ COPY ./static ./static
 COPY ./nuxt.config.js ./
 COPY ./.env ./
 
-RUN yarn generate > /dev/null
+RUN yarn generate
 
 EXPOSE 3000
 
