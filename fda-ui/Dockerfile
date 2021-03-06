@@ -9,6 +9,7 @@ COPY ./yarn.lock ./
 
 RUN yarn install > /dev/null
 
+RUN ls -la
 COPY ./assets ./assets
 COPY ./lang ./lang
 COPY ./middleware ./middleware
