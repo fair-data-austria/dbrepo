@@ -9,7 +9,7 @@ COPY ./yarn.lock ./
 
 RUN yarn install > /dev/null
 
-RUN ls -la /root/node_modules
+RUN ls -la /
 COPY ./node_modules ./node_modules
 COPY ./assets ./assets
 COPY ./lang ./lang
