@@ -9,19 +9,10 @@ COPY ./yarn.lock ./
 
 RUN yarn install > /dev/null
 
-COPY ./assets ./assets
-COPY ./lang ./lang
-COPY ./middleware ./middleware
-COPY ./plugins ./plugins
-COPY ./store ./store
-COPY ./components ./components
-COPY ./pages ./pages
-COPY ./static ./static
-COPY ./nuxt.config.js ./
-COPY ./.env ./
+COPY . .
 
 RUN yarn generate > /dev/null
 
 EXPOSE 3000
 
-ENTRYPOINT ["yarn", "start"]
+ENTRYPOINT ["npm", "start"]
