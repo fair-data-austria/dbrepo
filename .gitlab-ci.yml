@@ -58,6 +58,7 @@ deploy:
     - docker push $CI_REGISTRY/fda-ui:$TAG
     - docker logout $CI_REGISTRY
   only:
+    - dev
     - master
 
 production:
