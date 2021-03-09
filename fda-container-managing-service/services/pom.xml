@@ -11,6 +11,10 @@
 
     <artifactId>services</artifactId>
 
+    <properties>
+        <mapstruct.version>1.4.2.Final</mapstruct.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>at.tuwien</groupId>
@@ -22,6 +26,11 @@
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java</artifactId>
             <version>3.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
         </dependency>
     </dependencies>
 

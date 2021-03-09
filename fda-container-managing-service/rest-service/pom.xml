@@ -39,7 +39,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <finalName>${project.parent.artifactId}-${project.version}</finalName>
-                    <mainClass>at.tuwien.application.FdaContainerManagingApplication</mainClass>
+                    <mainClass>at.tuwien.FdaContainerManagingApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

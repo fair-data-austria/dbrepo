@@ -1,74 +1,68 @@
 package at.tuwien.controller;
 
-import at.tuwien.dto.CreateDatabaseContainerDTO;
+import at.tuwien.dto.container.ContainerActionTypeDto;
+import at.tuwien.dto.container.ContainerBriefDto;
+import at.tuwien.dto.database.CreateDatabaseContainerDto;
+import at.tuwien.dto.database.CreateDatabaseResponseDto;
 import at.tuwien.model.DatabaseContainer;
 import at.tuwien.service.ContainerService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
+@Log4j2
 @RestController
 @RequestMapping("/api")
 public class DatabaseContainerController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseContainerController.class);
 
-    private ContainerService service;
+    private final ContainerService containerService;
 
     @Autowired
-    public DatabaseContainerController(ContainerService service) {
-        this.service = service;
+    public DatabaseContainerController(ContainerService containerService) {
+        this.containerService = containerService;
     }
 
-    @PostMapping("/createDatabaseContainer")
-    @ApiOperation("creating a new database container")
-    @ApiResponses({@ApiResponse(code = 201, message = "database container created")})
-    public Response createDatabaseContainer(@RequestBody CreateDatabaseContainerDTO dto) {
-        LOGGER.debug("creating new database container");
-        String containerId = service.createDatabaseContainer(dto);
-        return Response
-                .status(Response.Status.CREATED)
-                .entity("Database container with containerID: " + containerId + "successfully created and started!")
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+    @GetMapping("/container")
+    @ApiOperation("Get all user containers with databases inside it")
+    public ResponseEntity<List<ContainerBriefDto>> listDatabaseContainers() {
+        return ResponseEntity.ok(List.of());
     }
 
-    @GetMapping("/getDatabaseContainerByContainerID")
-    public DatabaseContainer getDatabaseContainerByContainerID(@RequestParam String containerID) {
-        LOGGER.debug("getting database container by containerID");
-        return service.getDatabaseContainerByContainerID(containerID);
-      /*  return Response
-                .status(Response.Status.FOUND)
-                .entity(connectionDataForDB)
-                .type(MediaType.APPLICATION_JSON)
-                .build();*/
+    @PostMapping("/container")
+    @ApiOperation("Create a new user container with database inside it")
+    @ApiResponse(message = "database created", code = 201)
+    public ResponseEntity<CreateDatabaseResponseDto> create(@RequestBody CreateDatabaseContainerDto data) {
+        final String containerId = containerService.createDatabaseContainer(data);
+        log.debug("Create new database {} in container {} with id {}", data.getDatabaseName(), data.getContainerName(), containerId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CreateDatabaseResponseDto.builder()
+                        .containerId(containerId)
+                        .build());
+    }
+
+    @GetMapping("/container/{id}")
+    @ApiOperation("Get info of user container with database inside it")
+    public DatabaseContainer findById(@RequestParam String id) {
+        return containerService.getDatabaseContainerByContainerID(id);
 
     }
 
-    @GetMapping("/getCreatedDatabaseContainers")
-    public List<DatabaseContainer> getCreatedDatabaseContainers() {
-        LOGGER.debug("getting created database containers");
-        return service.findAllDatabaseContainers();
+    @PostMapping("/container/{id}")
+    @ApiOperation("Update a user container with database inside it")
+    public ResponseEntity<ContainerBriefDto> change(@RequestParam String id, @RequestBody ContainerActionTypeDto data) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    public void startContainer(String containerID) {
-        //TODO
-    }
-
-    public void stopContainer(String containerID) {
-        //TODO
-    }
-
-    public void deleteDatabaseContainer(String containerID) {
-        //TODO
+    @PostMapping("/container/{id}")
+    @ApiOperation("Delete a user container with database inside it")
+    public ResponseEntity<ContainerBriefDto> deleteDatabaseContainer(@RequestParam String id) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
 }

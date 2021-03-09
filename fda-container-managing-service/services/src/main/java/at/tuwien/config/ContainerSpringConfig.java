@@ -10,14 +10,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ContainerSpringConfig {
 
-    private final String localDockerHost = SystemUtils.IS_OS_WINDOWS ? "tcp://localhost:2375"
-            : "unix:///var/run/docker.sock";
-
-    private final DefaultDockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-            .withDockerHost(localDockerHost).build();
-
     @Bean
-    public DockerClient dockerClientConfiguration(){
+    public DockerClient dockerClientConfiguration() {
+        final DefaultDockerClientConfig config = DefaultDockerClientConfig
+                .createDefaultConfigBuilder()
+                .withDockerHost(SystemUtils.IS_OS_WINDOWS ? "tcp://localhost:2375" : "unix:///var/run/docker.sock")
+                .build();
         return DockerClientBuilder.getInstance(config).build();
     }
 }
