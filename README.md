@@ -12,16 +12,27 @@ docker login https://docker.martinweise.at
 > Password: fda-docker
 ```
 
+The `dev` branch images have suffix `:latest` (=optional), to pull them execute the following
+
 ```bash
-docker pull docker.martinweise.at/fda-analyse-service
-docker pull docker.martinweise.at/fda-discovery-server
-docker pull docker.martinweise.at/fda-gateway-service
-docker pull docker.martinweise.at/fda-database-managing-service
-docker pull docker.martinweise.at/fda-container-managing-service
-docker pull docker.martinweise.at/fda-query-service
-docker pull docker.martinweise.at/fda-table-service
-docker pull docker.martinweise.at/fda-ui
+docker pull docker.martinweise.at/fda-analyse-service:latest
+docker pull docker.martinweise.at/fda-discovery-server:latest
+docker pull docker.martinweise.at/fda-gateway-service:latest
+docker pull docker.martinweise.at/fda-database-managing-service:latest
+docker pull docker.martinweise.at/fda-container-managing-service:latest
+docker pull docker.martinweise.at/fda-query-service:latest
+docker pull docker.martinweise.at/fda-table-service:latest
+docker pull docker.martinweise.at/fda-ui:latest
 ```
+
+The `master` branch images have suffix `:stable`, they are pulled similar:
+
+```bash
+docker pull docker.martinweise.at/fda-analyse-service:stable
+...
+```
+
+Note: the domain martinweise.at is private and I do not own any of these images, it is just a necessary condition for Docker to pull from a (private, non-public) remote repository! The domain should of course be changed before release!
 
 ## Build
 
