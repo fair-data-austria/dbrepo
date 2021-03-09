@@ -22,4 +22,5 @@ COPY . .
 
 EXPOSE 5000
 
+# TODO on runtime displays: "WARNING: This is a development server. Do not use it in a production deployment."
 CMD ["flask", "run"]
