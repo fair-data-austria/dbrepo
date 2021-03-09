@@ -23,7 +23,7 @@ stages:
 build:
   stage: build
   script:
-    - docker-compose build
+    - docker-compose build --pull
 
 test-backend:
   stage: test
@@ -73,8 +73,8 @@ production:
     - scp docker-compose.dev.yml $PROD_SSH_HOST:~/deployment/docker-compose.yml
     - ssh $PROD_SSH_HOST "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
     - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml pull"
-    - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml down"
-    - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml up -d"
+    - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml -p 'fda' down"
+    - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml -p 'fda' up -d"
     - ssh $PROD_SSH_HOST "docker logout $CI_REGISTRY"
   only:
     - dev
