@@ -1,4 +1,0 @@
-[submodule "fda-ui"]
-	path = fda-ui
-	url = git@gitlab.phaidra.org:fair-data-austria-db-repository/fda-ui.git
-	branch = master

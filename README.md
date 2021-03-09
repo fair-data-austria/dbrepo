@@ -2,7 +2,28 @@
 
 # FAIR Data Austria Services
 
-### Build
+## Install
+
+Pull the latest dev/master images on your client through:
+
+```bash
+docker login https://docker.martinweise.at
+> Username: fda
+> Password: fda-docker
+```
+
+```bash
+docker pull docker.martinweise.at/fda-analyse-service
+docker pull docker.martinweise.at/fda-discovery-server
+docker pull docker.martinweise.at/fda-gateway-service
+docker pull docker.martinweise.at/fda-database-managing-service
+docker pull docker.martinweise.at/fda-container-managing-service
+docker pull docker.martinweise.at/fda-query-service
+docker pull docker.martinweise.at/fda-table-service
+docker pull docker.martinweise.at/fda-ui
+```
+
+## Build
 
 Everything is handled by compose, just build it by running:
 
@@ -10,21 +31,48 @@ Everything is handled by compose, just build it by running:
 docker-compose build
 ```
 
-### Start
+## Deployment
+
+The pipeline is set-up to build and test all commits. A commit to dev or master branch triggers additional jobs.
+
+### Development
+
+A commit to `dev` triggers the following pipeline. It deploys the docker images to the docker registry hosted on the fda-runner server and deploys it also to a test server (fda-deployment) at TU Wien. 
+
+![pipeline dev](https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-docs/-/raw/master/figures/fda-pipeline-dev.png)
+
+### Production
+
+A commit to `master` triggers the following pipeline. It deploys the docker images to the docker registry hosted on the fda-runner server and deploys it also to a production server tbd.
+
+![pipeline master](https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-docs/-/raw/master/figures/fda-pipeline-prod.png)
+
+
+## Start
 
 Now start all services by running:
 
 ```bash
-docker-compose up fda-discovery-server fda-gateway-service fda-database-managing-service fda-container-managing-service fda-query-service fda-table-service fda-analyse-service
-```
-
-Optionally, start the user interface by running:
-
-```bash
-docker-compose up fda-ui
+docker-compose up
 ```
 
 ### Troubleshooting
+
+##### FDA Runner
+
+Hosted at TU Wien 128.130.202.89, only accessible from TU-Network
+
+**Important**
+
+Different MTU for HPC Cluster, edit for Docker to work with bridge mode the `/etc/docker/daemon.json`:
+
+```bash
+{
+    "mtu": 1450
+}
+```
+
+##### Virtual Machine
 
 Ubuntu 20.04 LTS
 
@@ -37,14 +85,26 @@ WARNING: Illegal reflective access by com.google.inject.internal.cglib.core.$Ref
 
 Install maven from Apache Org.:
 
-# Download maven e.g. 3.6.3
+Download maven e.g. 3.6.3
+
+```bash
 wget https://www-us.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -P /tmp
+```
 
-# Untar downloaded file to /opt
+Untar downloaded file to /opt
+
+```bash
 sudo tar xf /tmp/apache-maven-*.tar.gz -C /opt
+```
 
-# Install the alternative version for the mvn in your system
+Install the alternative version for the mvn in your system
+
+```bash
 sudo update-alternatives --install /usr/bin/mvn mvn /opt/apache-maven-3.6.3/bin/mvn 363
+```
 
-# Check if your configuration is ok. You may use your current or the 3.6.3 whenever you wish, running the command below.
+Check if your configuration is ok. You may use your current or the 3.6.3 whenever you wish, running the command below.
+
+```bash
 sudo update-alternatives --config mvn
+```

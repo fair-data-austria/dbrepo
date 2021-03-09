@@ -2,24 +2,22 @@
 FROM maven:slim as build
 MAINTAINER Martin Weise <martin.weise@tuwien.ac.at>
 
+COPY ./pom.xml ./
+
+RUN mvn -fn -B dependency:go-offline > /dev/null
+
 COPY ./api ./api
 COPY ./gateways ./gateways
 COPY ./persistence ./persistence
 COPY ./rest-service ./rest-service
 COPY ./services ./services
-COPY ./pom.xml ./
 
-ENV SPRING_MAIN_BANNER-MODE=off
-
-RUN mvn -fn -B dependency:go-offline > /dev/null
-
-# FIXME remove for production
-RUN mvn -q clean package -DskipTests > /dev/null
+RUN mvn -q clean package > /dev/null
 
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-COPY --from=build ./rest-service/target/rest-service-*.jar ./rest.jar
+COPY --from=build ./rest-service/target/fda-query-service-*.jar ./rest.jar
 
 EXPOSE 9093
 
