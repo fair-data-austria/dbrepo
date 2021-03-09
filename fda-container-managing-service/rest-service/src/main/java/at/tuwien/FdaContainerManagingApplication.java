@@ -1,4 +1,4 @@
-package at.tuwien.application;
+package at.tuwien;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

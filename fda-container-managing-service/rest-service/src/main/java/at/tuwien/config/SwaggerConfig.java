@@ -26,10 +26,10 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo("FDA-Container-Managing API",
-                "Service API for container managing",
+                "Docker service that can manage Docker services",
                 "1.0",
                 null,
-                new Contact("Gökhan Dasdemir", "http://tuwien.at", "goekhan.dasdemir@tuwien.ac.at"),
+                new Contact("Martin Weise", "https://informatics.tuwien.ac.at/people/martin-weise", "martin.weise@tuwien.ac.at"),
                 "API license",
                 null,
                 Collections.emptyList());

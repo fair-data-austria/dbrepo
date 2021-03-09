@@ -12,17 +12,16 @@ import java.util.Map;
 @Setter
 public class DatabaseContainer {
 
-    @JsonProperty("ContainerID")
     private String containerID;
-    @JsonProperty("Created")
+
     private String created;
-    @JsonProperty("ContainerName")
+
     private String containerName;
-    @JsonProperty("DbName")
+
     private String dbName;
-    @JsonProperty("Status")
+
     private String status;
-    @JsonProperty("IpAddress")
+
     private String ipAddress;
 
 }

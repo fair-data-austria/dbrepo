@@ -1,4 +1,4 @@
-package at.tuwien.dto;
+package at.tuwien.dto.database;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,10 +8,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CreateDatabaseConnectionDataDTO {
+public class CreateDatabaseConnectionDataDto {
 
     @JsonProperty("IpAddress")
     private String ipAddress;
+
     @JsonProperty("DatabaseName")
     private String dbName;
 }
