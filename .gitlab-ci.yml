@@ -4,6 +4,7 @@ image: docker/compose:latest
 before_script:
   - docker version
   - docker-compose version
+  - mvn --version
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 cache:
@@ -27,10 +28,8 @@ build:
     - docker-compose build
 
 test-backend:
-  image: maven:3-jdk-11
   stage: test
   script:
-    - mvn --version
     - mvn -f fda-container-managing-service/pom.xml clean test
 
 test-frontend:
