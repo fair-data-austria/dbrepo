@@ -1,15 +1,14 @@
-package services.service;
+package service;
 
 import api.dto.database.CreateDatabaseContainerDto;
-import services.entities.DatabaseContainer;
-import services.mapper.DatabaseContainerMapper;
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.RestartPolicy;
+import entities.DatabaseContainer;
+import mapper.DatabaseContainerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;

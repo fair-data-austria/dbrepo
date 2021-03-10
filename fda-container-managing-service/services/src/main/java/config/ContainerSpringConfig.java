@@ -1,4 +1,4 @@
-package services.config;
+package config;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;

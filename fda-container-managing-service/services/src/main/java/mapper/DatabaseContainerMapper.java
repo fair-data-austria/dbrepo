@@ -1,13 +1,13 @@
-package services.mapper;
+package mapper;
 
 import api.dto.container.DatabaseContainerBriefDto;
 import api.dto.container.DatabaseContainerDto;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
+import entities.DatabaseContainer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
-import services.entities.DatabaseContainer;
 
 @Mapper(componentModel = "spring")
 public interface DatabaseContainerMapper {

@@ -1,4 +1,4 @@
-package rest.endpoints;
+package endpoints;
 
 import api.dto.container.ContainerActionTypeDto;
 import api.dto.container.DatabaseContainerBriefDto;

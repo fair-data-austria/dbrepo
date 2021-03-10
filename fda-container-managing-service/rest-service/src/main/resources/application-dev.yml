@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fda
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        ddl-auto: update
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.ddl-auto: none
+    hibernate.show-sql: true
+  application:
+    name: fda-container-managing
+server.port: 9091
+eureka:
+  client.serviceUrl.defaultZone: http://localhost:9090/eureka/
