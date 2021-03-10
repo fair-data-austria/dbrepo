@@ -77,7 +77,7 @@ def extract_tables():
 
 rest_server_port = 5000
 eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
-                   app_name="fda-analyse-service",
+                   app_name="fda-analyse-at.tuwien.service",
                    instance_port=rest_server_port)
 
 

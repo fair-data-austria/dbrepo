@@ -8,6 +8,7 @@ import java.time.Instant;
 
 
 @Entity
+@Data
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class DatabaseContainer extends Auditable{
@@ -19,7 +20,7 @@ public class DatabaseContainer extends Auditable{
     private Instant containerCreated;
 
     @Column(nullable = false)
-    private String containerName;
+    private String name;
 
     @Column(nullable = false)
     private String databaseName;

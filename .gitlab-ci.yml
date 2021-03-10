@@ -41,20 +41,20 @@ deploy-dev:
   variables:
     TAG: latest
   script:
-    - docker build -t $CI_REGISTRY/fda-analyse-service:$TAG ./fda-analyse-service
-    - docker push $CI_REGISTRY/fda-analyse-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-analyse-at.tuwien.service:$TAG ./fda-analyse-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-analyse-at.tuwien.service:$TAG
     - docker build -t $CI_REGISTRY/fda-discovery-server:$TAG ./fda-discovery-server
     - docker push $CI_REGISTRY/fda-discovery-server:$TAG
-    - docker build -t $CI_REGISTRY/fda-gateway-service:$TAG ./fda-gateway-service
-    - docker push $CI_REGISTRY/fda-gateway-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-database-managing-service:$TAG ./fda-database-managing-service
-    - docker push $CI_REGISTRY/fda-database-managing-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-container-managing-service:$TAG ./fda-container-managing-service
-    - docker push $CI_REGISTRY/fda-container-managing-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-query-service:$TAG ./fda-query-service
-    - docker push $CI_REGISTRY/fda-query-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-table-service:$TAG ./fda-table-service
-    - docker push $CI_REGISTRY/fda-table-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-gateway-at.tuwien.service:$TAG ./fda-gateway-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-gateway-at.tuwien.service:$TAG
+    - docker build -t $CI_REGISTRY/fda-database-managing-at.tuwien.service:$TAG ./fda-database-managing-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-database-managing-at.tuwien.service:$TAG
+    - docker build -t $CI_REGISTRY/fda-container-managing-at.tuwien.service:$TAG ./fda-container-managing-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-container-managing-at.tuwien.service:$TAG
+    - docker build -t $CI_REGISTRY/fda-query-at.tuwien.service:$TAG ./fda-query-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-query-at.tuwien.service:$TAG
+    - docker build -t $CI_REGISTRY/fda-table-at.tuwien.service:$TAG ./fda-table-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-table-at.tuwien.service:$TAG
     - docker build -t $CI_REGISTRY/fda-ui:$TAG ./fda-ui
     - docker push $CI_REGISTRY/fda-ui:$TAG
     - docker logout $CI_REGISTRY
@@ -66,20 +66,20 @@ deploy-prod:
   variables:
     TAG: stable
   script:
-    - docker build -t $CI_REGISTRY/fda-analyse-service:$TAG ./fda-analyse-service
-    - docker push $CI_REGISTRY/fda-analyse-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-analyse-at.tuwien.service:$TAG ./fda-analyse-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-analyse-at.tuwien.service:$TAG
     - docker build -t $CI_REGISTRY/fda-discovery-server:$TAG ./fda-discovery-server
     - docker push $CI_REGISTRY/fda-discovery-server:$TAG
-    - docker build -t $CI_REGISTRY/fda-gateway-service:$TAG ./fda-gateway-service
-    - docker push $CI_REGISTRY/fda-gateway-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-database-managing-service:$TAG ./fda-database-managing-service
-    - docker push $CI_REGISTRY/fda-database-managing-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-container-managing-service:$TAG ./fda-container-managing-service
-    - docker push $CI_REGISTRY/fda-container-managing-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-query-service:$TAG ./fda-query-service
-    - docker push $CI_REGISTRY/fda-query-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-table-service:$TAG ./fda-table-service
-    - docker push $CI_REGISTRY/fda-table-service:$TAG
+    - docker build -t $CI_REGISTRY/fda-gateway-at.tuwien.service:$TAG ./fda-gateway-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-gateway-at.tuwien.service:$TAG
+    - docker build -t $CI_REGISTRY/fda-database-managing-at.tuwien.service:$TAG ./fda-database-managing-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-database-managing-at.tuwien.service:$TAG
+    - docker build -t $CI_REGISTRY/fda-container-managing-at.tuwien.service:$TAG ./fda-container-managing-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-container-managing-at.tuwien.service:$TAG
+    - docker build -t $CI_REGISTRY/fda-query-at.tuwien.service:$TAG ./fda-query-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-query-at.tuwien.service:$TAG
+    - docker build -t $CI_REGISTRY/fda-table-at.tuwien.service:$TAG ./fda-table-at.tuwien.service
+    - docker push $CI_REGISTRY/fda-table-at.tuwien.service:$TAG
     - docker build -t $CI_REGISTRY/fda-ui:$TAG ./fda-ui
     - docker push $CI_REGISTRY/fda-ui:$TAG
     - docker logout $CI_REGISTRY

@@ -5,6 +5,7 @@ import at.tuwien.api.dto.container.DatabaseContainerDto;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
 import at.tuwien.entities.DatabaseContainer;
+import com.github.dockerjava.api.model.NetworkSettings;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -13,11 +14,8 @@ import org.mapstruct.Mappings;
 public interface DatabaseContainerMapper {
 
     @Mappings({
-            @Mapping(source = "id", target = "id"),
-            @Mapping(source = "name", target = "containerId"),
-            @Mapping(source = "created", target = "created"),
-            @Mapping(source = "ipAddress", target = "ipAddress"),
-            @Mapping(source = "dbName", target = "dbName"),
+            @Mapping(source = "id", target = "containerId"),
+            @Mapping(source = "created", target = "containerCreated"),
     })
     DatabaseContainer inspectContainerResponseToDatabaseContainer(InspectContainerResponse containerResponse);
 //    public DatabaseContainer map(InspectContainerResponse containerResponse) {
@@ -27,6 +25,10 @@ public interface DatabaseContainerMapper {
 //        databaseContainer.setStatus(containerResponse.getState().getStatus());
 //        return databaseContainer;
 //    }
+
+    default String networkSettingsNetworksBridgeToIpAddress(NetworkSettings data) {
+        return data.getNetworks().get("bridge").getIpAddress();
+    }
 
     DatabaseContainer containerToDatabaseContainer(Container data);
 
