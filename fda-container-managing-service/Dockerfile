@@ -6,7 +6,7 @@ COPY ./pom.xml ./
 
 RUN mvn -fn -B dependency:go-offline > /dev/null
 
-COPY src/main/java/api ./api
+COPY api/src/main/java/api ./api
 COPY src/main/java/rest ./rest-service
 COPY src/main/java/services ./services
 

@@ -1,8 +1,29 @@
 version: "3.6"
 
+volumes:
+  fda-metadata-db-data:
+
 services:
 
+  fda-metadata-db:
+    restart: always
+    container_name: fda-metadata-db
+    hostname: fda-metadata-db
+    image: postgres:13-alpine
+    volumes:
+      - fda-metadata-db-data:/var/lib/postgresql/data
+    network_mode: bridge
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fda
+
+
+
   fda-discovery-server:
+    restart: always
     container_name: fda-discovery-server
     hostname: fda-discovery-server
     build: ./fda-discovery-server
@@ -14,6 +35,7 @@ services:
       - 9090:9090
 
   fda-gateway-service:
+    restart: always
     container_name: fda-gateway-service
     hostname: fda-gateway-service
     build: ./fda-gateway-service
@@ -39,6 +61,7 @@ services:
       driver: json-file
 
   fda-database-managing-service:
+    restart: always
     container_name: fda-database-managing-service
     hostname: fda-database-managing-service
     build:
@@ -59,6 +82,7 @@ services:
       driver: json-file
 
   fda-container-managing-service:
+    restart: always
     container_name: fda-container-managing-service
     hostname: fda-container-managing-service
     build: ./fda-container-managing-service
@@ -78,6 +102,7 @@ services:
       driver: json-file
 
   fda-query-service:
+    restart: always
     container_name: fda-query-service
     hostname: fda-query-service
     build: ./fda-query-service
@@ -99,6 +124,7 @@ services:
       driver: json-file
 
   fda-table-service:
+    restart: always
     container_name: fda-table-service
     hostname: fda-table-service
     build: ./fda-table-service
@@ -119,6 +145,7 @@ services:
       - fda-discovery-server
 
   fda-analyse-service:
+    restart: always
     container_name: fda-analyse-service
     hostname: fda-analyse-service
     build: ./fda-analyse-service
@@ -143,6 +170,7 @@ services:
       driver: json-file
 
   fda-ui:
+    restart: always
     container_name: fda-ui
     hostname: fda-ui
     build: ./fda-ui
