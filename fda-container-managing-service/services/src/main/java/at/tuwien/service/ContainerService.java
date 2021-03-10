@@ -1,14 +1,14 @@
-package service;
+package at.tuwien.service;
 
-import api.dto.database.CreateDatabaseContainerDto;
+import at.tuwien.api.dto.database.CreateDatabaseContainerDto;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.RestartPolicy;
-import entities.DatabaseContainer;
-import mapper.DatabaseContainerMapper;
+import at.tuwien.entities.DatabaseContainer;
+import at.tuwien.mapper.DatabaseContainerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;

@@ -1,20 +1,19 @@
-package entities;
+package at.tuwien.api.dto.container;
 
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Getter
 @Setter
-public class DatabaseContainer {
+public class ContainerDto {
 
-    private String containerID;
+    private String containerId;
 
     private String created;
 
     private String containerName;
 
-    private String dbName;
+    private String databaseName;
 
     private String status;
 

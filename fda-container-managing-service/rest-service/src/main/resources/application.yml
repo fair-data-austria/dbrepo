@@ -1,4 +1,5 @@
 spring:
+  main.banner-mode: off
   datasource:
     url: jdbc:postgresql://localhost:5432/fda
     driver-class-name: org.postgresql.Driver
@@ -8,12 +9,17 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        ddl-auto: update
+        ddl-auto: create-drop
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate.ddl-auto: none
     hibernate.show-sql: true
   application:
     name: fda-container-managing
 server.port: 9091
+logging:
+  pattern.console: "%d %highlight(%-5level) %msg%n"
+  level:
+    root: warn
+    at.: debug
 eureka:
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
