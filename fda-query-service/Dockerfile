@@ -9,7 +9,7 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 COPY ./api ./api
 COPY ./gateways ./gateways
 COPY ./persistence ./persistence
-COPY ./rest-service ./rest-service
+COPY ./rest-at.tuwien.service ./rest-at.tuwien.service
 COPY ./services ./services
 
 RUN mvn -q clean package > /dev/null
@@ -17,7 +17,7 @@ RUN mvn -q clean package > /dev/null
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-COPY --from=build ./rest-service/target/fda-query-service-*.jar ./rest.jar
+COPY --from=build ./rest-at.tuwien.service/target/fda-query-at.tuwien.service-*.jar ./rest.jar
 
 EXPOSE 9093
 

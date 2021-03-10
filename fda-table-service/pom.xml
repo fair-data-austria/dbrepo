@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>api</module>
-        <module>rest-service</module>
+        <module>rest-at.tuwien.service</module>
         <module>services</module>
         <module>gateways</module>
     </modules>
@@ -16,9 +16,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>at.tuwien</groupId>
-    <artifactId>fda-table-service</artifactId>
+    <artifactId>fda-table-at.tuwien.service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-table-service</name>
+    <name>fda-table-at.tuwien.service</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

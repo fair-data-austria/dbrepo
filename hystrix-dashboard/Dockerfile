@@ -12,6 +12,6 @@ RUN mvn -q clean package > /dev/null
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-COPY --from=build ./rest-service/target/hystrix-dashboard-*.jar ./hystrix.jar
+COPY --from=build ./rest-at.tuwien.service/target/hystrix-dashboard-*.jar ./hystrix.jar
 
 ENTRYPOINT ["java", "-jar", "./hystrix.jar"]
