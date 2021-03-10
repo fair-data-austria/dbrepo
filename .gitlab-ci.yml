@@ -27,7 +27,7 @@ build:
     - docker-compose build
 
 test-backend:
-  image: maven:slim
+  image: maven
   stage: test
   script:
     - mvn -f fda-container-managing-service/pom.xml clean test
