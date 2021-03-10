@@ -29,7 +29,7 @@ build:
 test-backend:
   stage: test
   script:
-    - echo "todo"
+    - mvn -f fda-container-managing-service/pom.xml clean test
 
 test-frontend:
   stage: test
