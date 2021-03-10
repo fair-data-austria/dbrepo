@@ -27,7 +27,7 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo("FDA-Query-Service API",
-                "Service API for query at.tuwien.service",
+                "Service API for query service",
                 "1.0",
                 null,
                 new Contact("Gökhan Dasdemir", "http://tuwien.at", "goekhan.dasdemir@tuwien.ac.at"),

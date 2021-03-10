@@ -11,13 +11,13 @@ docker login https://docker.martinweise.at
 ```
 
 ```bash
-docker pull docker.martinweise.at/fda-analyse-at.tuwien.service
+docker pull docker.martinweise.at/fda-analyse-service
 docker pull docker.martinweise.at/fda-discovery-server
-docker pull docker.martinweise.at/fda-gateway-at.tuwien.service
-docker pull docker.martinweise.at/fda-database-managing-at.tuwien.service
-docker pull docker.martinweise.at/fda-container-managing-at.tuwien.service
-docker pull docker.martinweise.at/fda-query-at.tuwien.service
-docker pull docker.martinweise.at/fda-table-at.tuwien.service
+docker pull docker.martinweise.at/fda-gateway-service
+docker pull docker.martinweise.at/fda-database-managing-service
+docker pull docker.martinweise.at/fda-container-managing-service
+docker pull docker.martinweise.at/fda-query-service
+docker pull docker.martinweise.at/fda-table-service
 docker pull docker.martinweise.at/fda-ui
 ```
 

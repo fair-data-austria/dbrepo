@@ -13,9 +13,9 @@ services:
       - 9090:9090
 
   fda-gateway-service:
-    container_name: fda-gateway-at.tuwien.service
-    hostname: fda-gateway-at.tuwien.service
-    image: docker.martinweise.at/fda-gateway-at.tuwien.service:latest
+    container_name: fda-gateway-service
+    hostname: fda-gateway-service
+    image: docker.martinweise.at/fda-gateway-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -37,9 +37,9 @@ services:
       driver: json-file
 
   fda-database-managing-service:
-    container_name: fda-database-managing-at.tuwien.service
-    hostname: fda-database-managing-at.tuwien.service
-    image:  docker.martinweise.at/fda-database-managing-at.tuwien.service:latest
+    container_name: fda-database-managing-service
+    hostname: fda-database-managing-service
+    image:  docker.martinweise.at/fda-database-managing-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -55,9 +55,9 @@ services:
       driver: json-file
 
   fda-container-managing-service:
-    container_name: fda-container-managing-at.tuwien.service
-    hostname: fda-container-managing-at.tuwien.service
-    image: docker.martinweise.at/fda-container-managing-at.tuwien.service:latest
+    container_name: fda-container-managing-service
+    hostname: fda-container-managing-service
+    image: docker.martinweise.at/fda-container-managing-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -73,9 +73,9 @@ services:
       driver: json-file
 
   fda-query-service:
-    container_name: fda-query-at.tuwien.service
-    hostname: fda-query-at.tuwien.service
-    image:  docker.martinweise.at/fda-query-at.tuwien.service:latest
+    container_name: fda-query-service
+    hostname: fda-query-service
+    image:  docker.martinweise.at/fda-query-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -93,9 +93,9 @@ services:
       driver: json-file
 
   fda-table-service:
-    container_name: fda-table-at.tuwien.service
-    hostname: fda-table-at.tuwien.service
-    image:  docker.martinweise.at/fda-table-at.tuwien.service:latest
+    container_name: fda-table-service
+    hostname: fda-table-service
+    image:  docker.martinweise.at/fda-table-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -112,9 +112,9 @@ services:
       - fda-discovery-server
 
   fda-analyse-service:
-    container_name: fda-analyse-at.tuwien.service
-    hostname: fda-analyse-at.tuwien.service
-    image:  docker.martinweise.at/fda-analyse-at.tuwien.service:latest
+    container_name: fda-analyse-service
+    hostname: fda-analyse-service
+    image:  docker.martinweise.at/fda-analyse-service:latest
     network_mode: bridge
     command: sh -c "/wait && flask run"
     environment:
@@ -149,4 +149,4 @@ services:
       - fda-discovery-server
     environment:
       HOST: 0.0.0.0
-      API_URL: //fda-database-managing-at.tuwien.service:9092/api
+      API_URL: //fda-database-managing-service:9092/api

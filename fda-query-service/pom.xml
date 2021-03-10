@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
-        <module>rest-at.tuwien.service</module>
+        <module>rest-service</module>
         <module>api</module>
         <module>services</module>
         <module>gateways</module>
@@ -17,9 +17,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>at.tuwien</groupId>
-    <artifactId>fda-query-at.tuwien.service</artifactId>
+    <artifactId>fda-query-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-query-at.tuwien.service</name>
+    <name>fda-query-service</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

@@ -22,11 +22,11 @@ public class FdaAnalyseServiceClient {
     }
 
     public CSVColumnsResult determineDatatypes(String pathToCSVFile) {
-        LOGGER.debug("request analyse-at.tuwien.service for getting determined datatypes");
+        LOGGER.debug("request analyse-service for getting determined datatypes");
         CSVColumnsResult csvColumnsResult = webClientBuilder
                 .build()
                 .get()
-                .uri("http://fda-analyse-at.tuwien.service/datatypesbypath?filepath=" + pathToCSVFile)
+                .uri("http://fda-analyse-service/datatypesbypath?filepath=" + pathToCSVFile)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(CSVColumnsResult.class)
