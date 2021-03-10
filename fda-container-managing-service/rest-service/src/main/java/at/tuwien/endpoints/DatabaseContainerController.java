@@ -1,13 +1,13 @@
-package at.tuwien.controller;
+package at.tuwien.endpoints;
 
 import at.tuwien.dto.container.ContainerActionTypeDto;
-import at.tuwien.dto.container.ContainerBriefDto;
+import at.tuwien.dto.container.DatabaseContainerBriefDto;
 import at.tuwien.dto.database.CreateDatabaseContainerDto;
 import at.tuwien.dto.database.CreateDatabaseResponseDto;
+import at.tuwien.mapper.DatabaseContainerMapper;
 import at.tuwien.model.DatabaseContainer;
 import at.tuwien.service.ContainerService;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
@@ -22,21 +23,26 @@ import java.util.List;
 public class DatabaseContainerController {
 
     private final ContainerService containerService;
+    private final DatabaseContainerMapper databaseContaineMapper;
 
     @Autowired
-    public DatabaseContainerController(ContainerService containerService) {
+    public DatabaseContainerController(ContainerService containerService, DatabaseContainerMapper databaseContaineMapper) {
         this.containerService = containerService;
+        this.databaseContaineMapper = databaseContaineMapper;
     }
 
-    @GetMapping("/container")
-    @ApiOperation("Get all user containers with databases inside it")
-    public ResponseEntity<List<ContainerBriefDto>> listDatabaseContainers() {
-        return ResponseEntity.ok(List.of());
+    @GetMapping("/database")
+    @ApiOperation("Get all database containers")
+    public ResponseEntity<List<DatabaseContainerBriefDto>> listDatabaseContainers() {
+        final List<DatabaseContainer> containers = containerService.getAll();
+        return ResponseEntity.ok()
+                .body(containers.stream()
+                        .map(databaseContaineMapper::databaseContainerToDataBaseContainerBriefDto)
+                        .collect(Collectors.toList()));
     }
 
-    @PostMapping("/container")
-    @ApiOperation("Create a new user container with database inside it")
-    @ApiResponse(message = "database created", code = 201)
+    @PostMapping("/database")
+    @ApiOperation("Create a new database container")
     public ResponseEntity<CreateDatabaseResponseDto> create(@RequestBody CreateDatabaseContainerDto data) {
         final String containerId = containerService.createDatabaseContainer(data);
         log.debug("Create new database {} in container {} with id {}", data.getDatabaseName(), data.getContainerName(), containerId);
@@ -46,22 +52,22 @@ public class DatabaseContainerController {
                         .build());
     }
 
-    @GetMapping("/container/{id}")
-    @ApiOperation("Get info of user container with database inside it")
+    @GetMapping("/database/{id}")
+    @ApiOperation("Get info of database container")
     public DatabaseContainer findById(@RequestParam String id) {
-        return containerService.getDatabaseContainerByContainerID(id);
+        return containerService.getDatabaseById(id);
 
     }
 
-    @PostMapping("/container/{id}")
-    @ApiOperation("Update a user container with database inside it")
-    public ResponseEntity<ContainerBriefDto> change(@RequestParam String id, @RequestBody ContainerActionTypeDto data) {
+    @PutMapping("/database/{id}")
+    @ApiOperation("Update a database container")
+    public ResponseEntity<DatabaseContainerBriefDto> change(@RequestParam String id, @RequestBody ContainerActionTypeDto data) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    @PostMapping("/container/{id}")
-    @ApiOperation("Delete a user container with database inside it")
-    public ResponseEntity<ContainerBriefDto> deleteDatabaseContainer(@RequestParam String id) {
+    @DeleteMapping("/database/{id}")
+    @ApiOperation("Delete a database container")
+    public ResponseEntity<DatabaseContainerBriefDto> deleteDatabaseContainer(@RequestParam String id) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 

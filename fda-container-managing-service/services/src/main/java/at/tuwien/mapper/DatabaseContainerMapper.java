@@ -1,13 +1,15 @@
 package at.tuwien.mapper;
 
+import at.tuwien.dto.container.DatabaseContainerBriefDto;
 import at.tuwien.model.DatabaseContainer;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.Container;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
-public interface ContainerMapper {
+public interface DatabaseContainerMapper {
 
     @Mappings({
             @Mapping(source = "id", target = "id"),
@@ -24,4 +26,8 @@ public interface ContainerMapper {
 //        databaseContainer.setStatus(containerResponse.getState().getStatus());
 //        return databaseContainer;
 //    }
+
+    DatabaseContainer containerToDatabaseContainer(Container data);
+
+    DatabaseContainerBriefDto databaseContainerToDataBaseContainerBriefDto(DatabaseContainer data);
 }

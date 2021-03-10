@@ -7,7 +7,7 @@ import java.time.Instant;
 
 @Getter
 @Setter
-public class ContainerBriefDto {
+public class DatabaseContainerBriefDto {
 
     private String id;
     private Instant created;
