@@ -30,7 +30,7 @@ public class FdaContainerManagingClient {
         ClientResponse clientResponse = webClientBuilder
                 .build()
                 .post()
-                .uri("http://fda-container-managing/api/createDatabaseContainer")
+                .uri("http://fda-container-managing/at.tuwien.api/createDatabaseContainer")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(dto), CreateDatabaseDTO.class)
                 .exchange()
@@ -48,7 +48,7 @@ public class FdaContainerManagingClient {
         List<Database> databases = webClientBuilder
                 .build()
                 .get()
-                .uri("http://fda-container-managing/api/getCreatedDatabaseContainers")
+                .uri("http://fda-container-managing/at.tuwien.api/getCreatedDatabaseContainers")
                 .retrieve()
                 .bodyToFlux(Database.class)
                 .collectList()
