@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>at.tuwien</groupId>
-    <artifactId>fda-gateway-at.tuwien.service</artifactId>
+    <artifactId>fda-gateway-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-gateway-at.tuwien.service</name>
+    <name>fda-gateway-service</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

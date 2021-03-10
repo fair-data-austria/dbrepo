@@ -13,7 +13,7 @@ RUN mvn -q clean package > /dev/null
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-COPY --from=build ./target/fda-gateway-at.tuwien.service-*.jar ./gateway.jar
+COPY --from=build ./target/fda-gateway-service-*.jar ./gateway.jar
 
 EXPOSE 9095
 

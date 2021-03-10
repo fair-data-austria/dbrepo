@@ -49,4 +49,4 @@ run `python3 app.py` add '/upload' to url
 
 ### Running with Docker
 
-Building the image: `sudo docker build -t analyse-at.tuwien.service .`
+Building the image: `sudo docker build -t analyse-service .`

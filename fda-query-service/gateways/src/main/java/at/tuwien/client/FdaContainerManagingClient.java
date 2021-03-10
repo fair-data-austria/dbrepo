@@ -20,7 +20,7 @@ public class FdaContainerManagingClient {
     }
 
     public DatabaseContainer getDatabaseContainer(String containerID) {
-        LOGGER.debug("request fda-container-managing at.tuwien.service for getting database container");
+        LOGGER.debug("request fda-container-managing service for getting database container");
         DatabaseContainer databaseContainer = webClientBuilder
                 .build()
                 .get()
