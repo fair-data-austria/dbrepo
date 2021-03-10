@@ -1,4 +1,4 @@
-package api.dto.database;
+package at.tuwien.api.dto.database;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,14 +1,14 @@
-package endpoints;
+package at.tuwien.endpoints;
 
-import api.dto.container.ContainerActionTypeDto;
-import api.dto.container.DatabaseContainerBriefDto;
-import api.dto.container.DatabaseContainerDto;
-import api.dto.database.CreateDatabaseContainerDto;
-import api.dto.database.CreateDatabaseResponseDto;
+import at.tuwien.api.dto.container.ContainerActionTypeDto;
+import at.tuwien.api.dto.container.DatabaseContainerBriefDto;
+import at.tuwien.api.dto.container.DatabaseContainerDto;
+import at.tuwien.api.dto.database.CreateDatabaseContainerDto;
+import at.tuwien.api.dto.database.CreateDatabaseResponseDto;
+import at.tuwien.entities.DatabaseContainer;
+import at.tuwien.mapper.DatabaseContainerMapper;
+import at.tuwien.service.ContainerService;
 import io.swagger.annotations.ApiOperation;
-import services.entities.DatabaseContainer;
-import services.mapper.DatabaseContainerMapper;
-import services.service.ContainerService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

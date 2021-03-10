@@ -1,4 +1,4 @@
-package config;
+package at.tuwien.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +26,7 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo("FDA-Container-Managing API",
-                "Docker service that can manage Docker services",
+                "Docker at.tuwien.service that can manage Docker services",
                 "1.0",
                 null,
                 new Contact("Martin Weise", "https://informatics.tuwien.ac.at/people/martin-weise", "martin.weise@tuwien.ac.at"),
