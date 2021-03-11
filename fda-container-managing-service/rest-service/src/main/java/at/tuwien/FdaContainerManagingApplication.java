@@ -10,7 +10,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@ComponentScan(basePackages = {"at.tuwien"})
 @EnableJpaRepositories(basePackages = {"at.tuwien.repositories"})
 @EntityScan(basePackages = {"at.tuwien.entities"})
 @EnableSwagger2
