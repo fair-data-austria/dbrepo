@@ -1,17 +1,22 @@
-package at.tuwien.entities;
+package at.tuwien.entity;
 
 import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.time.Instant;
 
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
-public class DatabaseContainer extends Auditable{
+public class DatabaseContainer extends Auditable {
 
     @Column(nullable = false)
     private String containerId;
@@ -25,7 +30,10 @@ public class DatabaseContainer extends Auditable{
     @Column(nullable = false)
     private String databaseName;
 
-    @Column
+    @OneToOne(optional = false)
+    private ContainerImage image;
+
+    @Transient
     private String status;
 
     @Column

@@ -2,9 +2,10 @@ package at.tuwien.mapper;
 
 import at.tuwien.api.dto.container.DatabaseContainerBriefDto;
 import at.tuwien.api.dto.container.DatabaseContainerDto;
+import at.tuwien.entity.ContainerImage;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
-import at.tuwien.entities.DatabaseContainer;
+import at.tuwien.entity.DatabaseContainer;
 import com.github.dockerjava.api.model.NetworkSettings;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -28,6 +29,14 @@ public interface DatabaseContainerMapper {
 
     default String networkSettingsNetworksBridgeToIpAddress(NetworkSettings data) {
         return data.getNetworks().get("bridge").getIpAddress();
+    }
+
+    default ContainerImage imageToContainerImage(String image) {
+        int index = image.indexOf(":");
+        return new ContainerImage().builder()
+                .repository(image.substring(0,index))
+                .tag(image.substring(index+1))
+                .build();
     }
 
     DatabaseContainer containerToDatabaseContainer(Container data);
