@@ -132,9 +132,19 @@ public class ServiceTest extends BaseIntegrationTest {
     public void remove_dockerClient_fails() {
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
-        when(dockerClient.stopContainerCmd(CONTAINER_1_ID))
+        when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
                 .thenThrow(NotFoundException.class);
 
-        Assertions.assertThrows(DockerClientException.class, () -> containerService.stop(CONTAINER_1_ID));
+        Assertions.assertThrows(DockerClientException.class, () -> containerService.remove(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void remove_dockerClient2_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+        when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
+                .thenThrow(NotModifiedException.class);
+
+        Assertions.assertThrows(DockerClientException.class, () -> containerService.remove(CONTAINER_1_ID));
     }
 }
