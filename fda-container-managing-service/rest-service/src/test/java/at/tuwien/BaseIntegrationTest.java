@@ -3,6 +3,7 @@ package at.tuwien;
 import at.tuwien.entity.Architecture;
 import at.tuwien.entity.ContainerImage;
 import at.tuwien.entity.DatabaseContainer;
+import com.github.dockerjava.api.DockerClient;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigInteger;
@@ -10,6 +11,7 @@ import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static org.mockito.Mockito.mock;
 
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseIntegrationTest {
