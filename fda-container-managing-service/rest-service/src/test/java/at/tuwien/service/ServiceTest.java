@@ -51,7 +51,7 @@ public class ServiceTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void getById_succeeds() {
+    public void getById_succeeds() throws ContainerNotFoundException {
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
 
@@ -64,17 +64,18 @@ public class ServiceTest extends BaseIntegrationTest {
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(null);
 
-        final DatabaseContainer response = containerService.getById(CONTAINER_1_ID);
-        Assertions.assertNull(response);
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.getById(CONTAINER_1_ID));
     }
 
     @Test
-    public void create_succeeds() {
-        when(imageRepository.findByImage(IMAGE_1_REPOSITORY, IMAGE_1_TAG))
-                .thenReturn(IMAGE_1);
+    public void create_succeeds() throws ContainerNotFoundException {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+
 
         final DatabaseContainer response = containerService.getById(CONTAINER_1_ID);
-        Assertions.assertNull(response);
+        Assertions.assertEquals(CONTAINER_1_ID, response.getContainerId());
+        Assertions.assertEquals(CONTAINER_1_DATABASE, response.getDatabaseName());
     }
 
     @Test
@@ -146,5 +147,41 @@ public class ServiceTest extends BaseIntegrationTest {
                 .thenThrow(NotModifiedException.class);
 
         Assertions.assertThrows(DockerClientException.class, () -> containerService.remove(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void start_succeeds() throws ContainerNotFoundException, DockerClientException {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+
+        containerService.start(CONTAINER_1_ID);
+    }
+
+    @Test
+    public void start_notFound_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(null);
+
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.start(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void start_dockerClient_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+        when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
+                .thenThrow(NotFoundException.class);
+
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.start(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void start_dockerClient2_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+        when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
+                .thenThrow(NotModifiedException.class);
+
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.start(CONTAINER_1_ID));
     }
 }

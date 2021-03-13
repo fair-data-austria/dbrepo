@@ -10,6 +10,7 @@ import at.tuwien.mapper.DatabaseContainerMapper;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import lombok.extern.log4j.Log4j2;
@@ -90,12 +91,41 @@ public class ContainerService {
         return container;
     }
 
-    public DatabaseContainer getById(String containerId) {
-        return containerRepository.findByContainerId(containerId);
+    public DatabaseContainer getById(String containerId) throws ContainerNotFoundException {
+        final DatabaseContainer container = containerRepository.findByContainerId(containerId);
+        if (container == null) {
+            throw new ContainerNotFoundException("no database with this container id in metadata database");
+        }
+        return container;
     }
 
     public List<DatabaseContainer> getAll() {
         return containerRepository.findAll();
+    }
+
+    /**
+     * Starts a database container by given container ID
+     *
+     * @param containerId The container ID
+     * @return True if state changed
+     */
+    public boolean start(String containerId) throws ContainerNotFoundException, DockerClientException {
+        final DatabaseContainer container = getById(containerId);
+        final InspectContainerResponse response;
+        try {
+            response = dockerClient.inspectContainerCmd(containerId).exec();
+        } catch(NotFoundException | NullPointerException e) {
+            throw new ContainerNotFoundException("no database found with this id", e);
+        }
+        if (response != null && response.getState() != null && response.getState().getRunning()) {
+            return false;
+        }
+        try {
+            dockerClient.startContainerCmd(containerId).exec();
+        } catch(NotFoundException | NotModifiedException e) {
+            throw new DockerClientException("docker client failed", e);
+        }
+        return true;
     }
 
 }
