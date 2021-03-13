@@ -5,7 +5,8 @@ import at.tuwien.api.dto.container.DatabaseContainerBriefDto;
 import at.tuwien.api.dto.container.DatabaseContainerDto;
 import at.tuwien.api.dto.database.CreateDatabaseContainerDto;
 import at.tuwien.api.dto.database.CreateDatabaseResponseDto;
-import at.tuwien.entities.DatabaseContainer;
+import at.tuwien.entity.DatabaseContainer;
+import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.DatabaseContainerMapper;
 import at.tuwien.service.ContainerService;
 import io.swagger.annotations.ApiOperation;
@@ -44,19 +45,20 @@ public class DatabaseContainerController {
 
     @PostMapping("/database")
     @ApiOperation("Create a new database container")
-    public ResponseEntity<CreateDatabaseResponseDto> create(@RequestBody CreateDatabaseContainerDto data) {
-        final String containerId = containerService.createDatabaseContainer(data);
-        log.debug("Create new database {} in container {} with id {}", data.getDatabaseName(), data.getContainerName(), containerId);
+    public ResponseEntity<CreateDatabaseResponseDto> create(@RequestBody CreateDatabaseContainerDto data)
+            throws ImageNotFoundException {
+        final DatabaseContainer container = containerService.create(data);
+        log.debug("Create new database {} in container {} with id {}", data.getDatabaseName(), data.getContainerName(), container.getContainerId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(CreateDatabaseResponseDto.builder()
-                        .containerId(containerId)
+                        .containerId(container.getContainerId())
                         .build());
     }
 
     @GetMapping("/database/{id}")
     @ApiOperation("Get info of database container")
     public DatabaseContainerDto findById(@RequestParam String id) {
-        return databaseContaineMapper.databaseContainerToDataBaseContainerDto(containerService.getDatabaseById(id));
+        return databaseContaineMapper.databaseContainerToDataBaseContainerDto(containerService.getById(id));
 
     }
 

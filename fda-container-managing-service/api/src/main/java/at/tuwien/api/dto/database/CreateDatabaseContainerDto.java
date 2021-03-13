@@ -11,4 +11,6 @@ public class CreateDatabaseContainerDto {
 
     private String databaseName;
 
+    private String image;
+
 }
