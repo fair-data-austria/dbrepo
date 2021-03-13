@@ -12,18 +12,19 @@ https://github.com/okfn/messytables/
 import json  
 import messytables
 from messytables import CSVTableSet, type_guess, \
-  headers_guess, headers_processor, offset_processor
+   headers_guess, headers_processor, offset_processor
   
-def determine_datatypes(path):
-    
+  
+def determine_datatypes(path, enum=False, enum_tol=0.3):
+# Use option enum=True for searching Postgres ENUM Types in CSV file     
     fh = open(path, 'rb')
-
+    
     # Load a file object:
     table_set = CSVTableSet(fh)
     
     # A table set is a collection of tables:
     row_set = table_set.tables[0]
-    
+       
     # guess header names and the offset of the header:
     offset, headers = headers_guess(row_set.sample)
     row_set.register_processor(headers_processor(headers))
@@ -33,8 +34,12 @@ def determine_datatypes(path):
     
     # guess column types:
     types = type_guess(row_set.sample, strict=True)
-           
+        
     r = {}
+    
+    n=0
+    for i in row_set: 
+       n=n+1
     
     for i in range(0,(len(types))):
         if type(types[i]) == messytables.types.BoolType: 
@@ -49,11 +54,23 @@ def determine_datatypes(path):
         elif type(types[i]) == messytables.types.DecimalType: 
             r[headers[i]] = "Numeric"
         else : 
-            r[headers[i]] = "String"
+            if enum == True: 
+                enum_set = set()
+                m=0
+                for elem in row_set: 
+                    if m/n < enum_tol: 
+                        enum_set.add(elem[i].value)
+                        r[headers[i]] = {"Enum": list(enum_set-{headers[i]})}
+                    else: 
+                        r[headers[i]] = "String"
+                        break 
+                    m = len(enum_set)
+            else: 
+                r[headers[i]] = "String"
     
     s ={ 'columns' : r } 
                 
-    return s
+    return json.dumps(s)
 
 """ 
 {
