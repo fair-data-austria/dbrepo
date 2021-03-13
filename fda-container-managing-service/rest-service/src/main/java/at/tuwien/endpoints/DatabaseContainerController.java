@@ -6,6 +6,7 @@ import at.tuwien.api.dto.container.DatabaseContainerDto;
 import at.tuwien.api.dto.database.CreateDatabaseContainerDto;
 import at.tuwien.api.dto.database.CreateDatabaseResponseDto;
 import at.tuwien.entity.DatabaseContainer;
+import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.DatabaseContainerMapper;
 import at.tuwien.service.ContainerService;
@@ -57,7 +58,7 @@ public class DatabaseContainerController {
 
     @GetMapping("/database/{id}")
     @ApiOperation("Get info of database container")
-    public DatabaseContainerDto findById(@RequestParam String id) {
+    public DatabaseContainerDto findById(@RequestParam String id) throws ContainerNotFoundException {
         return databaseContaineMapper.databaseContainerToDataBaseContainerDto(containerService.getById(id));
 
     }
