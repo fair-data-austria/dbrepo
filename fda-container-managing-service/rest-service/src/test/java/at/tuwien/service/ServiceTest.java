@@ -3,9 +3,14 @@ package at.tuwien.service;
 import at.tuwien.BaseIntegrationTest;
 import at.tuwien.api.dto.database.CreateDatabaseContainerDto;
 import at.tuwien.entity.DatabaseContainer;
+import at.tuwien.exception.ContainerNotFoundException;
+import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.exception.NotModifiedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +32,9 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @MockBean
     private ImageRepository imageRepository;
+
+    @MockBean
+    private DockerClient dockerClient;
 
     @Autowired
     private ContainerService containerService;
@@ -72,8 +80,61 @@ public class ServiceTest extends BaseIntegrationTest {
     @Test
     public void create_noImage_fails() {
         final CreateDatabaseContainerDto containerDto = new CreateDatabaseContainerDto();
+
+        Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
+    }
+
+    @Test
+    public void create_imageNotFound_fails() {
+        final CreateDatabaseContainerDto containerDto = new CreateDatabaseContainerDto();
         containerDto.setImage("postgres:latest");
 
         Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
+    }
+
+    @Test
+    public void stop_dockerClient_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+        when(dockerClient.stopContainerCmd(CONTAINER_1_ID))
+                .thenThrow(NotFoundException.class);
+
+        Assertions.assertThrows(DockerClientException.class, () -> containerService.stop(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void stop_notFound_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(null);
+
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.stop(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void stop_dockerClient2_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+        when(dockerClient.stopContainerCmd(CONTAINER_1_ID))
+                .thenThrow(NotModifiedException.class);
+
+        Assertions.assertThrows(DockerClientException.class, () -> containerService.stop(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void remove_notFound_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(null);
+
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.remove(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void remove_dockerClient_fails() {
+        when(containerRepository.findByContainerId(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+        when(dockerClient.stopContainerCmd(CONTAINER_1_ID))
+                .thenThrow(NotFoundException.class);
+
+        Assertions.assertThrows(DockerClientException.class, () -> containerService.stop(CONTAINER_1_ID));
     }
 }
