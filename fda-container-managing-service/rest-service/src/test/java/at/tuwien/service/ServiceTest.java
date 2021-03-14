@@ -74,7 +74,6 @@ public class ServiceTest extends BaseIntegrationTest {
         dto.setDatabaseName(CONTAINER_1_DATABASE);
 
         final DatabaseContainer response = containerService.create(dto);
-        Assertions.assertEquals(CONTAINER_1_ID, response.getContainerId());
         Assertions.assertEquals(CONTAINER_1_DATABASE, response.getDatabaseName());
     }
 
