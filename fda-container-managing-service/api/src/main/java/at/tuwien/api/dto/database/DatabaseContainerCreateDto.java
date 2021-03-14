@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateDatabaseContainerDto {
+public class DatabaseContainerCreateDto {
 
     private String containerName;
 

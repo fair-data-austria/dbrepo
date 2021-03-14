@@ -1,7 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseIntegrationTest;
-import at.tuwien.api.dto.database.CreateDatabaseContainerDto;
+import at.tuwien.api.dto.database.DatabaseContainerCreateDto;
 import at.tuwien.entity.DatabaseContainer;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DockerClientException;
@@ -21,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -32,9 +32,6 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @MockBean
     private ImageRepository imageRepository;
-
-    @MockBean
-    private DockerClient dockerClient;
 
     @Autowired
     private ContainerService containerService;
@@ -68,26 +65,29 @@ public class ServiceTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void create_succeeds() throws ContainerNotFoundException {
-        when(containerRepository.findByContainerId(CONTAINER_1_ID))
-                .thenReturn(CONTAINER_1);
+    public void create_succeeds() throws ImageNotFoundException {
+        when(imageRepository.findByImage(IMAGE_1_REPOSITORY, IMAGE_1_TAG))
+                .thenReturn(IMAGE_1);
+        DatabaseContainerCreateDto dto = new DatabaseContainerCreateDto();
+        dto.setImage(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG);
+        dto.setContainerName(CONTAINER_1_NAME);
+        dto.setDatabaseName(CONTAINER_1_DATABASE);
 
-
-        final DatabaseContainer response = containerService.getById(CONTAINER_1_ID);
+        final DatabaseContainer response = containerService.create(dto);
         Assertions.assertEquals(CONTAINER_1_ID, response.getContainerId());
         Assertions.assertEquals(CONTAINER_1_DATABASE, response.getDatabaseName());
     }
 
     @Test
     public void create_noImage_fails() {
-        final CreateDatabaseContainerDto containerDto = new CreateDatabaseContainerDto();
+        final DatabaseContainerCreateDto containerDto = new DatabaseContainerCreateDto();
 
         Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
     }
 
     @Test
     public void create_imageNotFound_fails() {
-        final CreateDatabaseContainerDto containerDto = new CreateDatabaseContainerDto();
+        final DatabaseContainerCreateDto containerDto = new DatabaseContainerCreateDto();
         containerDto.setImage("postgres:latest");
 
         Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
@@ -95,6 +95,7 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @Test
     public void stop_dockerClient_fails() {
+        final DockerClient dockerClient = mock(DockerClient.class);
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
         when(dockerClient.stopContainerCmd(CONTAINER_1_ID))
@@ -113,6 +114,7 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @Test
     public void stop_dockerClient2_fails() {
+        final DockerClient dockerClient = mock(DockerClient.class);
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
         when(dockerClient.stopContainerCmd(CONTAINER_1_ID))
@@ -131,6 +133,7 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @Test
     public void remove_dockerClient_fails() {
+        final DockerClient dockerClient = mock(DockerClient.class);
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
         when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
@@ -141,20 +144,13 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @Test
     public void remove_dockerClient2_fails() {
+        final DockerClient dockerClient = mock(DockerClient.class);
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
         when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
                 .thenThrow(NotModifiedException.class);
 
         Assertions.assertThrows(DockerClientException.class, () -> containerService.remove(CONTAINER_1_ID));
-    }
-
-    @Test
-    public void start_succeeds() throws ContainerNotFoundException, DockerClientException {
-        when(containerRepository.findByContainerId(CONTAINER_1_ID))
-                .thenReturn(CONTAINER_1);
-
-        containerService.start(CONTAINER_1_ID);
     }
 
     @Test
@@ -167,6 +163,7 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @Test
     public void start_dockerClient_fails() {
+        final DockerClient dockerClient = mock(DockerClient.class);
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
         when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
@@ -177,6 +174,7 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @Test
     public void start_dockerClient2_fails() {
+        final DockerClient dockerClient = mock(DockerClient.class);
         when(containerRepository.findByContainerId(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
         when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
