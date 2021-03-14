@@ -3,7 +3,7 @@ package at.tuwien.endpoints;
 import at.tuwien.api.dto.container.ContainerActionTypeDto;
 import at.tuwien.api.dto.container.DatabaseContainerBriefDto;
 import at.tuwien.api.dto.container.DatabaseContainerDto;
-import at.tuwien.api.dto.database.CreateDatabaseContainerDto;
+import at.tuwien.api.dto.database.DatabaseContainerCreateDto;
 import at.tuwien.api.dto.database.CreateDatabaseResponseDto;
 import at.tuwien.entity.DatabaseContainer;
 import at.tuwien.exception.ContainerNotFoundException;
@@ -46,7 +46,7 @@ public class DatabaseContainerController {
 
     @PostMapping("/database")
     @ApiOperation("Create a new database container")
-    public ResponseEntity<CreateDatabaseResponseDto> create(@RequestBody CreateDatabaseContainerDto data)
+    public ResponseEntity<CreateDatabaseResponseDto> create(@RequestBody DatabaseContainerCreateDto data)
             throws ImageNotFoundException {
         final DatabaseContainer container = containerService.create(data);
         log.debug("Create new database {} in container {} with id {}", data.getDatabaseName(), data.getContainerName(), container.getContainerId());
