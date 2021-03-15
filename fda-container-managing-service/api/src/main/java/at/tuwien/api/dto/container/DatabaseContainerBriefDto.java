@@ -1,15 +1,14 @@
 package at.tuwien.api.dto.container;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Instant;
-
 @Getter
 @Setter
+@Builder
 public class DatabaseContainerBriefDto {
 
     private String id;
-    private Instant created;
 
 }

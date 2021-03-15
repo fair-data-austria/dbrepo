@@ -1,12 +1,13 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.dto.container.ContainerActionTypeDto;
+import at.tuwien.api.dto.container.ContainerChangeDto;
 import at.tuwien.api.dto.container.DatabaseContainerBriefDto;
 import at.tuwien.api.dto.container.DatabaseContainerDto;
 import at.tuwien.api.dto.database.DatabaseContainerCreateResponseDto;
 import at.tuwien.api.dto.database.DatabaseContainerCreateRequestDto;
 import at.tuwien.entity.DatabaseContainer;
 import at.tuwien.exception.ContainerNotFoundException;
+import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.DatabaseContainerMapper;
 import at.tuwien.service.ContainerService;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static at.tuwien.api.dto.container.ContainerActionTypeDto.*;
+
 @Log4j2
 @RestController
 @RequestMapping("/api")
@@ -27,14 +30,11 @@ public class DatabaseContainerController {
 
     private final ContainerService containerService;
     private final DatabaseContainerMapper containerMapper;
-    private final DatabaseContainerMapper databaseContaineMapper;
 
     @Autowired
-    public DatabaseContainerController(ContainerService containerService, DatabaseContainerMapper containerMapper,
-                                       DatabaseContainerMapper databaseContaineMapper) {
+    public DatabaseContainerController(ContainerService containerService, DatabaseContainerMapper containerMapper) {
         this.containerMapper = containerMapper;
         this.containerService = containerService;
-        this.databaseContaineMapper = databaseContaineMapper;
     }
 
     @GetMapping("/database")
@@ -43,7 +43,7 @@ public class DatabaseContainerController {
         final List<DatabaseContainer> containers = containerService.getAll();
         return ResponseEntity.ok()
                 .body(containers.stream()
-                        .map(databaseContaineMapper::databaseContainerToDataBaseContainerBriefDto)
+                        .map(containerMapper::databaseContainerToDataBaseContainerBriefDto)
                         .collect(Collectors.toList()));
     }
 
@@ -62,13 +62,25 @@ public class DatabaseContainerController {
     public ResponseEntity<DatabaseContainerDto> findById(@RequestParam String id) throws ContainerNotFoundException {
         final DatabaseContainer container = containerService.getById(id);
         return ResponseEntity.ok()
-                .body(databaseContaineMapper.databaseContainerToDataBaseContainerDto(container));
+                .body(containerMapper.databaseContainerToDataBaseContainerDto(container));
     }
 
     @PutMapping("/database/{id}")
     @ApiOperation("Update a database container")
-    public ResponseEntity<DatabaseContainerBriefDto> change(@RequestParam String id, @RequestBody ContainerActionTypeDto data) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    public ResponseEntity<DatabaseContainerBriefDto> change(@RequestParam String id, @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
+        final DatabaseContainer container;
+        if (changeDto.getAction().equals(START)) {
+            container = containerService.start(id);
+        } else if (changeDto.getAction().equals(STOP)) {
+            container = containerService.stop(id);
+        } else if (changeDto.getAction().equals(REMOVE)) {
+            container = containerService.remove(id);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(containerMapper.databaseContainerToDataBaseContainerBriefDto(container));
     }
 
     @DeleteMapping("/database/{id}")

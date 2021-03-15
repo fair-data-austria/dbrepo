@@ -10,7 +10,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableJpaRepositories(basePackages = {"at.tuwien.repository"})
-@EntityScan(basePackages = {"at.tuwien.entities"})
+@EntityScan(basePackages = {"at.tuwien.entity"})
 @EnableSwagger2
 public class FdaContainerManagingApplication {
 
