@@ -122,16 +122,16 @@ public class ContainerService {
      * Starts a database container by given container ID
      *
      * @param containerId The container ID
-     * @return True if state changed
+     * @return The container
      */
-    public boolean start(String containerId) throws ContainerNotFoundException, DockerClientException {
+    public DatabaseContainer start(String containerId) throws ContainerNotFoundException, DockerClientException {
         final DatabaseContainer container = getById(containerId);
         try {
             dockerClient.startContainerCmd(container.getContainerId()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             throw new DockerClientException("docker client failed", e);
         }
-        return true;
+        return container;
     }
 
 }
