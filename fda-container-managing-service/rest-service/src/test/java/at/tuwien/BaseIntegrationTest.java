@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -75,6 +74,7 @@ public abstract class BaseIntegrationTest {
     public final DatabaseContainer CONTAINER_1 = DatabaseContainer.builder()
             .containerId(CONTAINER_1_ID)
             .databaseName(CONTAINER_1_DATABASE)
+            .name(CONTAINER_1_NAME)
             .ipAddress(CONTAINER_1_IP)
             .image(CONTAINER_1_IMAGE)
             .containerId(CONTAINER_1_ID)
@@ -84,26 +84,11 @@ public abstract class BaseIntegrationTest {
     public final DatabaseContainer CONTAINER_2 = DatabaseContainer.builder()
             .containerId(CONTAINER_2_ID)
             .databaseName(CONTAINER_2_DATABASE)
+            .name(CONTAINER_2_NAME)
             .ipAddress(CONTAINER_2_IP)
             .image(CONTAINER_2_IMAGE)
             .containerId(CONTAINER_2_ID)
             .containerCreated(CONTAINER_2_CREATED)
             .build();
-
-    public final InspectContainerResponse inspectContainerResponse(DatabaseContainer container, Boolean running) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
-        final InspectContainerResponse.ContainerState stateC = new InspectContainerResponse().new ContainerState();
-        final Object state = stateC.getClass().getConstructor().newInstance();
-        final Field runningField = stateC.getClass().getDeclaredField("running");
-        runningField.setAccessible(true);
-        runningField.setBoolean(state, running);
-
-        final InspectContainerResponse inspectC = new InspectContainerResponse();
-        final Object response = inspectC.getClass().getConstructor().newInstance();
-        final Field stateField = inspectC.getClass().getDeclaredField("state");
-        stateField.setAccessible(true);
-        stateField.set(response, state);
-
-        return (InspectContainerResponse) response;
-    }
 
 }

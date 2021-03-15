@@ -46,4 +46,8 @@ public class ContainerImage extends Auditable {
     @Column(nullable = false)
     private Architecture architecture;
 
+    public final String dockerImageName() {
+        return repository + ":" + tag;
+    }
+
 }

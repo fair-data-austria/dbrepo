@@ -3,8 +3,8 @@ package at.tuwien.endpoints;
 import at.tuwien.api.dto.container.ContainerActionTypeDto;
 import at.tuwien.api.dto.container.DatabaseContainerBriefDto;
 import at.tuwien.api.dto.container.DatabaseContainerDto;
-import at.tuwien.api.dto.database.DatabaseContainerCreateDto;
-import at.tuwien.api.dto.database.CreateDatabaseResponseDto;
+import at.tuwien.api.dto.database.DatabaseContainerCreateResponseDto;
+import at.tuwien.api.dto.database.DatabaseContainerCreateRequestDto;
 import at.tuwien.entity.DatabaseContainer;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ImageNotFoundException;
@@ -26,10 +26,13 @@ import java.util.stream.Collectors;
 public class DatabaseContainerController {
 
     private final ContainerService containerService;
+    private final DatabaseContainerMapper containerMapper;
     private final DatabaseContainerMapper databaseContaineMapper;
 
     @Autowired
-    public DatabaseContainerController(ContainerService containerService, DatabaseContainerMapper databaseContaineMapper) {
+    public DatabaseContainerController(ContainerService containerService, DatabaseContainerMapper containerMapper,
+                                       DatabaseContainerMapper databaseContaineMapper) {
+        this.containerMapper = containerMapper;
         this.containerService = containerService;
         this.databaseContaineMapper = databaseContaineMapper;
     }
@@ -46,21 +49,20 @@ public class DatabaseContainerController {
 
     @PostMapping("/database")
     @ApiOperation("Create a new database container")
-    public ResponseEntity<CreateDatabaseResponseDto> create(@RequestBody DatabaseContainerCreateDto data)
+    public ResponseEntity<DatabaseContainerCreateResponseDto> create(@RequestBody DatabaseContainerCreateRequestDto data)
             throws ImageNotFoundException {
         final DatabaseContainer container = containerService.create(data);
         log.debug("Create new database {} in container {} with id {}", data.getDatabaseName(), data.getContainerName(), container.getContainerId());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(CreateDatabaseResponseDto.builder()
-                        .containerId(container.getContainerId())
-                        .build());
+                .body(containerMapper.databaseContainerToCreateDatabaseResponseDto(container));
     }
 
     @GetMapping("/database/{id}")
     @ApiOperation("Get info of database container")
-    public DatabaseContainerDto findById(@RequestParam String id) throws ContainerNotFoundException {
-        return databaseContaineMapper.databaseContainerToDataBaseContainerDto(containerService.getById(id));
-
+    public ResponseEntity<DatabaseContainerDto> findById(@RequestParam String id) throws ContainerNotFoundException {
+        final DatabaseContainer container = containerService.getById(id);
+        return ResponseEntity.ok()
+                .body(databaseContaineMapper.databaseContainerToDataBaseContainerDto(container));
     }
 
     @PutMapping("/database/{id}")

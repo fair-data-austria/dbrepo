@@ -1,11 +1,13 @@
 package at.tuwien.api.dto.database;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class DatabaseContainerCreateDto {
+@Builder
+public class DatabaseContainerCreateRequestDto {
 
     private String containerName;
 
