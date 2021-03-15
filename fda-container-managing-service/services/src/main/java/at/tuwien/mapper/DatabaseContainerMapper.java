@@ -2,6 +2,7 @@ package at.tuwien.mapper;
 
 import at.tuwien.api.dto.container.DatabaseContainerBriefDto;
 import at.tuwien.api.dto.container.DatabaseContainerDto;
+import at.tuwien.api.dto.database.DatabaseContainerCreateResponseDto;
 import at.tuwien.entity.ContainerImage;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
@@ -44,4 +45,6 @@ public interface DatabaseContainerMapper {
     DatabaseContainerBriefDto databaseContainerToDataBaseContainerBriefDto(DatabaseContainer data);
 
     DatabaseContainerDto databaseContainerToDataBaseContainerDto(DatabaseContainer data);
+
+    DatabaseContainerCreateResponseDto databaseContainerToCreateDatabaseResponseDto(DatabaseContainer data);
 }

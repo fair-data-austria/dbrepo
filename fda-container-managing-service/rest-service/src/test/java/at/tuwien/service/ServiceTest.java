@@ -1,7 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseIntegrationTest;
-import at.tuwien.api.dto.database.DatabaseContainerCreateDto;
+import at.tuwien.api.dto.database.DatabaseContainerCreateRequestDto;
 import at.tuwien.entity.DatabaseContainer;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DockerClientException;
@@ -21,7 +21,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -65,28 +66,15 @@ public class ServiceTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void create_succeeds() throws ImageNotFoundException {
-        when(imageRepository.findByImage(IMAGE_1_REPOSITORY, IMAGE_1_TAG))
-                .thenReturn(IMAGE_1);
-        DatabaseContainerCreateDto dto = new DatabaseContainerCreateDto();
-        dto.setImage(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG);
-        dto.setContainerName(CONTAINER_1_NAME);
-        dto.setDatabaseName(CONTAINER_1_DATABASE);
-
-        final DatabaseContainer response = containerService.create(dto);
-        Assertions.assertEquals(CONTAINER_1_DATABASE, response.getDatabaseName());
-    }
-
-    @Test
     public void create_noImage_fails() {
-        final DatabaseContainerCreateDto containerDto = new DatabaseContainerCreateDto();
+        final DatabaseContainerCreateRequestDto containerDto = DatabaseContainerCreateRequestDto.builder().build();
 
         Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
     }
 
     @Test
     public void create_imageNotFound_fails() {
-        final DatabaseContainerCreateDto containerDto = new DatabaseContainerCreateDto();
+        final DatabaseContainerCreateRequestDto containerDto = DatabaseContainerCreateRequestDto.builder().build();
         containerDto.setImage("postgres:latest");
 
         Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
@@ -168,7 +156,7 @@ public class ServiceTest extends BaseIntegrationTest {
         when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
                 .thenThrow(NotFoundException.class);
 
-        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.start(CONTAINER_1_ID));
+        Assertions.assertThrows(DockerClientException.class, () -> containerService.start(CONTAINER_1_ID));
     }
 
     @Test
@@ -179,6 +167,6 @@ public class ServiceTest extends BaseIntegrationTest {
         when(dockerClient.removeContainerCmd(CONTAINER_1_ID))
                 .thenThrow(NotModifiedException.class);
 
-        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.start(CONTAINER_1_ID));
+        Assertions.assertThrows(DockerClientException.class, () -> containerService.start(CONTAINER_1_ID));
     }
 }

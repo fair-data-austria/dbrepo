@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.api.dto.database.DatabaseContainerCreateDto;
+import at.tuwien.api.dto.database.DatabaseContainerCreateRequestDto;
 import at.tuwien.entity.ContainerImage;
 import at.tuwien.entity.DatabaseContainer;
 import at.tuwien.exception.ContainerNotFoundException;
@@ -15,13 +15,11 @@ import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Version;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
-import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +44,7 @@ public class ContainerService {
         this.databaseContainerMapper = databaseContainerMapper;
     }
 
-    @PostConstruct
-    public void version() {
-        final Version version = dockerClient.versionCmd().exec();
-        log.info("Docker {} API {} compiled for {}", version.getVersion(), version.getApiVersion(), version.getArch());
-    }
-
-    public DatabaseContainer create(DatabaseContainerCreateDto containerDto) throws ImageNotFoundException {
+    public DatabaseContainer create(DatabaseContainerCreateRequestDto containerDto) throws ImageNotFoundException {
         if (containerDto == null || containerDto.getContainerName() == null || containerDto.getDatabaseName() == null
                 || containerDto.getImage() == null) {
             throw new ImageNotFoundException("container data is null");
@@ -92,7 +84,7 @@ public class ContainerService {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         try {
-            dockerClient.stopContainerCmd(containerId).exec();
+            dockerClient.stopContainerCmd(container.getContainerId()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             throw new DockerClientException("docker client failed", e);
         }
@@ -135,7 +127,7 @@ public class ContainerService {
     public boolean start(String containerId) throws ContainerNotFoundException, DockerClientException {
         final DatabaseContainer container = getById(containerId);
         try {
-            dockerClient.startContainerCmd(containerId).exec();
+            dockerClient.startContainerCmd(container.getContainerId()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             throw new DockerClientException("docker client failed", e);
         }
