@@ -3,20 +3,17 @@ package at.tuwien.api.dto.container;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.net.InetAddress;
+import java.time.Instant;
+
 @Getter
 @Setter
-public class ContainerDto {
+public class ContainerDto extends DatabaseContainerBriefDto {
 
-    private String containerId;
+    private ContainerStateDto status;
 
-    private String created;
+    private IpAddressDto ipAddress;
 
-    private String containerName;
-
-    private String databaseName;
-
-    private String status;
-
-    private String ipAddress;
+    private Instant created;
 
 }

@@ -92,7 +92,7 @@ public class ContainerService {
         return container;
     }
 
-    public DatabaseContainer remove(String containerId) throws ContainerNotFoundException, DockerClientException {
+    public void remove(String containerId) throws ContainerNotFoundException, DockerClientException {
         final DatabaseContainer container = containerRepository.findByContainerId(containerId);
         if (container == null) {
             throw new ContainerNotFoundException("no container with this id in metadata database");
@@ -103,7 +103,6 @@ public class ContainerService {
             throw new DockerClientException("docker client failed", e);
         }
         log.debug("Removed container {}", containerId);
-        return container;
     }
 
     public DatabaseContainer getById(String containerId) throws ContainerNotFoundException {
