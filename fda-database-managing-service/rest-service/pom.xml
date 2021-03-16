@@ -18,11 +18,7 @@
             <groupId>at.tuwien</groupId>
             <artifactId>services</artifactId>
             <version>${global.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>at.tuwien</groupId>
-            <artifactId>api</artifactId>
-            <version>${global.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

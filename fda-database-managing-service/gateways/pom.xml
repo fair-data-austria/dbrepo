@@ -23,6 +23,7 @@
             <groupId>at.tuwien</groupId>
             <artifactId>api</artifactId>
             <version>${global.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
