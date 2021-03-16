@@ -6,9 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 public class DatabaseContainerBriefDto {
 
     private String id;
 
+    private String containerName;
 }
