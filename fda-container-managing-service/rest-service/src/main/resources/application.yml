@@ -7,14 +7,12 @@ spring:
     password: postgres
   jpa:
     show-sql: true
-    properties:
-      hibernate:
-        ddl-auto: create-drop
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    hibernate.ddl-auto: none
-    hibernate.show-sql: true
+    hibernate:
+      ddl-auto: update
   application:
     name: fda-container-managing
+  cloud:
+    loadbalancer.ribbon.enabled: false
 server.port: 9091
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
@@ -22,4 +20,5 @@ logging:
     root: warn
     at.: debug
 eureka:
-  client.serviceUrl.defaultZone: http://localhost:9090/eureka/
+  instance.hostname: fda-discovery-server
+  client.serviceUrl.defaultZone: http://${eureka.instance.hostname}:9090/eureka/

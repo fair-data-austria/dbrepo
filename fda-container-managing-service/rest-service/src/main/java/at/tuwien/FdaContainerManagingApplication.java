@@ -5,13 +5,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.oas.annotations.EnableOpenApi;
 
 @SpringBootApplication
 @EnableJpaAuditing
+@EnableOpenApi
 @EnableJpaRepositories(basePackages = {"at.tuwien.repository"})
 @EntityScan(basePackages = {"at.tuwien.entity"})
-@EnableSwagger2
 public class FdaContainerManagingApplication {
 
     public static void main(String[] args) {
