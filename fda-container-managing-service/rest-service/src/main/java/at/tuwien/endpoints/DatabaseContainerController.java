@@ -36,7 +36,7 @@ public class DatabaseContainerController {
         this.containerService = containerService;
     }
 
-    @GetMapping("/database")
+    @GetMapping("/container")
     @ApiOperation(value = "List all database containers", notes = "Lists the database containers in the metadata database.")
     public ResponseEntity<List<DatabaseContainerBriefDto>> findAll() {
         final List<DatabaseContainer> containers = containerService.getAll();
@@ -46,7 +46,7 @@ public class DatabaseContainerController {
                         .collect(Collectors.toList()));
     }
 
-    @PostMapping("/database")
+    @PostMapping("/container")
     @ApiOperation(value = "Creates a new database containers", notes = "Creates a new database container whose image is registered in the metadata database too. Currently for development there is only one image supported 'postgres:12-alpine' as for temporal tables extension requires version 12.")
     public ResponseEntity<DatabaseContainerDto> create(@RequestBody DatabaseContainerCreateRequestDto data)
             throws ImageNotFoundException {
@@ -56,7 +56,7 @@ public class DatabaseContainerController {
                 .body(containerMapper.databaseContainerToDatabaseContainerDto(container));
     }
 
-    @GetMapping("/database/{id}")
+    @GetMapping("/container/{id}")
     @ApiOperation(value = "Get all informations about a database container", notes = "Since we follow the REST-principle, this method provides more informaiton than the findAll method.")
     public ResponseEntity<DatabaseContainerDto> findById(@RequestParam String id) throws ContainerNotFoundException {
         final DatabaseContainer container = containerService.getById(id);
@@ -64,7 +64,7 @@ public class DatabaseContainerController {
                 .body(containerMapper.databaseContainerToDatabaseContainerDto(container));
     }
 
-    @PutMapping("/database/{id}")
+    @PutMapping("/container/{id}")
     @ApiOperation(value = "Change the state of a database container", notes = "The new state can only be one of START/STOP/REMOVE.", code = 202)
     public ResponseEntity<?> change(@RequestParam String id, @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
         if (changeDto.getAction().equals(START) || changeDto.getAction().equals(STOP) || changeDto.getAction().equals(REMOVE)) {
@@ -82,7 +82,7 @@ public class DatabaseContainerController {
                 .build();
     }
 
-    @DeleteMapping("/database/{id}")
+    @DeleteMapping("/container/{id}")
     @ApiOperation(value = "Delete a database container.")
     public ResponseEntity deleteDatabaseContainer(@RequestParam String id) throws ContainerNotFoundException, DockerClientException {
         containerService.remove(id);

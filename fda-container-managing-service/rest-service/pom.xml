@@ -10,7 +10,8 @@
     </parent>
 
     <artifactId>rest-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${global.version}</version>
+    <name>fda-container-managing-service-rest-service</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -21,8 +22,12 @@
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>services</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${global.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>api</artifactId>
+            <version>${global.version}</version>
         </dependency>
     </dependencies>
 
