@@ -11,7 +11,6 @@ import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.DatabaseContainerMapper;
 import at.tuwien.service.ContainerService;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,7 +37,6 @@ public class DatabaseContainerController {
     }
 
     @GetMapping("/database")
-    @ApiOperation("Get all database containers")
     public ResponseEntity<List<DatabaseContainerBriefDto>> listDatabaseContainers() {
         final List<DatabaseContainer> containers = containerService.getAll();
         return ResponseEntity.ok()
@@ -48,7 +46,6 @@ public class DatabaseContainerController {
     }
 
     @PostMapping("/database")
-    @ApiOperation("Create a new database container")
     public ResponseEntity<DatabaseContainerCreateResponseDto> create(@RequestBody DatabaseContainerCreateRequestDto data)
             throws ImageNotFoundException {
         final DatabaseContainer container = containerService.create(data);
@@ -58,7 +55,6 @@ public class DatabaseContainerController {
     }
 
     @GetMapping("/database/{id}")
-    @ApiOperation("Get info of database container")
     public ResponseEntity<DatabaseContainerDto> findById(@RequestParam String id) throws ContainerNotFoundException {
         final DatabaseContainer container = containerService.getById(id);
         return ResponseEntity.ok()
@@ -66,7 +62,6 @@ public class DatabaseContainerController {
     }
 
     @PutMapping("/database/{id}")
-    @ApiOperation("Update a database container")
     public ResponseEntity<DatabaseContainerBriefDto> change(@RequestParam String id, @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
         final DatabaseContainer container;
         if (changeDto.getAction().equals(START)) {
@@ -84,7 +79,6 @@ public class DatabaseContainerController {
     }
 
     @DeleteMapping("/database/{id}")
-    @ApiOperation("Delete a database container")
     public ResponseEntity<DatabaseContainerBriefDto> deleteDatabaseContainer(@RequestParam String id) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }

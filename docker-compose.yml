@@ -20,8 +20,6 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fda
 
-
-
   fda-discovery-server:
     restart: always
     container_name: fda-discovery-server
@@ -96,8 +94,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-server
+      - fda-metadata-db
     depends_on:
       - fda-discovery-server
+      - fda-metadata-db
     logging:
       driver: json-file
 
