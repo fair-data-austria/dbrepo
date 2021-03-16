@@ -18,7 +18,7 @@ public class SwaggerConfig {
     @Bean
     public Docket databaseApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("database-api")
+                .groupName("container-api")
                 .apiInfo(apiInfo())
                 .select()
                 .paths(PathSelectors.ant("/api/**"))
@@ -34,7 +34,6 @@ public class SwaggerConfig {
                 "API license",
                 null,
                 Collections.emptyList());
-
     }
 
 }

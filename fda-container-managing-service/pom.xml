@@ -10,7 +10,7 @@
 
     <groupId>at.tuwien</groupId>
     <artifactId>fda-container-managing-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${global.version}</version>
     <name>fda-container-managing-service</name>
     <description>Demo project for Spring Boot</description>
 
@@ -22,6 +22,7 @@
     </modules>
 
     <properties>
+        <global.version>0.0.1-SNAPSHOT</global.version>
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>

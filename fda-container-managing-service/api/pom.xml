@@ -10,7 +10,8 @@
     </parent>
 
     <artifactId>api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${global.version}</version>
+    <name>fda-container-managing-service-api</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
