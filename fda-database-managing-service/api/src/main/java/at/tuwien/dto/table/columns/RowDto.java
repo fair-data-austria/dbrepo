@@ -5,8 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class NominalColumnDto extends AbstractColumnDto {
+public class RowDto {
 
-    private Long maxLength;
+    private ColumnDto[] columns;
+
+    private String[] data;
 
 }
