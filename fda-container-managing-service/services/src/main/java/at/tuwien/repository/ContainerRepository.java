@@ -1,12 +1,12 @@
 package at.tuwien.repository;
 
-import at.tuwien.entity.DatabaseContainer;
+import at.tuwien.entity.Container;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ContainerRepository extends JpaRepository<DatabaseContainer, Long> {
+public interface ContainerRepository extends JpaRepository<Container, Long> {
 
-    DatabaseContainer findByContainerId(String id);
+    Container findByContainerId(String id);
 
 }
