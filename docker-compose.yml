@@ -51,10 +51,6 @@ services:
       - fda-table-service
     depends_on:
       - fda-discovery-server
-      - fda-database-managing-service
-      - fda-container-managing-service
-      - fda-query-service
-      - fda-table-service
     logging:
       driver: json-file
 
@@ -73,9 +69,11 @@ services:
     links:
       - fda-discovery-server
       - fda-container-managing-service
+      - fda-metadata-db
     depends_on:
       - fda-discovery-server
       - fda-container-managing-service
+      - fda-metadata-db
     logging:
       driver: json-file
 
@@ -139,8 +137,6 @@ services:
       - /tmp:/tmp
     links:
       - fda-discovery-server
-      - fda-query-service
-      - fda-analyse-service
     depends_on:
       - fda-discovery-server
 
@@ -177,13 +173,9 @@ services:
     image: fda-ui
     ports:
       - 3000:3000
-    links:
-      - fda-discovery-server
-      - fda-container-managing-service
-      - fda-query-service
-      - fda-analyse-service
     depends_on:
-      - fda-discovery-server
+      - fda-container-managing-service
+      - fda-database-managing-service
     environment:
       HOST: 0.0.0.0
       API_URL: //fda-database-managing-service:9092/api

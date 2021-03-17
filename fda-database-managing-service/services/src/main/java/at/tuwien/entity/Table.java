@@ -10,8 +10,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import java.util.List;
 
-@Entity
 @Data
+@Entity(name = "ttable")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class Table extends Auditable {
@@ -20,3 +20,4 @@ public class Table extends Auditable {
     private Database database;
 
 }
+
