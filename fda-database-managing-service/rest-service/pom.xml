@@ -10,14 +10,14 @@
     </parent>
 
     <artifactId>rest-service</artifactId>
-    <version>${global.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>fda-database-managing-service-rest-services</name>
 
     <dependencies>
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>services</artifactId>
-            <version>${global.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

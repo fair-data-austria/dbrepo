@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>services</artifactId>
-    <version>${global.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>fda-container-managing-service-services</name>
 
     <properties>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>api</artifactId>
-            <version>${project.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

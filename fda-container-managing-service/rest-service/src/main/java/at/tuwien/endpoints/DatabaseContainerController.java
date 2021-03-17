@@ -83,7 +83,7 @@ public class DatabaseContainerController {
     }
 
     @DeleteMapping("/container/{id}")
-    @ApiOperation(value = "Delete a database container.")
+    @ApiOperation(value = "Delete a database container")
     public ResponseEntity deleteDatabaseContainer(@RequestParam String id) throws ContainerNotFoundException, DockerClientException {
         containerService.remove(id);
         return ResponseEntity.status(HttpStatus.OK)

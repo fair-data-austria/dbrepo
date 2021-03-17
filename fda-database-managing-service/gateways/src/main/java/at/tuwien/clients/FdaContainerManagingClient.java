@@ -1,6 +1,6 @@
 package at.tuwien.clients;
 
-import at.tuwien.dto.CreateDatabaseDTO;
+import at.tuwien.dto.database.DatabaseCreateDto;
 import at.tuwien.model.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +20,14 @@ public class FdaContainerManagingClient {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    public boolean createDatabaseContainer(CreateDatabaseDTO dto)  {
+    public boolean createDatabaseContainer(DatabaseCreateDto dto)  {
         LOGGER.debug("request fda-container-managing service for createDatabaseContainer");
         ClientResponse clientResponse = webClientBuilder
                 .build()
                 .post()
                 .uri("http://fda-container-managing/at.tuwien.api/createDatabaseContainer")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(dto), CreateDatabaseDTO.class)
+                .body(Mono.just(dto), DatabaseCreateDto.class)
                 .exchange()
                 .block();
 

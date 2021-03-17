@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>api</artifactId>
-    <version>${global.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>fda-database-managing-service-api</name>
 
     <properties>
