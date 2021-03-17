@@ -24,7 +24,6 @@ stages:
 build:
   stage: build
   script:
-    - docker-compose down
     - docker-compose build
 
 test-backend:
@@ -37,32 +36,7 @@ test-frontend:
   script:
     - echo "todo"
 
-deploy-dev:
-  stage: deploy
-  variables:
-    TAG: latest
-  script:
-    - docker build -t $CI_REGISTRY/fda-analyse-service:$TAG ./fda-analyse-service
-    - docker push $CI_REGISTRY/fda-analyse-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-discovery-server:$TAG ./fda-discovery-server
-    - docker push $CI_REGISTRY/fda-discovery-server:$TAG
-    - docker build -t $CI_REGISTRY/fda-gateway-service:$TAG ./fda-gateway-service
-    - docker push $CI_REGISTRY/fda-gateway-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-database-managing-service:$TAG ./fda-database-managing-service
-    - docker push $CI_REGISTRY/fda-database-managing-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-container-managing-service:$TAG ./fda-container-managing-service
-    - docker push $CI_REGISTRY/fda-container-managing-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-query-service:$TAG ./fda-query-service
-    - docker push $CI_REGISTRY/fda-query-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-table-service:$TAG ./fda-table-service
-    - docker push $CI_REGISTRY/fda-table-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-ui:$TAG ./fda-ui
-    - docker push $CI_REGISTRY/fda-ui:$TAG
-    - docker logout $CI_REGISTRY
-  only:
-    - dev
-
-deploy-prod:
+deploy:
   stage: deploy
   variables:
     TAG: stable
@@ -85,9 +59,10 @@ deploy-prod:
     - docker push $CI_REGISTRY/fda-ui:$TAG
     - docker logout $CI_REGISTRY
   only:
+    - dev
     - master
 
-production-dev:
+production:
   image: kroniak/ssh-client
   stage: production
   script:
@@ -104,10 +79,4 @@ production-dev:
     - ssh $PROD_SSH_HOST "docker logout $CI_REGISTRY"
   only:
     - dev
-
-production-prod:
-  stage: production
-  script:
-    - echo "tbd"
-  only:
     - master
