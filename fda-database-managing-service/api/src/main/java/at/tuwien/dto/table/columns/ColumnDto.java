@@ -4,10 +4,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+
 @Getter
 @Setter
 public class ColumnDto {
 
+    @NotBlank
     @Parameter(name = "column type")
     private ColumnTypeDto type;
 

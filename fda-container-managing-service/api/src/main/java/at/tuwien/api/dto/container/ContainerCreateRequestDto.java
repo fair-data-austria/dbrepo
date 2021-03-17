@@ -1,5 +1,6 @@
-package at.tuwien.dto.database;
+package at.tuwien.api.dto.container;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,14 +9,15 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
-public class DatabaseDto extends DatabaseBriefDto {
+@Builder
+public class ContainerCreateRequestDto {
 
     @NotBlank
     @Size(min = 3)
-    private String name;
+    private String containerName;
 
     @NotBlank
-    @Size(min = 64, max = 64)
-    private String containerId;
+    @Size(min = 3)
+    private String image;
 
 }

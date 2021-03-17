@@ -14,10 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/database")
 public class DatabaseController {
 
     private final DatabaseService databaseService;
@@ -30,7 +31,7 @@ public class DatabaseController {
     @GetMapping("/database")
     @ApiOperation(value = "List all databases", notes = "Currently a container supports only databases of the same image, e.g. there is one PostgreSQL engine running with multiple databases inside a container.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "All databases are listed."),
+            @ApiResponse(code = 200, message = "All databases running in all containers are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all databases."),
     })
     public ResponseEntity<List<DatabaseBriefDto>> findAll() {
@@ -40,7 +41,7 @@ public class DatabaseController {
     }
 
     @PostMapping("/database")
-    @ApiOperation(value = "Creates a new database", notes = "Creates a new database in a container. Note that the backend distincts between numerical (req: categories), nominal (req: max_length) and categorical (req: max_length, siUnit, min, max, mean, median, standard_deviation, histogram) column types.")
+    @ApiOperation(value = "Creates a new database in a container", notes = "Creates a new database in a container. Note that the backend distincts between numerical (req: categories), nominal (req: max_length) and categorical (req: max_length, siUnit, min, max, mean, median, standard_deviation, histogram) column types.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "The database was successfully created."),
             @ApiResponse(code = 400, message = "Parameters were set wrongfully, e.g. more attributes than required for column type."),
@@ -71,11 +72,11 @@ public class DatabaseController {
             @ApiResponse(code = 400, message = "The payload contains invalid data."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> findById(@RequestParam String id) {
+    public ResponseEntity<DatabaseDto> findById(@NotBlank @RequestParam String id) {
         return null;
     }
 
-    @PutMapping("/database/{id}")
+    @PutMapping("/{id}")
     @ApiOperation(value = "Modify a database (not part of sprint 1)")
     @ApiResponses({
             @ApiResponse(code = 202, message = "The database was successfully modified."),
@@ -83,19 +84,19 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to change a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> modify(@RequestParam String id, @RequestBody DatabaseChangeDto changeDto) {
+    public ResponseEntity<DatabaseDto> modify(@NotBlank @RequestParam String id, @Valid @RequestBody DatabaseChangeDto changeDto) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
 
-    @DeleteMapping("/database/{id}")
+    @DeleteMapping("/{id}")
     @ApiOperation(value = "Delete a database")
     @ApiResponses({
             @ApiResponse(code = 202, message = "The database was successfully deleted."),
             @ApiResponse(code = 401, message = "Not authorized to delete a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity delete(@RequestParam String id) {
+    public ResponseEntity delete(@NotBlank @RequestParam String id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
     }

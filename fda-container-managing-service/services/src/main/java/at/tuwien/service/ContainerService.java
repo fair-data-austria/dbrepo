@@ -1,12 +1,12 @@
 package at.tuwien.service;
 
-import at.tuwien.api.dto.database.DatabaseContainerCreateRequestDto;
+import at.tuwien.api.dto.container.ContainerCreateRequestDto;
+import at.tuwien.entity.Container;
 import at.tuwien.entity.ContainerImage;
-import at.tuwien.entity.DatabaseContainer;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
-import at.tuwien.mapper.DatabaseContainerMapper;
+import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
@@ -32,11 +32,11 @@ public class ContainerService {
     private final DockerClient dockerClient;
     private final ImageRepository imageRepository;
     private final ContainerRepository containerRepository;
-    private final DatabaseContainerMapper databaseContainerMapper;
+    private final ContainerMapper databaseContainerMapper;
 
     @Autowired
     public ContainerService(DockerClient dockerClient, ContainerRepository containerRepository,
-                            ImageRepository imageRepository, HostConfig hostConfig, DatabaseContainerMapper databaseContainerMapper) {
+                            ImageRepository imageRepository, HostConfig hostConfig, ContainerMapper databaseContainerMapper) {
         this.hostConfig = hostConfig;
         this.dockerClient = dockerClient;
         this.imageRepository = imageRepository;
@@ -44,11 +44,7 @@ public class ContainerService {
         this.databaseContainerMapper = databaseContainerMapper;
     }
 
-    public DatabaseContainer create(DatabaseContainerCreateRequestDto containerDto) throws ImageNotFoundException {
-        if (containerDto == null || containerDto.getContainerName() == null || containerDto.getDatabaseName() == null
-                || containerDto.getImage() == null) {
-            throw new ImageNotFoundException("container data is null");
-        }
+    public Container create(ContainerCreateRequestDto containerDto) throws ImageNotFoundException {
         final int index = containerDto.getImage().indexOf(":");
         final String repositoryName = containerDto.getImage().substring(0, index);
         final String tagName = containerDto.getImage().substring(index + 1);
@@ -60,26 +56,21 @@ public class ContainerService {
         final HostConfig hostConfig = this.hostConfig
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
         final List<String> environment = new ArrayList<>(containerImage.getEnvironment());
-        /* postgres specific env vars */
-        if (repositoryName.equals("postgres")) {
-            environment.add("POSTGRES_DB=" + containerDto.getDatabaseName());
-        }
         final CreateContainerResponse response = dockerClient.createContainerCmd(containerDto.getImage())
                 .withName(containerDto.getContainerName())
                 .withEnv(environment)
                 .withHostConfig(hostConfig)
                 .exec();
-        return DatabaseContainer.builder()
+        return Container.builder()
                 .containerCreated(Instant.now())
                 .image(containerImage)
                 .name(containerDto.getContainerName())
-                .databaseName(containerDto.getDatabaseName())
                 .containerId(response.getId())
                 .build();
     }
 
-    public DatabaseContainer stop(String containerId) throws ContainerNotFoundException, DockerClientException {
-        final DatabaseContainer container = containerRepository.findByContainerId(containerId);
+    public Container stop(String containerId) throws ContainerNotFoundException, DockerClientException {
+        final Container container = containerRepository.findByContainerId(containerId);
         if (container == null) {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
@@ -93,7 +84,7 @@ public class ContainerService {
     }
 
     public void remove(String containerId) throws ContainerNotFoundException, DockerClientException {
-        final DatabaseContainer container = containerRepository.findByContainerId(containerId);
+        final Container container = containerRepository.findByContainerId(containerId);
         if (container == null) {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
@@ -105,15 +96,15 @@ public class ContainerService {
         log.debug("Removed container {}", containerId);
     }
 
-    public DatabaseContainer getById(String containerId) throws ContainerNotFoundException {
-        final DatabaseContainer container = containerRepository.findByContainerId(containerId);
+    public Container getById(String containerId) throws ContainerNotFoundException {
+        final Container container = containerRepository.findByContainerId(containerId);
         if (container == null) {
             throw new ContainerNotFoundException("no database with this container id in metadata database");
         }
         return container;
     }
 
-    public List<DatabaseContainer> getAll() {
+    public List<Container> getAll() {
         return containerRepository.findAll();
     }
 
@@ -123,8 +114,8 @@ public class ContainerService {
      * @param containerId The container ID
      * @return The container
      */
-    public DatabaseContainer start(String containerId) throws ContainerNotFoundException, DockerClientException {
-        final DatabaseContainer container = getById(containerId);
+    public Container start(String containerId) throws ContainerNotFoundException, DockerClientException {
+        final Container container = getById(containerId);
         try {
             dockerClient.startContainerCmd(container.getContainerId()).exec();
         } catch (NotFoundException | NotModifiedException e) {

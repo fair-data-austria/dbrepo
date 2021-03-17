@@ -8,7 +8,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.time.Instant;
 
-
 @Entity
 @Data
 @Builder
@@ -16,7 +15,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
-public class DatabaseContainer extends Auditable {
+public class Container extends Auditable {
 
     @Column(nullable = false)
     private String containerId;
@@ -26,9 +25,6 @@ public class DatabaseContainer extends Auditable {
 
     @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false)
-    private String databaseName;
 
     @OneToOne(optional = false)
     private ContainerImage image;
