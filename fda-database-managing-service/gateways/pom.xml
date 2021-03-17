@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>gateways</artifactId>
-    <version>${global.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>fda-database-managing-service-gateways</name>
 
     <properties>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>api</artifactId>
-            <version>${global.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

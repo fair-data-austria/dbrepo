@@ -10,20 +10,20 @@
     </parent>
 
     <artifactId>services</artifactId>
-    <version>${global.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>fda-database-managing-service-services</name>
 
     <dependencies>
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>gateways</artifactId>
-            <version>${global.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>api</artifactId>
-            <version>${global.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
