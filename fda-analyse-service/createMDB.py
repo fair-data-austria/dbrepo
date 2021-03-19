@@ -74,12 +74,45 @@ CREATE TABLE md_COLUMNS (
 	tName VARCHAR(50) NOT NULL, 
 	cName VARCHAR(50), 
 	Datatype VARCHAR(50), 
-	SIunit TEXT, 
-	MaxVal NUMERIC, 
-	MinVal NUMERIC , 
 	FOREIGN KEY (cDBID,tName) REFERENCES md_TABLES(tDBID,tName),
 	PRIMARY KEY(cDBID, tName, cName)
 );
+
+CREATE TABLE md_nomCOLUMNS ( 
+	cDBID TEXT NOT NULL, 
+	tName VARCHAR(50) NOT NULL, 
+	cName VARCHAR(50), 
+	maxlength INTEGER,
+	FOREIGN KEY (cDBID,tName, cName) REFERENCES md_COLUMNS(cDBID,tName, cName),
+	PRIMARY KEY(cDBID, tName, cName)
+);
+
+CREATE TABLE md_numCOLUMNS ( 
+	cDBID TEXT NOT NULL, 
+	tName VARCHAR(50) NOT NULL, 
+	cName VARCHAR(50), 
+	SIunit TEXT, 
+	MaxVal NUMERIC, 
+	MinVal NUMERIC , 
+	Mean NUMERIC, 
+	Median NUMERIC, 
+	Sd Numeric, 
+	Histogram INTEGER[][],
+	last_update TIMESTAMP, 
+	FOREIGN KEY (cDBID,tName, cName) REFERENCES md_COLUMNS(cDBID,tName,cName),
+	PRIMARY KEY(cDBID, tName, cName)
+);
+
+CREATE TABLE md_catCOLUMNS ( 
+	cDBID TEXT NOT NULL, 
+	tName VARCHAR(50) NOT NULL, 
+	cName VARCHAR(50), 
+	num_cat INTEGER, 
+	cat_array TEXT[],
+	FOREIGN KEY (cDBID,tName, cName) REFERENCES md_COLUMNS(cDBID,tName,cName),
+	PRIMARY KEY(cDBID, tName, cName)
+);
+
 
 CREATE TABLE md_VIEW ( 
 	vDBID TEXT REFERENCES md_DATABASES(DBID), 
