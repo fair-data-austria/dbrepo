@@ -42,9 +42,15 @@ def upload_file():
             return redirect(request.url)
             ## check if csv TODO
         if file:
+            enum = False
+            if request.args.get('enum'):
+                enum = True
+            enum_tol = 0.001
+            if request.args.get('enum_tol') != None:
+            	enum_tol = float(request.args.get('enum_tol'))
             filename = str(uuid.uuid1())
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            result = determine_datatypes(filename)
+            result = determine_datatypes(filename, enum, enum_tol)
             os.remove(filename)
             return result, 200
     else:
