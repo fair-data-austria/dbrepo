@@ -15,7 +15,7 @@ from messytables import CSVTableSet, type_guess, \
    headers_guess, headers_processor, offset_processor
   
   
-def determine_datatypes(path, enum=False, enum_tol=0.3):
+def determine_datatypes(path, enum=False, enum_tol=0.001):
 # Use option enum=True for searching Postgres ENUM Types in CSV file     
     fh = open(path, 'rb')
     
