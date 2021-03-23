@@ -66,8 +66,14 @@ def upload_file():
 
 @app.route('/datatypesbypath',methods=['GET'])
 def datatypesbypath(): 
+    enum = False 
+    if request.args.get('enum'): 
+    	enum = True 
+    enum_tol = 0.001
+    if request.args.get('enum_tol') != None:
+        enum_tol = float(request.args.get('enum_tol'))
     path = request.args.get('filepath')
-    result = determine_datatypes(path)
+    result = determine_datatypes(path, enum,enum_tol)
 
     return jsonify(result), 200
 
