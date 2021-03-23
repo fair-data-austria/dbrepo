@@ -10,13 +10,15 @@ https://github.com/okfn/messytables/
 """
 
 import json  
-import messytables
+import messytables, pandas as pd
 from messytables import CSVTableSet, type_guess, \
    headers_guess, headers_processor, offset_processor
   
   
-def determine_datatypes(path, enum=False, enum_tol=0.001):
-# Use option enum=True for searching Postgres ENUM Types in CSV file     
+def determine_datatypes(path, enum=False, enum_tol=0.0001):
+# Use option enum=True for searching Postgres ENUM Types in CSV file. Remark 
+# Enum is not SQL standard, hence, it might not be supported by all db-engines. 
+# However, it can be used in Postgres and MySQL. 
     fh = open(path, 'rb')
     
     # Load a file object:
@@ -28,18 +30,19 @@ def determine_datatypes(path, enum=False, enum_tol=0.001):
     # guess header names and the offset of the header:
     offset, headers = headers_guess(row_set.sample)
     row_set.register_processor(headers_processor(headers))
-        
+            
     # add one to begin with content, not the header:
     row_set.register_processor(offset_processor(offset + 1))
     
     # guess column types:
     types = type_guess(row_set.sample, strict=True)
-        
+      
     r = {}
     
-    n=0
-    for i in row_set: 
-       n=n+1
+    # list of rows 
+    if enum ==True: 
+        rows = pd.read_csv(path,header=offset+1)
+        n = len(rows)
     
     for i in range(0,(len(types))):
         if type(types[i]) == messytables.types.BoolType: 
@@ -57,14 +60,19 @@ def determine_datatypes(path, enum=False, enum_tol=0.001):
             if enum == True: 
                 enum_set = set()
                 m=0
-                for elem in row_set: 
-                    if m/n < enum_tol: 
-                        enum_set.add(elem[i].value)
-                        r[headers[i]] = {"Enum": list(enum_set-{headers[i]})}
+                is_enum = True
+                for elem in range(0,n): 
+                    if (m < enum_tol*n): 
+                        enum_set.add(rows.iloc[elem,i])
                     else: 
-                        r[headers[i]] = "String"
-                        break 
+                        is_enum = False
+                        break
                     m = len(enum_set)
+                if is_enum:
+                    enum_set.discard(None)
+                    r[headers[i]] = {"Enum": list(enum_set)}   
+                else: 
+                    r[headers[i]] = "String"
             else: 
                 r[headers[i]] = "String"
     
@@ -73,13 +81,12 @@ def determine_datatypes(path, enum=False, enum_tol=0.001):
     return json.dumps(s)
 
 """ 
+Example output:
 {
   "columns": {
-    "additionalProp1": "string",
-    "additionalProp2": "string",
-    "additionalProp3": "string"
-  },
-  "primaryKey": "string",
-  "tableName": "string"
+    "col1": "integer",
+    "col2": "string",
+    "col3": "string"
+  }
 }
 """ 

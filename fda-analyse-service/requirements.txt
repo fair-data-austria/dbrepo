@@ -1,4 +1,5 @@
 messytables==0.15.2
+pandas==1.2.3
 flask==1.1.2
 sql-metadata==1.9.1
 psycopg2-binary==2.8.6
