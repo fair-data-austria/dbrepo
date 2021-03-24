@@ -2,13 +2,13 @@ from psycopg2 import connect
 import requests
 import json 
 
-# Post request on FDA-Container-Managing Service
-# CONTAINER_MANAGING_URL = "http://localhost:9091/api/createDatabaseContainer"
-# r = requests.post(CONTAINER_MANAGING_URL, json = {  "ContainerName": "raabneumarkt", 
+ #Post request on FDA-Container-Managing Service
+#CONTAINER_MANAGING_URL = "http://localhost:9091/api/createDatabaseContainer"
+#r = requests.post(CONTAINER_MANAGING_URL, json = {  "ContainerName": "raabneumarkt", 
 # 	"DatabaseName": "raabneumarkt",
 # 	"MasterUser": "cm",
 # 	"Password": "postgres"
-# })
+#})
 
 r = requests.get(
 	"http://localhost:9091/api/getDatabaseContainerByContainerID", 

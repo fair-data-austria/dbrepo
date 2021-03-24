@@ -45,6 +45,7 @@ where cname is the container name of a Docker container.
 * python3 
 * flask
 * messytables 
+* pandas
 * sql-metadata
 * psycopg2-binary
 
