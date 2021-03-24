@@ -23,11 +23,10 @@ public class DatabaseService {
     }
 
     public boolean createDatabase(DatabaseCreateDto dto) {
-
+        return false;
     }
 
     public List<Database> findAllCreatedDatabases() {
         return client.getCreatedDatabases();
     }
-
 }

@@ -18,7 +18,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/database")
+@RequestMapping("/api")
 public class DatabaseController {
 
     private final DatabaseService databaseService;
@@ -76,7 +76,7 @@ public class DatabaseController {
         return null;
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("database/{id}")
     @ApiOperation(value = "Modify a database (not part of sprint 1)")
     @ApiResponses({
             @ApiResponse(code = 202, message = "The database was successfully modified."),
@@ -89,7 +89,7 @@ public class DatabaseController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("database/{id}")
     @ApiOperation(value = "Delete a database")
     @ApiResponses({
             @ApiResponse(code = 202, message = "The database was successfully deleted."),
