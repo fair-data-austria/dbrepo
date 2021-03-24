@@ -27,7 +27,7 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo("FDA-Table-Service API",
-                "Service API for table service",
+                "Service API for table at.tuwien.service",
                 "1.0",
                 null,
                 new Contact("Gökhan Dasdemir", "http://tuwien.at", "goekhan.dasdemir@tuwien.ac.at"),

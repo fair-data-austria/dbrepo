@@ -4,6 +4,7 @@ image: docker/compose:latest
 before_script:
   - docker version
   - docker-compose version
+  - mvn --version
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 cache:
@@ -28,7 +29,7 @@ build:
 test-backend:
   stage: test
   script:
-    - echo "todo"
+    - mvn -f fda-container-managing-service/pom.xml clean test
 
 test-frontend:
   stage: test
@@ -70,7 +71,7 @@ production:
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     - echo "$PROD_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-    - scp docker-compose.dev.yml $PROD_SSH_HOST:~/deployment/docker-compose.yml
+    - scp docker-compose.dbrepo.yml $PROD_SSH_HOST:~/deployment/docker-compose.yml
     - ssh $PROD_SSH_HOST "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
     - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml pull"
     - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml -p 'fda' down"
