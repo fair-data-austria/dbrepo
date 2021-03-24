@@ -24,7 +24,7 @@ public class FdaContainerManagingClient {
         DatabaseContainer databaseContainer = webClientBuilder
                 .build()
                 .get()
-                .uri("http://fda-container-managing/api/getDatabaseContainerByContainerID?containerID=" + containerID)
+                .uri("http://fda-container-managing/at.tuwien.api/getDatabaseContainerByContainerID?containerID=" + containerID)
                 .retrieve()
                 .bodyToMono(DatabaseContainer.class)
                 .block();

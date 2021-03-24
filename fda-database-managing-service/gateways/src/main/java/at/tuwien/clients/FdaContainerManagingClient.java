@@ -1,21 +1,16 @@
 package at.tuwien.clients;
 
-import at.tuwien.dto.CreateDatabaseDTO;
+import at.tuwien.dto.database.DatabaseCreateDto;
 import at.tuwien.model.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.ws.rs.core.Response;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -25,14 +20,14 @@ public class FdaContainerManagingClient {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    public boolean createDatabaseContainer(CreateDatabaseDTO dto)  {
+    public boolean createDatabaseContainer(DatabaseCreateDto dto)  {
         LOGGER.debug("request fda-container-managing service for createDatabaseContainer");
         ClientResponse clientResponse = webClientBuilder
                 .build()
                 .post()
-                .uri("http://fda-container-managing/api/createDatabaseContainer")
+                .uri("http://fda-container-managing/at.tuwien.api/createDatabaseContainer")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(dto), CreateDatabaseDTO.class)
+                .body(Mono.just(dto), DatabaseCreateDto.class)
                 .exchange()
                 .block();
 
@@ -48,7 +43,7 @@ public class FdaContainerManagingClient {
         List<Database> databases = webClientBuilder
                 .build()
                 .get()
-                .uri("http://fda-container-managing/api/getCreatedDatabaseContainers")
+                .uri("http://fda-container-managing/at.tuwien.api/getCreatedDatabaseContainers")
                 .retrieve()
                 .bodyToFlux(Database.class)
                 .collectList()
