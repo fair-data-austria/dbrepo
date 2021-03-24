@@ -6,7 +6,7 @@ import json
 def extract_sqlmetadata(cname): 
     # Get container info  
     r = requests.get(
-	"http://localhost:9091/api/getDatabaseContainerByContainerID", 
+	"http://fda-container-managing-service:9091/api/getDatabaseContainerByContainerID", 
 	params = {"containerID":cname}
     )
     
@@ -22,8 +22,6 @@ def extract_sqlmetadata(cname):
     )
 
     cursor = conn.cursor() 
-
-
 
     # Extract database title
     cursor.execute(f"""Select table_catalog 
