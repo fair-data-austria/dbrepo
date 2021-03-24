@@ -1,8 +1,27 @@
 version: "3.6"
 
+volumes:
+  fda-metadata-db-data:
+
 services:
 
+  fda-metadata-db:
+    restart: always
+    container_name: fda-metadata-db
+    hostname: fda-metadata-db
+    image: postgres:13-alpine
+    volumes:
+      - fda-metadata-db-data:/var/lib/postgresql/data
+    network_mode: bridge
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fda
+
   fda-discovery-server:
+    restart: always
     container_name: fda-discovery-server
     hostname: fda-discovery-server
     build: ./fda-discovery-server
@@ -14,6 +33,7 @@ services:
       - 9090:9090
 
   fda-gateway-service:
+    restart: always
     container_name: fda-gateway-service
     hostname: fda-gateway-service
     build: ./fda-gateway-service
@@ -31,14 +51,11 @@ services:
       - fda-table-service
     depends_on:
       - fda-discovery-server
-      - fda-database-managing-service
-      - fda-container-managing-service
-      - fda-query-service
-      - fda-table-service
     logging:
       driver: json-file
 
   fda-database-managing-service:
+    restart: always
     container_name: fda-database-managing-service
     hostname: fda-database-managing-service
     build:
@@ -52,13 +69,16 @@ services:
     links:
       - fda-discovery-server
       - fda-container-managing-service
+      - fda-metadata-db
     depends_on:
       - fda-discovery-server
       - fda-container-managing-service
+      - fda-metadata-db
     logging:
       driver: json-file
 
   fda-container-managing-service:
+    restart: always
     container_name: fda-container-managing-service
     hostname: fda-container-managing-service
     build: ./fda-container-managing-service
@@ -72,12 +92,15 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-server
+      - fda-metadata-db
     depends_on:
       - fda-discovery-server
+      - fda-metadata-db
     logging:
       driver: json-file
 
   fda-query-service:
+    restart: always
     container_name: fda-query-service
     hostname: fda-query-service
     build: ./fda-query-service
@@ -99,6 +122,7 @@ services:
       driver: json-file
 
   fda-table-service:
+    restart: always
     container_name: fda-table-service
     hostname: fda-table-service
     build: ./fda-table-service
@@ -113,12 +137,11 @@ services:
       - /tmp:/tmp
     links:
       - fda-discovery-server
-      - fda-query-service
-      - fda-analyse-service
     depends_on:
       - fda-discovery-server
 
   fda-analyse-service:
+    restart: always
     container_name: fda-analyse-service
     hostname: fda-analyse-service
     build: ./fda-analyse-service
@@ -143,19 +166,16 @@ services:
       driver: json-file
 
   fda-ui:
+    restart: always
     container_name: fda-ui
     hostname: fda-ui
     build: ./fda-ui
     image: fda-ui
     ports:
       - 3000:3000
-    links:
-      - fda-discovery-server
-      - fda-container-managing-service
-      - fda-query-service
-      - fda-analyse-service
     depends_on:
-      - fda-discovery-server
+      - fda-container-managing-service
+      - fda-database-managing-service
     environment:
       HOST: 0.0.0.0
       API_URL: //fda-database-managing-service:9092/api
