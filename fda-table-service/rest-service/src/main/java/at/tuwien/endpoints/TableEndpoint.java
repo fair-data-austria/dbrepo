@@ -5,7 +5,9 @@ import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.dto.table.TableDto;
 import at.tuwien.entity.Table;
 import at.tuwien.exception.DatabaseConnectionException;
+import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.service.TableService;
 import io.swagger.annotations.ApiOperation;
@@ -57,7 +59,8 @@ public class TableEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId, @RequestBody TableCreateDto createDto)
-            throws ImageNotSupportedException, DatabaseConnectionException {
+            throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException,
+            DatabaseNotFoundException {
         final Table table = tableService.create(databaseId, createDto);
         return ResponseEntity.ok(tableMapper.tableToTableBriefDto(table));
     }
