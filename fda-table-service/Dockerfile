@@ -11,7 +11,7 @@ COPY ./gateways ./gateways
 COPY ./rest-service ./rest-service
 COPY ./services ./services
 
-RUN mvn -q clean package > /dev/null
+RUN mvn -q clean package
 
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
