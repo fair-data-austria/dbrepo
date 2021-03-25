@@ -4,6 +4,8 @@ import at.tuwien.dto.table.TableBriefDto;
 import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.dto.table.TableDto;
 import at.tuwien.entity.Table;
+import at.tuwien.exception.DatabaseConnectionException;
+import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.service.TableService;
 import io.swagger.annotations.ApiOperation;
@@ -45,13 +47,17 @@ public class TableEndpoint {
     }
 
     @PostMapping("/table")
-    @ApiOperation(value = "Create a table", notes = "Creates a new table for a database.")
+    @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "The table was created."),
             @ApiResponse(code = 400, message = "The creation form contains invalid data."),
             @ApiResponse(code = 401, message = "Not authorized to create a tables."),
+            @ApiResponse(code = 404, message = "The database does not exist."),
+            @ApiResponse(code = 405, message = "The container is not running."),
+            @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId, @RequestBody TableCreateDto createDto) {
+    public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId, @RequestBody TableCreateDto createDto)
+            throws ImageNotSupportedException, DatabaseConnectionException {
         final Table table = tableService.create(databaseId, createDto);
         return ResponseEntity.ok(tableMapper.tableToTableBriefDto(table));
     }
