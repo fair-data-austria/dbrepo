@@ -1,4 +1,4 @@
-package at.tuwien.service;
+package at.tuwien.exception;
 
 public class FileStorageException extends RuntimeException {
 
