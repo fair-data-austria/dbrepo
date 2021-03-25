@@ -136,8 +136,10 @@ services:
     volumes:
       - /tmp:/tmp
     links:
+      - fda-metadata-db
       - fda-discovery-server
     depends_on:
+      - fda-metadata-db
       - fda-discovery-server
 
   fda-analyse-service:
