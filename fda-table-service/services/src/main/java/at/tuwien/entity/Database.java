@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Data
-@Entity(name = "ddatabase")
+@Entity(name = "mdb_database")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class Database extends Auditable {

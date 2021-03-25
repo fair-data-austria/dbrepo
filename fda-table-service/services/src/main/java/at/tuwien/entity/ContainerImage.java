@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@Entity
+@Entity(name = "mdb_container_image")
 @Data
 @Builder
 @NoArgsConstructor
