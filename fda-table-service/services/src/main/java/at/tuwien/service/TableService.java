@@ -38,10 +38,16 @@ public class TableService {
         this.postgresService = postgresService;
     }
 
-    public List<Table> findAll(Long databaseId) {
+    public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
         final Database tmp = new Database();
         tmp.setId(databaseId);
-        return tableRepository.findByDatabase(tmp);
+        final List<Table> tables;
+        try {
+            tables = tableRepository.findByDatabase(tmp);
+        } catch (EntityNotFoundException e) {
+            throw new DatabaseNotFoundException("database was not found");
+        }
+        return tables;
     }
 
     public List<Table> findById(Long databaseId, Long tableId) {
