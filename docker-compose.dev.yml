@@ -5,8 +5,7 @@ services:
   fda-discovery-server:
     container_name: fda-discovery-server
     hostname: fda-discovery-server
-    build: ./fda-discovery-server
-    image: fda-discovery-server
+    image: docker.martinweise.at/fda-discovery-server:latest
     environment:
       SPRING_PROFILES_ACTIVE: docker
     network_mode: bridge
@@ -16,8 +15,7 @@ services:
   fda-gateway-service:
     container_name: fda-gateway-service
     hostname: fda-gateway-service
-    build: ./fda-gateway-service
-    image: fda-gateway-service
+    image: docker.martinweise.at/fda-gateway-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -41,9 +39,7 @@ services:
   fda-database-managing-service:
     container_name: fda-database-managing-service
     hostname: fda-database-managing-service
-    build:
-      context: ./fda-database-managing-service
-    image: fda-database-managing-service
+    image:  docker.martinweise.at/fda-database-managing-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -61,8 +57,7 @@ services:
   fda-container-managing-service:
     container_name: fda-container-managing-service
     hostname: fda-container-managing-service
-    build: ./fda-container-managing-service
-    image: fda-container-managing-service
+    image: docker.martinweise.at/fda-container-managing-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -80,8 +75,7 @@ services:
   fda-query-service:
     container_name: fda-query-service
     hostname: fda-query-service
-    build: ./fda-query-service
-    image: fda-query-service
+    image:  docker.martinweise.at/fda-query-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -101,8 +95,7 @@ services:
   fda-table-service:
     container_name: fda-table-service
     hostname: fda-table-service
-    build: ./fda-table-service
-    image: fda-table-service
+    image:  docker.martinweise.at/fda-table-service:latest
     network_mode: bridge
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -121,8 +114,7 @@ services:
   fda-analyse-service:
     container_name: fda-analyse-service
     hostname: fda-analyse-service
-    build: ./fda-analyse-service
-    image: fda-analyse-service
+    image:  docker.martinweise.at/fda-analyse-service:latest
     network_mode: bridge
     command: sh -c "/wait && flask run"
     environment:
@@ -145,8 +137,7 @@ services:
   fda-ui:
     container_name: fda-ui
     hostname: fda-ui
-    build: ./fda-ui
-    image: fda-ui
+    image:  docker.martinweise.at/fda-ui:latest
     ports:
       - 3000:3000
     links:
