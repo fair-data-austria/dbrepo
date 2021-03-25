@@ -1,7 +1,10 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.dto.table.TableBriefDto;
+import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.dto.table.TableDto;
+import at.tuwien.entity.Table;
+import at.tuwien.mapper.TableMapper;
 import at.tuwien.service.TableService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -12,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
@@ -19,10 +23,12 @@ import java.util.List;
 public class TableEndpoint {
 
     private final TableService tableService;
+    private final TableMapper tableMapper;
 
     @Autowired
-    public TableEndpoint(TableService tableService) {
+    public TableEndpoint(TableService tableService, TableMapper tableMapper) {
         this.tableService = tableService;
+        this.tableMapper = tableMapper;
     }
 
     @GetMapping("/table")
@@ -32,7 +38,10 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
     public ResponseEntity<List<TableBriefDto>> findAll(@PathVariable("id") Long databaseId) {
-        return ResponseEntity.ok(tableService.findAll(databaseId));
+        final List<Table> tables = tableService.findAll(databaseId);
+        return ResponseEntity.ok(tables.stream()
+                .map(tableMapper::tableToTableDto)
+                .collect(Collectors.toList()));
     }
 
     @PostMapping("/table")
@@ -42,9 +51,9 @@ public class TableEndpoint {
             @ApiResponse(code = 400, message = "The creation form contains invalid data."),
             @ApiResponse(code = 401, message = "Not authorized to create a tables."),
     })
-    public ResponseEntity<TableBriefDto> create() {
-        // TODO
-        return ResponseEntity.ok(new TableBriefDto());
+    public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId, @RequestBody TableCreateDto createDto) {
+        final Table table = tableService.create(databaseId, createDto);
+        return ResponseEntity.ok(tableMapper.tableToTableBriefDto(table));
     }
 
     @GetMapping("/table/{tableId}")
@@ -54,8 +63,10 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
     public ResponseEntity<List<TableDto>> findAll(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
-        // TODO
-        return ResponseEntity.ok(List.of());
+        final List<Table> tables = tableService.findById(databaseId, tableId);
+        return ResponseEntity.ok(tables.stream()
+                .map(tableMapper::tableToTableDto)
+                .collect(Collectors.toList()));
     }
 
     @PutMapping("/table/{tableId}")

@@ -4,10 +4,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.List;
 
 @Data
@@ -28,7 +25,8 @@ public class Database extends Auditable {
     @OneToOne
     private View view;
 
-    @OneToMany
+    /** @apiNote cascade creations and deletions, hibernate does this for us */
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Table> tables;
 
 }
