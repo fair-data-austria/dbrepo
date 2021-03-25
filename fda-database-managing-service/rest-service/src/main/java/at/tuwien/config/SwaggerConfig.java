@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.service.VendorExtension;
@@ -15,28 +14,30 @@ import springfox.documentation.spring.web.plugins.Docket;
 import java.util.Collections;
 
 @Configuration
-@EnableOpenApi
 public class SwaggerConfig {
 
     @Bean
-    public Docket databaseApi() {
+    public Docket swaggerConfiguration() {
+
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("database-api")
-                .apiInfo(apiInfo())
                 .select()
-                .paths(PathSelectors.ant("/api/**"))
-                .build();
+                .paths(PathSelectors.ant("/database/*"))
+                .apis(RequestHandlerSelectors.basePackage("at.tuwien.controller"))
+                .build()
+                .apiInfo(apiInfo());
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfo("FDA-Database-Managing API",
-                "Service that can manage a database container",
+                "Service API for database managing",
                 "1.0",
                 null,
-                new Contact("Martin Weise", "https://informatics.tuwien.ac.at/people/martin-weise", "martin.weise@tuwien.ac.at"),
+                new Contact("Gökhan Dasdemir", "http://tuwien.at", "goekhan.dasdemir@tuwien.ac.at"),
                 "API license",
                 null,
                 Collections.emptyList());
+
+
     }
 
 }

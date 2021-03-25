@@ -1,9 +1,9 @@
 package at.tuwien.service;
 
 import at.tuwien.clients.FdaContainerManagingClient;
-import at.tuwien.dto.database.DatabaseCreateDto;
+
+import at.tuwien.dto.CreateDatabaseDTO;
 import at.tuwien.model.Database;
-import at.tuwien.repository.DatabaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +14,13 @@ public class DatabaseService {
 
     private FdaContainerManagingClient client;
 
-    private final DatabaseRepository databaseRepository;
-
     @Autowired
-    public DatabaseService(FdaContainerManagingClient client, DatabaseRepository databaseRepository) {
+    public DatabaseService(FdaContainerManagingClient client) {
         this.client = client;
-        this.databaseRepository = databaseRepository;
     }
 
-    public boolean createDatabase(DatabaseCreateDto dto) {
-
+    public boolean createDatabase(CreateDatabaseDTO dto) {
+        return client.createDatabaseContainer(dto);
     }
 
     public List<Database> findAllCreatedDatabases() {

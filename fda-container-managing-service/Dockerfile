@@ -10,13 +10,13 @@ COPY ./api ./api
 COPY ./rest-service ./rest-service
 COPY ./services ./services
 
-RUN mvn -q clean package -DskipTests
+RUN mvn -q clean package > /dev/null
 
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-COPY --from=build ./rest-service/target/rest-service-*.jar ./rest-service.jar
+COPY --from=build ./rest-service/target/fda-container-managing-service-*.jar ./rest.jar
 
 EXPOSE 9091
 
-ENTRYPOINT ["java", "-jar", "./rest-service.jar"]
+ENTRYPOINT ["java", "-jar", "./rest.jar"]
