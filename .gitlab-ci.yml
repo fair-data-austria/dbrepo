@@ -1,79 +1,28 @@
-image: docker/compose:latest
-
-# until fda-ui is in repo it will not be built
-before_script:
-  - docker version
-  - docker-compose version
-  - mvn --version
-
-cache:
-  paths:
+--- 
+before_script: 
+  - "docker version"
+  - "docker-compose version"
+  - "mvn --version"
+build: 
+  script: 
+    - "docker-compose build"
+  stage: build
+cache: 
+  paths: 
     - /root/.m2/repository/
     - /root/.npm/
-
-variables:
-  DOCKER_TLS_CERTDIR: "/certs"
-
-stages:
+image: "docker/compose:latest"
+stages: 
   - build
   - test
-
-build:
-  stage: build
-  script:
-    - docker-compose build
-
-test-backend:
+test-backend: 
+  script: 
+    - "mvn -f fda-container-managing-service/pom.xml clean test"
   stage: test
-  script:
-    - mvn -f fda-container-managing-service/pom.xml clean test
-
-test-frontend:
+test-frontend: 
+  script: 
+    - "echo \"todo\""
   stage: test
-  script:
-    - echo "todo"
+variables: 
+  DOCKER_TLS_CERTDIR: /certs
 
-deploy:
-  stage: deploy
-  variables:
-    TAG: stable
-  script:
-    - docker build -t $CI_REGISTRY/fda-analyse-service:$TAG ./fda-analyse-service
-    - docker push $CI_REGISTRY/fda-analyse-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-discovery-server:$TAG ./fda-discovery-server
-    - docker push $CI_REGISTRY/fda-discovery-server:$TAG
-    - docker build -t $CI_REGISTRY/fda-gateway-service:$TAG ./fda-gateway-service
-    - docker push $CI_REGISTRY/fda-gateway-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-database-managing-service:$TAG ./fda-database-managing-service
-    - docker push $CI_REGISTRY/fda-database-managing-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-container-managing-service:$TAG ./fda-container-managing-service
-    - docker push $CI_REGISTRY/fda-container-managing-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-query-service:$TAG ./fda-query-service
-    - docker push $CI_REGISTRY/fda-query-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-table-service:$TAG ./fda-table-service
-    - docker push $CI_REGISTRY/fda-table-service:$TAG
-    - docker build -t $CI_REGISTRY/fda-ui:$TAG ./fda-ui
-    - docker push $CI_REGISTRY/fda-ui:$TAG
-    - docker logout $CI_REGISTRY
-  only:
-    - dev
-    - master
-
-production:
-  image: kroniak/ssh-client
-  stage: production
-  script:
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-    - echo "$PROD_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - scp docker-compose.dbrepo.yml $PROD_SSH_HOST:~/deployment/docker-compose.yml
-    - ssh $PROD_SSH_HOST "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
-    - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml pull"
-    - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml down"
-    - ssh $PROD_SSH_HOST "docker-compose -f ~/deployment/docker-compose.yml up -d"
-    - ssh $PROD_SSH_HOST "docker logout $CI_REGISTRY"
-  only:
-    - dev
-    - master
