@@ -8,7 +8,7 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
 
 @Data
-@Entity(name = "ttable")
+@Entity(name = "mdb_table")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class Table extends Auditable {
@@ -17,7 +17,6 @@ public class Table extends Auditable {
     private Database database;
 
     @Column
-    @Min(value = 5)
     private String description;
 
 }
