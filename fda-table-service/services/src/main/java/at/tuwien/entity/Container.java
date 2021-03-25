@@ -8,7 +8,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.time.Instant;
 
-@Entity(value = "mdb_container")
+@Entity(name = "mdb_container")
 @Data
 @Builder
 @NoArgsConstructor
