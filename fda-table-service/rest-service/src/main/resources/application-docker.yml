@@ -1,0 +1,25 @@
+spring:
+  main.banner-mode: off
+  datasource:
+    url: jdbc:postgresql://fda-metadata-db:5432/fda
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+  application:
+    name: fda-table-service
+  cloud:
+    loadbalancer.ribbon.enabled: false
+server.port: 9094
+logging:
+  pattern.console: "%d %highlight(%-5level) %msg%n"
+  level:
+    root: warn
+    at.: info
+eureka:
+  instance.hostname: fda-discovery-server
+  client.serviceUrl.defaultZone: http://${eureka.instance.hostname}:9090/eureka/
