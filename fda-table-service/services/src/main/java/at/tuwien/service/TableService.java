@@ -5,6 +5,7 @@ import at.tuwien.entity.Container;
 import at.tuwien.entity.Database;
 import at.tuwien.entity.Table;
 import at.tuwien.exception.DatabaseConnectionException;
+import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.TableMapper;
@@ -14,6 +15,7 @@ import at.tuwien.repository.TableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -49,8 +51,13 @@ public class TableService {
     }
 
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseConnectionException, TableMalformedException {
-        final Database database = databaseRepository.getOne(databaseId);
+            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException {
+        final Database database;
+        try {
+            database = databaseRepository.getOne(databaseId);
+        } catch (EntityNotFoundException e) {
+            throw new DatabaseNotFoundException("database not found in metadata database", e);
+        }
         final Table table = tableMapper.tableCreateDtoToTable(createDto);
         database.getTables()
                 .add(table);
