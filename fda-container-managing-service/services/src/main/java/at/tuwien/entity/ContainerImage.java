@@ -31,9 +31,6 @@ public class ContainerImage extends Auditable {
     private String hash;
 
     @Column(nullable = false)
-    private Instant built;
-
-    @Column(nullable = false)
     private Long size;
 
     @Column(nullable = false)
