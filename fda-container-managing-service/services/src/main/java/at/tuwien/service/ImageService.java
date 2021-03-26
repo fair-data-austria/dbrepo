@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +44,10 @@ public class ImageService {
     public ContainerImage create(ImageCreateDto createDto) {
         final InspectImageResponse response = dockerClient.inspectImageCmd(createDto.toCompact())
                 .exec();
-        return imageRepository.save(imageMapper.inspectImageResponseToContainerImage(response));
+        final ContainerImage image = imageMapper.inspectImageResponseToContainerImage(response);
+        image.setEnvironment(Arrays.asList(createDto.getEnvironment()));
+        image.setDefaultPort(createDto.getDefaultPort());
+        return imageRepository.save(image);
     }
 
     public ContainerImage update(Long id) {
