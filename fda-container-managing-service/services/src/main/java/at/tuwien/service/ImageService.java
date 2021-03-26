@@ -7,6 +7,7 @@ import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +42,14 @@ public class ImageService {
         return image.get();
     }
 
-    public ContainerImage create(ImageCreateDto createDto) {
-        final InspectImageResponse response = dockerClient.inspectImageCmd(createDto.toCompact())
-                .exec();
+    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException {
+        final InspectImageResponse response;
+        try {
+            response = dockerClient.inspectImageCmd(createDto.toCompact())
+                    .exec();
+        } catch (NotFoundException e) {
+            throw new ImageNotFoundException("image not found in library", e);
+        }
         final ContainerImage image = imageMapper.inspectImageResponseToContainerImage(response);
         image.setEnvironment(Arrays.asList(createDto.getEnvironment()));
         image.setDefaultPort(createDto.getDefaultPort());
@@ -59,7 +65,7 @@ public class ImageService {
     public void delete(Long id) throws ImageNotFoundException {
         try {
             imageRepository.deleteById(id);
-        } catch(EntityNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             throw new ImageNotFoundException("no image with this id found in metadata database.");
         }
     }
