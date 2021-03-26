@@ -5,7 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.Instant;
 
-@Entity
+@Entity(name = "mdb_container")
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,7 +15,7 @@ import java.time.Instant;
 public class Container extends Auditable {
 
     @Column(nullable = false)
-    private String containerId;
+    private String containerHash;
 
     @Column(nullable = false)
     private Instant containerCreated;
@@ -23,11 +23,11 @@ public class Container extends Auditable {
     @Column(nullable = false)
     private String name;
 
-    @OneToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private ContainerImage image;
 
-    @Transient
-    private String status;
+    @Column(nullable = false)
+    private ContainerState status;
 
     @Column
     private String ipAddress;

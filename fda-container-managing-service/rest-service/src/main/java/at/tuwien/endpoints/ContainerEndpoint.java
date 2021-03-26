@@ -5,6 +5,7 @@ import at.tuwien.api.dto.container.ContainerBriefDto;
 import at.tuwien.api.dto.container.ContainerDto;
 import at.tuwien.api.dto.container.ContainerCreateRequestDto;
 import at.tuwien.entity.Container;
+import at.tuwien.entity.ContainerState;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
@@ -61,12 +62,13 @@ public class ContainerEndpoint {
             @ApiResponse(code = 201, message = "Successfully created a new container."),
             @ApiResponse(code = 400, message = "Malformed payload."),
             @ApiResponse(code = 401, message = "Not authorized to create a container."),
+            @ApiResponse(code = 404, message = "The container was not found after creation."),
     })
-    public ResponseEntity<ContainerDto> create(@Valid @RequestBody ContainerCreateRequestDto data)
-            throws ImageNotFoundException {
+    public ResponseEntity<ContainerBriefDto> create(@Valid @RequestBody ContainerCreateRequestDto data)
+            throws ImageNotFoundException, DockerClientException {
         final Container container = containerService.create(data);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(containerMapper.containerToContainerDto(container));
+                .body(containerMapper.containerToDatabaseContainerBriefDto(container));
     }
 
     @GetMapping("/{id}")
@@ -85,7 +87,7 @@ public class ContainerEndpoint {
     @PutMapping("/{id}")
     @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP/REMOVE.")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Changed the state of a container."),
+            @ApiResponse(code = 202, message = "Changed the state of a container."),
             @ApiResponse(code = 400, message = "Malformed payload."),
             @ApiResponse(code = 401, message = "Not authorized to modify a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
