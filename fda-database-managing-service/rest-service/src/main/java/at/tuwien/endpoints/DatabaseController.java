@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -72,7 +73,7 @@ public class DatabaseController {
             @ApiResponse(code = 400, message = "The payload contains invalid data."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> findById(@NotBlank @RequestParam String id) {
+    public ResponseEntity<DatabaseDto> findById(@NotBlank @PathVariable String id) {
         return null;
     }
 
@@ -84,7 +85,7 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to change a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> modify(@NotBlank @RequestParam String id, @Valid @RequestBody DatabaseChangeDto changeDto) {
+    public ResponseEntity<DatabaseDto> modify(@NotBlank @PathVariable String id, @Valid @RequestBody DatabaseChangeDto changeDto) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
@@ -96,7 +97,7 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to delete a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity delete(@NotBlank @RequestParam String id) {
+    public ResponseEntity delete(@NotBlank @PathVariable String id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
     }
