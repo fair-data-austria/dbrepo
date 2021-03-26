@@ -34,7 +34,7 @@ public class ContainerImage extends Auditable {
     private Instant built;
 
     @Column(nullable = false)
-    private BigInteger size;
+    private Long size;
 
     @Column(nullable = false)
     private Integer defaultPort;
