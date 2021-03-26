@@ -25,12 +25,12 @@ public interface ContainerMapper {
         return data.getNetworks().get("bridge").getIpAddress();
     }
 
-    default ContainerImage imageToContainerImage(String image) {
-        int index = image.indexOf(":");
-        return new ContainerImage().builder()
-                .repository(image.substring(0, index))
-                .tag(image.substring(index + 1))
-                .build();
+    default ContainerImage imageToContainerImage(String combined) {
+        int index = combined.indexOf(":");
+        final ContainerImage image = new ContainerImage();
+        image.setRepository(combined.substring(0, index));
+        image.setTag(combined.substring(index + 1));
+        return image;
     }
 
     @Mappings({

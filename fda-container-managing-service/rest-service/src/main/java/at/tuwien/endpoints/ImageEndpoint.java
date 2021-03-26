@@ -84,7 +84,7 @@ public class ImageEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to update a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ImageDto> update(@NotNull @RequestParam Long id) {
+    public ResponseEntity<ImageDto> update(@NotNull @RequestParam Long id) throws ImageNotFoundException {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(imageMapper.containerImageToImageDto(imageService.update(id)));
     }

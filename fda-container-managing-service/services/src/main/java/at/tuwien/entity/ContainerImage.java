@@ -12,11 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@Entity
+@Entity(name = "mdb_image")
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class ContainerImage extends Auditable {
@@ -40,8 +37,12 @@ public class ContainerImage extends Auditable {
     @Immutable
     private Collection<String> environment;
 
-    public final String dockerImageName() {
-        return repository + ":" + tag;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return this.id;
     }
 
 }
