@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.api.dto.image.ImageChangeDto;
 import at.tuwien.api.dto.image.ImageCreateDto;
 import at.tuwien.entity.ContainerImage;
 import at.tuwien.exception.ImageNotFoundException;
@@ -15,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.Arrays;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,18 +52,30 @@ public class ImageService {
     public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException {
         pull(createDto.getRepository(), createDto.getTag());
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
-        image.setEnvironment(Arrays.asList(createDto.getEnvironment()));
+        image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(createDto.getEnvironment()));
         image.setDefaultPort(createDto.getDefaultPort());
+        log.debug("Create image {}", createDto);
         return imageRepository.save(image);
     }
 
-    public ContainerImage update(Long imageId) throws ImageNotFoundException {
-        final ContainerImage imageOld = getById(imageId);
+    public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException {
+        final ContainerImage image = getById(imageId);
         /* pull changes */
-        pull(imageOld.getRepository(), imageOld.getTag());
+        pull(image.getRepository(), image.getTag());
         /* get new infos */
-        final ContainerImage image = inspect(imageOld.getRepository(), imageOld.getTag());
-        image.setId(imageOld.getId());
+        final ContainerImage dockerImage = inspect(image.getRepository(), image.getTag());
+        if (!changeDto.getDefaultPort().equals(image.getDefaultPort())) {
+            image.setDefaultPort(changeDto.getDefaultPort());
+            log.debug("port changed for image {}", changeDto);
+        }
+        if (!List.of(changeDto.getEnvironment()).equals(image.getEnvironment())) {
+            image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(changeDto.getEnvironment()));
+            log.debug("env changed for image {}", changeDto);
+        }
+        image.setCompiled(dockerImage.getCompiled());
+        image.setHash(dockerImage.getHash());
+        image.setSize(dockerImage.getSize());
+        log.debug("update image {}", image);
         /* update metadata db */
         return imageRepository.save(image);
     }
@@ -73,6 +87,7 @@ public class ImageService {
             log.error("image id {} not found in metadata database", databaseId);
             throw new ImageNotFoundException("no image with this id found in metadata database.");
         }
+        log.info("deleted image with id {}", databaseId);
     }
 
     /** HELPER FUNCTIONS */
@@ -95,7 +110,9 @@ public class ImageService {
                     .withRepository(repository)
                     .withTag(tag)
                     .start();
+            final Instant now = Instant.now();
             response.awaitCompletion();
+            log.debug("waited {}s for pull of {}:{}", Duration.between(Instant.now(), now).getSeconds(), repository, tag);
         } catch (NotFoundException | InterruptedException e) {
             log.error("image {}:{} not found in library", repository, tag);
             throw new ImageNotFoundException("image not found in library", e);

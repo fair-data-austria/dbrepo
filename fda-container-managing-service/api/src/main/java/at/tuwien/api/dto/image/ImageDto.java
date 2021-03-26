@@ -40,8 +40,6 @@ public class ImageDto {
     @ApiModelProperty(required = true, example = "5432")
     private Integer defaultPort;
 
-    @NotNull
-    @ApiModelProperty(required = true)
-    private String[] environment;
+    private ImageEnvItemDto[] environment;
 
 }

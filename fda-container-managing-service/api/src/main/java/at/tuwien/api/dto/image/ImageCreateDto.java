@@ -22,13 +22,6 @@ public class ImageCreateDto {
     @ApiModelProperty(required = true, example = "5432")
     private Integer defaultPort;
 
-    @NotNull
-
-    @ApiModelProperty(required = true)
-    private String[] environment;
-
-    public String toCompact() {
-        return repository + ":" + (tag.isEmpty() ? "latest" : tag);
-    }
+    private ImageEnvItemDto[] environment;
 
 }

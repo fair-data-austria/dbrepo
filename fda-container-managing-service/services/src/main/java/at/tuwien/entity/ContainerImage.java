@@ -1,21 +1,16 @@
 package at.tuwien.entity;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
-import org.hibernate.annotations.Immutable;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import java.math.BigInteger;
+import javax.persistence.*;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-@Entity(name = "mdb_image")
 @Data
+@Entity
+@Table(name = "mdb_image", uniqueConstraints = @UniqueConstraint(columnNames = {"repository", "tag"}))
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class ContainerImage extends Auditable {
@@ -38,9 +33,8 @@ public class ContainerImage extends Auditable {
     @Column(nullable = false)
     private Integer defaultPort;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Immutable
-    private Collection<String> environment;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<EnvironmentItem> environment;
 
     public void setId(Long id) {
         this.id = id;
