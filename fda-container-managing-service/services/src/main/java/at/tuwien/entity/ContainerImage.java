@@ -7,6 +7,7 @@ import org.hibernate.annotations.Immutable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Collection;
@@ -37,7 +38,7 @@ public class ContainerImage extends Auditable {
     @Column(nullable = false)
     private Integer defaultPort;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Immutable
     private Collection<String> environment;
 

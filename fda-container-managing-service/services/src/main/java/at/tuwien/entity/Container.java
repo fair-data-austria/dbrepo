@@ -2,10 +2,7 @@ package at.tuwien.entity;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
@@ -26,7 +23,7 @@ public class Container extends Auditable {
     @Column(nullable = false)
     private String name;
 
-    @OneToOne(optional = false)
+    @OneToOne(optional = false, fetch = FetchType.EAGER)
     private ContainerImage image;
 
     @Transient
