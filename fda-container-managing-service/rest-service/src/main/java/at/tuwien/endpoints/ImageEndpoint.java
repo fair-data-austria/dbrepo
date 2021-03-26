@@ -37,13 +37,11 @@ import static at.tuwien.api.dto.container.ContainerActionTypeDto.*;
 public class ImageEndpoint {
 
     private final ImageService imageService;
-    private final ContainerMapper containerMapper;
     private final ImageMapper imageMapper;
 
     @Autowired
-    public ImageEndpoint(ImageService imageService, ContainerMapper containerMapper, ImageMapper imageMapper) {
+    public ImageEndpoint(ImageService imageService, ImageMapper imageMapper) {
         this.imageService = imageService;
-        this.containerMapper = containerMapper;
         this.imageMapper = imageMapper;
     }
 
@@ -88,17 +86,15 @@ public class ImageEndpoint {
     }
 
     @PutMapping("/{id}")
-    @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP/REMOVE.")
+    @ApiOperation(value = "Update image information", notes = "Polls new information about an image")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Changed the state of a container."),
-            @ApiResponse(code = 400, message = "Malformed payload."),
-            @ApiResponse(code = 401, message = "Not authorized to modify a container."),
+            @ApiResponse(code = 201, message = "Updated the information of a image."),
+            @ApiResponse(code = 401, message = "Not authorized to update a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<?> update(@NotNull @RequestParam Long id) throws ContainerNotFoundException, DockerClientException {
-
+    public ResponseEntity<ImageDto> update(@NotNull @RequestParam Long id) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .build();
+                .body(imageMapper.containerImageToImageDto(imageService.update(id)));
     }
 
     @DeleteMapping("/{id}")

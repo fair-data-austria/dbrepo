@@ -1,11 +1,12 @@
 package at.tuwien.service;
 
 import at.tuwien.api.dto.image.ImageCreateDto;
-import at.tuwien.entity.Container;
 import at.tuwien.entity.ContainerImage;
-import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ImageRepository;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectImageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,15 @@ import java.util.Optional;
 @Service
 public class ImageService {
 
+    private final DockerClient dockerClient;
     private final ImageRepository imageRepository;
+    private final ImageMapper imageMapper;
 
     @Autowired
-    public ImageService(ImageRepository imageRepository) {
+    public ImageService(DockerClient dockerClient, ImageRepository imageRepository, ImageMapper imageMapper) {
+        this.dockerClient = dockerClient;
         this.imageRepository = imageRepository;
+        this.imageMapper = imageMapper;
     }
 
     public List<ContainerImage> getAll() {
@@ -36,8 +41,9 @@ public class ImageService {
     }
 
     public ContainerImage create(ImageCreateDto createDto) {
-        // query docker
-        return new ContainerImage();
+        final InspectImageResponse response = dockerClient.inspectImageCmd(createDto.toCompact())
+                .exec();
+        return imageRepository.save(imageMapper.inspectImageResponseToContainerImage(response));
     }
 
     public ContainerImage update(Long id) {
