@@ -75,7 +75,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 402, message = "Not authorized to get information about a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ContainerDto> findById(@NotNull @RequestParam String id) throws ContainerNotFoundException {
+    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable String id) throws ContainerNotFoundException {
         final Container container = containerService.getById(id);
         return ResponseEntity.ok()
                 .body(containerMapper.containerToContainerDto(container));
@@ -89,7 +89,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 402, message = "Not authorized to modify a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<?> modify(@NotNull @RequestParam String id, @Valid @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
+    public ResponseEntity<?> modify(@NotNull @PathVariable String id, @Valid @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
         if (changeDto.getAction().equals(START) || changeDto.getAction().equals(STOP) || changeDto.getAction().equals(REMOVE)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .build();
@@ -112,7 +112,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 402, message = "Not authorized to delete a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity delete(@NotNull @RequestParam String id) throws ContainerNotFoundException, DockerClientException {
+    public ResponseEntity delete(@NotNull @PathVariable String id) throws ContainerNotFoundException, DockerClientException {
         containerService.remove(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
