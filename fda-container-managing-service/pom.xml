@@ -19,6 +19,7 @@
         <module>rest-service</module>
         <module>api</module>
         <module>services</module>
+        <module>seeder</module>
     </modules>
 
     <properties>
@@ -68,12 +69,6 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <!-- DTO -->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-spring-web</artifactId>
-            <version>2.9.2</version>
         </dependency>
         <!-- IDE -->
         <dependency>
