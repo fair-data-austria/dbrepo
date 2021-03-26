@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ImageRepository extends JpaRepository<ContainerImage, Long> {
 
-    @Query(value = "select distinct tag from ContainerImage where repository = :repo and tag = :tag")
-    ContainerImage findByImage(@Param("repo") String repository, @Param("tag") String tag);
+    ContainerImage findByRepositoryAndTag(String repository, String tag);
 
 }
