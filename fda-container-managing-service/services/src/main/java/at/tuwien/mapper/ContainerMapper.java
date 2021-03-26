@@ -2,6 +2,7 @@ package at.tuwien.mapper;
 
 import at.tuwien.api.dto.container.ContainerBriefDto;
 import at.tuwien.api.dto.IpAddressDto;
+import at.tuwien.api.dto.container.ContainerCreateRequestDto;
 import at.tuwien.api.dto.container.ContainerDto;
 import at.tuwien.entity.Container;
 import at.tuwien.entity.ContainerImage;
@@ -31,6 +32,12 @@ public interface ContainerMapper {
                 .tag(image.substring(index + 1))
                 .build();
     }
+
+    @Mappings({
+            @Mapping(target = "repository", expression = "java(data.getImage().contains(\":\") ? data.getImage().substring(0,data.getImage().indexOf(\":\")) : data.getImage())"),
+            @Mapping(target = "tag", expression = "java(data.getImage().contains(\":\") ? data.getImage().substring(data.getImage().indexOf(\":\")+1) : \"latest\")"),
+    })
+    ContainerImage containerCreateRequestDtoToContainerImage(ContainerCreateRequestDto data);
 
     Container containerToContainer(com.github.dockerjava.api.model.Container data);
 

@@ -32,23 +32,21 @@ public class ContainerService {
     private final DockerClient dockerClient;
     private final ImageRepository imageRepository;
     private final ContainerRepository containerRepository;
-    private final ContainerMapper databaseContainerMapper;
+    private final ContainerMapper containerMapper;
 
     @Autowired
     public ContainerService(DockerClient dockerClient, ContainerRepository containerRepository,
-                            ImageRepository imageRepository, HostConfig hostConfig, ContainerMapper databaseContainerMapper) {
+                            ImageRepository imageRepository, HostConfig hostConfig, ContainerMapper containerMapper) {
         this.hostConfig = hostConfig;
         this.dockerClient = dockerClient;
         this.imageRepository = imageRepository;
         this.containerRepository = containerRepository;
-        this.databaseContainerMapper = databaseContainerMapper;
+        this.containerMapper = containerMapper;
     }
 
     public Container create(ContainerCreateRequestDto containerDto) throws ImageNotFoundException {
-        final int index = containerDto.getImage().indexOf(":");
-        final String repositoryName = containerDto.getImage().substring(0, index);
-        final String tagName = containerDto.getImage().substring(index + 1);
-        final ContainerImage containerImage = imageRepository.findByImage(repositoryName, tagName);
+        final ContainerImage tmp = containerMapper.containerCreateRequestDtoToContainerImage(containerDto);
+        final ContainerImage containerImage = imageRepository.findByRepositoryAndTag(tmp.getRepository(), tmp.getTag());
         if (containerImage == null) {
             throw new ImageNotFoundException("image was not found in metadata database.");
         }
