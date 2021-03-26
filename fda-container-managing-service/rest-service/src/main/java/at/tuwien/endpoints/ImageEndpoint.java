@@ -1,18 +1,10 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.dto.container.ContainerBriefDto;
-import at.tuwien.api.dto.container.ContainerChangeDto;
-import at.tuwien.api.dto.container.ContainerCreateRequestDto;
-import at.tuwien.api.dto.container.ContainerDto;
 import at.tuwien.api.dto.image.ImageBriefDto;
 import at.tuwien.api.dto.image.ImageCreateDto;
 import at.tuwien.api.dto.image.ImageDto;
-import at.tuwien.entity.Container;
 import at.tuwien.entity.ContainerImage;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
-import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.service.ImageService;
 import io.swagger.annotations.ApiOperation;
@@ -29,10 +21,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static at.tuwien.api.dto.container.ContainerActionTypeDto.*;
-
 @Log4j2
 @RestController
+@ControllerAdvice
 @RequestMapping("/api/image")
 public class ImageEndpoint {
 
