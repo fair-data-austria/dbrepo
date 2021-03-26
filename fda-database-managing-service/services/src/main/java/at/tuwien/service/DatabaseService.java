@@ -1,32 +1,42 @@
 package at.tuwien.service;
 
-import at.tuwien.clients.FdaContainerManagingClient;
-import at.tuwien.dto.database.DatabaseCreateDto;
-import at.tuwien.model.Database;
+import at.tuwien.entity.Database;
+import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.repository.DatabaseRepository;
+import lombok.Data;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
+@Log4j2
 @Service
 public class DatabaseService {
-
-    private FdaContainerManagingClient client;
 
     private final DatabaseRepository databaseRepository;
 
     @Autowired
-    public DatabaseService(FdaContainerManagingClient client, DatabaseRepository databaseRepository) {
-        this.client = client;
+    public DatabaseService(DatabaseRepository databaseRepository) {
         this.databaseRepository = databaseRepository;
     }
 
-    public boolean createDatabase(DatabaseCreateDto dto) {
-        return false;
+    public List<Database> findAll() {
+        return databaseRepository.findAll();
     }
 
-    public List<Database> findAllCreatedDatabases() {
-        return client.getCreatedDatabases();
+    public Database findById(Long databaseId) throws DatabaseNotFoundException {
+        final Optional<Database> opt = databaseRepository.findById(databaseId);
+        if (opt.isEmpty()) {
+            log.error("could not find database with id {}", databaseId);
+            throw new DatabaseNotFoundException("could not find database with this id");
+        }
+        return opt.get();
+    }
+
+    public void delete(Long databaseId) throws DatabaseNotFoundException {
+        final Database database = findById(databaseId);
+        databaseRepository.deleteById(databaseId);
     }
 }

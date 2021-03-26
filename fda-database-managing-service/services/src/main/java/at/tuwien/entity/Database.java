@@ -4,14 +4,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.List;
 
 @Data
-@Entity(name = "ddatabase")
+@Entity(name = "mdb_databases")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class Database extends Auditable {
@@ -25,10 +22,10 @@ public class Database extends Auditable {
     @Column(nullable = false)
     private Boolean isPublic;
 
-    @OneToOne
-    private View view;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<View> views;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Table> tables;
 
 }
