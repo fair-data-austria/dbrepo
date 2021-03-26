@@ -56,8 +56,9 @@ public class ImageEndpoint {
             @ApiResponse(code = 201, message = "Successfully created a new image."),
             @ApiResponse(code = 400, message = "Malformed payload."),
             @ApiResponse(code = 401, message = "Not authorized to create a image."),
+            @ApiResponse(code = 404, message = "The image does not exist in the repository."),
     })
-    public ResponseEntity<ImageDto> create(@Valid @RequestBody ImageCreateDto data) {
+    public ResponseEntity<ImageDto> create(@Valid @RequestBody ImageCreateDto data) throws ImageNotFoundException {
         final ContainerImage image = imageService.create(data);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(imageMapper.containerImageToImageDto(image));

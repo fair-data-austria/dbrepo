@@ -6,6 +6,11 @@ import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.transport.DockerHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,10 +25,15 @@ public class DockerConfig {
 
     @Bean
     public DockerClient dockerClientConfiguration() {
-        final DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+        final DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost("unix:///var/run/docker.sock")
                 .build();
-        return DockerClientBuilder.getInstance(config)
+        final DockerHttpClient dockerHttpClient = new ApacheDockerHttpClient.Builder()
+                .dockerHost(dockerClientConfig.getDockerHost())
+                .sslConfig(dockerClientConfig.getSSLConfig())
+                .build();
+        return DockerClientBuilder.getInstance()
+                .withDockerHttpClient(dockerHttpClient)
                 .build();
     }
 }
