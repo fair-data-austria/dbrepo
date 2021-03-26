@@ -23,6 +23,7 @@ import org.springframework.util.SocketUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -67,39 +68,39 @@ public class ContainerService {
                 .build();
     }
 
-    public Container stop(String containerId) throws ContainerNotFoundException, DockerClientException {
-        final Container container = containerRepository.findByContainerId(containerId);
-        if (container == null) {
+    public Container stop(Long containerId) throws ContainerNotFoundException, DockerClientException {
+        final Optional<Container> container = containerRepository.findById(containerId);
+        if (container.isEmpty()) {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         try {
-            dockerClient.stopContainerCmd(container.getContainerId()).exec();
+            dockerClient.stopContainerCmd(container.get().getContainerId()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             throw new DockerClientException("docker client failed", e);
         }
         log.debug("Stopped container {}", containerId);
-        return container;
+        return container.get();
     }
 
-    public void remove(String containerId) throws ContainerNotFoundException, DockerClientException {
-        final Container container = containerRepository.findByContainerId(containerId);
-        if (container == null) {
+    public void remove(Long containerId) throws ContainerNotFoundException, DockerClientException {
+        final Optional<Container> container = containerRepository.findById(containerId);
+        if (container.isEmpty()) {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         try {
-            dockerClient.removeContainerCmd(containerId).exec();
+            dockerClient.removeContainerCmd(container.get().getContainerId()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             throw new DockerClientException("docker client failed", e);
         }
         log.debug("Removed container {}", containerId);
     }
 
-    public Container getById(String containerId) throws ContainerNotFoundException {
-        final Container container = containerRepository.findByContainerId(containerId);
-        if (container == null) {
-            throw new ContainerNotFoundException("no database with this container id in metadata database");
+    public Container getById(Long containerId) throws ContainerNotFoundException {
+        final Optional<Container> container = containerRepository.findById(containerId);
+        if (container.isEmpty()) {
+            throw new ContainerNotFoundException("no container with this id in metadata database");
         }
-        return container;
+        return container.get();
     }
 
     public List<Container> getAll() {
@@ -112,7 +113,7 @@ public class ContainerService {
      * @param containerId The container ID
      * @return The container
      */
-    public Container start(String containerId) throws ContainerNotFoundException, DockerClientException {
+    public Container start(Long containerId) throws ContainerNotFoundException, DockerClientException {
         final Container container = getById(containerId);
         try {
             dockerClient.startContainerCmd(container.getContainerId()).exec();
