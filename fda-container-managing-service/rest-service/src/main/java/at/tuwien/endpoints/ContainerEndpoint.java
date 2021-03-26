@@ -28,6 +28,7 @@ import static at.tuwien.api.dto.container.ContainerActionTypeDto.*;
 
 @Log4j2
 @RestController
+@ControllerAdvice
 @RequestMapping("/api/container")
 public class ContainerEndpoint {
 
