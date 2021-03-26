@@ -1,6 +1,7 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.api.dto.image.ImageBriefDto;
+import at.tuwien.api.dto.image.ImageChangeDto;
 import at.tuwien.api.dto.image.ImageCreateDto;
 import at.tuwien.api.dto.image.ImageDto;
 import at.tuwien.entity.ContainerImage;
@@ -80,13 +81,14 @@ public class ImageEndpoint {
     @PutMapping("/{id}")
     @ApiOperation(value = "Update image information", notes = "Polls new information about an image")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Updated the information of a image."),
+            @ApiResponse(code = 202, message = "Updated the information of a image."),
             @ApiResponse(code = 401, message = "Not authorized to update a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ImageDto> update(@NotNull @RequestParam Long id) throws ImageNotFoundException {
+    public ResponseEntity<ImageDto> update(@NotNull @RequestParam Long id, @RequestBody @Valid ImageChangeDto changeDto)
+            throws ImageNotFoundException {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(imageMapper.containerImageToImageDto(imageService.update(id)));
+                .body(imageMapper.containerImageToImageDto(imageService.update(id, changeDto)));
     }
 
     @DeleteMapping("/{id}")

@@ -11,11 +11,12 @@ import javax.validation.constraints.Size;
 public class ContainerCreateRequestDto {
 
     @NotBlank
-    @Size(min = 3)
-    private String containerName;
+    private String name;
 
     @NotBlank
-    @Size(min = 3)
-    private String image;
+    private String repository;
+
+    @NotBlank
+    private String tag = "latest";
 
 }

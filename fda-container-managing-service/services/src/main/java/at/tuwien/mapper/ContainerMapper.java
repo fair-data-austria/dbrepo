@@ -33,10 +33,10 @@ public interface ContainerMapper {
         return image;
     }
 
-    @Mappings({
-            @Mapping(target = "repository", expression = "java(data.getImage().contains(\":\") ? data.getImage().substring(0,data.getImage().indexOf(\":\")) : data.getImage())"),
-            @Mapping(target = "tag", expression = "java(data.getImage().contains(\":\") ? data.getImage().substring(data.getImage().indexOf(\":\")+1) : \"latest\")"),
-    })
+    default String containerCreateRequestDtoToDockerImage(ContainerCreateRequestDto data) {
+        return data.getRepository() + ":" + data.getTag();
+    }
+
     ContainerImage containerCreateRequestDtoToContainerImage(ContainerCreateRequestDto data);
 
     Container containerToContainer(com.github.dockerjava.api.model.Container data);
