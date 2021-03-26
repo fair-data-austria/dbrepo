@@ -1,15 +1,20 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.dto.container.ContainerChangeDto;
 import at.tuwien.api.dto.container.ContainerBriefDto;
-import at.tuwien.api.dto.container.ContainerDto;
+import at.tuwien.api.dto.container.ContainerChangeDto;
 import at.tuwien.api.dto.container.ContainerCreateRequestDto;
+import at.tuwien.api.dto.container.ContainerDto;
+import at.tuwien.api.dto.image.ImageBriefDto;
+import at.tuwien.api.dto.image.ImageCreateDto;
+import at.tuwien.api.dto.image.ImageDto;
 import at.tuwien.entity.Container;
+import at.tuwien.entity.ContainerImage;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.ContainerMapper;
-import at.tuwien.service.ContainerService;
+import at.tuwien.mapper.ImageMapper;
+import at.tuwien.service.ImageService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -28,44 +33,45 @@ import static at.tuwien.api.dto.container.ContainerActionTypeDto.*;
 
 @Log4j2
 @RestController
-@RequestMapping("/api/container")
-public class ContainerEndpoint {
+@RequestMapping("/api/image")
+public class ImageEndpoint {
 
-    private final ContainerService containerService;
+    private final ImageService imageService;
     private final ContainerMapper containerMapper;
+    private final ImageMapper imageMapper;
 
     @Autowired
-    public ContainerEndpoint(ContainerService containerService, ContainerMapper containerMapper) {
+    public ImageEndpoint(ImageService imageService, ContainerMapper containerMapper, ImageMapper imageMapper) {
+        this.imageService = imageService;
         this.containerMapper = containerMapper;
-        this.containerService = containerService;
+        this.imageMapper = imageMapper;
     }
 
     @GetMapping("/")
-    @ApiOperation(value = "List all containers", notes = "Lists the containers in the metadata database.")
+    @ApiOperation(value = "List all images", notes = "Lists the images in the metadata database.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "All containers are listed."),
-            @ApiResponse(code = 401, message = "Not authorized to list all containers."),
+            @ApiResponse(code = 200, message = "All images are listed."),
+            @ApiResponse(code = 401, message = "Not authorized to list all images."),
     })
-    public ResponseEntity<List<ContainerBriefDto>> findAll() {
-        final List<Container> containers = containerService.getAll();
+    public ResponseEntity<List<ImageBriefDto>> findAll() {
+        final List<ContainerImage> containers = imageService.getAll();
         return ResponseEntity.ok()
                 .body(containers.stream()
-                        .map(containerMapper::containerToDatabaseContainerBriefDto)
+                        .map(imageMapper::containerImageToImageBriefDto)
                         .collect(Collectors.toList()));
     }
 
     @PostMapping("/")
-    @ApiOperation(value = "Creates a new container", notes = "Creates a new container whose image is registered in the metadata database too.")
+    @ApiOperation(value = "Creates a new image", notes = "Creates a new image in the metadata database.")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Successfully created a new container."),
+            @ApiResponse(code = 201, message = "Successfully created a new image."),
             @ApiResponse(code = 400, message = "Malformed payload."),
-            @ApiResponse(code = 401, message = "Not authorized to create a container."),
+            @ApiResponse(code = 401, message = "Not authorized to create a image."),
     })
-    public ResponseEntity<ContainerDto> create(@Valid @RequestBody ContainerCreateRequestDto data)
-            throws ImageNotFoundException {
-        final Container container = containerService.create(data);
+    public ResponseEntity<ImageDto> create(@Valid @RequestBody ImageCreateDto data) {
+        final ContainerImage image = imageService.create(data);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(containerMapper.containerToContainerDto(container));
+                .body(imageMapper.containerImageToImageDto(image));
     }
 
     @GetMapping("/{id}")
@@ -75,10 +81,10 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ContainerDto> findById(@NotNull @RequestParam Long id) throws ContainerNotFoundException {
-        final Container container = containerService.getById(id);
+    public ResponseEntity<ImageDto> findById(@NotNull @RequestParam Long id) throws ImageNotFoundException {
+        final ContainerImage image = imageService.getById(id);
         return ResponseEntity.ok()
-                .body(containerMapper.containerToContainerDto(container));
+                .body(imageMapper.containerImageToImageDto(image));
     }
 
     @PutMapping("/{id}")
@@ -89,27 +95,21 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to modify a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<?> modify(@NotNull @RequestParam Long id, @Valid @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
-        if (changeDto.getAction().equals(START)) {
-            containerService.start(id);
-        } else if (changeDto.getAction().equals(STOP)) {
-            containerService.stop(id);
-        } else if (changeDto.getAction().equals(REMOVE)) {
-            containerService.remove(id);
-        }
+    public ResponseEntity<?> update(@NotNull @RequestParam Long id) throws ContainerNotFoundException, DockerClientException {
+
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    @ApiOperation(value = "Delete a container")
+    @ApiOperation(value = "Delete a image")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Deleted the container."),
-            @ApiResponse(code = 401, message = "Not authorized to delete a container."),
-            @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
+            @ApiResponse(code = 200, message = "Deleted the image."),
+            @ApiResponse(code = 401, message = "Not authorized to delete a image."),
+            @ApiResponse(code = 404, message = "No image found with this id in metadata database."),
     })
-    public ResponseEntity delete(@NotNull @RequestParam Long id) throws ContainerNotFoundException, DockerClientException {
-        containerService.remove(id);
+    public ResponseEntity delete(@NotNull @RequestParam Long id) throws ImageNotFoundException {
+        imageService.delete(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
     }
