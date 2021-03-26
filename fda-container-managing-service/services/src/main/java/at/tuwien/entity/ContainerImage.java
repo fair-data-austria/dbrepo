@@ -36,12 +36,4 @@ public class ContainerImage extends Auditable {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<EnvironmentItem> environment;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
 }

@@ -25,7 +25,7 @@ public abstract class Auditable {
             strategy = "enhanced-sequence",
             parameters = @Parameter(name = "prefer_sequence_per_entity", value = "true")
     )
-    Long id;
+    public Long id;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

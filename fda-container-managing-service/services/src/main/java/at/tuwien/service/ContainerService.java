@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.dto.container.ContainerCreateRequestDto;
 import at.tuwien.entity.Container;
 import at.tuwien.entity.ContainerImage;
+import at.tuwien.entity.ContainerState;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
@@ -12,6 +13,9 @@ import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
@@ -38,7 +42,8 @@ public class ContainerService {
 
     @Autowired
     public ContainerService(DockerClient dockerClient, ContainerRepository containerRepository,
-                            ImageRepository imageRepository, HostConfig hostConfig, ContainerMapper containerMapper, ImageMapper imageMapper) {
+                            ImageRepository imageRepository, HostConfig hostConfig, ContainerMapper containerMapper,
+                            ImageMapper imageMapper) {
         this.hostConfig = hostConfig;
         this.dockerClient = dockerClient;
         this.imageRepository = imageRepository;
@@ -47,7 +52,7 @@ public class ContainerService {
         this.imageMapper = imageMapper;
     }
 
-    public Container create(ContainerCreateRequestDto containerDto) throws ImageNotFoundException {
+    public Container create(ContainerCreateRequestDto containerDto) throws ImageNotFoundException, DockerClientException {
         final ContainerImage tmp = containerMapper.containerCreateRequestDtoToContainerImage(containerDto);
         final ContainerImage containerImage = imageRepository.findByRepositoryAndTag(tmp.getRepository(), tmp.getTag());
         if (containerImage == null) {
@@ -57,18 +62,25 @@ public class ContainerService {
         final Integer availableTcpPort = SocketUtils.findAvailableTcpPort(10000);
         final HostConfig hostConfig = this.hostConfig
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
-        final CreateContainerResponse response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(containerDto))
-                .withName(containerDto.getName())
-                .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
-                .withHostConfig(hostConfig)
-                .exec();
-        final Container container = Container.builder()
-                .containerCreated(Instant.now())
-                .image(containerImage)
-                .name(containerDto.getName())
-                .containerId(response.getId())
-                .build();
-        log.info("Created container with hash {}", container.getContainerId());
+        final CreateContainerResponse response;
+        try {
+             response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(containerDto))
+                    .withName(containerDto.getName())
+                    .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
+                    .withHostConfig(hostConfig)
+                    .exec();
+        } catch(ConflictException e) {
+            log.error("conflicting names for container {}, reason: {}", containerDto, e.getMessage());
+            throw new DockerClientException("Unexpected behavior", e);
+        }
+        Container container = new Container();
+        container.setContainerCreated(Instant.now());
+        container.setImage(containerImage);
+        container.setName(containerDto.getName());
+        container.setContainerHash(response.getId());
+        container.setStatus(ContainerState.CREATED);
+        container = containerRepository.save(container);
+        log.info("Created container with hash {}", container.getContainerHash());
         log.debug("container created {}", container);
         return container;
     }
@@ -80,13 +92,16 @@ public class ContainerService {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         try {
-            dockerClient.stopContainerCmd(container.get().getContainerId()).exec();
+            dockerClient.stopContainerCmd(container.get().getContainerHash()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        log.debug("Stopped container {}", containerId);
-        return container.get();
+        Container container1 = container.get();
+        container1.setStatus(ContainerState.DEAD);
+        container1 = containerRepository.save(container1);
+        log.debug("Stopped container {}", container1);
+        return container1;
     }
 
     public void remove(Long containerId) throws ContainerNotFoundException, DockerClientException {
@@ -95,7 +110,7 @@ public class ContainerService {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         try {
-            dockerClient.removeContainerCmd(container.get().getContainerId()).exec();
+            dockerClient.removeContainerCmd(container.get().getContainerHash()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
@@ -123,14 +138,30 @@ public class ContainerService {
      * @return The container
      */
     public Container start(Long containerId) throws ContainerNotFoundException, DockerClientException {
-        final Container container = getById(containerId);
+        Container container = getById(containerId);
         try {
-            dockerClient.startContainerCmd(container.getContainerId()).exec();
+            dockerClient.startContainerCmd(container.getContainerHash()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
+        container.setStatus(ContainerState.RESTARTING);
+        container.setIpAddress(getIpAddress(container.getContainerHash()));
+        container = containerRepository.save(container);
         return container;
+    }
+
+    /** HELPER FUNCTIONS */
+    private String getIpAddress(String containerHash) throws ContainerNotFoundException {
+        final InspectContainerResponse response;
+        try {
+            response = dockerClient.inspectContainerCmd(containerHash)
+                    .exec();
+        } catch (NotFoundException e) {
+            log.error("container {} not found", containerHash);
+            throw new ContainerNotFoundException("container not found", e);
+        }
+        return response.getNetworkSettings().getNetworks().get("bridge").getIpAddress();
     }
 
 }

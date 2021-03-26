@@ -1,5 +1,6 @@
 package at.tuwien.api.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import java.net.InetAddress;
 public class IpAddressDto {
 
     @NotNull
-    @Size(min = 7, max = 15)
+    @ApiModelProperty(name = "ip address", example = "172.1.2.3")
     private String ipv4;
 
 }

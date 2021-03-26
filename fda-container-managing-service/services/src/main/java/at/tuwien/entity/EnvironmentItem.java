@@ -5,7 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.Instant;
 
-@Entity
+@Entity(name = "mdb_environment_item")
 @Data
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)

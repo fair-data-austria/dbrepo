@@ -4,17 +4,17 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 public class ImageEnvItemDto {
 
-    @NotNull
+    @NotBlank
     @ApiModelProperty(required = true, example = "POSTGRES_USER")
     private String key;
 
-    @NotNull
+    @NotBlank
     @ApiModelProperty(required = true, example = "postgres")
     private String value;
 

@@ -1,22 +1,25 @@
 package at.tuwien.api.dto.container;
 
-import lombok.Builder;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @Getter
 @Setter
 public class ContainerBriefDto {
 
     @NotNull
-    @Size(min = 64, max = 64)
-    private String id;
+    @ApiModelProperty(name = "id", example = "1")
+    private Long id;
+
+    @NotNull
+    @ApiModelProperty(name = "container hash", example = "f829dd8a884182d0da846f365dee1221fd16610a14c81b8f9f295ff162749e50")
+    private String hash;
 
     @NotBlank
-    @Size(min = 3)
-    private String containerName;
+    @ApiModelProperty(name = "container name", example = "nyse")
+    private String name;
 }

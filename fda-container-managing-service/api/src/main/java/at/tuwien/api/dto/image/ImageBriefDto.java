@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -14,11 +15,11 @@ public class ImageBriefDto {
     @ApiModelProperty(required = true, example = "1")
     private Long id;
 
-    @NotNull
+    @NotBlank
     @ApiModelProperty(required = true, example = "postgres")
     private String repository;
 
-    @NotNull
+    @NotBlank
     @ApiModelProperty(required = true, example = "latest")
     private String tag;
 
