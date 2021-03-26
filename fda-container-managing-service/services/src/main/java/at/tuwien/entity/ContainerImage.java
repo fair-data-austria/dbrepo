@@ -1,5 +1,6 @@
 package at.tuwien.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.annotations.Immutable;
 
@@ -26,6 +27,9 @@ public class ContainerImage extends Auditable {
 
     @Column(nullable = false)
     private String hash;
+
+    @Column(nullable = false)
+    private Instant compiled;
 
     @Column(nullable = false)
     private Long size;
