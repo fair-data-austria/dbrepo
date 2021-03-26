@@ -8,6 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
+import java.time.Instant;
+
 @Mapper(componentModel = "spring")
 public interface ImageMapper {
 
@@ -18,9 +20,14 @@ public interface ImageMapper {
     @Mappings({
             @Mapping(source = "id", target = "hash"),
             @Mapping(target = "id", ignore = true),
+            @Mapping(source = "created", target = "compiled"),
             @Mapping(target = "repository", expression = "java(data.getRepoTags().get(0).substring(0,data.getRepoTags().get(0).indexOf(\":\")))"),
             @Mapping(target = "tag", expression = "java(data.getRepoTags().get(0).substring(data.getRepoTags().get(0).indexOf(\":\")+1))"),
     })
     ContainerImage inspectImageResponseToContainerImage(InspectImageResponse data);
+
+    default Instant dateToInstant(String date) {
+        return Instant.parse(date);
+    }
 
 }
