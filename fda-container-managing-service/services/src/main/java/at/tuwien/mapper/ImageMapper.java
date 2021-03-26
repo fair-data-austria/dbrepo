@@ -29,8 +29,4 @@ public interface ImageMapper {
     })
     ContainerImage inspectImageResponseToContainerImage(InspectImageResponse data);
 
-    default Architecture inspectImageResponseToArchitecture(InspectImageResponse data) {
-        return Architecture.valueOf(data.getArch());
-    }
-
 }
