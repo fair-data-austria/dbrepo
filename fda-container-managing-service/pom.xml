@@ -19,7 +19,6 @@
         <module>rest-service</module>
         <module>api</module>
         <module>services</module>
-        <module>seeder</module>
     </modules>
 
     <properties>
