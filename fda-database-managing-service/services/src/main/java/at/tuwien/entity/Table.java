@@ -3,20 +3,18 @@ package at.tuwien.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.List;
 
 @Data
-@Entity(name = "ttable")
+@Entity(name = "mdb_tables")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class Table extends Auditable {
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Database database;
 
 }
