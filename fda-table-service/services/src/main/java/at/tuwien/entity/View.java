@@ -16,7 +16,4 @@ public class View extends Auditable {
     @Column
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Database> databases;
-
 }
