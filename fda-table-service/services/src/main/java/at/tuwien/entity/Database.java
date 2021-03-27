@@ -22,9 +22,9 @@ public class Database extends Auditable {
     @Column(nullable = false)
     private Boolean isPublic;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private View view;
-    
+
     @OneToMany(cascade = CascadeType.ALL)
     private List<Table> tables;
 
