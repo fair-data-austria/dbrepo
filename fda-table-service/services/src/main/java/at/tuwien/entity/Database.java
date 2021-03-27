@@ -22,11 +22,11 @@ public class Database extends Auditable {
     @Column(nullable = false)
     private Boolean isPublic;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private View view;
 
     /** @apiNote cascade creations and deletions, hibernate does this for us */
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Table> tables;
 
 }
