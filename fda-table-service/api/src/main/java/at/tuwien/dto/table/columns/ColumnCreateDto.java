@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -14,11 +15,11 @@ public class ColumnCreateDto {
     @Parameter(name = "column name")
     private String name;
 
-    @NotBlank
+    @NotNull
     @Parameter(name = "column type")
     private ColumnTypeDto type;
 
-    @NotBlank
+    @NotNull
     @Parameter(name = "column null")
     private Boolean nullAllowed = true;
 
@@ -27,6 +28,5 @@ public class ColumnCreateDto {
 
     @Parameter(name = "column foreign key")
     private String foreignKey;
-
 
 }
