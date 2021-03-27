@@ -2,9 +2,7 @@ package at.tuwien.entity;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 
 @Data
@@ -13,7 +11,7 @@ import javax.validation.constraints.Min;
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class Table extends Auditable {
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Database database;
 
     @Column
