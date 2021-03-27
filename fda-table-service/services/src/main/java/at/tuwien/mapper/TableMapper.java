@@ -5,8 +5,6 @@ import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.dto.table.TableDto;
 import at.tuwien.entity.Table;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public interface TableMapper {
