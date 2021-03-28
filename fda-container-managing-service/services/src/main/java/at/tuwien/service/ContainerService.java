@@ -52,31 +52,33 @@ public class ContainerService {
         this.imageMapper = imageMapper;
     }
 
-    public Container create(ContainerCreateRequestDto containerDto) throws ImageNotFoundException, DockerClientException {
-        final ContainerImage tmp = containerMapper.containerCreateRequestDtoToContainerImage(containerDto);
+    public Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException {
+        final ContainerImage tmp = containerMapper.containerCreateRequestDtoToContainerImage(createDto);
         final ContainerImage containerImage = imageRepository.findByRepositoryAndTag(tmp.getRepository(), tmp.getTag());
         if (containerImage == null) {
-            log.error("failed to get image with name {}:{}", containerDto.getRepository(), containerDto.getTag());
+            log.error("failed to get image with name {}:{}", createDto.getRepository(), createDto.getTag());
             throw new ImageNotFoundException("image was not found in metadata database.");
         }
         final Integer availableTcpPort = SocketUtils.findAvailableTcpPort(10000);
         final HostConfig hostConfig = this.hostConfig
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
         final CreateContainerResponse response;
+        createDto.setName("fda-userdb-" + createDto.getName());
         try {
-             response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(containerDto))
-                    .withName(containerDto.getName())
+             response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
+                    .withName(createDto.getName())
+                     .withHostName(createDto.getName())
                     .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
                     .withHostConfig(hostConfig)
                     .exec();
         } catch(ConflictException e) {
-            log.error("conflicting names for container {}, reason: {}", containerDto, e.getMessage());
+            log.error("conflicting names for container {}, reason: {}", createDto, e.getMessage());
             throw new DockerClientException("Unexpected behavior", e);
         }
         Container container = new Container();
         container.setContainerCreated(Instant.now());
         container.setImage(containerImage);
-        container.setName(containerDto.getName());
+        container.setName(createDto.getName());
         container.setHash(response.getId());
         container.setStatus(ContainerState.CREATED);
         container = containerRepository.save(container);

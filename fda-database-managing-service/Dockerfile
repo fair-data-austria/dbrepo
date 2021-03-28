@@ -8,6 +8,7 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 
 COPY ./api ./api
 COPY ./rest-service ./rest-service
+COPY ./gateway ./gateway
 COPY ./services ./services
 
 RUN mvn -q clean package -DskipTests

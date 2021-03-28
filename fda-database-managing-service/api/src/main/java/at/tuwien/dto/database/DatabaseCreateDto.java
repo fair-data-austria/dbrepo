@@ -1,5 +1,6 @@
 package at.tuwien.dto.database;
 
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,11 +13,11 @@ import javax.validation.constraints.NotNull;
 public class DatabaseCreateDto {
 
     @NotNull
-    @Parameter(name = "container id", description = "container hash", example = "1")
+    @ApiModelProperty(name = "container id", example = "1")
     private Long containerId;
 
     @NotBlank
-    @Parameter(name = "database name", example = "CTFs")
+    @ApiModelProperty(name = "database name", example = "ctfs")
     private String name;
 
 }

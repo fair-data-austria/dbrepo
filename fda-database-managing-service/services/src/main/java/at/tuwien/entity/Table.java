@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Data

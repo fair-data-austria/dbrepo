@@ -1,18 +1,20 @@
-package gateway;
+package at.tuwien.endpoint;
 
 import at.tuwien.dto.container.ContainerDto;
-import config.RestClient;
+import at.tuwien.config.RestClient;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Log4j2
+@Service
 public class ContainerGateway {
 
-    // TODO Eureka?
-    private static final String URL = "http://fda-container-service:9091/api/container/";
+    /** @apiNote this url is already in Eureka and NOT docker */
+    private static final String URL = "http://fda-container-managing-service/api/container/";
 
     private final RestClient restClient;
 
@@ -22,11 +24,9 @@ public class ContainerGateway {
     }
 
     public ContainerDto inspect(Long id) {
-        final ResponseEntity<ContainerDto> response = restClient.exchange(URL + id,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                });
+        final ResponseEntity<ContainerDto> response;
+        response = restClient.exchange(URL + id, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+            });
         return response.getBody();
     }
 
