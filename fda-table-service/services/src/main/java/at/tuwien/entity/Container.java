@@ -13,16 +13,10 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
-public class Container {
-
-    @Id
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @Column(nullable = false)
-    private String id;
+public class Container extends Auditable {
 
     @Column(nullable = false)
     private Instant containerCreated;
@@ -38,13 +32,5 @@ public class Container {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     private ContainerImage image;
-
-    @Column(nullable = false, updatable = false)
-    @CreatedDate
-    Instant created;
-
-    @Column
-    @LastModifiedDate
-    Instant lastModified;
 
 }
