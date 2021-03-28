@@ -1,22 +1,17 @@
 package at.tuwien.entity;
 
-import lombok.*;
-import org.hibernate.annotations.Immutable;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import java.math.BigInteger;
+import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-@Entity(name = "mdb_container_image")
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "mdb_image", uniqueConstraints = @UniqueConstraint(columnNames = {"repository", "tag"}))
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class ContainerImage extends Auditable {
@@ -31,19 +26,15 @@ public class ContainerImage extends Auditable {
     private String hash;
 
     @Column(nullable = false)
-    private Instant built;
+    private Instant compiled;
 
     @Column(nullable = false)
-    private BigInteger size;
+    private Long size;
 
     @Column(nullable = false)
     private Integer defaultPort;
 
-    @ElementCollection
-    @Immutable
-    private Collection<String> environment;
-
-    @Column(nullable = false)
-    private Architecture architecture;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<EnvironmentItem> environment;
 
 }

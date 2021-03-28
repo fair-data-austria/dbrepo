@@ -25,4 +25,12 @@ public class Database extends Auditable {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Table> tables;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
 }
