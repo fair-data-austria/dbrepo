@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ContainerRepository extends JpaRepository<Container, Long> {
 
-    Container findByContainerHash(String id);
+    Container findByHash(String id);
 
 }
