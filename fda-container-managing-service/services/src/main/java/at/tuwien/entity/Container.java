@@ -27,8 +27,11 @@ public class Container extends Auditable {
     @Column(nullable = false)
     private String hash;
 
-    @Transient
-    private String status;
+    @Column(nullable = false)
+    private ContainerState status;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private ContainerImage image;
 
     @Column
     private String ipAddress;

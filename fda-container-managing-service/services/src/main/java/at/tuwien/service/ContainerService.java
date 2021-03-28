@@ -77,10 +77,10 @@ public class ContainerService {
         container.setContainerCreated(Instant.now());
         container.setImage(containerImage);
         container.setName(containerDto.getName());
-        container.setContainerHash(response.getId());
+        container.setHash(response.getId());
         container.setStatus(ContainerState.CREATED);
         container = containerRepository.save(container);
-        log.info("Created container with hash {}", container.getContainerHash());
+        log.info("Created container with hash {}", container.getHash());
         log.debug("container created {}", container);
         return container;
     }
@@ -92,7 +92,7 @@ public class ContainerService {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         try {
-            dockerClient.stopContainerCmd(container.get().getContainerHash()).exec();
+            dockerClient.stopContainerCmd(container.get().getHash()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
@@ -110,7 +110,7 @@ public class ContainerService {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         try {
-            dockerClient.removeContainerCmd(container.get().getContainerHash()).exec();
+            dockerClient.removeContainerCmd(container.get().getHash()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
@@ -140,13 +140,13 @@ public class ContainerService {
     public Container start(Long containerId) throws ContainerNotFoundException, DockerClientException {
         Container container = getById(containerId);
         try {
-            dockerClient.startContainerCmd(container.getContainerHash()).exec();
+            dockerClient.startContainerCmd(container.getHash()).exec();
         } catch (NotFoundException | NotModifiedException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
         container.setStatus(ContainerState.RESTARTING);
-        container.setIpAddress(getIpAddress(container.getContainerHash()));
+        container.setIpAddress(getIpAddress(container.getHash()));
         container = containerRepository.save(container);
         return container;
     }
