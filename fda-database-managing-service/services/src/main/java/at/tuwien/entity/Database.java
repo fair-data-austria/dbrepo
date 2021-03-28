@@ -13,8 +13,8 @@ import java.util.List;
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class Database extends Auditable {
 
-    @Column(nullable = false)
-    private String containerId;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Container container;
 
     @Column(nullable = false)
     private String name;

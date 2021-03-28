@@ -1,6 +1,9 @@
 package at.tuwien.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -10,12 +13,16 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
-public class Container extends Auditable {
+@EntityListeners(AuditingEntityListener.class)
+public class Container {
 
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
     @Column(nullable = false)
-    private String containerHash;
+    private String id;
 
     @Column(nullable = false)
     private Instant containerCreated;
@@ -23,13 +30,18 @@ public class Container extends Auditable {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    private ContainerImage image;
-
-    @Column(nullable = false)
-    private ContainerState status;
+    @Transient
+    private String status;
 
     @Column
     private String ipAddress;
+
+    @Column(nullable = false, updatable = false)
+    @CreatedDate
+    Instant created;
+
+    @Column
+    @LastModifiedDate
+    Instant lastModified;
 
 }

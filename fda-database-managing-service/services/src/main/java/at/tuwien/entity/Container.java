@@ -30,9 +30,6 @@ public class Container {
     @Column(nullable = false)
     private String name;
 
-    @OneToOne(optional = false)
-    private ContainerImage image;
-
     @Transient
     private String status;
 
