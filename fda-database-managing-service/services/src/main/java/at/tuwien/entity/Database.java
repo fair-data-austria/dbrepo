@@ -22,6 +22,9 @@ public class Database extends Auditable {
     @Column(nullable = false)
     private Boolean isPublic;
 
+//    @OneToMany(fetch = FetchType.EAGER)
+//    private List<View> views;
+
     @OneToMany(fetch = FetchType.EAGER)
     private List<Table> tables;
 
