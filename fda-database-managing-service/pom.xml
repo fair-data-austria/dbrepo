@@ -17,7 +17,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>api</module>
-        <module>gateways</module>
+        <module>gateway</module>
         <module>rest-service</module>
         <module>services</module>
     </modules>

@@ -7,6 +7,7 @@ import at.tuwien.entity.Database;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.service.DatabaseService;
+import exception.ImageNotSupportedException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -54,7 +55,8 @@ public class DatabaseController {
             @ApiResponse(code = 400, message = "Parameters were set wrongfully, e.g. more attributes than required for column type."),
             @ApiResponse(code = 401, message = "Not authorized to create a database"),
     })
-    public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto) {
+    public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
+            throws ImageNotSupportedException {
         final Database database = databaseService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));
