@@ -1,7 +1,6 @@
 package at.tuwien.mapper;
 
 import at.tuwien.dto.database.DatabaseBriefDto;
-import at.tuwien.dto.database.DatabaseDto;
 import at.tuwien.entity.Database;
 import org.mapstruct.Mapper;
 
@@ -9,7 +8,5 @@ import org.mapstruct.Mapper;
 public interface DatabaseMapper {
 
     DatabaseBriefDto databaseToDatabaseBriefDto(Database data);
-
-    DatabaseDto databaseToDatabaseDto(Database data);
 
 }

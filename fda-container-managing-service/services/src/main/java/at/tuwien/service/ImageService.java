@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.dto.image.ImageChangeDto;
 import at.tuwien.api.dto.image.ImageCreateDto;
 import at.tuwien.entity.ContainerImage;
+import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ImageRepository;
@@ -17,6 +18,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.ConstraintViolationException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -50,13 +52,20 @@ public class ImageService {
         return image.get();
     }
 
-    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException {
+    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException {
         pull(createDto.getRepository(), createDto.getTag());
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
         image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(createDto.getEnvironment()));
         image.setDefaultPort(createDto.getDefaultPort());
         log.debug("Create image {}", createDto);
-        return imageRepository.save(image);
+        final ContainerImage out;
+        try {
+            out = imageRepository.save(image);
+        } catch(ConstraintViolationException e) {
+            log.error("image already exists: {}", createDto);
+            throw new ImageAlreadyExistsException("image already exists");
+        }
+        return out;
     }
 
     public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException {

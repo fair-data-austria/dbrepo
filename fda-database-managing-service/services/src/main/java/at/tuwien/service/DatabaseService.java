@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.dto.database.DatabaseCreateDto;
 import at.tuwien.entity.Database;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.repository.DatabaseRepository;
@@ -39,4 +40,13 @@ public class DatabaseService {
         final Database database = findById(databaseId);
         databaseRepository.deleteById(databaseId);
     }
+
+    public Database create(DatabaseCreateDto createDto) {
+        // get image info for container hash
+        // check if postgres
+        // create jdbc statement to create database
+        // save in metadata db
+        return new Database();
+    }
+
 }

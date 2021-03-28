@@ -1,9 +1,8 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.dto.database.DatabaseBriefDto;
-import at.tuwien.dto.database.DatabaseCreateDto;
 import at.tuwien.dto.database.DatabaseChangeDto;
-import at.tuwien.dto.database.DatabaseDto;
+import at.tuwien.dto.database.DatabaseCreateDto;
 import at.tuwien.entity.Database;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.mapper.DatabaseMapper;
@@ -55,22 +54,10 @@ public class DatabaseController {
             @ApiResponse(code = 400, message = "Parameters were set wrongfully, e.g. more attributes than required for column type."),
             @ApiResponse(code = 401, message = "Not authorized to create a database"),
     })
-    public ResponseEntity<DatabaseDto> create(@Valid @RequestBody DatabaseCreateDto dto) {
-//        LOGGER.debug("creating new database");
-//        boolean succeed = service.createDatabase(dto);
-//        if (succeed) {
-//            return Response
-//                    .status(Response.Status.CREATED)
-//                    .entity("Database container successfully created and started!")
-//                    .type(MediaType.APPLICATION_JSON)
-//                    .build();
-//        }
-//        return Response
-//                .status(Response.Status.INTERNAL_SERVER_ERROR)
-//                .type(MediaType.APPLICATION_JSON)
-//                .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .build();
+    public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto) {
+        final Database database = databaseService.create(createDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(databaseMapper.databaseToDatabaseBriefDto(database));
     }
 
     @GetMapping("/{id}")
@@ -80,8 +67,8 @@ public class DatabaseController {
             @ApiResponse(code = 400, message = "The payload contains invalid data."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> findById(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException {
-        final DatabaseDto database = databaseMapper.databaseToDatabaseDto(databaseService.findById(id));
+    public ResponseEntity<DatabaseBriefDto> findById(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException {
+        final DatabaseBriefDto database = databaseMapper.databaseToDatabaseBriefDto(databaseService.findById(id));
         return ResponseEntity.ok(database);
     }
 
@@ -93,7 +80,7 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to change a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> modify(@NotBlank @PathVariable Long databaseId, @Valid @RequestBody DatabaseChangeDto changeDto) {
+    public ResponseEntity<DatabaseBriefDto> modify(@NotBlank @PathVariable Long databaseId, @Valid @RequestBody DatabaseChangeDto changeDto) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
