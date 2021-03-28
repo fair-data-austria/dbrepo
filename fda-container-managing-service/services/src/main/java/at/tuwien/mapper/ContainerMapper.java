@@ -28,7 +28,7 @@ public interface ContainerMapper {
     ContainerImage containerCreateRequestDtoToContainerImage(ContainerCreateRequestDto data);
 
     @Mappings({
-            @Mapping(target = "hash", source = "containerHash"),
+            @Mapping(target = "hash", source = "id"),
             @Mapping(target = "ipAddress.ipv4", source = "ipAddress"),
             @Mapping(target = "created", source = "containerCreated"),
     })
