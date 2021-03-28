@@ -148,6 +148,6 @@
         </dependency>
     </dependencies>
 
-    <!-- build config in ./rest-service/pom.xml -->
+    <!-- build at.tuwien.gateway.config in ./rest-service/pom.xml -->
 
 </project>

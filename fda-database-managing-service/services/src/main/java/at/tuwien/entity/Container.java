@@ -6,6 +6,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.time.Instant;
 
 @Entity(name = "mdb_container")
@@ -24,11 +25,11 @@ public class Container extends Auditable {
     @Column(nullable = false)
     private String name;
 
-    @Transient
-    private String status;
-
     @Column
     private String ipAddress;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private ContainerImage image;
 
     public void setId(Long id) {
         this.id = id;

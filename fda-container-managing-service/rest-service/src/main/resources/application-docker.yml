@@ -12,7 +12,7 @@ spring:
       ddl-auto: update
     open-in-view: false
   application:
-    name: fda-container-managing
+    name: fda-container-managing-service
   cloud:
     loadbalancer.ribbon.enabled: false
 server.port: 9091
@@ -22,5 +22,5 @@ logging:
     root: warn
     at.tuwien.: debug
 eureka:
-  instance.hostname: fda-discovery-server
-  client.serviceUrl.defaultZone: http://${eureka.instance.hostname}:9090/eureka/
+  instance.hostname: fda-container-managing-service
+  client.serviceUrl.defaultZone: http://fda-discovery-server:9090/eureka/

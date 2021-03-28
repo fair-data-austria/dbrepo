@@ -4,13 +4,13 @@ import at.tuwien.dto.database.DatabaseBriefDto;
 import at.tuwien.dto.database.DatabaseChangeDto;
 import at.tuwien.dto.database.DatabaseCreateDto;
 import at.tuwien.entity.Database;
-import at.tuwien.exception.DatabaseNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.service.DatabaseService;
-import exception.ImageNotSupportedException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Log4j2
 @RestController
 @RequestMapping("/api/database")
 public class DatabaseController {
@@ -56,7 +57,8 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to create a database"),
     })
     public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
-            throws ImageNotSupportedException {
+            throws ImageNotSupportedException, DatabaseConnectionException, DatabaseMalformedException {
+        log.debug("received {}", createDto);
         final Database database = databaseService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));

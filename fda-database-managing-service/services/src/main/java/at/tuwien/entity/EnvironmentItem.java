@@ -4,23 +4,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.transaction.Transactional;
-import java.util.List;
 
+@Entity(name = "mdb_environment_item")
 @Data
-@Entity(name = "mdb_databases")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
-public class Database extends Auditable {
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Container container;
+public class EnvironmentItem extends Auditable {
 
     @Column(nullable = false)
-    private String name;
+    private String key;
 
     @Column(nullable = false)
-    private Boolean isPublic;
+    private String value;
 
 }

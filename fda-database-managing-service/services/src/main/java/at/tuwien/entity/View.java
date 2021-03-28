@@ -6,7 +6,9 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Data
@@ -18,7 +20,7 @@ public class View extends Auditable {
     @Column
     private String name;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Database> databases;
 
 }

@@ -11,7 +11,7 @@ spring:
     hibernate:
       ddl-auto: update
   application:
-    name: fda-database-managing
+    name: fda-database-managing-service
   cloud:
     loadbalancer.ribbon.enabled: false
 server.port: 9092
@@ -19,7 +19,7 @@ logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
     root: warn
-    at.: debug
+    at.tuwien.: debug
 eureka:
-  instance.hostname: fda-discovery-server
-  client.serviceUrl.defaultZone: http://${eureka.instance.hostname}:9090/eureka/
+  instance.hostname: fda-database-managing-service
+  client.serviceUrl.defaultZone: http://localhost:9090/eureka/
