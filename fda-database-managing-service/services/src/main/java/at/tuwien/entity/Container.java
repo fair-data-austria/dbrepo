@@ -30,4 +30,12 @@ public class Container extends Auditable {
     @Column
     private String ipAddress;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
 }

@@ -16,14 +16,14 @@
     <dependencies>
         <dependency>
             <groupId>at.tuwien</groupId>
-            <artifactId>gateways</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <artifactId>api</artifactId>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>at.tuwien</groupId>
-            <artifactId>api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <artifactId>gateway</artifactId>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
