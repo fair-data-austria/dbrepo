@@ -13,6 +13,7 @@ import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.PullResponseItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -83,7 +84,7 @@ public class ImageService {
     public void delete(Long databaseId) throws ImageNotFoundException {
         try {
             imageRepository.deleteById(databaseId);
-        } catch (EntityNotFoundException e) {
+        } catch (EntityNotFoundException | EmptyResultDataAccessException e) {
             log.error("image id {} not found in metadata database", databaseId);
             throw new ImageNotFoundException("no image with this id found in metadata database.");
         }

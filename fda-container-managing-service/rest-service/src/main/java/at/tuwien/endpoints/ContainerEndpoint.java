@@ -78,7 +78,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ContainerDto> findById(@NotNull @RequestParam Long id) throws ContainerNotFoundException {
+    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws ContainerNotFoundException {
         final Container container = containerService.getById(id);
         return ResponseEntity.ok()
                 .body(containerMapper.containerToContainerDto(container));
@@ -92,7 +92,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to modify a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<?> modify(@NotNull @RequestParam Long id, @Valid @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
+    public ResponseEntity<?> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
         if (changeDto.getAction().equals(START)) {
             containerService.start(id);
         } else if (changeDto.getAction().equals(STOP)) {
@@ -111,7 +111,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to delete a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity delete(@NotNull @RequestParam Long id) throws ContainerNotFoundException, DockerClientException {
+    public ResponseEntity delete(@NotNull @PathVariable Long id) throws ContainerNotFoundException, DockerClientException {
         containerService.remove(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
