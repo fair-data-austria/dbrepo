@@ -5,12 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
 public class DatabaseCreateDto {
 
-    @NotBlank
+    @NotNull
     @Parameter(name = "container id", description = "container hash", example = "1")
     private Long containerId;
 

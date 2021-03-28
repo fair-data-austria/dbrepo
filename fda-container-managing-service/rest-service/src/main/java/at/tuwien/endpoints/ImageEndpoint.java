@@ -68,7 +68,7 @@ public class ImageEndpoint {
     }
 
     @GetMapping("/{id}")
-    @ApiOperation(value = "Get all informations about a container", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
+    @ApiOperation(value = "Get all informations about a image", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get information about container."),
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),

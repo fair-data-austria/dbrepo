@@ -14,6 +14,7 @@ import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.PullResponseItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +62,7 @@ public class ImageService {
         final ContainerImage out;
         try {
             out = imageRepository.save(image);
-        } catch(ConstraintViolationException e) {
+        } catch(ConstraintViolationException | DataIntegrityViolationException e) {
             log.error("image already exists: {}", createDto);
             throw new ImageAlreadyExistsException("image already exists");
         }
