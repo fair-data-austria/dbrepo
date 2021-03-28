@@ -80,7 +80,7 @@ public class DatabaseController {
             @ApiResponse(code = 400, message = "The payload contains invalid data."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> findById(@NotBlank @RequestParam Long id) throws DatabaseNotFoundException {
+    public ResponseEntity<DatabaseDto> findById(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException {
         final DatabaseDto database = databaseMapper.databaseToDatabaseDto(databaseService.findById(id));
         return ResponseEntity.ok(database);
     }
@@ -93,7 +93,7 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to change a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> modify(@NotBlank @RequestParam Long databaseId, @Valid @RequestBody DatabaseChangeDto changeDto) {
+    public ResponseEntity<DatabaseDto> modify(@NotBlank @PathVariable Long databaseId, @Valid @RequestBody DatabaseChangeDto changeDto) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
@@ -105,7 +105,7 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to delete a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity delete(@NotBlank @RequestParam Long databaseId) throws DatabaseNotFoundException {
+    public ResponseEntity delete(@NotBlank @PathVariable Long databaseId) throws DatabaseNotFoundException {
         databaseService.delete(databaseId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();

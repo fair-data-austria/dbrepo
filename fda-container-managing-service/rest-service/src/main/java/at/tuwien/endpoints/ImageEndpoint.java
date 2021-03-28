@@ -72,7 +72,7 @@ public class ImageEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ImageDto> findById(@NotNull @RequestParam Long id) throws ImageNotFoundException {
+    public ResponseEntity<ImageDto> findById(@NotNull @PathVariable Long id) throws ImageNotFoundException {
         final ContainerImage image = imageService.getById(id);
         return ResponseEntity.ok()
                 .body(imageMapper.containerImageToImageDto(image));
@@ -85,7 +85,7 @@ public class ImageEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to update a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ImageDto> update(@NotNull @RequestParam Long id, @RequestBody @Valid ImageChangeDto changeDto)
+    public ResponseEntity<ImageDto> update(@NotNull @PathVariable Long id, @RequestBody @Valid ImageChangeDto changeDto)
             throws ImageNotFoundException {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(imageMapper.containerImageToImageDto(imageService.update(id, changeDto)));
@@ -98,7 +98,7 @@ public class ImageEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to delete a image."),
             @ApiResponse(code = 404, message = "No image found with this id in metadata database."),
     })
-    public ResponseEntity delete(@NotNull @RequestParam Long id) throws ImageNotFoundException {
+    public ResponseEntity delete(@NotNull @PathVariable Long id) throws ImageNotFoundException {
         imageService.delete(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
