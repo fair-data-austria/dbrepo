@@ -3,16 +3,22 @@ version: "3.6"
 volumes:
   fda-metadata-db-data:
 
-services:
+networks:
+  fda-public:
+    name: fda-public
+  fda-userdb:
+    name: fda-userdb
 
+services:
   fda-metadata-db:
     restart: always
     container_name: fda-metadata-db
     hostname: fda-metadata-db
     image: postgres:13-alpine
+    networks:
+      - fda-public
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
-    network_mode: bridge
     ports:
       - 5432:5432
     environment:
@@ -26,9 +32,10 @@ services:
     hostname: fda-discovery-server
     build: ./fda-discovery-server
     image: fda-discovery-server
+    networks:
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
-    network_mode: bridge
     ports:
       - 9090:9090
 
@@ -38,7 +45,8 @@ services:
     hostname: fda-gateway-service
     build: ./fda-gateway-service
     image: fda-gateway-service
-    network_mode: bridge
+    networks:
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -61,7 +69,9 @@ services:
     build:
       context: ./fda-database-managing-service
     image: fda-database-managing-service
-    network_mode: bridge
+    networks:
+      - fda-userdb
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -83,7 +93,8 @@ services:
     hostname: fda-container-managing-service
     build: ./fda-container-managing-service
     image: fda-container-managing-service
-    network_mode: bridge
+    networks:
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -105,7 +116,8 @@ services:
     hostname: fda-query-service
     build: ./fda-query-service
     image: fda-query-service
-    network_mode: bridge
+    networks:
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -127,7 +139,8 @@ services:
     hostname: fda-table-service
     build: ./fda-table-service
     image: fda-table-service
-    network_mode: bridge
+    networks:
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
       multipart.location: /tmp
@@ -148,7 +161,8 @@ services:
     hostname: fda-analyse-service
     build: ./fda-analyse-service
     image: fda-analyse-service
-    network_mode: bridge
+    networks:
+      - fda-public
     command: sh -c "/wait && flask run"
     environment:
       EUREKA_SERVER: http://fda-discovery-server:9090/eureka
@@ -173,6 +187,8 @@ services:
     hostname: fda-ui
     build: ./fda-ui
     image: fda-ui
+    networks:
+      - fda-public
     ports:
       - 3000:3000
     depends_on:

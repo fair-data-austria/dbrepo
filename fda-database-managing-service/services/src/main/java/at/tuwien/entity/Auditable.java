@@ -13,7 +13,6 @@ import java.time.Instant;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 public abstract class Auditable {
 
     @Id

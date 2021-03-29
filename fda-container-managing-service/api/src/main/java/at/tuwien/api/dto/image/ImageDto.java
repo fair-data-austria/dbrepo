@@ -3,6 +3,7 @@ package at.tuwien.api.dto.image;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
@@ -15,6 +16,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
+@ToString
 public class ImageDto {
 
     @NotBlank

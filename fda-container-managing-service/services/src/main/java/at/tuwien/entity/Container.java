@@ -18,21 +18,31 @@ import java.time.Instant;
 @EntityListeners(AuditingEntityListener.class)
 public class Container extends Auditable {
 
+    @ToString.Include
     @Column(nullable = false)
     private Instant containerCreated;
 
+    @ToString.Include
     @Column(nullable = false)
     private String name;
 
+    @ToString.Include
     @Column(nullable = false)
     private String hash;
 
+    @ToString.Include
     @Column(nullable = false)
     private ContainerState status;
 
+    @ToString.Include
+    @Column
+    private Integer port;
+
+    @ToString.Include
     @ManyToOne(fetch = FetchType.EAGER)
     private ContainerImage image;
 
+    @ToString.Include
     @Column
     private String ipAddress;
 

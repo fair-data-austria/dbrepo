@@ -15,24 +15,31 @@ import java.util.List;
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class ContainerImage extends Auditable {
 
+    @ToString.Include
     @Column(nullable = false)
     private String repository;
 
+    @ToString.Include
     @Column(nullable = false)
     private String tag;
 
+    @ToString.Include
     @Column(nullable = false)
     private String hash;
 
+    @ToString.Include
     @Column(nullable = false)
     private Instant compiled;
 
+    @ToString.Include
     @Column(nullable = false)
     private Long size;
 
+    @ToString.Include
     @Column(nullable = false)
     private Integer defaultPort;
 
+    @ToString.Include
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<EnvironmentItem> environment;
 

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.IOException;
 
-@ResponseStatus(code = HttpStatus.BAD_REQUEST)
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Execution on the end-user container failed.")
 public class DatabaseMalformedException extends IOException {
 
     public DatabaseMalformedException(String msg) {

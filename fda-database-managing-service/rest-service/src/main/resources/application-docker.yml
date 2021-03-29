@@ -6,7 +6,7 @@ spring:
     username: postgres
     password: postgres
   jpa:
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
@@ -19,10 +19,8 @@ server.port: 9092
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
-    org.springframework.web: warn
-    guru.springframework.controllers: warn
-    org.hibernate: warn
-    at.tuwien.: info
+    root: warn
+    at.tuwien.: debug
 eureka:
   instance.hostname: fda-database-managing-service
   client.serviceUrl.defaultZone: http://fda-discovery-server:9090/eureka/

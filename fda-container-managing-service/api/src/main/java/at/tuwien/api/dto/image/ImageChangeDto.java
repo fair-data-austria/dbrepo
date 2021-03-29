@@ -3,6 +3,7 @@ package at.tuwien.api.dto.image;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
+@ToString
 public class ImageChangeDto {
 
     @Min(value = 1024, message = "only user ports are allowed 1024-65535")

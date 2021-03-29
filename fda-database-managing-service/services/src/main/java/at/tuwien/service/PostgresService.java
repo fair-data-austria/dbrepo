@@ -29,24 +29,24 @@ public class PostgresService extends JdbcConnector {
         this.databaseRepository = databaseRepository;
     }
 
-    public Database create(Container container, DatabaseCreateDto createDto) throws DatabaseConnectionException, DatabaseMalformedException {
+    @Override
+    void create(Container container, DatabaseCreateDto createDto) throws DatabaseConnectionException, DatabaseMalformedException {
         final Connection connection;
+        final String URL = "jdbc:postgresql://" + container.getName() + ":"
+                + container.getImage().getDefaultPort() + "/postgres";
         try {
-            connection = open("jdbc:postgresql://" + container.getName() + ":"
-                    + container.getImage().getDefaultPort() + "/", postgresProperties);
+            connection = open(URL, postgresProperties);
         } catch (SQLException e) {
+            log.error("Could not connect to the database container, is it running from Docker container? IT DOES NOT WORK FROM IDE! URL: {} Params: {}", URL, postgresProperties);
             throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
         }
         try {
             final PreparedStatement statement = getCreateDatabaseStatement(connection, createDto);
             statement.execute();
         } catch (SQLException e) {
+            log.error("The SQL statement seems to contain invalid syntax");
             throw new DatabaseMalformedException("The SQL statement seems to contain invalid syntax", e);
         }
-        final Database database = new Database();
-        database.setContainer(container);
-        database.setName(createDto.getName());
-        return databaseRepository.save(database);
     }
 
 
@@ -58,7 +58,7 @@ public class PostgresService extends JdbcConnector {
                 .append(createDto.getName());
         queryBuilder.append(";");
         final String createQuery = queryBuilder.toString();
-        log.debug("compiled query as \"{}\"", createQuery);
+        log.debug("compiled create db query as \"{}\"", createQuery);
         return connection.prepareStatement(createQuery);
     }
 }

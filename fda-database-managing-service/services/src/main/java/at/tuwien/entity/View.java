@@ -17,9 +17,11 @@ import java.util.List;
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class View extends Auditable {
 
-    @Column
+    @ToString.Include
+    @Column(nullable = false)
     private String name;
 
+    @ToString.Include
     @OneToMany(fetch = FetchType.EAGER)
     private List<Database> databases;
 

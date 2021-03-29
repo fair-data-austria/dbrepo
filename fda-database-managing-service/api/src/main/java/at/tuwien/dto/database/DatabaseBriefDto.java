@@ -3,6 +3,7 @@ package at.tuwien.dto.database;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -11,6 +12,7 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
+@ToString
 public class DatabaseBriefDto {
 
     @NotNull
