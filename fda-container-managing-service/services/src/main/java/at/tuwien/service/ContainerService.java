@@ -19,6 +19,8 @@ import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Link;
+import com.github.dockerjava.api.model.Links;
 import com.github.dockerjava.api.model.PortBinding;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,13 +63,15 @@ public class ContainerService {
         }
         final Integer availableTcpPort = SocketUtils.findAvailableTcpPort(10000);
         final HostConfig hostConfig = this.hostConfig
+                .withNetworkMode("fda-userdb")
+                .withLinks(List.of(new Link("fda-database-managing-service", "fda-database-managing-service")))
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
         final CreateContainerResponse response;
         createDto.setName("fda-userdb-" + createDto.getName());
         try {
              response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
                     .withName(createDto.getName())
-                     .withHostName(createDto.getName())
+                    .withHostName(createDto.getName())
                     .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
                     .withHostConfig(hostConfig)
                     .exec();
@@ -80,6 +84,7 @@ public class ContainerService {
         container.setImage(containerImage);
         container.setName(createDto.getName());
         container.setHash(response.getId());
+        container.setPort(availableTcpPort);
         container.setStatus(ContainerState.CREATED);
         container = containerRepository.save(container);
         log.info("Created container with hash {}", container.getHash());
@@ -116,7 +121,11 @@ public class ContainerService {
         } catch (NotFoundException | NotModifiedException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
+        } catch (ConflictException e) {
+            log.error("Could not remove container: {}", e.getMessage());
+            throw new DockerClientException("docker client failed", e);
         }
+        containerRepository.deleteById(containerId);
         log.debug("Removed container {}", containerId);
     }
 
@@ -163,7 +172,7 @@ public class ContainerService {
             log.error("container {} not found", containerHash);
             throw new ContainerNotFoundException("container not found", e);
         }
-        return response.getNetworkSettings().getNetworks().get("bridge").getIpAddress();
+        return response.getNetworkSettings().getNetworks().get("fda-userdb").getIpAddress();
     }
 
 }

@@ -14,9 +14,11 @@ import javax.transaction.Transactional;
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class EnvironmentItem extends Auditable {
 
+    @ToString.Include
     @Column(nullable = false)
     private String key;
 
+    @ToString.Include
     @Column(nullable = false)
     private String value;
 

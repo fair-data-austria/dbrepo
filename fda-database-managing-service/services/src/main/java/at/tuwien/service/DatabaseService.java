@@ -6,6 +6,7 @@ import at.tuwien.entity.Database;
 import at.tuwien.exception.*;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,18 +49,30 @@ public class DatabaseService {
     }
 
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, DatabaseConnectionException,
-            DatabaseMalformedException {
-        final Container container = containerRepository.getOne(createDto.getContainerId());
+            DatabaseMalformedException, ContainerNotFoundException {
+        log.debug("get container {}", createDto.getContainerId());
+        final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
+        if (containerResponse.isEmpty()) {
+            log.error("Container with id {} does not exist", createDto.getContainerId());
+            throw new ContainerNotFoundException("Container does not exist.");
+        }
+        final Container container = containerResponse.get();
+        log.debug("retrieved container {}", container);
         // check if postgres
         if (!container.getImage().getRepository().equals("postgres")) {
             log.error("only postgres is supported currently");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
         }
         // save in metadata database
-        final Database database = postgresService.create(container, createDto);
-        log.debug("saved db: {}", database);
+        postgresService.create(container, createDto);
+        final Database database = new Database();
+        database.setName(createDto.getName());
+        database.setContainer(container);
+        database.setIsPublic(false);
+        final Database out = databaseRepository.save(database);
+        log.debug("save db: {}", out);
         log.info("Created a new database '{}' in container {}", createDto.getName(), createDto.getContainerId());
-        return database;
+        return out;
     }
 
 }

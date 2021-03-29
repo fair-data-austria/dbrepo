@@ -24,6 +24,9 @@ public class ContainerDto extends ContainerBriefDto {
     private ImageDto image;
 
     @NotNull
+    private Integer port;
+
+    @NotNull
     @ApiModelProperty(name = "start time", example = "2021-03-12T15:26:21.678396092Z")
     private Instant created;
 

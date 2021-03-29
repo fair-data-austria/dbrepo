@@ -5,12 +5,14 @@ import at.tuwien.dto.image.ImageDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Getter
 @Setter
+@ToString
 public class ContainerDto extends ContainerBriefDto {
 
     @NotNull
@@ -22,6 +24,9 @@ public class ContainerDto extends ContainerBriefDto {
 
     @NotNull
     private ImageDto image;
+
+    @NotNull
+    private Integer port;
 
     @NotNull
     @ApiModelProperty(name = "start time", example = "2021-03-12T15:26:21.678396092Z")

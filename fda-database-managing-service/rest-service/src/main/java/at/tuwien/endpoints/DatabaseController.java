@@ -54,11 +54,12 @@ public class DatabaseController {
     @ApiResponses({
             @ApiResponse(code = 201, message = "The database was successfully created."),
             @ApiResponse(code = 400, message = "Parameters were set wrongfully, e.g. more attributes than required for column type."),
-            @ApiResponse(code = 401, message = "Not authorized to create a database"),
+            @ApiResponse(code = 401, message = "Not authorized to create a database."),
+            @ApiResponse(code = 404, message = "Container does not exist with this id."),
+            @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
-            throws ImageNotSupportedException, DatabaseConnectionException, DatabaseMalformedException {
-        log.debug("received {}", createDto);
+            throws ImageNotSupportedException, DatabaseConnectionException, DatabaseMalformedException, ContainerNotFoundException {
         final Database database = databaseService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));

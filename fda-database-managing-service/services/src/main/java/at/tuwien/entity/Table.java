@@ -15,6 +15,11 @@ import java.util.List;
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class Table extends Auditable {
 
+    @ToString.Include
+    @Column(nullable = false)
+    private String name;
+
+    @ToString.Include
     @ManyToOne(fetch = FetchType.EAGER)
     private Database database;
 
