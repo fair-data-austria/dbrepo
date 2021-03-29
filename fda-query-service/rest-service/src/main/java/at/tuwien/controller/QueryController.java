@@ -18,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @RestController
-@RequestMapping("/query")
+@RequestMapping("/api/database/{id}")
 public class QueryController {
 
     private QueryService service;
