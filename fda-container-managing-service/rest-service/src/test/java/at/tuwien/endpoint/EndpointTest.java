@@ -43,10 +43,8 @@ public class EndpointTest extends BaseIntegrationTest {
         assertEquals(2, response.size());
         assertEquals(CONTAINER_1_ID, response.get(0).getId());
         assertEquals(CONTAINER_1_NAME, response.get(0).getName());
-        assertEquals(CONTAINER_1_IP, response.get(0).getIpAddress());
         assertEquals(CONTAINER_2_ID, response.get(1).getId());
         assertEquals(CONTAINER_2_NAME, response.get(1).getName());
-        assertEquals(CONTAINER_2_IP, response.get(1).getIpAddress());
     }
 
     @Test

@@ -28,42 +28,43 @@ public class DockerIntegrationTest extends BaseIntegrationTest {
     @MockBean
     private ContainerService containerService;
 
-//    @Test
-//    public void create_noImage_fails() {
-//        final ContainerCreateRequestDto containerDto = ContainerCreateRequestDto.builder().build();
-//
-//        Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
-//    }
-//
-//    @Test
-//    public void create_imageNotFound_fails() {
-//        final ContainerCreateRequestDto containerDto = ContainerCreateRequestDto.builder().build();
-//        containerDto.setImage("postgres:latest");
-//
-//        Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
-//    }
-//
-//    @Test
-//    public void stop_notFound_fails() {
-//        when(containerRepository.findByContainerId(CONTAINER_1_ID))
-//                .thenReturn(null);
-//
-//        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.stop(CONTAINER_1_ID));
-//    }
-//
-//    @Test
-//    public void remove_notFound_fails() {
-//        when(containerRepository.findByContainerId(CONTAINER_1_ID))
-//                .thenReturn(null);
-//
-//        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.remove(CONTAINER_1_ID));
-//    }
-//
-//    @Test
-//    public void start_notFound_fails() {
-//        when(containerRepository.findByContainerId(CONTAINER_1_ID))
-//                .thenReturn(null);
-//
-//        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.start(CONTAINER_1_ID));
-//    }
+    @Test
+    public void create_noImage_fails() {
+        final ContainerCreateRequestDto containerDto = ContainerCreateRequestDto.builder().build();
+
+        Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
+    }
+
+    @Test
+    public void create_imageNotFound_fails() {
+        final ContainerCreateRequestDto containerDto = ContainerCreateRequestDto.builder().build();
+        containerDto.setRepository("postgres");
+        containerDto.setTag("latest");
+
+        Assertions.assertThrows(ImageNotFoundException.class, () -> containerService.create(containerDto));
+    }
+
+    @Test
+    public void stop_notFound_fails() {
+        when(containerRepository.findById(CONTAINER_1_ID))
+                .thenReturn(null);
+
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.stop(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void remove_notFound_fails() {
+        when(containerRepository.findById(CONTAINER_1_ID))
+                .thenReturn(null);
+
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.remove(CONTAINER_1_ID));
+    }
+
+    @Test
+    public void start_notFound_fails() {
+        when(containerRepository.findById(CONTAINER_1_ID))
+                .thenReturn(null);
+
+        Assertions.assertThrows(ContainerNotFoundException.class, () -> containerService.start(CONTAINER_1_ID));
+    }
 }
