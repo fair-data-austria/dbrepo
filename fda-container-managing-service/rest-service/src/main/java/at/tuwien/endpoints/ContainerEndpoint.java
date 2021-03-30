@@ -1,11 +1,11 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.dto.container.ContainerChangeDto;
+import at.tuwien.api.dto.IpAddressDto;
 import at.tuwien.api.dto.container.ContainerBriefDto;
-import at.tuwien.api.dto.container.ContainerDto;
+import at.tuwien.api.dto.container.ContainerChangeDto;
 import at.tuwien.api.dto.container.ContainerCreateRequestDto;
+import at.tuwien.api.dto.container.ContainerDto;
 import at.tuwien.entity.Container;
-import at.tuwien.entity.ContainerState;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,8 +81,16 @@ public class ContainerEndpoint {
     })
     public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws ContainerNotFoundException {
         final Container container = containerService.getById(id);
+        final ContainerDto dto = containerMapper.containerToContainerDto(container);
+        containerService.findIpAddresses(container.getHash())
+                .entrySet()
+                .stream()
+                .forEach(entry -> dto.getAddresses().add(IpAddressDto.builder()
+                        .network(entry.getKey())
+                        .ipv4(entry.getValue())
+                        .build()));
         return ResponseEntity.ok()
-                .body(containerMapper.containerToContainerDto(container));
+                .body(dto);
     }
 
     @PutMapping("/{id}")

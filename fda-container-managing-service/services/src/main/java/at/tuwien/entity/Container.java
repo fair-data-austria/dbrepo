@@ -62,8 +62,4 @@ public class Container {
     @ManyToOne(fetch = FetchType.EAGER)
     private ContainerImage image;
 
-    @ToString.Include
-    @Column
-    private String ipAddress;
-
 }
