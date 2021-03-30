@@ -172,9 +172,10 @@ public class ContainerService {
         final Map<String, String> networks = new HashMap<>();
         response.getNetworkSettings()
                 .getNetworks()
-                .entrySet()
-                .stream()
-                .forEach(entry -> networks.put(entry.getKey(), entry.getValue().getIpAddress()));
+                .forEach((key, value) -> {
+                    log.debug("network {} address {}", key, value);
+                    networks.put(key, value.getIpAddress());
+                });
         return networks;
     }
 

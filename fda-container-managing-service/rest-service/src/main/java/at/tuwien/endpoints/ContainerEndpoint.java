@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,11 +82,9 @@ public class ContainerEndpoint {
         final Container container = containerService.getById(id);
         final ContainerDto dto = containerMapper.containerToContainerDto(container);
         containerService.findIpAddresses(container.getHash())
-                .entrySet()
-                .stream()
-                .forEach(entry -> dto.getAddresses().add(IpAddressDto.builder()
-                        .network(entry.getKey())
-                        .ipv4(entry.getValue())
+                .forEach((key, value) -> dto.getAddresses().add(IpAddressDto.builder()
+                        .network(key)
+                        .ipv4(value)
                         .build()));
         return ResponseEntity.ok()
                 .body(dto);
