@@ -20,13 +20,10 @@ public interface ContainerMapper {
     ContainerImage containerCreateRequestDtoToContainerImage(ContainerCreateRequestDto data);
 
     @Mappings({
-            @Mapping(target = "ipAddress.ipv4", source = "ipAddress"),
             @Mapping(target = "created", source = "containerCreated"),
     })
     ContainerDto containerToContainerDto(Container data);
 
     ContainerBriefDto containerToDatabaseContainerBriefDto(Container data);
-
-    IpAddressDto ipAddressToIpAddressDto(String data);
 
 }

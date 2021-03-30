@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.LinkedList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,7 +20,7 @@ public class ContainerDto extends ContainerBriefDto {
     private ContainerStateDto status;
 
     @NotNull
-    private IpAddressDto ipAddress;
+    private List<IpAddressDto> addresses = new LinkedList<>();
 
     @NotNull
     private ImageDto image;

@@ -18,17 +18,16 @@ import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Link;
-import com.github.dockerjava.api.model.Links;
-import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Log4j2
@@ -157,13 +156,11 @@ public class ContainerService {
             throw new DockerClientException("docker client failed", e);
         }
         container.setStatus(ContainerState.RESTARTING);
-        container.setIpAddress(getIpAddress(container.getHash()));
         container = containerRepository.save(container);
         return container;
     }
 
-    /** HELPER FUNCTIONS */
-    private String getIpAddress(String containerHash) throws ContainerNotFoundException {
+    public Map<String, String> findIpAddresses(String containerHash) throws ContainerNotFoundException {
         final InspectContainerResponse response;
         try {
             response = dockerClient.inspectContainerCmd(containerHash)
@@ -172,7 +169,13 @@ public class ContainerService {
             log.error("container {} not found", containerHash);
             throw new ContainerNotFoundException("container not found", e);
         }
-        return response.getNetworkSettings().getNetworks().get("fda-userdb").getIpAddress();
+        final Map<String, String> networks = new HashMap<>();
+        response.getNetworkSettings()
+                .getNetworks()
+                .entrySet()
+                .stream()
+                .forEach(entry -> networks.put(entry.getKey(), entry.getValue().getIpAddress()));
+        return networks;
     }
 
 }
