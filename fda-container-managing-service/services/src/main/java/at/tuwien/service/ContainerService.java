@@ -15,6 +15,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.command.ListNetworksCmd;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -62,7 +63,7 @@ public class ContainerService {
         }
         final Integer availableTcpPort = SocketUtils.findAvailableTcpPort(10000);
         final HostConfig hostConfig = this.hostConfig
-                .withNetworkMode("fda-userdb")
+                .withNetworkMode("fda-public")
                 .withLinks(List.of(new Link("fda-database-managing-service", "fda-database-managing-service")))
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
         final CreateContainerResponse response;
@@ -70,6 +71,7 @@ public class ContainerService {
         try {
              response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
                     .withName(createDto.getName())
+                    .withNetworkDisabled(false)
                     .withHostName(createDto.getName())
                     .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
                     .withHostConfig(hostConfig)
@@ -78,6 +80,7 @@ public class ContainerService {
             log.error("conflicting names for container {}, reason: {}", createDto, e.getMessage());
             throw new DockerClientException("Unexpected behavior", e);
         }
+        /* save to metadata database */
         Container container = new Container();
         container.setContainerCreated(Instant.now());
         container.setImage(containerImage);
