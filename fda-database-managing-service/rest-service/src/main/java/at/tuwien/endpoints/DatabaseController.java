@@ -94,10 +94,14 @@ public class DatabaseController {
     @ApiOperation(value = "Delete a database")
     @ApiResponses({
             @ApiResponse(code = 202, message = "The database was successfully deleted."),
+            @ApiResponse(code = 400, message = "The SQL statement contains invalid syntax"),
             @ApiResponse(code = 401, message = "Not authorized to delete a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
+            @ApiResponse(code = 405, message = "Unable to connect to database within container."),
+            @ApiResponse(code = 406, message = "The Docker image is not supported (currently only postgres)"),
     })
-    public ResponseEntity delete(@NotBlank @PathVariable Long databaseId) throws DatabaseNotFoundException {
+    public ResponseEntity delete(@NotBlank @PathVariable Long databaseId) throws DatabaseNotFoundException,
+            DatabaseMalformedException, ImageNotSupportedException, DatabaseConnectionException {
         databaseService.delete(databaseId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
