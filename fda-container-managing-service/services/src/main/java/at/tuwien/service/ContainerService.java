@@ -14,8 +14,6 @@ import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.command.InspectImageResponse;
-import com.github.dockerjava.api.command.ListNetworksCmd;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -63,23 +61,23 @@ public class ContainerService {
         }
         final Integer availableTcpPort = SocketUtils.findAvailableTcpPort(10000);
         final HostConfig hostConfig = this.hostConfig
-                .withNetworkMode("fda-public")
-                .withLinks(List.of(new Link("fda-database-managing-service", "fda-database-managing-service")))
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
         final CreateContainerResponse response;
         createDto.setName("fda-userdb-" + createDto.getName());
         try {
-             response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
+            response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
                     .withName(createDto.getName())
                     .withNetworkDisabled(false)
                     .withHostName(createDto.getName())
                     .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
                     .withHostConfig(hostConfig)
                     .exec();
-        } catch(ConflictException e) {
+        } catch (ConflictException e) {
             log.error("conflicting names for container {}, reason: {}", createDto, e.getMessage());
             throw new DockerClientException("Unexpected behavior", e);
         }
+        /* connect to network */
+        containerConnect(response.getId());
         /* save to metadata database */
         Container container = new Container();
         container.setContainerCreated(Instant.now());
@@ -180,6 +178,19 @@ public class ContainerService {
                     networks.put(key, value.getIpAddress());
                 });
         return networks;
+    }
+
+    private void containerConnect(String containerHash) {
+        final List<Network> networks = dockerClient.listNetworksCmd()
+                .withNameFilter("fda-userdb")
+                .exec();
+        log.debug("docker networks discovered: {}", networks);
+        dockerClient.connectToNetworkCmd()
+                .withContainerId(containerHash)
+                .withNetworkId(networks.get(0).getId())
+                .withContainerNetwork(new ContainerNetwork()
+                        .withIpamConfig(new ContainerNetwork.Ipam()))
+                .exec();
     }
 
 }
