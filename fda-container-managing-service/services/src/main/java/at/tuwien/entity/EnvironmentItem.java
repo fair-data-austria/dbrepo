@@ -7,6 +7,9 @@ import java.time.Instant;
 
 @Entity(name = "mdb_environment_item")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 public class EnvironmentItem extends Auditable {

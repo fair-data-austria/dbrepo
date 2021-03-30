@@ -6,7 +6,6 @@ import at.tuwien.entity.Database;
 import at.tuwien.exception.*;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
-import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,10 +29,22 @@ public class DatabaseService {
         this.postgresService = postgresService;
     }
 
+    /**
+     * Finds all known databases in the metadata database
+     *
+     * @return A list of databases
+     */
     public List<Database> findAll() {
         return databaseRepository.findAll();
     }
 
+    /**
+     * Finds a database by primary key in the metadata database
+     *
+     * @param databaseId The key
+     * @return The database
+     * @throws DatabaseNotFoundException In case the database was not found
+     */
     public Database findById(Long databaseId) throws DatabaseNotFoundException {
         final Optional<Database> opt = databaseRepository.findById(databaseId);
         if (opt.isEmpty()) {
@@ -43,8 +54,24 @@ public class DatabaseService {
         return opt.get();
     }
 
-    public void delete(Long databaseId) throws DatabaseNotFoundException {
-        final Database database = findById(databaseId);
+    public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
+            DatabaseConnectionException, DatabaseMalformedException {
+        log.debug("get database id {}", databaseId);
+        final Optional<Database> databaseResponse = databaseRepository.findById(databaseId);
+        if (databaseResponse.isEmpty()) {
+            log.error("Database with id {} does not exist", databaseId);
+            throw new DatabaseNotFoundException("Database does not exist.");
+        }
+        final Database database = databaseResponse.get();
+        log.debug("retrieved database {}", database);
+        // check if postgres
+        if (!database.getContainer().getImage().getRepository().equals("postgres")) {
+            log.error("only postgres is supported currently");
+            throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
+        }
+        // call container to create database
+        postgresService.delete(database);
+        // delete in metadata database
         databaseRepository.deleteById(databaseId);
     }
 
@@ -63,12 +90,13 @@ public class DatabaseService {
             log.error("only postgres is supported currently");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
         }
-        // save in metadata database
-        postgresService.create(container, createDto);
+        // call container to create database
         final Database database = new Database();
         database.setName(createDto.getName());
         database.setContainer(container);
         database.setIsPublic(false);
+        postgresService.create(database);
+        // save in metadata database
         final Database out = databaseRepository.save(database);
         log.debug("save db: {}", out);
         log.info("Created a new database '{}' in container {}", createDto.getName(), createDto.getContainerId());

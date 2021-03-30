@@ -36,7 +36,7 @@ public abstract class BaseMappingTest {
         final Field ipField = networkC.getClass().getDeclaredField("ipAddress");
         ipField.setAccessible(true);
         ipField.set(network, CONTAINER_NETWORK_IP);
-        final Map<String, ContainerNetwork> map = Map.of("bridge", (ContainerNetwork) network);
+        final Map<String, ContainerNetwork> map = Map.of("fda-userdb", (ContainerNetwork) network);
 
         // add to network settings
         final NetworkSettings settingsC = new NetworkSettings();

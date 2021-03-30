@@ -1,11 +1,8 @@
 package at.tuwien.service;
 
-import at.tuwien.dto.database.DatabaseCreateDto;
-import at.tuwien.entity.Container;
 import at.tuwien.entity.Database;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseMalformedException;
-import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +27,10 @@ public class PostgresService extends JdbcConnector {
     }
 
     @Override
-    void create(Container container, DatabaseCreateDto createDto) throws DatabaseConnectionException, DatabaseMalformedException {
+    void create(Database database) throws DatabaseConnectionException, DatabaseMalformedException {
         final Connection connection;
-        final String URL = "jdbc:postgresql://" + container.getName() + ":"
-                + container.getImage().getDefaultPort() + "/postgres";
+        final String URL = "jdbc:postgresql://" + database.getName() + ":"
+                + database.getContainer().getImage().getDefaultPort() + "/postgres";
         try {
             connection = open(URL, postgresProperties);
         } catch (SQLException e) {
@@ -41,7 +38,27 @@ public class PostgresService extends JdbcConnector {
             throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
         }
         try {
-            final PreparedStatement statement = getCreateDatabaseStatement(connection, createDto);
+            final PreparedStatement statement = getCreateDatabaseStatement(connection, database.getName());
+            statement.execute();
+        } catch (SQLException e) {
+            log.error("The SQL statement seems to contain invalid syntax");
+            throw new DatabaseMalformedException("The SQL statement seems to contain invalid syntax", e);
+        }
+    }
+
+    @Override
+    void delete(Database database) throws DatabaseConnectionException, DatabaseMalformedException {
+        final Connection connection;
+        final String URL = "jdbc:postgresql://" + database.getName() + ":"
+                + database.getContainer().getImage().getDefaultPort() + "/postgres";
+        try {
+            connection = open(URL, postgresProperties);
+        } catch (SQLException e) {
+            log.error("Could not connect to the database container, is it running from Docker container? IT DOES NOT WORK FROM IDE! URL: {} Params: {}", URL, postgresProperties);
+            throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
+        }
+        try {
+            final PreparedStatement statement = getDeleteDatabaseStatement(connection, database.getName());
             statement.execute();
         } catch (SQLException e) {
             log.error("The SQL statement seems to contain invalid syntax");
@@ -51,14 +68,25 @@ public class PostgresService extends JdbcConnector {
 
 
     @Override
-    PreparedStatement getCreateDatabaseStatement(Connection connection, DatabaseCreateDto createDto)
+    PreparedStatement getCreateDatabaseStatement(Connection connection, String databaseName)
             throws SQLException {
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("CREATE DATABASE ")
-                .append(createDto.getName());
+                .append(databaseName);
         queryBuilder.append(";");
         final String createQuery = queryBuilder.toString();
         log.debug("compiled create db query as \"{}\"", createQuery);
         return connection.prepareStatement(createQuery);
+    }
+
+    @Override
+    PreparedStatement getDeleteDatabaseStatement(Connection connection, String databaseName) throws SQLException {
+        final StringBuilder queryBuilder = new StringBuilder()
+                .append("DELETE DATABASE ")
+                .append(databaseName);
+        queryBuilder.append(";");
+        final String deleteQuery = queryBuilder.toString();
+        log.debug("compiled delete db query as \"{}\"", deleteQuery);
+        return connection.prepareStatement(deleteQuery);
     }
 }

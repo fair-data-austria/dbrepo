@@ -1,6 +1,7 @@
 package at.tuwien.entity;
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,10 +14,29 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
-@ToString(callSuper = true, onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
-public class Container extends Auditable {
+public class Container {
+
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @GeneratedValue(generator = "sequence-per-entity")
+    @GenericGenerator(
+            name = "sequence-per-entity",
+            strategy = "enhanced-sequence",
+            parameters = @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true")
+    )
+    private Long id;
+
+    @Column(nullable = false, updatable = false)
+    @CreatedDate
+    private Instant created;
+
+    @Column
+    @LastModifiedDate
+    private Instant lastModified;
 
     @ToString.Include
     @Column(nullable = false)
