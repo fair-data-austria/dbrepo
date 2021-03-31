@@ -29,7 +29,7 @@ public class PostgresService extends JdbcConnector {
     @Override
     void create(Database database) throws DatabaseConnectionException, DatabaseMalformedException {
         final Connection connection;
-        final String URL = "jdbc:postgresql://" + database.getName() + ":"
+        final String URL = "jdbc:postgresql://" + database.getContainer().getName() + ":"
                 + database.getContainer().getImage().getDefaultPort() + "/postgres";
         try {
             connection = open(URL, postgresProperties);
@@ -49,7 +49,7 @@ public class PostgresService extends JdbcConnector {
     @Override
     void delete(Database database) throws DatabaseConnectionException, DatabaseMalformedException {
         final Connection connection;
-        final String URL = "jdbc:postgresql://" + database.getName() + ":"
+        final String URL = "jdbc:postgresql://" + database.getContainer().getName() + ":"
                 + database.getContainer().getImage().getDefaultPort() + "/postgres";
         try {
             connection = open(URL, postgresProperties);
@@ -61,8 +61,8 @@ public class PostgresService extends JdbcConnector {
             final PreparedStatement statement = getDeleteDatabaseStatement(connection, database.getName());
             statement.execute();
         } catch (SQLException e) {
-            log.error("The SQL statement seems to contain invalid syntax");
-            throw new DatabaseMalformedException("The SQL statement seems to contain invalid syntax", e);
+            log.error("The SQL statement seems to contain invalid syntax or already exists");
+            throw new DatabaseMalformedException("The SQL statement seems to contain invalid syntax or already exists", e);
         }
     }
 
@@ -82,7 +82,7 @@ public class PostgresService extends JdbcConnector {
     @Override
     PreparedStatement getDeleteDatabaseStatement(Connection connection, String databaseName) throws SQLException {
         final StringBuilder queryBuilder = new StringBuilder()
-                .append("DELETE DATABASE ")
+                .append("DROP DATABASE ")
                 .append(databaseName);
         queryBuilder.append(";");
         final String deleteQuery = queryBuilder.toString();

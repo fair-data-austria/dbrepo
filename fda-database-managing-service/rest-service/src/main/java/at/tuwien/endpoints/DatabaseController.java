@@ -85,7 +85,7 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to change a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseBriefDto> modify(@NotBlank @PathVariable Long databaseId, @Valid @RequestBody DatabaseChangeDto changeDto) {
+    public ResponseEntity<DatabaseBriefDto> modify(@NotBlank @PathVariable Long id, @Valid @RequestBody DatabaseChangeDto changeDto) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
@@ -100,9 +100,9 @@ public class DatabaseController {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
             @ApiResponse(code = 406, message = "The Docker image is not supported (currently only postgres)"),
     })
-    public ResponseEntity delete(@NotBlank @PathVariable Long databaseId) throws DatabaseNotFoundException,
+    public ResponseEntity<?> delete(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException,
             DatabaseMalformedException, ImageNotSupportedException, DatabaseConnectionException {
-        databaseService.delete(databaseId);
+        databaseService.delete(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
