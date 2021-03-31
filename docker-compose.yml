@@ -150,6 +150,7 @@ services:
     image: fda-table-service
     networks:
       - fda-public
+      - fda-userdb
     environment:
       SPRING_PROFILES_ACTIVE: docker
       multipart.location: /tmp

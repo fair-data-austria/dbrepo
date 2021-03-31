@@ -7,27 +7,33 @@ import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
+import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
+@Log4j2
 @Service
 public class TableService {
 
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
     private final PostgresService postgresService;
+    private final TableMapper tableMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        PostgresService postgresService) {
+                        PostgresService postgresService, TableMapper tableMapper) {
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
         this.postgresService = postgresService;
+        this.tableMapper = tableMapper;
     }
 
     public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
@@ -50,19 +56,34 @@ public class TableService {
 
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException {
-        final Database database;
+        final Optional<Database> database;
         try {
-            database = databaseRepository.getOne(databaseId);
+            database = databaseRepository.findById(databaseId);
         } catch (EntityNotFoundException e) {
+            log.error("database not found in metadata database");
             throw new DatabaseNotFoundException("database not found in metadata database", e);
         }
-        final Table table;
-        if (database.getContainer().getImage().getRepository().equals("postgres")) {
-            table = postgresService.createTable(database, createDto);
-        } else {
+        if (database.isEmpty()) {
+            log.error("no database with this id found in metadata database");
+            throw new DatabaseNotFoundException("database not found in metadata database");
+        }
+        log.debug("retrieved db {}", database);
+        if (!database.get().getContainer().getImage().getRepository().equals("postgres")) {
+            log.error("Right now only PostgreSQL is supported!");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
         }
-        return table;
+        /* save in metadata db */
+        postgresService.createTable(database.get(), createDto);
+        final Table table = Table.builder()
+                .name(createDto.getName())
+                .internalName(tableMapper.columnNameToString(createDto.getName()))
+                .database(database.get())
+                .description(createDto.getDescription())
+                .build();
+        final Table out = tableRepository.save(table);
+        log.debug("saved table {}", out);
+        log.info("Created table {} in database {}", out.getId(), out.getDatabase().getId());
+        return out;
     }
 
 }

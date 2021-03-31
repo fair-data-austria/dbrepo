@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,9 +51,9 @@ public class TableEndpoint {
     }
 
     @PostMapping("/table")
-    @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container.")
+    @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container. For the colum definition use the following example: [{\"name\": \"Ticker Symbol\", \"primaryKey\": true, \"type\": \"STRING\", \"nullAllowed\": false, \"checkExpression\": null, \"foreignKey\": null},{\"name\": \"Accounts Payable\", \"primaryKey\": false, \"type\": \"NUMBER\", \"nullAllowed\": false, \"checkExpression\": \"Accounts Payable > 0\", \"foreignKey\": null},{\"name\": \"Company\", \"primaryKey\": false, \"type\": \"STRING\", \"nullAllowed\": false, \"checkExpression\": null, \"foreignKey\": null}]")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "The table was created."),
+            @ApiResponse(code = 201, message = "The table was created."),
             @ApiResponse(code = 400, message = "The creation form contains invalid data."),
             @ApiResponse(code = 401, message = "Not authorized to create a tables."),
             @ApiResponse(code = 404, message = "The database does not exist."),
@@ -63,7 +64,8 @@ public class TableEndpoint {
             throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException,
             DatabaseNotFoundException {
         final Table table = tableService.create(databaseId, createDto);
-        return ResponseEntity.ok(tableMapper.tableToTableBriefDto(table));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(tableMapper.tableToTableBriefDto(table));
     }
 
     @GetMapping("/table/{tableId}")
