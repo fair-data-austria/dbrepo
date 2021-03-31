@@ -1,6 +1,8 @@
 package at.tuwien.entity;
 
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -8,17 +10,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.List;
 
 @Data
-@Entity(name = "mdb_table")
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Entity(name = "mdb_table_columns")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
-public class Table {
+public class TableColumn {
 
     @Id
     @EqualsAndHashCode.Include
@@ -39,17 +37,8 @@ public class Table {
     @LastModifiedDate
     private Instant lastModified;
 
-    @ToString.Include
-    @OneToOne
-    private Database database;
-
-    @ToString.Include
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
-    private List<TableColumn> columns;
-
-    @ToString.Include
-    @Column
-    private String description;
+    @ManyToOne
+    private Table table;
 
     @ToString.Include
     @Column(nullable = false)
@@ -59,5 +48,24 @@ public class Table {
     @Column(nullable = false)
     private String internalName;
 
-}
+    @ToString.Include
+    @Column(nullable = false)
+    private Boolean isPrimaryKey;
 
+    @ToString.Include
+    @Column(nullable = false)
+    private ColumnType columnType;
+
+    @ToString.Include
+    @Column(nullable = false)
+    private Boolean isNullAllowed;
+
+    @ToString.Include
+    @Column
+    private String checkExpression;
+
+    @ToString.Include
+    @Column
+    private String foreignKey;
+
+}

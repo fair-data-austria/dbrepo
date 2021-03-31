@@ -1,11 +1,12 @@
 package at.tuwien.dto.table.columns;
 
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -13,34 +14,25 @@ import javax.validation.constraints.NotBlank;
 public class ColumnDto {
 
     @NotBlank
-    @Parameter(name = "column type")
-    private ColumnTypeDto type;
+    @ApiModelProperty(name = "name", example = "Price Limit")
+    private String name;
 
-    @Parameter(name = "categories", description = "only categorical, derive totalCategories from array")
-    private String[] categories;
+    @NotNull
+    @ApiModelProperty(name = "primary key", example = "true")
+    private Boolean isPrimaryKey;
 
-    @Parameter(name = "categories", description = "only nominal and numerical")
-    private Double maxLength;
+    @NotNull
+    @ApiModelProperty(name = "type", example = "STRING")
+    private ColumnTypeDto columnType;
 
-    @Parameter(name = "categories", description = "only numerical")
-    private SiUnitDto siUnit;
+    @NotNull
+    @ApiModelProperty(name = "null allowed", example = "true")
+    private Boolean isNullAllowed;
 
-    @Parameter(name = "categories", description = "only numerical")
-    private Double min;
+    @ApiModelProperty(name = "check constraint", example = "Price Limit > 0")
+    private String checkExpression;
 
-    @Parameter(name = "categories", description = "only numerical")
-    private Double max;
-
-    @Parameter(name = "categories", description = "only numerical")
-    private Double mean;
-
-    @Parameter(name = "categories", description = "only numerical")
-    private Double median;
-
-    @Parameter(name = "categories", description = "only numerical")
-    private Double standardDeviation;
-
-    @Parameter(name = "categories", description = "only numerical")
-    private Object histogram;
+    @ApiModelProperty(name = "foreign key")
+    private String foreignKey;
 
 }
