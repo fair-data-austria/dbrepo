@@ -6,5 +6,5 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum ContainerStateDto {
-    CREATED, RESTARTING, RUNNING, PAUSED, EXITED, DEAD
+    CREATED, RESTARTING, RUNNING, PAUSED, EXITED, DEAD, KILLED;
 }
