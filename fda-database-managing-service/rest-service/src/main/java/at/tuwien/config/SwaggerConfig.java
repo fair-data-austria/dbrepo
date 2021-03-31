@@ -30,10 +30,10 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo("FDA-Database-Managing API",
-                "Service that can manage a database container",
+                "Service that can manage Databases",
                 "1.0",
                 null,
-                new Contact("Martin Weise", "https://informatics.tuwien.ac.at/people/martin-weise", "martin.weise@tuwien.ac.at"),
+                new Contact("Ao.Univ.Prof. Andreas Rauber", "http://www.ifs.tuwien.ac.at/~andi/", "rauber@ifs.tuwien.ac.at"),
                 "API license",
                 null,
                 Collections.emptyList());
