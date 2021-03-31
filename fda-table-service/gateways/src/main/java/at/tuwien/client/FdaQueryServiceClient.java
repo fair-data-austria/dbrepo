@@ -30,6 +30,9 @@ public class FdaQueryServiceClient {
         this.mapper = mapper;
     }
 
+    /**
+     * @deprecated use Spring RestTempaltes in future releases
+     */
     public boolean executeStatement(CreateTableViaCsvDTO dto, String statement) {
         LOGGER.debug("request fda-query-service for executing statement");
         ExecuteStatementDTO statementDTO = mapper.map(dto, statement);
@@ -45,6 +48,9 @@ public class FdaQueryServiceClient {
         return true;
     }
 
+    /**
+     * @deprecated use Spring RestTempaltes in future releases
+     */
     public QueryResult executeQuery(String containerID, String query) {
         ContainerIdAndQueryToExecuteInternalQueryMapper mapper = new ContainerIdAndQueryToExecuteInternalQueryMapper();
         ExecuteInternalQueryDTO execInternalQueryDTO = mapper.map(containerID, query);
@@ -62,6 +68,9 @@ public class FdaQueryServiceClient {
 
     }
 
+    /**
+     * @deprecated use Spring RestTempaltes in future releases
+     */
     public boolean copyCSVIntoTable(CreateCSVTableWithDataset tableWithDataset) {
         ClientResponse response = webClientBuilder
                 .build()
