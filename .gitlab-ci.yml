@@ -17,7 +17,9 @@ stages:
   - test
 test-backend: 
   script: 
-    - "mvn -f fda-container-managing-service/pom.xml clean test"
+    - "mvn -f fda-container-service/pom.xml clean test"
+    - "mvn -f fda-table-service/pom.xml clean test"
+    - "mvn -f fda-database-service/pom.xml clean test"
   stage: test
 test-frontend: 
   script: 

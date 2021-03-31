@@ -31,7 +31,7 @@ public class SwaggerConfig {
                 "Service API for table at.tuwien.service",
                 "1.0",
                 null,
-                new Contact("Moritz Staudinger", "https://informatics.tuwien.ac.at/people/moritz-staudinger", "moritz.staudinger@tuwien.ac.at"),
+                new Contact("Ao.Univ.Prof. Andreas Rauber", "http://www.ifs.tuwien.ac.at/~andi/", "rauber@ifs.tuwien.ac.at"),
                 "API license",
                 null,
                 Collections.emptyList());

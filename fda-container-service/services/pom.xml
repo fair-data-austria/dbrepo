@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fda-container-managing-service</artifactId>
+        <artifactId>fda-container-service</artifactId>
         <groupId>at.tuwien</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>services</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-container-managing-service-services</name>
+    <name>fda-container-service-services</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
