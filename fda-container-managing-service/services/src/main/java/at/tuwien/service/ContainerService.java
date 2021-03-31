@@ -3,8 +3,8 @@ package at.tuwien.service;
 import at.tuwien.api.dto.container.ContainerCreateRequestDto;
 import at.tuwien.entity.Container;
 import at.tuwien.entity.ContainerImage;
-import at.tuwien.entity.ContainerState;
 import at.tuwien.exception.ContainerNotFoundException;
+import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.ContainerMapper;
@@ -61,13 +61,14 @@ public class ContainerService {
         }
         final Integer availableTcpPort = SocketUtils.findAvailableTcpPort(10000);
         final HostConfig hostConfig = this.hostConfig
+                .withNetworkMode("fda-userdb")
+                .withLinks(List.of(new Link("fda-database-managing-service", "fda-database-managing-service")))
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
         final CreateContainerResponse response;
         createDto.setName("fda-userdb-" + createDto.getName());
         try {
             response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
                     .withName(createDto.getName())
-                    .withNetworkDisabled(false)
                     .withHostName(createDto.getName())
                     .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
                     .withHostConfig(hostConfig)
@@ -76,8 +77,6 @@ public class ContainerService {
             log.error("conflicting names for container {}, reason: {}", createDto, e.getMessage());
             throw new DockerClientException("Unexpected behavior", e);
         }
-        /* connect to network */
-        containerConnect(response.getId());
         /* save to metadata database */
         Container container = new Container();
         container.setContainerCreated(Instant.now());
@@ -85,7 +84,6 @@ public class ContainerService {
         container.setName(createDto.getName());
         container.setHash(response.getId());
         container.setPort(availableTcpPort);
-        container.setStatus(ContainerState.CREATED);
         container = containerRepository.save(container);
         log.info("Created container with hash {}", container.getHash());
         log.debug("container created {}", container);
@@ -104,14 +102,13 @@ public class ContainerService {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        Container container1 = container.get();
-        container1.setStatus(ContainerState.DEAD);
-        container1 = containerRepository.save(container1);
+        final Container container1 = containerRepository.save(container.get());
         log.debug("Stopped container {}", container1);
         return container1;
     }
 
-    public void remove(Long containerId) throws ContainerNotFoundException, DockerClientException {
+    public void remove(Long containerId) throws ContainerNotFoundException, DockerClientException,
+            ContainerStillRunningException {
         final Optional<Container> container = containerRepository.findById(containerId);
         if (container.isEmpty()) {
             throw new ContainerNotFoundException("no container with this id in metadata database");
@@ -123,7 +120,7 @@ public class ContainerService {
             throw new DockerClientException("docker client failed", e);
         } catch (ConflictException e) {
             log.error("Could not remove container: {}", e.getMessage());
-            throw new DockerClientException("docker client failed", e);
+            throw new ContainerStillRunningException("docker client failed", e);
         }
         containerRepository.deleteById(containerId);
         log.debug("Removed container {}", containerId);
@@ -156,7 +153,6 @@ public class ContainerService {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        container.setStatus(ContainerState.RESTARTING);
         container = containerRepository.save(container);
         return container;
     }
@@ -180,17 +176,18 @@ public class ContainerService {
         return networks;
     }
 
-    private void containerConnect(String containerHash) {
-        final List<Network> networks = dockerClient.listNetworksCmd()
-                .withNameFilter("fda-userdb")
-                .exec();
-        log.debug("docker networks discovered: {}", networks);
-        dockerClient.connectToNetworkCmd()
-                .withContainerId(containerHash)
-                .withNetworkId(networks.get(0).getId())
-                .withContainerNetwork(new ContainerNetwork()
-                        .withIpamConfig(new ContainerNetwork.Ipam()))
-                .exec();
+    public InspectContainerResponse getContainerState(String containerHash) throws DockerClientException {
+        final InspectContainerResponse response;
+        try {
+            response = dockerClient.inspectContainerCmd(containerHash)
+                    .withSize(true)
+                    .exec();
+        } catch (NotFoundException e) {
+            log.error("docker client failed {}", e.getMessage());
+            throw new DockerClientException("docker client failed", e);
+        }
+        log.debug("received container state {}", response);
+        return response;
     }
 
 }

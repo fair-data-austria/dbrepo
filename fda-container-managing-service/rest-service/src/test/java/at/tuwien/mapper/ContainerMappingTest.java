@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class DatabaseContainerMappingTest extends BaseMappingTest {
+public class ContainerMappingTest extends BaseMappingTest {
 
     @Test
     public void inspectContainerResponseToDatabaseContainerMappingTest_succeeds() {

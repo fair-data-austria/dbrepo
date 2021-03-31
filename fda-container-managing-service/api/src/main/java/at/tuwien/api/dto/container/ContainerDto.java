@@ -16,8 +16,8 @@ import java.util.List;
 public class ContainerDto extends ContainerBriefDto {
 
     @NotNull
-    @ApiModelProperty(name = "status", example = "RUNNING")
-    private ContainerStateDto status;
+    @ApiModelProperty(name = "container state", example = "RUNNING")
+    private ContainerStateDto state;
 
     @NotNull
     private List<IpAddressDto> addresses = new LinkedList<>();
@@ -26,6 +26,7 @@ public class ContainerDto extends ContainerBriefDto {
     private ImageDto image;
 
     @NotNull
+    @ApiModelProperty(name = "actual assigned port", example = "10230")
     private Integer port;
 
     @NotNull

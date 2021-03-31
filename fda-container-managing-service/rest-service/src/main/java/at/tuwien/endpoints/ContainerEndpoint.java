@@ -1,12 +1,10 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.api.dto.IpAddressDto;
-import at.tuwien.api.dto.container.ContainerBriefDto;
-import at.tuwien.api.dto.container.ContainerChangeDto;
-import at.tuwien.api.dto.container.ContainerCreateRequestDto;
-import at.tuwien.api.dto.container.ContainerDto;
+import at.tuwien.api.dto.container.*;
 import at.tuwien.entity.Container;
 import at.tuwien.exception.ContainerNotFoundException;
+import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.ContainerMapper;
@@ -78,16 +76,20 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws ContainerNotFoundException {
+    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws ContainerNotFoundException,
+            DockerClientException {
         final Container container = containerService.getById(id);
-        final ContainerDto dto = containerMapper.containerToContainerDto(container);
+        final ContainerDto containerDto = containerMapper.containerToContainerDto(container);
         containerService.findIpAddresses(container.getHash())
-                .forEach((key, value) -> dto.getAddresses().add(IpAddressDto.builder()
+                .forEach((key, value) -> containerDto.getAddresses().add(IpAddressDto.builder()
                         .network(key)
                         .ipv4(value)
                         .build()));
+        final ContainerDto inspectDto = containerMapper.inspectContainerResponseToContainerDto(
+                containerService.getContainerState(container.getHash()));
+        containerDto.setState(inspectDto.getState());
         return ResponseEntity.ok()
-                .body(dto);
+                .body(containerDto);
     }
 
     @PutMapping("/{id}")
@@ -98,7 +100,8 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to modify a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<?> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto) throws ContainerNotFoundException, DockerClientException {
+    public ResponseEntity<?> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
+            throws ContainerNotFoundException, DockerClientException, ContainerStillRunningException {
         if (changeDto.getAction().equals(START)) {
             containerService.start(id);
         } else if (changeDto.getAction().equals(STOP)) {
@@ -116,8 +119,10 @@ public class ContainerEndpoint {
             @ApiResponse(code = 200, message = "Deleted the container."),
             @ApiResponse(code = 401, message = "Not authorized to delete a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
+            @ApiResponse(code = 409, message = "Container is still running."),
     })
-    public ResponseEntity delete(@NotNull @PathVariable Long id) throws ContainerNotFoundException, DockerClientException {
+    public ResponseEntity delete(@NotNull @PathVariable Long id) throws ContainerNotFoundException,
+            DockerClientException, ContainerStillRunningException {
         containerService.remove(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();

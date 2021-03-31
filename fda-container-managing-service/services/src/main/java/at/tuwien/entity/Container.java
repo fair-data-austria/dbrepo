@@ -51,10 +51,6 @@ public class Container {
     private String hash;
 
     @ToString.Include
-    @Column(nullable = false)
-    private ContainerState status;
-
-    @ToString.Include
     @Column
     private Integer port;
 
