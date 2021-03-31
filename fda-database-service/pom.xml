@@ -9,9 +9,9 @@
     </parent>
 
     <groupId>at.tuwien</groupId>
-    <artifactId>fda-database-managing-service</artifactId>
+    <artifactId>fda-database-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-database-managing-service</name>
+    <name>fda-database-service</name>
     <description>Demo project for Spring Boot</description>
 
     <packaging>pom</packaging>

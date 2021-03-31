@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter
@@ -28,7 +29,7 @@ public class TableCreateDto {
     @Parameter(name = "table description", required = true)
     private String description;
 
-    @NotBlank
+    @NotNull
     @Parameter(name = "table columns", required = true)
     private ColumnCreateDto[] columns;
 

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class ContainerGateway {
 
     /** @apiNote this url is already in Eureka and NOT docker */
-    private static final String URL = "http://fda-container-managing-service/api/container/";
+    private static final String URL = "http://fda-container-service/api/container/";
 
     private final RestClient restClient;
 

@@ -9,9 +9,9 @@
     </parent>
 
     <groupId>at.tuwien</groupId>
-    <artifactId>fda-container-managing-service</artifactId>
+    <artifactId>fda-container-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-container-managing-service</name>
+    <name>fda-container-service</name>
     <description>Demo project for Spring Boot</description>
 
     <packaging>pom</packaging>
