@@ -2,21 +2,27 @@ package at.tuwien.dto.table;
 
 import at.tuwien.dto.table.columns.ColumnCreateDto;
 import at.tuwien.dto.table.columns.ColumnDto;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Getter
 @Setter
+@ToString
 public class TableCreateDto {
 
     @NotBlank
-    @Size(min = 3)
-    @Parameter(name = "table name", required = true)
+    @ApiModelProperty(name = "name", example = "Fundamentals")
     private String name;
+
+    @NotBlank
+    @ApiModelProperty(name = "name", example = "fundamentals")
+    private String internalName;
 
     @NotBlank
     @Parameter(name = "table description", required = true)

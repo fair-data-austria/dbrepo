@@ -3,11 +3,13 @@ package at.tuwien.dto.table.columns;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
+@ToString
 public class ColumnDto {
 
     @NotBlank

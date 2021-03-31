@@ -1,32 +1,35 @@
 package at.tuwien.dto.table.columns;
 
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
+@ToString
 public class ColumnCreateDto {
 
     @NotBlank
-    @Parameter(name = "column name")
+    @ApiModelProperty(name = "name", example = "Ticker Symbol")
     private String name;
 
     @NotNull
-    @Parameter(name = "column type")
+    @ApiModelProperty(name = "name", example = "STRING")
     private ColumnTypeDto type;
 
     @NotNull
-    @Parameter(name = "column null")
+    @ApiModelProperty(name = "null values permitted", example = "true")
     private Boolean nullAllowed = true;
 
-    @Parameter(name = "column check")
+    @ApiModelProperty(name = "check expression", example = "column > 0")
     private String checkExpression;
 
-    @Parameter(name = "column foreign key")
+    @ApiModelProperty(name = "foreign key")
     private String foreignKey;
 
 }

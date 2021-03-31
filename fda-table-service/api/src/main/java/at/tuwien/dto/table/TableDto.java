@@ -2,32 +2,33 @@ package at.tuwien.dto.table;
 
 import at.tuwien.dto.table.columns.ColumnDto;
 import at.tuwien.dto.table.columns.RowDto;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
+@ToString
 public class TableDto extends TableBriefDto {
 
     @NotBlank
-    @Size(min = 3)
-    @Parameter(name = "table name", required = true)
+    @ApiModelProperty(name = "table name", example = "Fundamentals")
     private String name;
 
     @NotBlank
-    @Parameter(name = "table description", required = true)
+    @ApiModelProperty(name = "table description", example = "SEC 10K annual fillings (2016-2012) ")
     private String description;
 
-    @NotBlank
-    @Parameter(name = "table columns", required = true)
+    @NotNull
+    @ApiModelProperty(name = "table columns")
     private ColumnDto[] columns;
 
-    @NotBlank
-    @Parameter(name = "table rows", required = true, description = "must have the same length of columns")
+    @NotNull
+    @ApiModelProperty(name = "table rows")
     private RowDto[] rows;
 
 }
