@@ -20,7 +20,7 @@
             v-for="item in databases"
             :key="item.ContainerID">
             <td>
-              <v-btn @click="selectClick(item)" icon><v-icon>{{ iconSelect }}</v-icon></v-btn>
+              <v-btn icon @click="selectClick(item)"><v-icon>{{ iconSelect }}</v-icon></v-btn>
               {{ item.DbName }}
             </td>
             <td class="trim">{{ trim(item.ContainerID) }}</td>
@@ -73,7 +73,7 @@ export default {
   methods: {
     async refresh () {
       this.createDbDialog = false
-      const res = await this.$axios.post('/listDatabases', {})
+      const res = await this.$axios.get('/database/database', {})
       this.databases = res.data
     },
     trim (s) {
