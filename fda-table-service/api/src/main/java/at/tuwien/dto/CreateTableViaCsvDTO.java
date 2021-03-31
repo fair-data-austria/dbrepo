@@ -10,11 +10,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateTableViaCsvDTO {
 
-    @JsonProperty("ContainerID")
-    private String containerID;
-    @JsonProperty("PathToFile")
+    private String containerId;
+
     private String pathToFile;
-    @JsonProperty("Delimiter")
+
     private char delimiter;
 
 
