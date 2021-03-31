@@ -19,6 +19,10 @@ public class ColumnCreateDto {
     private String name;
 
     @NotNull
+    @ApiModelProperty(name = "primary key", example = "false")
+    private Boolean primaryKey = true;
+
+    @NotNull
     @ApiModelProperty(name = "name", example = "STRING")
     private ColumnTypeDto type;
 

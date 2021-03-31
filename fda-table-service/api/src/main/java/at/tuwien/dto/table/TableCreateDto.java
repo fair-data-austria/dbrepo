@@ -22,11 +22,7 @@ public class TableCreateDto {
     private String name;
 
     @NotBlank
-    @ApiModelProperty(name = "name", example = "fundamentals")
-    private String internalName;
-
-    @NotBlank
-    @Parameter(name = "table description", required = true)
+    @Parameter(name = "table description", required = true, example = "SEC 10K annual fillings (2016-2012) ")
     private String description;
 
     @NotNull

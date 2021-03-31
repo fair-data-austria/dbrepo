@@ -20,6 +20,10 @@ public class TableDto extends TableBriefDto {
     private String name;
 
     @NotBlank
+    @ApiModelProperty(name = "table internal name", example = "fundamentals")
+    private String internalName;
+
+    @NotBlank
     @ApiModelProperty(name = "table description", example = "SEC 10K annual fillings (2016-2012) ")
     private String description;
 
