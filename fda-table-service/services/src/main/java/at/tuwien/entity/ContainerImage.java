@@ -34,7 +34,7 @@ public class ContainerImage extends Auditable {
     @Column(nullable = false)
     private Integer defaultPort;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     private List<EnvironmentItem> environment;
 
 }

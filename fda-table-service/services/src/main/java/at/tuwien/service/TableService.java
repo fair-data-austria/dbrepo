@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,16 +75,19 @@ public class TableService {
         }
         /* save in metadata db */
         postgresService.createTable(database.get(), createDto);
-        final Table table = Table.builder()
-                .name(createDto.getName())
-                .internalName(tableMapper.columnNameToString(createDto.getName()))
-                .database(database.get())
-                .description(createDto.getDescription())
-                .build();
-        final Table out = tableRepository.save(table);
+        final Table table = tableMapper.tableCreateDtoToTable(createDto);
+        table.setDatabase(database.get());
+        table.setInternalName(tableMapper.columnNameToString(table.getName()));
+        log.debug("about to save table {}", table);
+        final Table out = persistTable(table);
         log.debug("saved table {}", out);
         log.info("Created table {} in database {}", out.getId(), out.getDatabase().getId());
         return out;
+    }
+
+    @Transactional
+    protected Table persistTable(Table table) {
+        return tableRepository.save(table);
     }
 
 }
