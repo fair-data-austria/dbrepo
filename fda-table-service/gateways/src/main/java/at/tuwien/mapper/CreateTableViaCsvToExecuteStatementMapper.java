@@ -9,7 +9,7 @@ public class CreateTableViaCsvToExecuteStatementMapper {
 
     public ExecuteStatementDTO map(CreateTableViaCsvDTO dto, String statement){
         ExecuteStatementDTO statementDTO = new ExecuteStatementDTO();
-        statementDTO.setContainerID(dto.getContainerID());
+        statementDTO.setContainerID(dto.getContainerId());
         statementDTO.setStatement(statement);
         return statementDTO;
     }
