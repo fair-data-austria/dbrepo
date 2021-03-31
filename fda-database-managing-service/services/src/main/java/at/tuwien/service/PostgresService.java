@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.entity.Database;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseMalformedException;
+import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +19,21 @@ import java.util.Properties;
 public class PostgresService extends JdbcConnector {
 
     private final Properties postgresProperties;
+    private final DatabaseMapper databaseMapper;
     private final DatabaseRepository databaseRepository;
 
     @Autowired
-    public PostgresService(Properties postgresProperties, DatabaseRepository databaseRepository) {
+    public PostgresService(Properties postgresProperties, DatabaseMapper databaseMapper,
+                           DatabaseRepository databaseRepository) {
         this.postgresProperties = postgresProperties;
+        this.databaseMapper = databaseMapper;
         this.databaseRepository = databaseRepository;
     }
 
     @Override
     void create(Database database) throws DatabaseConnectionException, DatabaseMalformedException {
         final Connection connection;
-        final String URL = "jdbc:postgresql://" + database.getContainer().getName() + ":"
+        final String URL = "jdbc:postgresql://" + database.getContainer().getInternalName() + ":"
                 + database.getContainer().getImage().getDefaultPort() + "/postgres";
         try {
             connection = open(URL, postgresProperties);
@@ -38,7 +42,7 @@ public class PostgresService extends JdbcConnector {
             throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
         }
         try {
-            final PreparedStatement statement = getCreateDatabaseStatement(connection, database.getName());
+            final PreparedStatement statement = getCreateDatabaseStatement(connection, database);
             statement.execute();
         } catch (SQLException e) {
             log.error("The SQL statement seems to contain invalid syntax");
@@ -49,7 +53,7 @@ public class PostgresService extends JdbcConnector {
     @Override
     void delete(Database database) throws DatabaseConnectionException, DatabaseMalformedException {
         final Connection connection;
-        final String URL = "jdbc:postgresql://" + database.getContainer().getName() + ":"
+        final String URL = "jdbc:postgresql://" + database.getContainer().getInternalName() + ":"
                 + database.getContainer().getImage().getDefaultPort() + "/postgres";
         try {
             connection = open(URL, postgresProperties);
@@ -58,7 +62,7 @@ public class PostgresService extends JdbcConnector {
             throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
         }
         try {
-            final PreparedStatement statement = getDeleteDatabaseStatement(connection, database.getName());
+            final PreparedStatement statement = getDeleteDatabaseStatement(connection, database);
             statement.execute();
         } catch (SQLException e) {
             log.error("The SQL statement seems to contain invalid syntax or already exists");
@@ -68,11 +72,11 @@ public class PostgresService extends JdbcConnector {
 
 
     @Override
-    PreparedStatement getCreateDatabaseStatement(Connection connection, String databaseName)
+    PreparedStatement getCreateDatabaseStatement(Connection connection, Database database)
             throws SQLException {
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("CREATE DATABASE ")
-                .append(databaseName);
+                .append(database.getInternalName());
         queryBuilder.append(";");
         final String createQuery = queryBuilder.toString();
         log.debug("compiled create db query as \"{}\"", createQuery);
@@ -80,10 +84,10 @@ public class PostgresService extends JdbcConnector {
     }
 
     @Override
-    PreparedStatement getDeleteDatabaseStatement(Connection connection, String databaseName) throws SQLException {
+    PreparedStatement getDeleteDatabaseStatement(Connection connection, Database database) throws SQLException {
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("DROP DATABASE ")
-                .append(databaseName);
+                .append(database.getInternalName());
         queryBuilder.append(";");
         final String deleteQuery = queryBuilder.toString();
         log.debug("compiled delete db query as \"{}\"", deleteQuery);

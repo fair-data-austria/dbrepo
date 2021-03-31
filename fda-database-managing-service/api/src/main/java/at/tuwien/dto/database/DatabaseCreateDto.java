@@ -19,7 +19,7 @@ public class DatabaseCreateDto {
     private Long containerId;
 
     @NotBlank
-    @ApiModelProperty(name = "database name", example = "ctfs")
+    @ApiModelProperty(name = "database name", example = "Exchange Traded Fund")
     private String name;
 
 }

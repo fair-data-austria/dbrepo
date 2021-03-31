@@ -64,12 +64,19 @@ public class ContainerService {
                 .withNetworkMode("fda-userdb")
                 .withLinks(List.of(new Link("fda-database-managing-service", "fda-database-managing-service")))
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
+        /* save to metadata database */
+        Container container = new Container();
+        container.setContainerCreated(Instant.now());
+        container.setImage(containerImage);
+        container.setPort(availableTcpPort);
+        container.setName(createDto.getName());
+        container.setInternalName(containerMapper.containerToInternalContainerName(container));
+        /* create the container */
         final CreateContainerResponse response;
-        createDto.setName("fda-userdb-" + createDto.getName());
         try {
             response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
-                    .withName(createDto.getName())
-                    .withHostName(createDto.getName())
+                    .withName(container.getInternalName())
+                    .withHostName(container.getInternalName())
                     .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
                     .withHostConfig(hostConfig)
                     .exec();
@@ -77,13 +84,7 @@ public class ContainerService {
             log.error("conflicting names for container {}, reason: {}", createDto, e.getMessage());
             throw new DockerClientException("Unexpected behavior", e);
         }
-        /* save to metadata database */
-        Container container = new Container();
-        container.setContainerCreated(Instant.now());
-        container.setImage(containerImage);
-        container.setName(createDto.getName());
         container.setHash(response.getId());
-        container.setPort(availableTcpPort);
         container = containerRepository.save(container);
         log.info("Created container with hash {}", container.getHash());
         log.debug("container created {}", container);

@@ -47,6 +47,10 @@ public class Database {
     @Column(nullable = false)
     private String name;
 
+    @ToString.Exclude
+    @Column(nullable = false)
+    private String internalName;
+
     @ToString.Include
     @Column(nullable = false)
     private Boolean isPublic;

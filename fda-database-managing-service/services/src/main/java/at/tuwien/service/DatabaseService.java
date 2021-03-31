@@ -4,6 +4,7 @@ import at.tuwien.dto.database.DatabaseCreateDto;
 import at.tuwien.entity.Container;
 import at.tuwien.entity.Database;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
@@ -20,13 +21,15 @@ public class DatabaseService {
     private final ContainerRepository containerRepository;
     private final DatabaseRepository databaseRepository;
     private final PostgresService postgresService;
+    private final DatabaseMapper databaseMapper;
 
     @Autowired
     public DatabaseService(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
-                           PostgresService postgresService) {
+                           PostgresService postgresService, DatabaseMapper databaseMapper) {
         this.containerRepository = containerRepository;
         this.databaseRepository = databaseRepository;
         this.postgresService = postgresService;
+        this.databaseMapper = databaseMapper;
     }
 
     /**
@@ -95,6 +98,7 @@ public class DatabaseService {
         database.setName(createDto.getName());
         database.setContainer(container);
         database.setIsPublic(false);
+        database.setInternalName(databaseMapper.databaseToInternalDatabaseName(database));
         postgresService.create(database);
         // save in metadata database
         final Database out = databaseRepository.save(database);

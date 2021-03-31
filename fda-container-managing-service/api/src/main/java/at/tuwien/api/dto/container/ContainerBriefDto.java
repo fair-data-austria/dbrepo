@@ -22,6 +22,10 @@ public class ContainerBriefDto {
     private String hash;
 
     @NotBlank
-    @ApiModelProperty(name = "container name", example = "nyse")
+    @ApiModelProperty(name = "container name", example = "New York Stock Exchange")
     private String name;
+
+    @NotBlank
+    @ApiModelProperty(name = "container internal name", example = "new_york_stock_exchange")
+    private String internalName;
 }
