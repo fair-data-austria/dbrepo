@@ -35,6 +35,10 @@ public class Container extends Auditable {
     @Column
     private Integer port;
 
+    @ToString.Exclude
+    @Column(nullable = false)
+    private String internalName;
+
     @ToString.Include
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private ContainerImage image;

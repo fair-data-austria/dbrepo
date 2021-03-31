@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 public class ContainerCreateRequestDto {
 
     @NotBlank
-    @ApiModelProperty(name = "name", example = "nyse")
+    @ApiModelProperty(name = "name", example = "New York Stock Exchange")
     private String name;
 
     @NotBlank

@@ -42,7 +42,7 @@ public abstract class JdbcConnector {
      * @return A prepared statement
      * @throws SQLException In case the compiled query is invalid
      */
-    abstract PreparedStatement getCreateDatabaseStatement(Connection connection, String databaseName)
+    abstract PreparedStatement getCreateDatabaseStatement(Connection connection, Database database)
             throws SQLException;
 
     /**
@@ -53,7 +53,7 @@ public abstract class JdbcConnector {
      * @return A prepared statement
      * @throws SQLException In case the compiled query is invalid
      */
-    abstract PreparedStatement getDeleteDatabaseStatement(Connection connection, String databaseName)
+    abstract PreparedStatement getDeleteDatabaseStatement(Connection connection, Database database)
             throws SQLException;
 
 }

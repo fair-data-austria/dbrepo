@@ -21,7 +21,11 @@ public class DatabaseBriefDto {
     private Long id;
 
     @NotBlank
-    @Parameter(name = "database name", example = "CTFs")
+    @Parameter(name = "database name", example = "Exchange Traded Funds")
     private String name;
+
+    @NotBlank
+    @Parameter(name = "database internal name", example = "exchange_traded_funds")
+    private String internalName;
 
 }
