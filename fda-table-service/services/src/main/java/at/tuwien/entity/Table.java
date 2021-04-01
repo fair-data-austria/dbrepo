@@ -13,10 +13,10 @@ import java.util.List;
 @Data
 @Entity(name = "mdb_table")
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 public class Table {
 
@@ -31,31 +31,30 @@ public class Table {
     )
     private Long id;
 
-    @Column(nullable = false, updatable = false)
     @CreatedDate
+    @ToString.Exclude
+    @Column(nullable = false, updatable = false)
     private Instant created;
 
     @Column
+    @ToString.Exclude
     @LastModifiedDate
     private Instant lastModified;
 
-    @ToString.Include
+    @ToString.Exclude
     @OneToOne
     private Database database;
 
-    @ToString.Include
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "table_id")
     private List<TableColumn> columns;
 
-    @ToString.Include
     @Column
     private String description;
 
-    @ToString.Include
     @Column(nullable = false)
     private String name;
 
-    @ToString.Include
     @Column(nullable = false)
     private String internalName;
 

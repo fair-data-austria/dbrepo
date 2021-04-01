@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.dto.table.TableBriefDto;
 import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.entity.Database;
 import at.tuwien.entity.Table;
@@ -38,13 +39,23 @@ public class TableService {
     }
 
     public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
-        final Database tmp = new Database();
-        tmp.setId(databaseId);
+        final Optional<Database> database;
+        try {
+            database = databaseRepository.findById(databaseId);
+        } catch (EntityNotFoundException e) {
+            log.error("Unable to find database {}", databaseId);
+            throw new DatabaseNotFoundException("Unable to find database.");
+        }
+        if (database.isEmpty()) {
+            log.error("Unable to find database {}", databaseId);
+            throw new DatabaseNotFoundException("Unable to find database.");
+        }
         final List<Table> tables;
         try {
-            tables = tableRepository.findByDatabase(tmp);
+            tables = tableRepository.findByDatabase(database.get());
         } catch (EntityNotFoundException e) {
-            throw new DatabaseNotFoundException("database was not found");
+            log.error("Unable to find tables for database {}.", database);
+            throw new DatabaseNotFoundException("Unable to find tables.");
         }
         return tables;
     }
@@ -55,6 +66,7 @@ public class TableService {
         return tableRepository.findByDatabaseAndId(tmp, tableId);
     }
 
+    @Transactional
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException {
         final Optional<Database> database;
@@ -78,16 +90,10 @@ public class TableService {
         final Table table = tableMapper.tableCreateDtoToTable(createDto);
         table.setDatabase(database.get());
         table.setInternalName(tableMapper.columnNameToString(table.getName()));
-        log.debug("about to save table {}", table);
-        final Table out = persistTable(table);
+        final Table out = tableRepository.save(table);
         log.debug("saved table {}", out);
         log.info("Created table {} in database {}", out.getId(), out.getDatabase().getId());
         return out;
-    }
-
-    @Transactional
-    protected Table persistTable(Table table) {
-        return tableRepository.save(table);
     }
 
 }
