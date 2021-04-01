@@ -2,8 +2,10 @@ package at.tuwien.service;
 
 import at.tuwien.dto.table.TableBriefDto;
 import at.tuwien.dto.table.TableCreateDto;
+import at.tuwien.entity.ColumnType;
 import at.tuwien.entity.Database;
 import at.tuwien.entity.Table;
+import at.tuwien.entity.TableColumn;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,6 +88,9 @@ public class TableService {
             log.error("Right now only PostgreSQL is supported!");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
         }
+        if(tableRepository.findByDatabase(database.get()).size()==0) {
+            createQueryStore(database.get());
+        }
         /* save in metadata db */
         postgresService.createTable(database.get(), createDto);
         final Table table = tableMapper.tableCreateDtoToTable(createDto);
@@ -94,6 +100,28 @@ public class TableService {
         log.debug("saved table {}", out);
         log.info("Created table {} in database {}", out.getId(), out.getDatabase().getId());
         return out;
+    }
+
+    public Table createQueryStore(Database database) {
+        List<TableColumn> columns = new ArrayList<>();
+        TableColumn c = new TableColumn();
+        c.setName("OriginalQuery");
+        c.setInternalName("OriginalQuery");
+        c.setIsNullAllowed(Boolean.FALSE);
+        c.setIsPrimaryKey(Boolean.FALSE);
+        c.setColumnType(ColumnType.STRING);
+        columns.add(c);
+        Table table = Table.builder()
+                .database(database)
+                .name("Querystore")
+                .description("Querystore to save already made queries for reproduction")
+                .internalName("Querystore")
+                .columns(columns)
+                .build();
+        final Table out = tableRepository.save(table);
+        log.debug("save querystore: {}", out);
+        log.info("Created querystore {} in database {}", out.getName(), database.getId());
+        return table;
     }
 
 }
