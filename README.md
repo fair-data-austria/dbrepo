@@ -42,18 +42,11 @@ Everything is handled by compose, just build it by running:
 docker-compose build
 ```
 
-## Develop
-
-The endpoints are documented with Swagger 2.1 and OpenAPI 3.0. The current specification for the front-end is obtainable programatically from `http://localhost:<port>/swagger-resources`
-
-For easy visualization use OpenAPI at:
-
-- [http://fda-container-managing-service/swagger-ui/](http://localhost:9091/swagger-ui/)
-- [http://fda-database-managing-service/swagger-ui/](http://localhost:9092/swagger-ui/)
-
 ## Deployment
 
 The pipeline is set-up to build and test all commits. A commit to dev or master branch triggers additional jobs.
+
+### Development
 
 A commit to `dev` triggers the following pipeline. It deploys the docker images to the docker registry hosted on the fda-runner server and deploys it also to a test server (fda-deployment) at TU Wien. 
 

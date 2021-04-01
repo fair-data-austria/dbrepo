@@ -45,8 +45,9 @@ public class TableEndpoint {
     public ResponseEntity<List<TableBriefDto>> findAll(@PathVariable("id") Long databaseId)
             throws DatabaseNotFoundException {
         final List<Table> tables = tableService.findAll(databaseId);
+        log.debug("received tables {}", tables);
         return ResponseEntity.ok(tables.stream()
-                .map(tableMapper::tableToTableDto)
+                .map(tableMapper::tableToTableBriefDto)
                 .collect(Collectors.toList()));
     }
 
@@ -74,7 +75,7 @@ public class TableEndpoint {
             @ApiResponse(code = 200, message = "All tables are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
-    public ResponseEntity<List<TableDto>> findAll(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
+    public ResponseEntity<List<TableDto>> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
         final List<Table> tables = tableService.findById(databaseId, tableId);
         return ResponseEntity.ok(tables.stream()
                 .map(tableMapper::tableToTableDto)

@@ -52,6 +52,7 @@ public interface TableMapper {
             @Mapping(source = "type", target = "columnType"),
             @Mapping(source = "nullAllowed", target = "isNullAllowed"),
             @Mapping(source = "name", target = "name"),
+            @Mapping(target = "internalName", expression = "java(columnNameToString(data.getName()))"),
             @Mapping(source = "checkExpression", target = "checkExpression"),
             @Mapping(source = "foreignKey", target = "foreignKey"),
     })
