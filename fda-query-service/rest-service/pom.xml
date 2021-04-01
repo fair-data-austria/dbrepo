@@ -29,7 +29,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <finalName>${project.parent.artifactId}-${project.version}</finalName>
-                    <mainClass>at.tuwien.application.FdaQueryServiceApplication</mainClass>
+                    <mainClass>at.tuwien.FdaQueryServiceApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
