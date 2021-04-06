@@ -1,0 +1,19 @@
+package at.tuwien.entity;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+import java.util.Map;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class QueryResult {
+
+   @JsonProperty("Result")
+   private List<Map<String, Object>> result;
+
+}

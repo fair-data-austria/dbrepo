@@ -1,6 +1,6 @@
 package at.tuwien.mapper;
 
-import at.tuwien.model.QueryResult;
+import at.tuwien.entity.QueryResult;
 
 import java.util.List;
 import java.util.Map;

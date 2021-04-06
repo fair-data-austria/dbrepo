@@ -1,0 +1,27 @@
+spring:
+  main.banner-mode: off
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fda
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+  application:
+    name: fda-query-service
+  cloud:
+    loadbalancer.ribbon.enabled: false
+server.port: 9093
+logging:
+  pattern.console: "%d %highlight(%-5level) %msg%n"
+  level:
+    root: warn
+    at.: debug
+eureka:
+  instance.hostname: fda-query-service
+  server:
+    peer-node-read-timeout-ms: 2000
+  client.serviceUrl.defaultZone: http://localhost:9090/eureka/
