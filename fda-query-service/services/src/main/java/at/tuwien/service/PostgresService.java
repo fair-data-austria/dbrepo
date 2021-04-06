@@ -43,16 +43,15 @@ public class PostgresService extends JdbcConnector {
     @Override
     PreparedStatement getCreateQueryStoreStatement(Connection connection) throws SQLException {
         log.debug("create querystore");
-        final String createQuery="CREATE TABLE IF NOT EXISTS 'querystore' (" +
-                "'id' serial PRIMARY KEY," +
-                "'query' text," +
-                "'query_normalized' text," +
-                "'query_hash' text," +
-                "'execution_timestamp' timestamp," +
-                "'result_hash' text," +
-                "'result_number' integer ," +
-                "PRIMARY KEY( id )" +
-                ");";
+        final String createQuery="CREATE TABLE IF NOT EXISTS querystore (" +
+                "                id serial PRIMARY KEY," +
+                "                query text," +
+                "                query_normalized text," +
+                "                query_hash text," +
+                "                execution_timestamp timestamp," +
+                "                result_hash text," +
+                "                result_number integer" +
+                "                );";
         log.debug("compiled query as \"{}\"", createQuery);
         return connection.prepareStatement(createQuery);
     }
