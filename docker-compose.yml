@@ -171,6 +171,7 @@ services:
     image: fda-analyse-service
     networks:
       - fda-public
+      - fda-userdb
     command: sh -c "/wait && flask run"
     environment:
       EUREKA_SERVER: http://fda-discovery-server:9090/eureka
