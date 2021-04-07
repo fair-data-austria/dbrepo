@@ -8,6 +8,7 @@ import at.tuwien.entity.QueryResult;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.QueryService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -27,27 +28,33 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/database/{id}")
 public class QueryEndpoint {
 
-    private QueryService service;
+    private QueryService queryService;
+    private QueryMapper queryMapper;
 
     @Autowired
-    public QueryEndpoint(QueryService service) {
-        this.service = service;
+    public QueryEndpoint(QueryService queryService, QueryMapper queryMapper) {
+        this.queryService = queryService;
+        this.queryMapper = queryMapper;
     }
 
     @GetMapping("/query")
     @ApiOperation(value = "List all queries", notes = "Lists all already executed queries")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All queries are listed."),
-            @ApiResponse(code = 401, message = "Not authorized to list all queries."),
+            @ApiResponse(code = 404, message = "The database does not exist."),
     })
-    public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) {
+    public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
 
-        return null;
+        final List<Query> queries = queryService.findAll(id);
+        return ResponseEntity.ok(queries.stream()
+                .map(queryMapper::queryToQueryDTO)
+                .collect(Collectors.toList()));
     }
 
     @PostMapping("/query")
@@ -58,7 +65,7 @@ public class QueryEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity create(@PathVariable Long id) throws ImageNotSupportedException, DatabaseConnectionException, DatabaseNotFoundException {
-        service.create(id);
+        queryService.create(id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -66,7 +73,7 @@ public class QueryEndpoint {
     @ApiOperation(value = "executes a query")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query with Timestamp", response = Response.class)})
     public Response modify(@PathVariable String id, @RequestBody ExecuteStatementDTO dto) {
-        service.executeStatement(dto);
+        queryService.executeStatement(dto);
 
         return Response
                 .status(Response.Status.OK)
@@ -79,7 +86,7 @@ public class QueryEndpoint {
     @ApiOperation(value = "executes a query with a given timestamp")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query with Timestamp", response = Response.class)})
     public Response modify(@PathVariable String id, @PathVariable String timestamp, @RequestBody ExecuteStatementDTO dto) {
-        service.executeStatement(dto);
+        queryService.executeStatement(dto);
 
         return Response
                 .status(Response.Status.OK)

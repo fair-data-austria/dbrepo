@@ -11,7 +11,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EntityScan(basePackages = "at.tuwien")
+@EntityScan(basePackages = "at.tuwien.entity")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {"at.tuwien.repository"})
 @EnableOpenApi
