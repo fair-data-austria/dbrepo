@@ -115,10 +115,10 @@ public class ImageService {
     }
 
     private void pull(String repository, String tag) throws ImageNotFoundException {
+        log.debug("pulling image {}:{}", repository, tag);
         final ResultCallback.Adapter<PullResponseItem> response;
         try {
-            response = dockerClient.pullImageCmd("library")
-                    .withRepository(repository)
+            response = dockerClient.pullImageCmd(repository)
                     .withTag(tag)
                     .start();
             final Instant now = Instant.now();
