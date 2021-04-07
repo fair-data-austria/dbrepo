@@ -60,6 +60,7 @@ public class ImageService {
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
         image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(createDto.getEnvironment()));
         image.setDefaultPort(createDto.getDefaultPort());
+        image.setLocal(createDto.getLocal());
         log.debug("Create image {}", createDto);
         final ContainerImage out;
         try {
