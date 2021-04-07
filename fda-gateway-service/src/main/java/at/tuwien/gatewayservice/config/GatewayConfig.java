@@ -11,21 +11,21 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("database-managing-service", r -> r.path("/database/**")
+                .route("fda-container-service", r -> r.path("/api/container/**")
                         .and()
-                        .method("POST","GET")
+                        .method("POST","GET","PUT","DELETE")
                         .and()
-                        .uri("lb://FDA-Database-Managing"))
-                .route("table-service", r -> r.path("/table/**")
+                        .uri("lb://fda-container-service"))
+                .route("fda-database-service", r -> r.path("/api/database/**")
                         .and()
-                        .method("POST","GET")
+                        .method("POST","GET","PUT","DELETE")
                         .and()
-                        .uri("lb://FDA-Table-Service"))
-                .route("query-service", r -> r.path("/query/executeQuery")
+                        .uri("lb://fda-database-service"))
+                .route("fda-table-service", r -> r.path("/api/database/**/table/**")
                         .and()
-                        .method("POST")
+                        .method("POST","GET","PUT","DELETE")
                         .and()
-                        .uri("lb://FDA-Query-Service"))
+                        .uri("lb://fda-table-service"))
                 .build();
     }
 
