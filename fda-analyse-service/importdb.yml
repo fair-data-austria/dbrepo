@@ -1,0 +1,38 @@
+summary: "Import into Entity md_Databases to metadatabase"
+description: "This is a simple API which imports databases into metadatabase"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "to-do description"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      cid:
+        type: "integer"
+        example : "4"
+      resourcetype: 
+        type: "string"
+        example: "Census Data"
+      description: 
+        type: "string"
+        example: "Here goes a detailed description of the data set."
+      publisher: 
+        type: "string"
+        example: "Geological Institute, University of Tokyo"
+      year: 
+        type: "string"
+        example: "2020-03-05"
+      bool_open: 
+        type: "boolean"
+        example: "true"
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    
