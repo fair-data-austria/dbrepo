@@ -15,7 +15,7 @@ from messytables import CSVTableSet, type_guess, \
    headers_guess, headers_processor, offset_processor
   
   
-def determine_datatypes(path, enum=False, enum_tol=0.0001):
+def determine_datatypes(path, enum=False, enum_tol=0.0001,seperator=','):
 # Use option enum=True for searching Postgres ENUM Types in CSV file. Remark 
 # Enum is not SQL standard, hence, it might not be supported by all db-engines. 
 # However, it can be used in Postgres and MySQL. 
@@ -36,12 +36,12 @@ def determine_datatypes(path, enum=False, enum_tol=0.0001):
     
     # guess column types:
     types = type_guess(row_set.sample, strict=True)
-      
+
     r = {}
-    
+
     # list of rows 
     if enum ==True: 
-        rows = pd.read_csv(path,header=offset+1)
+        rows = pd.read_csv(path,sep=seperator,header=offset)
         n = len(rows)
     
     for i in range(0,(len(types))):
