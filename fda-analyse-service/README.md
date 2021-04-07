@@ -44,9 +44,9 @@ where cname is the container name of a Docker container.
 ### Dependencies 
 * python3 
 * flask
+* flasgger
 * messytables 
 * pandas
-* sql-metadata
 * psycopg2-binary
 
 They can also be installed using `pip install -r requirements.txt`
