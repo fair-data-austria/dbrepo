@@ -40,6 +40,10 @@ public class ImageDto {
     private BigInteger size;
 
     @NotNull
+    @ApiModelProperty(required = true, example = "false")
+    private Boolean local;
+
+    @NotNull
     @ApiModelProperty(required = true, example = "5432")
     private Integer defaultPort;
 

@@ -54,7 +54,9 @@ public class ImageService {
     }
 
     public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException {
-        pull(createDto.getRepository(), createDto.getTag());
+        if (!createDto.getLocal()) {
+            pull(createDto.getRepository(), createDto.getTag());
+        }
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
         image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(createDto.getEnvironment()));
         image.setDefaultPort(createDto.getDefaultPort());
@@ -66,6 +68,7 @@ public class ImageService {
             log.error("image already exists: {}", createDto);
             throw new ImageAlreadyExistsException("image already exists");
         }
+        log.debug("created image {}", out);
         return out;
     }
 
