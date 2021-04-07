@@ -41,6 +41,10 @@ public class ContainerImage extends Auditable {
     private Integer defaultPort;
 
     @ToString.Include
+    @Column(nullable = false)
+    private Boolean local;
+
+    @ToString.Include
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<EnvironmentItem> environment;
 
