@@ -41,20 +41,20 @@ public class QueryService {
         return null;
     }
 
-    public List<Query> findAll(Long databaseId) {
-        return new ArrayList<>();
+    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException {
+        return postgresService.getQueries(findDatabase(id));
     }
 
     public boolean executeStatement(ExecuteStatementDTO dto) {
         return false;
     }
 
-    public boolean copyCSVIntoTable(CopyCSVIntoTableDTO dto){
-        return false;
-    }
-
 
     public void create(Long id) throws DatabaseConnectionException, ImageNotSupportedException, DatabaseNotFoundException {
+        postgresService.createQuerystore(findDatabase(id));
+    }
+
+    private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
         final Optional<Database> database;
         try {
             database = databaseRepository.findById(id);
@@ -71,6 +71,6 @@ public class QueryService {
             log.error("Right now only PostgreSQL is supported!");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
         }
-        postgresService.createQuerystore(database.get());
+        return database.get();
     }
 }

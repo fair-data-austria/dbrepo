@@ -1,5 +1,6 @@
 package at.tuwien.entity;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,23 +20,24 @@ import java.sql.Timestamp;
 @Data
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
 public class Query  {
 
-	@Id
+
 	@EqualsAndHashCode.Include
 	@ToString.Include
 	private Long id;
 
-	@Column
-	private Timestamp execTimestamp;
-	@Column
+	private Timestamp execution_timestamp;
+
 	private String query;
-	@Column
-	private String reWrittenQuery;
-	@Column
-	private String queryHash;
-	@Column
-	private String resultsetHash;
+
+	private String query_normalized;
+
+	private String query_hash;
+
+	private String result_hash;
+
+	private String result_number;
 
 }
