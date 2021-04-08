@@ -10,6 +10,13 @@
           label="Name"
           :rules="[v => !!v || $t('Required')]"
           required />
+        <v-select
+          v-model="engine"
+          label="Engine"
+          :items="[engine]"
+          item-text="label"
+          :rules="[v => !!v || $t('Required')]"
+          required />
       </v-form>
     </v-card-text>
     <v-card-actions>
@@ -33,7 +40,12 @@ export default {
   data () {
     return {
       formValid: false,
-      database: null,
+      database: 'Foo Bar',
+      engine: {
+        label: 'PostgreSQL, latest',
+        repo: 'postgres',
+        tag: 'latest'
+      },
       container: ''
     }
   },
@@ -42,7 +54,25 @@ export default {
       this.$parent.$parent.$parent.createDbDialog = false
     },
     async createDB () {
-      const res = await this.$axios.post('/createDatabase', {
+      // create a container
+      let res
+      let containerId
+      try {
+        res = await this.$axios.post('http://localhost:9091/api/container/', {
+          name: this.database,
+          repository: 'postgres',
+          tag: 'latest'
+        })
+        containerId = res.data.id
+        console.log(containerId)
+      } catch (err) {
+        this.$toast.error('Could not create container. Try another name.')
+        return
+      }
+      // TODO start the container 91
+      // TODO create the DB 92
+
+      res = await this.$axios.post('/createDatabase', {
         ContainerName: this.container,
         DatabaseName: this.database
       })

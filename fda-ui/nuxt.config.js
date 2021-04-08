@@ -4,7 +4,7 @@ require('dotenv').config()
 
 export default {
   // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
-  ssr: false,
+  // ssr: false,
 
   // Target (https://go.nuxtjs.dev/config-target)
   target: 'static',
@@ -31,8 +31,8 @@ export default {
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
     { src: '~/plugins/toast', ssr: false }, // only client side
-    { src: '~/plugins/vuex-persist', ssr: false }, // only client side
-    { src: '~/plugins/mock' }
+    { src: '~/plugins/vuex-persist', ssr: false } // only client side
+    // { src: '~/plugins/mock' }
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -63,9 +63,13 @@ export default {
     }]
   ],
 
+  serverMiddleware: [
+    // { path: '/api', handler: '~/server-middleware/index.js' }
+  ],
+
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseURL: process.env.API_URL.startsWith('//') ? `http:${process.env.API_URL}` : process.env.API_URL
+    // baseURL: process.env.API_URL.startsWith('//') ? `http:${process.env.API_URL}` : process.env.API_URL
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
