@@ -1,7 +1,10 @@
 <template>
-  <v-row justify="center" align="center">
+  <v-row v-if="db" justify="center" align="center">
     <v-col cols="12" sm="8" md="6">
-      DB {{ $route.params.id }}
+      <h2>
+        {{ db.name }}
+      </h2>
+      <v-btn :to="`/db/${$route.params.id}/tables`">Tables</v-btn>
     </v-col>
   </v-row>
 </template>
@@ -9,8 +12,18 @@
 <script>
 export default {
   components: {},
-  mounted () {
-    console.log(this)
+  data () {
+    return {
+      db: null
+    }
+  },
+  async mounted () {
+    try {
+      const res = await this.$axios.get(`http://localhost:9092/api/database/${this.$route.params.id}`)
+      this.db = res.data
+    } catch (err) {
+      this.$toast.error('Could not load database.')
+    }
   }
 }
 </script>
