@@ -11,16 +11,16 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("container-service", r -> r.path("/container/[0-9]*")
+                .route("container-service", r -> r.path("/api/container/**")
                         .and()
                         .uri("lb://fda-container-service"))
-                .route("table-service", r -> r.path("/database/[0-9]*/table/[0-9]*")
+                .route("table-service", r -> r.path("/api/database/**/table/**")
                         .and()
                         .uri("lb://fda-table-service"))
-                .route("database-service", r -> r.path("/database/[0-9]*")
+                .route("database-service", r -> r.path("/api/database/**")
                         .and()
                         .uri("lb://fda-database-service"))
-                .route("query-service", r -> r.path("/query/[0-9]*")
+                .route("query-service", r -> r.path("/api/query/**")
                         .and()
                         .uri("lb://fda-query-service"))
                 .build();
