@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
+@CrossOrigin(origins = "*")
 @ControllerAdvice
 @RequestMapping("/api/image")
 public class ImageEndpoint {
