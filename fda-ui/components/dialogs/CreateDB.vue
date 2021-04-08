@@ -27,6 +27,7 @@
       </v-btn>
       <v-btn
         :disabled="!formValid"
+        :loading="loading"
         color="primary"
         @click="createDB">
         Create
@@ -40,6 +41,7 @@ export default {
   data () {
     return {
       formValid: false,
+      loading: false,
       database: 'Foo Bar',
       engine: {
         label: 'PostgreSQL, latest',
@@ -54,36 +56,56 @@ export default {
       this.$parent.$parent.$parent.createDbDialog = false
     },
     async createDB () {
+      this.loading = true
+
       // create a container
       let res
       let containerId
       try {
         res = await this.$axios.post('http://localhost:9091/api/container/', {
           name: this.database,
-          repository: 'postgres',
-          tag: 'latest'
+          repository: this.engine.repo,
+          tag: this.engine.tag
         })
         containerId = res.data.id
         console.log(containerId)
       } catch (err) {
         this.$toast.error('Could not create container. Try another name.')
+        this.loading = false
         return
       }
-      // TODO start the container 91
-      // TODO create the DB 92
 
-      res = await this.$axios.post('/createDatabase', {
-        ContainerName: this.container,
-        DatabaseName: this.database
-      })
-      const { status } = res.data
-      if (status === 201) {
-        this.$toast.success(this.$t('db_created_success'))
-        this.$emit('refresh') // this will also close dialog
-      } else if (status === 500) {
-        this.$toast.error(this.$t('internal_server_error'))
-        console.error(res.data)
+      // start the container
+      try {
+        res = await this.$axios.put(`http://localhost:9091/api/container/${containerId}`, {
+          action: 'START'
+        })
+      } catch (err) {
+        this.loading = false
+        this.$toast.error('Could not start container.')
+        return
       }
+
+      // Pause.
+      // DB fails to create when container has not started up yet
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // create the DB
+      try {
+        res = await this.$axios.post('http://localhost:9092/api/database/', {
+          name: this.database,
+          containerId
+        })
+        console.log(res)
+      } catch (err) {
+        this.loading = false
+        this.$toast.error('Could not create database.')
+        return
+      }
+
+      this.loading = false
+      this.$toast.success(`Database "${res.data.name}" created.`)
+      this.$emit('refresh')
     }
   }
 }

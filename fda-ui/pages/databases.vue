@@ -7,32 +7,25 @@
       <template v-slot:default>
         <thead>
           <tr>
-            <th>DbName</th>
-            <th>ContainerID</th>
-            <th>ContainerName</th>
-            <th>Created</th>
-            <th>IpAddress</th>
-            <th>Status</th>
+            <th>Name</th>
+            <th>Internal Name</th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="item in databases"
-            :key="item.ContainerID">
+            :key="item.id">
             <td>
-              <v-btn icon @click="selectClick(item)"><v-icon>{{ iconSelect }}</v-icon></v-btn>
-              {{ item.DbName }}
+              <v-btn :to="`/db/${item.id}`" icon><v-icon>{{ iconSelect }}</v-icon></v-btn>
+              {{ item.name }}
             </td>
-            <td class="trim">{{ trim(item.ContainerID) }}</td>
-            <td>{{ item.ContainerName }}</td>
-            <td>
-              {{ formatDate(item.Created) }}<br>
-              <span class="color-grey">
-                ({{ relativeDate(item.Created) }})
-              </span>
-            </td>
-            <td>{{ item.IpAddress }}</td>
-            <td>{{ item.Status }}</td>
+            <!-- <td>
+                 {{ formatDate(item.Created) }}<br>
+                 <span class="color-grey">
+                 ({{ relativeDate(item.Created) }})
+                 </span>
+                 </td> -->
+            <td>{{ item.internalName }}</td>
           </tr>
         </tbody>
       </template>
@@ -73,7 +66,7 @@ export default {
   methods: {
     async refresh () {
       this.createDbDialog = false
-      const res = await this.$axios.get('/database/database', {})
+      const res = await this.$axios.get('http://localhost:9092/api/database/')
       this.databases = res.data
     },
     trim (s) {
@@ -88,9 +81,6 @@ export default {
         options = { ...options, locale: deLocale }
       }
       return formatDistance(new Date(d), new Date(), options)
-    },
-    selectClick (item) {
-      this.$store.commit('SET_CONTAINER', item)
     }
   }
 }
