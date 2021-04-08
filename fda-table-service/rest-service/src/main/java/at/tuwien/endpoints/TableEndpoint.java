@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Log4j2
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/database/{id}")
 public class TableEndpoint {
