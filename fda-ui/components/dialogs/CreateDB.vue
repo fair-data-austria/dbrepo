@@ -42,7 +42,7 @@ export default {
     return {
       formValid: false,
       loading: false,
-      database: 'Foo Bar',
+      database: '',
       engine: {
         label: 'PostgreSQL, latest',
         repo: 'postgres',

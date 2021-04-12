@@ -4,7 +4,7 @@
       <h2>
         {{ db.name }}
       </h2>
-      <v-btn :to="`/db/${$route.params.id}/tables`">Tables</v-btn>
+      <v-btn :to="`/db/${$route.params.db_id}/tables`">Tables</v-btn>
     </v-col>
   </v-row>
 </template>
@@ -19,7 +19,7 @@ export default {
   },
   async mounted () {
     try {
-      const res = await this.$axios.get(`http://localhost:9092/api/database/${this.$route.params.id}`)
+      const res = await this.$axios.get(`http://localhost:9092/api/database/${this.$route.params.db_id}`)
       this.db = res.data
     } catch (err) {
       this.$toast.error('Could not load database.')
