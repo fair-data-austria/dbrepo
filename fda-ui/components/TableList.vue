@@ -41,12 +41,10 @@ export default {
   watch: {
     async panelIndex () {
       if (typeof this.panelIndex !== 'undefined') {
-        console.log('watch panelIndex id: ' + this.panelIndex)
         const tableId = this.tables[this.panelIndex].id
         try {
           const res = await this.$axios.get(`http://localhost:9094/api/database/${this.$route.params.db_id}/table/${tableId}`)
           this.tableDetails = res.data[0] // It's a list with one element
-          console.log(this.tableDetails)
         } catch (err) {
           this.$toast.error('Could not get table details.')
         }
@@ -55,26 +53,29 @@ export default {
       }
     }
   },
-  async mounted () {
-    let res
-    try {
-      res = await this.$axios.get(`http://localhost:9094/api/database/${this.$route.params.db_id}/table`)
-      this.tables = res.data
-      console.log(this.tables)
-    } catch (err) {
-      this.$toast.error('Could not list tables.')
+  mounted () {
+    this.$root.$on('table-create', this.refresh)
+    this.refresh()
+  },
+  methods: {
+    async refresh () {
+      let res
+      try {
+        res = await this.$axios.get(`http://localhost:9094/api/database/${this.$route.params.db_id}/table`)
+        this.tables = res.data
+      } catch (err) {
+        this.$toast.error('Could not list tables.')
+      }
     }
   }
-  // methods: {
-  //   onTableExpand () {
-  //     debugger
-  //   }
-  // }
 }
 </script>
 
 <style>
 .colTable thead th {
   text-align: initial;
+}
+.colTable tbody tr td {
+  padding-left: 0;
 }
 </style>
