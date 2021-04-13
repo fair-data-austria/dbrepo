@@ -44,7 +44,7 @@
           Delete
         </v-card-title>
         <v-card-text class="pb-1">
-         Are you sure you want to drop this table?
+          Are you sure you want to drop this table?
         </v-card-text>
         <v-card-actions class="pl-4 pb-4 pr-4">
           <v-btn @click="dialogDelete = false">
