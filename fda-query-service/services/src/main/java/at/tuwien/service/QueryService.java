@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.sql.SQLSyntaxErrorException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,8 +47,14 @@ public class QueryService {
         return postgresService.getQueries(findDatabase(id));
     }
 
-    public boolean executeStatement(ExecuteStatementDTO dto) {
-        return false;
+    public QueryResult executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, SQLSyntaxErrorException {
+        if(checkValidity(query.getQuery())==false) {
+            throw new SQLSyntaxErrorException("SQL Query contains invalid Syntax");
+        }
+        Database database = findDatabase(id);
+        saveQuery(database, query, null);
+
+        return null;
     }
 
 
@@ -72,5 +80,28 @@ public class QueryService {
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
         }
         return database.get();
+    }
+
+    private Query saveQuery(Database database, Query query, QueryResult queryResult) {
+        String q = query.getQuery();
+        query.setExecution_timestamp(new Timestamp(System.currentTimeMillis()));
+        query.setQuery_normalized(normalizeQuery(query.getQuery()));
+        query.setQuery_hash(query.getQuery_normalized().hashCode()+"");
+        query.setResult_hash(query.getQuery_hash());
+        query.setResult_number(100);
+        postgresService.saveQuery(database, query);
+        return null;
+    }
+
+    private String normalizeQuery(String query) {
+        return query;
+    }
+    private boolean checkValidity(String query) {
+        String queryparts[] = query.toLowerCase().split("from");
+        if(queryparts[0].contains("select")) {
+            //TODO add more checks
+            return true;
+        }
+        return false;
     }
 }
