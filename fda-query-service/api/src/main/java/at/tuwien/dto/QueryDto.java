@@ -27,5 +27,5 @@ public class QueryDto {
 
     private String result_hash;
 
-    private String result_number;
+    private Integer result_number;
 }

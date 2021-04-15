@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLSyntaxErrorException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,9 +72,13 @@ public class QueryEndpoint {
 
     @PutMapping("/query")
     @ApiOperation(value = "executes a query")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query with Timestamp", response = Response.class)})
-    public Response modify(@PathVariable String id, @RequestBody ExecuteStatementDTO dto) {
-        queryService.executeStatement(dto);
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
+            @ApiResponse(code = 404, message = "The database does not exist."),
+            @ApiResponse(code = 405, message = "The container is not running."),
+            @ApiResponse(code = 409, message = "The container image is not supported."),})
+    public Response modify(@PathVariable Long id, @RequestBody ExecuteQueryDTO dto) throws DatabaseNotFoundException, ImageNotSupportedException, SQLSyntaxErrorException {
+        QueryResult qr = queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
 
         return Response
                 .status(Response.Status.OK)
@@ -85,8 +90,8 @@ public class QueryEndpoint {
     @PutMapping("/query/version/{timestamp}")
     @ApiOperation(value = "executes a query with a given timestamp")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query with Timestamp", response = Response.class)})
-    public Response modify(@PathVariable String id, @PathVariable String timestamp, @RequestBody ExecuteStatementDTO dto) {
-        queryService.executeStatement(dto);
+    public Response modify(@PathVariable Long id, @PathVariable String timestamp, @RequestBody ExecuteQueryDTO dto) throws DatabaseNotFoundException, ImageNotSupportedException, SQLSyntaxErrorException {
+        queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
 
         return Response
                 .status(Response.Status.OK)

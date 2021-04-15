@@ -18,4 +18,5 @@ public abstract class JdbcConnector {
 
     abstract List<Query> getQueries(Database database) throws SQLException;
 
+    public abstract Boolean saveQuery(Database database,Query query);
 }

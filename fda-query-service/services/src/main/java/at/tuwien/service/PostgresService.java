@@ -50,7 +50,7 @@ public class PostgresService extends JdbcConnector {
     @Override
     List<Query> getQueries(Database database){
         log.debug("Get Queries from Querystore");
-        final String getQueries="SELECT query_normalized, execution_timestamp FROM querystore ORDER BY execution_timestamp desc;";
+        final String getQueries="SELECT id,query, query_normalized, execution_timestamp FROM querystore ORDER BY execution_timestamp desc;";
         List<Query> results = new ArrayList<>();
         try {
             Connection connection = getConnection(database);
@@ -58,6 +58,8 @@ public class PostgresService extends JdbcConnector {
             ResultSet result = statement.executeQuery();
             while(result.next()) {
                 results.add(Query.builder()
+                        .id(result.getLong("id"))
+                        .query(result.getString("query"))
                         .query_normalized(result.getString("query_normalized"))
                         .execution_timestamp(result.getTimestamp("execution_timestamp"))
                         .build());
@@ -68,6 +70,31 @@ public class PostgresService extends JdbcConnector {
             log.error("The SQL statement seems to contain invalid syntax");
         }
         return results;
+    }
+
+    @Override
+    public Boolean saveQuery(Database database,Query query) {
+        log.debug("Save Query {}", query.toString());
+        final String saveQuery="INSERT INTO querystore(query,query_normalized, query_hash, execution_timestamp, result_hash, result_number) VALUES(?,?,?,?,?,?);";
+        try {
+            Connection connection = getConnection(database);
+            PreparedStatement statement = connection.prepareStatement(saveQuery);
+            System.out.println(query.toString());
+            statement.setString(1, "'"+query.getQuery()+"'");
+            statement.setString(2, "'"+query.getQuery_normalized()+"'");
+            statement.setString(3, query.getQuery_hash());
+            statement.setTimestamp(4, query.getExecution_timestamp());
+            statement.setString(5, query.getResult_hash());
+            statement.setInt(6, query.getResult_number());
+            log.debug(statement.toString());
+            return statement.execute();
+
+        } catch(SQLException e) {
+            log.error("The SQL statement seems to contain invalid syntax");
+        } catch(DatabaseConnectionException e) {
+            log.error("Problem with connecting to the database while inserting into Querystore");
+        }
+        return false;
     }
 
     @Override

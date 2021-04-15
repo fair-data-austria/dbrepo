@@ -1,5 +1,6 @@
 package at.tuwien.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,6 +21,8 @@ import java.sql.Timestamp;
 @Data
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Query  {
 
@@ -38,6 +41,6 @@ public class Query  {
 
 	private String result_hash;
 
-	private String result_number;
+	private Integer result_number;
 
 }
