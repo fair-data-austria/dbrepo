@@ -10,6 +10,7 @@ import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.PostgresTableMapper;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.model.QueryResult;
 import at.tuwien.repository.TableRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -62,17 +63,51 @@ public class PostgresService extends JdbcConnector {
         }
     }
 
-    public void insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) {
+    public QueryResult insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) {
         try{
             Connection connection = getConnection(database);
-            PreparedStatement statement = connection.prepareStatement(insert(processedData, t, headers));
+            PreparedStatement statement = connection.prepareStatement(insertStatement(processedData, t, headers));
             statement.execute();
+            return getAllRows(database,t);
         } catch(DatabaseConnectionException e) {
             log.error("Problem with connecting to the database while selecting from Querystore");
         } catch(SQLException e) {
             log.debug(e.getMessage());
             log.error("The SQL statement seems to contain invalid syntax");
         }
+        return null;
+    }
+
+    /**
+     * FIXME IN Sprint 2
+     *
+     * @param database
+     * @param t
+     * @return
+     */
+    public QueryResult getAllRows(Database database, Table t) {
+        try{
+            Connection connection = getConnection(database);
+            PreparedStatement statement = connection.prepareStatement(selectStatement(t));
+            ResultSet result = statement.executeQuery();
+            QueryResult qr = new QueryResult();
+            List<Map<String,Object>> res = new ArrayList<>();
+            while(result.next()) {
+                Map<String,Object> r = new HashMap<>();
+                for(TableColumn tc : t.getColumns()) {
+                    r.put(tc.getName(), result.getString(tc.getInternalName()));
+                }
+                res.add(r);
+            }
+            qr.setResult(res);
+            return qr;
+        } catch(DatabaseConnectionException e) {
+            log.error("Problem with connecting to the database while selecting from Querystore");
+        } catch(SQLException e) {
+            log.debug(e.getMessage());
+            log.error("The SQL statement seems to contain invalid syntax");
+        }
+        return null;
     }
 
     @Override
@@ -96,6 +131,20 @@ public class PostgresService extends JdbcConnector {
         return connection.prepareStatement(createQuery);
     }
 
+    public String selectStatement(Table t) {
+        log.debug("selecting data from {}", t.getName());
+
+        StringBuilder queryBuilder = new StringBuilder()
+                .append("SELECT ");
+        for( TableColumn tc: t.getColumns()) {
+            queryBuilder.append(tc.getInternalName()+",");
+        }
+        queryBuilder.deleteCharAt(queryBuilder.length()-1);
+        queryBuilder.append(" FROM " + t.getInternalName());
+        log.debug(queryBuilder.toString());
+        return queryBuilder.toString();
+    }
+
     /**
      * FIXME THIS IS REMOVED IN SPRINT 2
      * @param processedData
@@ -103,8 +152,8 @@ public class PostgresService extends JdbcConnector {
      * @return
      */
     @Override
-    public String insert(List<Map<String, Object>> processedData, Table t, List<String> headers) {
-        log.debug("insert data into {}", t.getName());
+    public String insertStatement(List<Map<String, Object>> processedData, Table t, List<String> headers) {
+        log.debug("insertStatement data into {}", t.getName());
         StringBuilder queryBuilder = new StringBuilder()
                 .append("INSERT INTO ")
                 .append(tableMapper.columnNameToString(t.getInternalName()))

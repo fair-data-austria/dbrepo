@@ -12,6 +12,7 @@ import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.model.QueryResult;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import com.opencsv.CSVReader;
@@ -121,7 +122,7 @@ public class TableService {
         return out;
     }
 
-    public Table insert(Long databaseId, Long tableId, MultipartFile file) throws Exception {
+    public QueryResult insert(Long databaseId, Long tableId, MultipartFile file) throws Exception {
         Table t = findById(databaseId, tableId);
         Database d = findDatabase(databaseId);
         log.debug(t.toString());
@@ -134,8 +135,7 @@ public class TableService {
             }
             break;
         }
-        postgresService.insertIntoTable(d, t,processedData, headers);
-        return null;
+        return postgresService.insertIntoTable(d, t,processedData, headers);
     }
 
     private List<Map<String, Object>> readCsv(MultipartFile file, Table table) throws IOException {
@@ -175,4 +175,13 @@ public class TableService {
         return null;
     }
 
+    public QueryResult showData(Long databaseId, Long tableId) throws ImageNotSupportedException, DatabaseNotFoundException {
+        QueryResult queryResult= postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
+        for (Map<String, Object> m : queryResult.getResult() ) {
+            for ( Map.Entry<String,Object> entry : m.entrySet()) {
+                System.out.print(entry.getKey()+": "+entry.getValue()+", ");
+            }
+        }
+        return queryResult;
+    }
 }
