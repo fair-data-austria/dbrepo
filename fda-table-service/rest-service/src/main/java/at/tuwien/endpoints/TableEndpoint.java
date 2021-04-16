@@ -8,7 +8,10 @@ import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
+import at.tuwien.mapper.QueryResultMapper;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.model.QueryResult;
+import at.tuwien.model.QueryResultDto;
 import at.tuwien.service.TableService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -30,11 +33,13 @@ public class TableEndpoint {
 
     private final TableService tableService;
     private final TableMapper tableMapper;
+    private final QueryResultMapper queryResultMapper;
 
     @Autowired
-    public TableEndpoint(TableService tableService, TableMapper tableMapper) {
+    public TableEndpoint(TableService tableService, TableMapper tableMapper, QueryResultMapper queryResultMapper) {
         this.tableService = tableService;
         this.tableMapper = tableMapper;
+        this.queryResultMapper = queryResultMapper;
     }
 
     @GetMapping("/table")
@@ -114,9 +119,20 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
     })
-    public ResponseEntity<TableBriefDto> insert(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId, @RequestParam("file") MultipartFile file) throws Exception {
-        Table tableData =  tableService.insert(databaseId, tableId, file);
-        return ResponseEntity.ok(new TableBriefDto());
+    public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId, @RequestParam("file") MultipartFile file) throws Exception {
+        final QueryResult queryResult = tableService.insert(databaseId, tableId, file);
+        return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
+    }
+
+    @GetMapping("/table/{tableId}/data")
+    @ApiOperation(value = "show data", notes = "Show all the data for a table")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "All tables are listed."),
+            @ApiResponse(code = 401, message = "Not authorized to list all tables."),
+    })
+    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException {
+        final QueryResult queryResult = tableService.showData(databaseId, tableId);
+        return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
 
 }
