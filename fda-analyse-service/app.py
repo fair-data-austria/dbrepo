@@ -19,7 +19,7 @@ from flasgger import LazyString, LazyJSONEncoder
 #ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
-app.config["SWAGGER"] = {"title": "FDA-Analyze-Service", "uiversion": 3}
+app.config["SWAGGER"] = {"title": "FDA-Analyse-Service", "uiversion": 3}
 
 swagger_config = {
     "headers": [],
