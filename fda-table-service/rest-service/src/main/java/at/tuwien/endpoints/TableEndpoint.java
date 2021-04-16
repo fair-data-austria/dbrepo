@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,11 +76,9 @@ public class TableEndpoint {
             @ApiResponse(code = 200, message = "All tables are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
-    public ResponseEntity<List<TableDto>> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
-        final List<Table> tables = tableService.findById(databaseId, tableId);
-        return ResponseEntity.ok(tables.stream()
-                .map(tableMapper::tableToTableDto)
-                .collect(Collectors.toList()));
+    public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
+        final Table table = tableService.findById(databaseId, tableId);
+        return ResponseEntity.ok(tableMapper.tableToTableDto(table));
     }
 
     @PutMapping("/table/{tableId}")
@@ -107,5 +106,17 @@ public class TableEndpoint {
         return ResponseEntity.ok(null);
     }
 
+    @PostMapping("/table/{tableId}")
+    @ApiOperation(value = "Insert values", notes = "Insert Data into a Table in the database.")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Updated the table."),
+            @ApiResponse(code = 400, message = "The update form contains invalid data."),
+            @ApiResponse(code = 401, message = "Not authorized to update tables."),
+            @ApiResponse(code = 404, message = "The table is not found in database."),
+    })
+    public ResponseEntity<TableBriefDto> insert(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId, @RequestParam("file") MultipartFile file) throws Exception {
+        Table tableData =  tableService.insert(databaseId, tableId, file);
+        return ResponseEntity.ok(new TableBriefDto());
+    }
 
 }
