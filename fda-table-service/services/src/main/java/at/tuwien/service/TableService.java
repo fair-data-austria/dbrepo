@@ -85,12 +85,10 @@ public class TableService {
         return tableRepository.findByDatabaseAndId(tmp, tableId);
     }
 
-    @Transactional
-    public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException {
+    private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
         final Optional<Database> database;
         try {
-            database = databaseRepository.findById(databaseId);
+            database = databaseRepository.findById(id);
         } catch (EntityNotFoundException e) {
             log.error("database not found in metadata database");
             throw new DatabaseNotFoundException("database not found in metadata database", e);
@@ -104,10 +102,18 @@ public class TableService {
             log.error("Right now only PostgreSQL is supported!");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
         }
+        return database.get();
+    }
+
+    @Transactional
+    public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
+            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException {
+        final Database database = findDatabase(databaseId);
+
         /* save in metadata db */
-        postgresService.createTable(database.get(), createDto);
+        postgresService.createTable(database, createDto);
         final Table table = tableMapper.tableCreateDtoToTable(createDto);
-        table.setDatabase(database.get());
+        table.setDatabase(database);
         table.setInternalName(tableMapper.columnNameToString(table.getName()));
         final Table out = tableRepository.save(table);
         log.debug("saved table {}", out);
@@ -117,20 +123,14 @@ public class TableService {
 
     public Table insert(Long databaseId, Long tableId, MultipartFile file) throws Exception {
         Table t = findById(databaseId, tableId);
+        Database d = findDatabase(databaseId);
         log.debug(t.toString());
         for( TableColumn tc : t.getColumns()) {
             System.out.println(tc.toString());
         }
         List<Map<String, Object>> processedData = readCsv(file, t);
 
-        for (Map<String, Object> m : processedData ) {
-            for ( Map.Entry<String,Object> entry : m.entrySet()) {
-                System.out.print(entry.getKey() + ":" + entry.getValue() + " ,");
-            }
-            System.out.println("___________________________________");
-        }
-
-        postgresService.insert(processedData, t);
+        postgresService.insertIntoTable(d, t,processedData);
         return null;
     }
 
@@ -171,17 +171,6 @@ public class TableService {
             }
         }
         return null;
-    }
-
-
-    private List<String[]> readCsvOld(MultipartFile file) throws Exception {
-        Reader reader = new InputStreamReader(file.getInputStream());
-        CSVReader csvReader = new CSVReader(reader);
-        List<String[]> list = new ArrayList<>();
-        list = csvReader.readAll();
-        reader.close();
-        csvReader.close();
-        return list;
     }
 
 }

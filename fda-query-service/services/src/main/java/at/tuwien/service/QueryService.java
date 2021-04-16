@@ -83,12 +83,13 @@ public class QueryService {
     }
 
     private Query saveQuery(Database database, Query query, QueryResult queryResult) {
+        //TODO in next sprint
         String q = query.getQuery();
         query.setExecution_timestamp(new Timestamp(System.currentTimeMillis()));
         query.setQuery_normalized(normalizeQuery(query.getQuery()));
         query.setQuery_hash(query.getQuery_normalized().hashCode()+"");
         query.setResult_hash(query.getQuery_hash());
-        query.setResult_number(100);
+        query.setResult_number(0);
         postgresService.saveQuery(database, query);
         return null;
     }
