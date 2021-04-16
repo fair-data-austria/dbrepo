@@ -125,12 +125,14 @@ public class TableService {
         Table t = findById(databaseId, tableId);
         Database d = findDatabase(databaseId);
         log.debug(t.toString());
-        for( TableColumn tc : t.getColumns()) {
-            System.out.println(tc.toString());
-        }
         List<Map<String, Object>> processedData = readCsv(file, t);
-
-        postgresService.insertIntoTable(d, t,processedData);
+        List<String> headers = new ArrayList<>();
+        for (Map<String, Object> m : processedData ) {
+            for ( Map.Entry<String,Object> entry : m.entrySet()) {
+                headers.add(entry.getKey());
+            }
+        }
+        postgresService.insertIntoTable(d, t,processedData, headers.stream().distinct().collect(Collectors.toList()));
         return null;
     }
 

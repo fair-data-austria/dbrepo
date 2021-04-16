@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -61,14 +62,15 @@ public class PostgresService extends JdbcConnector {
         }
     }
 
-    public void insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData) throws DatabaseConnectionException {
+    public void insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) {
         try{
             Connection connection = getConnection(database);
-            PreparedStatement statement = connection.prepareStatement(insert(processedData, t));
+            PreparedStatement statement = connection.prepareStatement(insert(processedData, t, headers));
             statement.executeQuery();
         } catch(DatabaseConnectionException e) {
             log.error("Problem with connecting to the database while selecting from Querystore");
         } catch(SQLException e) {
+            log.debug(e.getMessage());
             log.error("The SQL statement seems to contain invalid syntax");
         }
     }
@@ -101,23 +103,28 @@ public class PostgresService extends JdbcConnector {
      * @return
      */
     @Override
-    public String insert(List<Map<String, Object>> processedData, Table t) {
+    public String insert(List<Map<String, Object>> processedData, Table t, List<String> headers) {
         log.debug("insert data into {}", t.getName());
         StringBuilder queryBuilder = new StringBuilder()
                 .append("INSERT INTO ")
-                .append(tableMapper.columnNameToString(t.getName()))
-                .append(" (");
-        t.getColumns().stream().sorted(Comparator.comparing(x -> x.getName()));
-        for(TableColumn cn : t.getColumns()) {
-            queryBuilder.append(cn.getName()+", ");
+                .append(tableMapper.columnNameToString(t.getInternalName()))
+                .append("(");
+        for(String h : headers) {
+            queryBuilder.append(t.getColumns().stream().filter(x -> x.getName().equals(h)).findFirst().get().getInternalName()+",");
         }
-        queryBuilder.delete(queryBuilder.length()-2, queryBuilder.length()-1);
+        queryBuilder.deleteCharAt(queryBuilder.length()-1);
         queryBuilder.append(") VALUES ");
 
         for (Map<String, Object> m : processedData ) {
             queryBuilder.append("(");
             for ( Map.Entry<String,Object> entry : m.entrySet()) {
-                queryBuilder.append("'"+entry.getValue()+"'"+",");
+                TableColumn tc = t.getColumns().stream().filter(x -> x.getName().equals(entry.getKey())).findFirst().get();
+                if(tc.getColumnType().toString().equals("STRING")) {
+                    queryBuilder.append("'" + entry.getValue() + "'" + ",");
+                }
+                else {
+                    queryBuilder.append(entry.getValue()+",");
+                }
             }
             queryBuilder.deleteCharAt(queryBuilder.length()-1);
             queryBuilder.append("),");
