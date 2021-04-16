@@ -16,5 +16,5 @@ public abstract class JdbcConnector {
 
     abstract PreparedStatement getCreateTableStatement(Connection connection, TableCreateDto createDto) throws SQLException;
 
-    abstract String insert(List<Map<String, Object>> processedData, Table t);
+    abstract String insert(List<Map<String, Object>> processedData, Table t, List<String> headers);
 }
