@@ -5,6 +5,7 @@ import at.tuwien.dto.table.columns.ColumnCreateDto;
 import at.tuwien.dto.table.columns.ColumnTypeDto;
 import at.tuwien.entity.Database;
 import at.tuwien.entity.Table;
+import at.tuwien.entity.TableColumn;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.PostgresTableMapper;
@@ -37,8 +38,8 @@ public class PostgresService extends JdbcConnector {
         this.postgresTableMapper = postgresTableMapper;
     }
 
-    public void createTable(Database database, TableCreateDto createDto) throws DatabaseConnectionException, TableMalformedException {
-        final Connection connection;
+    private Connection getConnection(Database database) throws DatabaseConnectionException {
+        Connection connection;
         final String URL = "jdbc:postgresql://" + database.getContainer().getInternalName() + ":"
                 + database.getContainer().getImage().getDefaultPort() + "/" + database.getInternalName();
         try {
@@ -47,12 +48,28 @@ public class PostgresService extends JdbcConnector {
             log.error("Could not connect to the database container, is it running from Docker container? IT DOES NOT WORK FROM IDE! URL: {} Params: {}", URL, postgresProperties);
             throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
         }
+        return connection;
+    }
+
+    public void createTable(Database database, TableCreateDto createDto) throws DatabaseConnectionException, TableMalformedException {
         try {
-            final PreparedStatement statement = getCreateTableStatement(connection, createDto);
+            final PreparedStatement statement = getCreateTableStatement(getConnection(database), createDto);
             statement.execute();
         } catch (SQLException e) {
             log.error("The SQL statement seems to contain invalid syntax");
             throw new TableMalformedException("The SQL statement seems to contain invalid syntax", e);
+        }
+    }
+
+    public void insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData) throws DatabaseConnectionException {
+        try{
+            Connection connection = getConnection(database);
+            PreparedStatement statement = connection.prepareStatement(insert(processedData, t));
+            statement.executeQuery();
+        } catch(DatabaseConnectionException e) {
+            log.error("Problem with connecting to the database while selecting from Querystore");
+        } catch(SQLException e) {
+            log.error("The SQL statement seems to contain invalid syntax");
         }
     }
 
@@ -77,14 +94,38 @@ public class PostgresService extends JdbcConnector {
         return connection.prepareStatement(createQuery);
     }
 
+    /**
+     * FIXME THIS IS REMOVED IN SPRINT 2
+     * @param processedData
+     * @param t
+     * @return
+     */
     @Override
-    public void insert(List<Map<String, Object>> processedData, Table t) {
+    public String insert(List<Map<String, Object>> processedData, Table t) {
         log.debug("insert data into {}", t.getName());
         StringBuilder queryBuilder = new StringBuilder()
                 .append("INSERT INTO ")
                 .append(tableMapper.columnNameToString(t.getName()))
                 .append(" (");
-        for
+        t.getColumns().stream().sorted(Comparator.comparing(x -> x.getName()));
+        for(TableColumn cn : t.getColumns()) {
+            queryBuilder.append(cn.getName()+", ");
+        }
+        queryBuilder.delete(queryBuilder.length()-2, queryBuilder.length()-1);
+        queryBuilder.append(") VALUES ");
+
+        for (Map<String, Object> m : processedData ) {
+            queryBuilder.append("(");
+            for ( Map.Entry<String,Object> entry : m.entrySet()) {
+                queryBuilder.append("'"+entry.getValue()+"'"+",");
+            }
+            queryBuilder.deleteCharAt(queryBuilder.length()-1);
+            queryBuilder.append("),");
+        }
+        queryBuilder.deleteCharAt(queryBuilder.length()-1);
+        queryBuilder.append(";");
+        log.debug(queryBuilder.toString());
+        return queryBuilder.toString();
     }
 
     /**
