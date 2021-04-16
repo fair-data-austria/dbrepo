@@ -77,6 +77,16 @@ public class PostgresService extends JdbcConnector {
         return connection.prepareStatement(createQuery);
     }
 
+    @Override
+    public void insert(List<Map<String, Object>> processedData, Table t) {
+        log.debug("insert data into {}", t.getName());
+        StringBuilder queryBuilder = new StringBuilder()
+                .append("INSERT INTO ")
+                .append(tableMapper.columnNameToString(t.getName()))
+                .append(" (");
+        for
+    }
+
     /**
      * FIXME THIS IS REMOVED IN SPRINT 2
      *

@@ -2,6 +2,7 @@ package at.tuwien.service;
 
 import at.tuwien.dto.table.TableBriefDto;
 import at.tuwien.dto.table.TableCreateDto;
+import at.tuwien.dto.table.TableDto;
 import at.tuwien.entity.ColumnType;
 import at.tuwien.entity.Database;
 import at.tuwien.entity.Table;
@@ -13,15 +14,30 @@ import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
+import com.opencsv.CSVReader;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.supercsv.cellprocessor.constraint.NotNull;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.io.CsvBeanReader;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.io.ICsvBeanReader;
+import org.supercsv.io.ICsvMapReader;
+import org.supercsv.prefs.CsvPreference;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -63,7 +79,7 @@ public class TableService {
         return tables;
     }
 
-    public List<Table> findById(Long databaseId, Long tableId) {
+    public Table findById(Long databaseId, Long tableId) {
         final Database tmp = new Database();
         tmp.setId(databaseId);
         return tableRepository.findByDatabaseAndId(tmp, tableId);
@@ -97,6 +113,75 @@ public class TableService {
         log.debug("saved table {}", out);
         log.info("Created table {} in database {}", out.getId(), out.getDatabase().getId());
         return out;
+    }
+
+    public Table insert(Long databaseId, Long tableId, MultipartFile file) throws Exception {
+        Table t = findById(databaseId, tableId);
+        log.debug(t.toString());
+        for( TableColumn tc : t.getColumns()) {
+            System.out.println(tc.toString());
+        }
+        List<Map<String, Object>> processedData = readCsv(file, t);
+
+        for (Map<String, Object> m : processedData ) {
+            for ( Map.Entry<String,Object> entry : m.entrySet()) {
+                System.out.print(entry.getKey() + ":" + entry.getValue() + " ,");
+            }
+            System.out.println("___________________________________");
+        }
+
+        postgresService.insert(processedData, t);
+        return null;
+    }
+
+    private List<Map<String, Object>> readCsv(MultipartFile file, Table table) throws IOException {
+        ICsvMapReader mapReader = null;
+        try {
+            Reader reader = new InputStreamReader(file.getInputStream());
+            mapReader = new CsvMapReader(reader, CsvPreference.STANDARD_PREFERENCE);
+
+            String[] header = mapReader.getHeader(true);
+            for(String s : header) {
+                System.out.println(s);
+            }
+            String[] columnHeader = new String[header.length];
+            final CellProcessor[] processors = new CellProcessor[header.length];
+            for(int i = 0; i < header.length; i++) {
+                int finalI = i;
+                TableColumn tc = table.getColumns().stream().filter(x -> x.getName().equals(header[finalI])).findFirst().get();
+                columnHeader[i] = tc.getName();
+                processors[i] = tc.getIsNullAllowed() ? new org.supercsv.cellprocessor.Optional(): new NotNull();
+            }
+
+            List<Map<String, Object>> listMaps = new ArrayList<>();
+            Map<String, Object> tableMap;
+            while( (tableMap = mapReader.read(columnHeader, processors)) != null ) {
+                System.out.println(String.format("lineNo=%s, rowNo=%s, customerMap=%s", mapReader.getLineNumber(),
+                        mapReader.getRowNumber(), tableMap));
+                listMaps.add(tableMap);
+            }
+
+            return listMaps;
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        } finally {
+            if( mapReader != null ) {
+                mapReader.close();
+            }
+        }
+        return null;
+    }
+
+
+    private List<String[]> readCsvOld(MultipartFile file) throws Exception {
+        Reader reader = new InputStreamReader(file.getInputStream());
+        CSVReader csvReader = new CSVReader(reader);
+        List<String[]> list = new ArrayList<>();
+        list = csvReader.readAll();
+        reader.close();
+        csvReader.close();
+        return list;
     }
 
 }
