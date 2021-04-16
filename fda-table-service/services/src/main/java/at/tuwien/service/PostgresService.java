@@ -66,7 +66,7 @@ public class PostgresService extends JdbcConnector {
         try{
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(insert(processedData, t, headers));
-            statement.executeQuery();
+            statement.execute();
         } catch(DatabaseConnectionException e) {
             log.error("Problem with connecting to the database while selecting from Querystore");
         } catch(SQLException e) {

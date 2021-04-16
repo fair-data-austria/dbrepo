@@ -125,14 +125,16 @@ public class TableService {
         Table t = findById(databaseId, tableId);
         Database d = findDatabase(databaseId);
         log.debug(t.toString());
+        log.info("Reading CSV file {}", file.getName());
         List<Map<String, Object>> processedData = readCsv(file, t);
         List<String> headers = new ArrayList<>();
         for (Map<String, Object> m : processedData ) {
             for ( Map.Entry<String,Object> entry : m.entrySet()) {
                 headers.add(entry.getKey());
             }
+            break;
         }
-        postgresService.insertIntoTable(d, t,processedData, headers.stream().distinct().collect(Collectors.toList()));
+        postgresService.insertIntoTable(d, t,processedData, headers);
         return null;
     }
 
@@ -158,8 +160,6 @@ public class TableService {
             List<Map<String, Object>> listMaps = new ArrayList<>();
             Map<String, Object> tableMap;
             while( (tableMap = mapReader.read(columnHeader, processors)) != null ) {
-                System.out.println(String.format("lineNo=%s, rowNo=%s, customerMap=%s", mapReader.getLineNumber(),
-                        mapReader.getRowNumber(), tableMap));
                 listMaps.add(tableMap);
             }
 
