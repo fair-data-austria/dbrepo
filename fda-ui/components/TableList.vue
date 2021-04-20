@@ -2,9 +2,20 @@
   <div>
     <v-expansion-panels v-model="panelIndex" accordion>
       <v-expansion-panel v-for="(item,i) in tables" :key="i">
-        <v-expansion-panel-header>{{ item.name }}</v-expansion-panel-header>
+        <v-expansion-panel-header>
+          {{ item.name }}
+        </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-row dense>
+            <v-col>
+              <v-btn :to="`/db/${$route.params.db_id}/tables/${item.id}`" outlined>
+                <v-icon>mdi-table</v-icon>
+                View
+              </v-btn>
+              <v-btn :to="`/db/${$route.params.db_id}/tables/${item.id}/import_csv`" outlined>
+                Import CSV
+              </v-btn>
+            </v-col>
             <v-col>
               ID: {{ item.id }}<br>
               Internal Name: {{ item.internalName }}<br>
