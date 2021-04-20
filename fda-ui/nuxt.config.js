@@ -49,6 +49,7 @@ export default {
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     // https://go.nuxtjs.dev/axios
+    '@nuxtjs/proxy',
     '@nuxtjs/axios',
     ['nuxt-i18n', {
       locales: [
@@ -69,7 +70,14 @@ export default {
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseURL: process.env.API_URL.startsWith('//') ? `http:${process.env.API_URL}` : process.env.API_URL
+    proxy: true
+    // baseURL: process.env.API_URL.startsWith('//') ? `http:${process.env.API_URL}` : process.env.API_URL
+  },
+
+  proxy: {
+    '/api/container': process.env.API_CONTAINER,
+    '/api/database': process.env.API_DATABASE,
+    '/api/tables': { target: process.env.API_TABLES, pathRewrite: { '^/api/tables/': '' } }
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
