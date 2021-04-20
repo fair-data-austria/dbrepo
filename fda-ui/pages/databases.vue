@@ -66,7 +66,7 @@ export default {
   methods: {
     async refresh () {
       this.createDbDialog = false
-      const res = await this.$axios.get('http://localhost:9092/api/database/')
+      const res = await this.$axios.get('/api/database/')
       this.databases = res.data
     },
     trim (s) {

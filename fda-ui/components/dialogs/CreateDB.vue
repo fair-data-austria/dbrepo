@@ -62,7 +62,7 @@ export default {
       let res
       let containerId
       try {
-        res = await this.$axios.post('http://localhost:9091/api/container/', {
+        res = await this.$axios.post('/api/container/', {
           name: this.database,
           repository: this.engine.repo,
           tag: this.engine.tag
@@ -77,7 +77,7 @@ export default {
 
       // start the container
       try {
-        res = await this.$axios.put(`http://localhost:9091/api/container/${containerId}`, {
+        res = await this.$axios.put(`/api/container/${containerId}`, {
           action: 'START'
         })
       } catch (err) {
@@ -92,7 +92,7 @@ export default {
 
       // create the DB
       try {
-        res = await this.$axios.post('http://localhost:9092/api/database/', {
+        res = await this.$axios.post('/api/database/', {
           name: this.database,
           containerId
         })

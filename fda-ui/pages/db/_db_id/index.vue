@@ -43,7 +43,7 @@ export default {
   },
   async mounted () {
     try {
-      const res = await this.$axios.get(`http://localhost:9092/api/database/${this.$route.params.db_id}`)
+      const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
       this.db = res.data
     } catch (err) {
       this.$toast.error('Could not load database.')
@@ -52,8 +52,7 @@ export default {
   methods: {
     async deleteDatabase () {
       try {
-        await this.$axios.delete(
-          `http://localhost:9092/api/database/${this.$route.params.db_id}`)
+        await this.$axios.delete(`/api/database/${this.$route.params.db_id}`)
         this.$router.push({ path: '/databases' })
         this.$toast.success(`Database "${this.db.name}" deleted.`)
       } catch (err) {
