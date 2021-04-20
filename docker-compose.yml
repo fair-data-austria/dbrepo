@@ -204,6 +204,9 @@ services:
     depends_on:
       - fda-container-service
       - fda-database-service
+      - fda-table-service
     environment:
       HOST: 0.0.0.0
-      API_URL: //fda-gateway-service:9095/api
+      API_CONTAINER: http://fda-container-service:9091
+      API_DATABASE: http://fda-database-service:9092
+      API_TABLES: http://fda-table-service:9094

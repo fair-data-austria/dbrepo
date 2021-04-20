@@ -1,6 +1,10 @@
 import colors from 'vuetify/es5/util/colors'
+import isDocker from 'is-docker'
 
-require('dotenv').config()
+// pick env vars from .env file or get them passed through docker-compose
+if (!isDocker()) {
+  require('dotenv').config()
+}
 
 export default {
   // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
