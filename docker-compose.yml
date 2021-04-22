@@ -127,6 +127,7 @@ services:
     image: fda-query-service
     networks:
       - fda-public
+      - fda-userdb
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:

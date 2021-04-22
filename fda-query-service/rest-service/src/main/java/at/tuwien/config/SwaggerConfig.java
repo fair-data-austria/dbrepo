@@ -2,13 +2,11 @@ package at.tuwien.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
-import springfox.documentation.service.VendorExtension;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
@@ -19,9 +17,9 @@ import java.util.Collections;
 public class SwaggerConfig {
 
     @Bean
-    public Docket databaseApi() {
+    public Docket queryApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("database-api")
+                .groupName("query-api")
                 .apiInfo(apiInfo())
                 .select()
                 .paths(PathSelectors.ant("/api/**"))
@@ -29,14 +27,17 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfo("FDA-Database-Managing API",
-                "Service that can manage Databases",
+        return new ApiInfo("FDA-Query-Service API",
+                "Service that add Query Services",
                 "1.0",
                 null,
                 new Contact("Ao.Univ.Prof. Andreas Rauber", "http://www.ifs.tuwien.ac.at/~andi/", "rauber@ifs.tuwien.ac.at"),
                 "API license",
                 null,
                 Collections.emptyList());
+
+
     }
 
 }
+
