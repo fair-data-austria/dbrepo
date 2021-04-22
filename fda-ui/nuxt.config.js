@@ -1,10 +1,14 @@
 import colors from 'vuetify/es5/util/colors'
+import isDocker from 'is-docker'
 
-require('dotenv').config()
+// pick env vars from .env file or get them passed through docker-compose
+if (!isDocker()) {
+  require('dotenv').config()
+}
 
 export default {
   // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
-  ssr: false,
+  // ssr: false,
 
   // Target (https://go.nuxtjs.dev/config-target)
   target: 'static',
@@ -32,6 +36,7 @@ export default {
   plugins: [
     { src: '~/plugins/toast', ssr: false }, // only client side
     { src: '~/plugins/vuex-persist', ssr: false } // only client side
+    // { src: '~/plugins/mock' }
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -48,6 +53,7 @@ export default {
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     // https://go.nuxtjs.dev/axios
+    '@nuxtjs/proxy',
     '@nuxtjs/axios',
     ['nuxt-i18n', {
       locales: [
@@ -62,9 +68,20 @@ export default {
     }]
   ],
 
+  serverMiddleware: [
+    // { path: '/api', handler: '~/server-middleware/index.js' }
+  ],
+
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseURL: process.env.API_URL.startsWith('//') ? `http:${process.env.API_URL}` : process.env.API_URL
+    proxy: true
+    // baseURL: process.env.API_URL.startsWith('//') ? `http:${process.env.API_URL}` : process.env.API_URL
+  },
+
+  proxy: {
+    '/api/container': process.env.API_CONTAINER,
+    '/api/database': process.env.API_DATABASE,
+    '/api/tables': { target: process.env.API_TABLES, pathRewrite: { '^/api/tables/': '' } }
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
