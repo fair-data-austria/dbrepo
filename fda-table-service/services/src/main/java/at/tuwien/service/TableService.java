@@ -7,15 +7,13 @@ import at.tuwien.entity.ColumnType;
 import at.tuwien.entity.Database;
 import at.tuwien.entity.Table;
 import at.tuwien.entity.TableColumn;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableMalformedException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.model.QueryResult;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import com.opencsv.CSVReader;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,10 +78,19 @@ public class TableService {
         return tables;
     }
 
-    public Table findById(Long databaseId, Long tableId) {
-        final Database tmp = new Database();
-        tmp.setId(databaseId);
-        return tableRepository.findByDatabaseAndId(tmp, tableId);
+    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException {
+        final Table table = findById(databaseId, tableId);
+        postgresService.deleteTable(table);
+        tableRepository.deleteById(tableId);
+    }
+
+    public Table findById(Long databaseId, Long tableId) throws TableNotFoundException {
+        final Optional<Table> table = tableRepository.findByDatabaseAndId(new Database(databaseId), tableId);
+        if (table.isEmpty()) {
+            log.error("table {} not found in database {}", tableId, databaseId);
+            throw new TableNotFoundException("table not found in database");
+        }
+        return table.get();
     }
 
     private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
@@ -175,7 +182,7 @@ public class TableService {
         return null;
     }
 
-    public QueryResult showData(Long databaseId, Long tableId) throws ImageNotSupportedException, DatabaseNotFoundException {
+    public QueryResult showData(Long databaseId, Long tableId) throws ImageNotSupportedException, DatabaseNotFoundException, TableNotFoundException {
         QueryResult queryResult= postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
         for (Map<String, Object> m : queryResult.getResult() ) {
             for ( Map.Entry<String,Object> entry : m.entrySet()) {

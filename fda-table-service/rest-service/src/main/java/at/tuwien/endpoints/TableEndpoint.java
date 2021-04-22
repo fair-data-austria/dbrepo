@@ -4,10 +4,7 @@ import at.tuwien.dto.table.TableBriefDto;
 import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.dto.table.TableDto;
 import at.tuwien.entity.Table;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableMalformedException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryResultMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.model.QueryResult;
@@ -81,8 +78,9 @@ public class TableEndpoint {
     @ApiResponses({
             @ApiResponse(code = 200, message = "All tables are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
+            @ApiResponse(code = 404, message = "Table not found in metadata database."),
     })
-    public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
+    public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws TableNotFoundException {
         final Table table = tableService.findById(databaseId, tableId);
         return ResponseEntity.ok(tableMapper.tableToTableDto(table));
     }
@@ -97,19 +95,19 @@ public class TableEndpoint {
     })
     public ResponseEntity<TableBriefDto> update(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
         // TODO
-        return ResponseEntity.ok(new TableBriefDto());
+        return ResponseEntity.unprocessableEntity().body(new TableBriefDto());
     }
 
     @DeleteMapping("/table/{tableId}")
     @ApiOperation(value = "Delete a table", notes = "Delete a table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Deleted the table."),
-            @ApiResponse(code = 401, message = "Not authorized to update tables."),
+            @ApiResponse(code = 401, message = "Not authorized to delete tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
     })
-    public ResponseEntity delete(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
-        // TODO
-        return ResponseEntity.ok(null);
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException {
+        tableService.delete(databaseId, tableId);
     }
 
     @PostMapping("/table/{tableId}")
@@ -131,7 +129,7 @@ public class TableEndpoint {
             @ApiResponse(code = 200, message = "All tables are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
-    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException {
+    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
         final QueryResult queryResult = tableService.showData(databaseId, tableId);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
