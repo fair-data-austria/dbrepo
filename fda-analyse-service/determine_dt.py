@@ -72,9 +72,9 @@ def determine_datatypes(path, enum=False, enum_tol=0.0001,seperator=','):
                     enum_set.discard(None)
                     r[headers[i]] = {"Enum": list(enum_set)}   
                 else: 
-                    r[headers[i]] = "String"
+                    r[headers[i]] = "Text"
             else: 
-                r[headers[i]] = "String"
+                r[headers[i]] = "Text"
     
     s ={ 'columns' : r } 
                 

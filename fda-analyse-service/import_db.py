@@ -2,7 +2,7 @@ from psycopg2 import connect
 import requests
 import json
 
-def import_db(cid, resourcetype, description, publisher,year,bool_open):  #todo contact - foreignkey
+def import_db(cid, dbid, resourcetype, description, publisher,year,bool_open):  #todo contact - foreignkey
     
     # Get container info  
     r = requests.get(
@@ -10,13 +10,19 @@ def import_db(cid, resourcetype, description, publisher,year,bool_open):  #todo 
     params = {"id":cid}
     )
     
-    engine = r.json()['image']['repository']
+    #engine = r.json()['image']['repository']
+    
+    s = requests.get(
+    "http://fda-database-managing-service:9092/api/database/",
+    params = {"id":dbid}
+    )
 
     # Connecting to database 
     conn=connect(
-        dbname = r.json()['internalName'], 
+        dbname = s.json()['name'], 
         user = "postgres",
-        host = str('fda-userdb-'+r.json()['name']).replace(" ","-"),
+        host = r.json()['internalName'],
+        #host = str('fda-userdb-'+r.json()['name']).replace(" ","-"),
         password = "postgres"
     )
 
@@ -38,7 +44,7 @@ def import_db(cid, resourcetype, description, publisher,year,bool_open):  #todo 
     # Merge table names with containerid for inserting tuples 
     tblnames=[]
     for item in res:
-        tblnames.append((cid,item[0],item[1]))
+        tblnames.append((dbid, cid,item[0],item[1]))
     print(tblnames)
 
     # Extract column information 
@@ -50,14 +56,14 @@ def import_db(cid, resourcetype, description, publisher,year,bool_open):  #todo 
     # Merge column information with containerid for inserting tuples 
     colnames=[]
     for item in res2:
-        colnames.append((cid,item[0],item[1], item[2]))
+        colnames.append((dbid, cid,item[0],item[1], item[2]))
     print(colnames)
 
     conn.close()
 
     # Connect to Meta database 
     conn=connect(
-        dbname="fda_metadatabase", 
+        dbname="fda", 
         user = "postgres",
         host = "fda-metadata-db", 
         password = "postgres"
@@ -66,20 +72,20 @@ def import_db(cid, resourcetype, description, publisher,year,bool_open):  #todo 
     cursor = conn.cursor() 
 
     # Insert into Table DATABASES 
-    cursor.execute("Insert into md_DATABASES (DBID,Title,ResourceType,Description,Engine,Publisher,Year,Open) values (%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (DBID) DO UPDATE SET Title=EXCLUDED.Title;", (cid, dbtitle,resourcetype, description,engine, publisher,year,bool_open))
-    cursor.execute("Select * from Databases;")
-    for i, record in enumerate(cursor): 
-        print( record )
-    conn.commit()
+    cursor.execute("""Update mdb_databases set (ResourceType,Description,Publisher,Year,is_public,last_modified) = 
+    (%s,%s,%s,%s,%s,current_timestamp)
+    where id=%s and container_id=%s;""", (resourcetype, description, publisher,year,bool_open,dbid,cid,))
+
 
     # Prepare and insert tblnames into table TABLES 
-    records_list_template = ','.join(['%s'] * len(tblnames))
-    insert_tblnames = 'Insert into md_TABLES (tDBID,tName,NumCols) values {} ON Conflict do nothing'.format(records_list_template)
-    cursor.execute(insert_tblnames,tblnames)
-
-    cursor.execute("Select * from Tables;")
-    for i, record in enumerate(cursor): 
-        print( record )
-    conn.commit()
+#    records_list_template = ','.join(['%s'] * len(tblnames))
+#    insert_tblnames = 'Insert into mdb_TABLES (tDBID,tName,last_modified,NumCols) values {} ON Conflict (tbdid,tname) do update set
+#    '.format(records_list_template)
+#    cursor.execute(insert_tblnames,tblnames)
+#
+#    cursor.execute("Select * from Tables;")
+#    for i, record in enumerate(cursor): 
+#        print( record )
+#    conn.commit()
 
     conn.close()
