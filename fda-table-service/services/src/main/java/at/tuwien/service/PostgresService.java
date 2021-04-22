@@ -184,6 +184,25 @@ public class PostgresService extends JdbcConnector {
         return queryBuilder.toString();
     }
 
+    public void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException {
+        try {
+            final PreparedStatement statement = getDeleteStatement(getConnection(table.getDatabase()), table);
+            statement.execute();
+        } catch (SQLException e) {
+            log.error("The SQL statement seems to contain invalid syntax");
+            throw new TableMalformedException("The SQL statement seems to contain invalid syntax", e);
+        }
+    }
+
+    @Override
+    final PreparedStatement getDeleteStatement(Connection connection, Table table) throws SQLException {
+        final StringBuilder deleteQuery = new StringBuilder("DROP TABLE ")
+                .append(tableMapper.columnNameToString(table.getInternalName()))
+                .append(";");
+        log.debug("compiled delete table statement as {}", deleteQuery.toString());
+        return connection.prepareStatement(deleteQuery.toString());
+    }
+
     /**
      * FIXME THIS IS REMOVED IN SPRINT 2
      *

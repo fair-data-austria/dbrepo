@@ -40,7 +40,7 @@ public class Database {
     private Instant lastModified;
 
     @ToString.Include
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     private Container container;
 
     @ToString.Include
@@ -50,6 +50,10 @@ public class Database {
     @ToString.Exclude
     @Column(nullable = false)
     private String internalName;
+
+    @ToString.Exclude
+    @OneToMany
+    private List<Table> tables;
 
     @ToString.Include
     @Column(nullable = false)
