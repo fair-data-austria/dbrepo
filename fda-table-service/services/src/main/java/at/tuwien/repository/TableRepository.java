@@ -12,6 +12,6 @@ public interface TableRepository extends JpaRepository<Table, Long> {
 
     List<Table> findByDatabase(Database database);
 
-    List<Table> findByDatabaseAndId(Database database, Long tableId);
+   Table findByDatabaseAndId(Database database, Long tableId);
 
 }

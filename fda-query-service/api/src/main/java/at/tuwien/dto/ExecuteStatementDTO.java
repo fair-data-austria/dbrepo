@@ -10,8 +10,6 @@ import lombok.Setter;
 @Setter
 public class ExecuteStatementDTO {
 
-    @JsonProperty("ContainerID")
-    private String containerID;
     @JsonProperty("Statement")
     private String statement;
 }
