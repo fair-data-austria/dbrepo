@@ -14,16 +14,16 @@ COPY ./components ./components
 COPY ./lang ./lang
 COPY ./layouts ./layouts
 COPY ./middleware ./middleware
-COPY ./plugins ./plugins
-COPY ./store ./store
 COPY ./pages ./pages
+COPY ./plugins ./plugins
+COPY ./plugins ./plugins
 COPY ./static ./static
+COPY ./store ./store
 COPY ./nuxt.config.js ./
-COPY ./.env ./
 COPY ./.babelrc ./
 
-RUN yarn generate > /dev/null
+RUN yarn build > /dev/null
 
 EXPOSE 3000
 
-ENTRYPOINT ["npm", "start"]
+ENTRYPOINT ["yarn", "start"]
