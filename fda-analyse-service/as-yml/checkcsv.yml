@@ -1,0 +1,41 @@
+summary: "Check if datatypes match"
+description: "This is a simple API which imports databases into metadatabase"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "to-do description"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      filepath: 
+        type: "string" 
+        example : "/data/testdt08.csv"
+      seperator: 
+        type: "string" 
+        example: ","
+      intdbname: 
+        type: "string" 
+        example: "fda_user_db"
+      dbhost: 
+        type: "string" 
+        example: "fda-user-db" 
+      dbid: 
+        type: "integer" 
+        example: 1 
+      tname: 
+        type: "string"
+        example: "sometblname" 
+      header: 
+        type: "boolean" 
+        example: true
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    
