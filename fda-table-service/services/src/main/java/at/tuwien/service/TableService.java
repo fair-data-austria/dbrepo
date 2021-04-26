@@ -159,9 +159,16 @@ public class TableService {
             final CellProcessor[] processors = new CellProcessor[header.length];
             for(int i = 0; i < header.length; i++) {
                 int finalI = i;
-                TableColumn tc = table.getColumns().stream().filter(x -> x.getName().equals(header[finalI])).findFirst().get();
-                columnHeader[i] = tc.getName();
-                processors[i] = tc.getIsNullAllowed() ? new org.supercsv.cellprocessor.Optional(): new NotNull();
+                Optional<TableColumn> tcx = table.getColumns().stream().filter(x -> x.getName().equals(header[finalI])).findFirst();
+                TableColumn tc;
+                if (tcx.isEmpty()) {
+                    continue;
+                } else {
+                    tc = tcx.get();
+                    columnHeader[i] = tc.getName();
+                    processors[i] = tc.getIsNullAllowed() ? new org.supercsv.cellprocessor.Optional() : new NotNull();
+                }
+
             }
 
             List<Map<String, Object>> listMaps = new ArrayList<>();
