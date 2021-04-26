@@ -19,11 +19,6 @@
         </dependency>
         <dependency>
             <groupId>at.tuwien</groupId>
-            <artifactId>persistence</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>at.tuwien</groupId>
             <artifactId>gateways</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -33,4 +28,6 @@
             <version>3.1</version>
         </dependency>
     </dependencies>
+
+
 </project>
