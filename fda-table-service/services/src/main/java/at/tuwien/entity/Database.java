@@ -1,8 +1,6 @@
 package at.tuwien.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -15,6 +13,8 @@ import java.util.List;
 
 @Data
 @Entity(name = "mdb_databases")
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
@@ -40,7 +40,7 @@ public class Database {
     private Instant lastModified;
 
     @ToString.Include
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     private Container container;
 
     @ToString.Include
@@ -51,8 +51,17 @@ public class Database {
     @Column(nullable = false)
     private String internalName;
 
+    @ToString.Exclude
+    @OneToMany
+    private List<Table> tables;
+
     @ToString.Include
     @Column(nullable = false)
     private Boolean isPublic;
+
+    /* convenience constructor */
+    public Database(Long id) {
+        this.id = id;
+    }
 
 }
