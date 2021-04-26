@@ -6,6 +6,7 @@ import at.tuwien.dto.table.columns.ColumnTypeDto;
 import at.tuwien.entity.Database;
 import at.tuwien.entity.Table;
 import at.tuwien.entity.TableColumn;
+import at.tuwien.exception.DataProcessingException;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.PostgresTableMapper;
@@ -63,7 +64,7 @@ public class PostgresService extends JdbcConnector {
         }
     }
 
-    public QueryResult insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) {
+    public QueryResult insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) throws DatabaseConnectionException, DataProcessingException {
         try{
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(insertStatement(processedData, t, headers));
@@ -71,11 +72,12 @@ public class PostgresService extends JdbcConnector {
             return getAllRows(database,t);
         } catch(DatabaseConnectionException e) {
             log.error("Problem with connecting to the database while selecting from Querystore");
+            throw new DatabaseConnectionException(e.getMessage());
         } catch(SQLException e) {
             log.debug(e.getMessage());
             log.error("The SQL statement seems to contain invalid syntax");
+            throw new DataProcessingException(e.getMessage());
         }
-        return null;
     }
 
     /**

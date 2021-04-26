@@ -114,7 +114,7 @@ public class TableEndpoint {
     @ApiOperation(value = "Insert values", notes = "Insert Data into a Table in the database.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Updated the table."),
-            @ApiResponse(code = 400, message = "The update form contains invalid data."),
+            @ApiResponse(code = 400, message = "The form contains invalid data."),
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
     })
