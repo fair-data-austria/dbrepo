@@ -8,7 +8,6 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 
 COPY ./api ./api
 COPY ./gateways ./gateways
-COPY ./persistence ./persistence
 COPY ./rest-service ./rest-service
 COPY ./services ./services
 
