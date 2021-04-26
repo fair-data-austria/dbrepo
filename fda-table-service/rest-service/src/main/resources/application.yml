@@ -22,4 +22,6 @@ logging:
     at.: debug
 eureka:
   instance.hostname: fda-table-service
+  server:
+    peer-node-read-timeout-ms: 200
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/

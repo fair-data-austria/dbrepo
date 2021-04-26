@@ -10,8 +10,6 @@ import lombok.Setter;
 @Setter
 public class ExecuteQueryDTO {
 
-    @JsonProperty("ContainerID")
-    private String containerID;
     @JsonProperty("Query")
     private String query;
 
