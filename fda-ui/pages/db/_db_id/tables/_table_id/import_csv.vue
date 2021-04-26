@@ -6,6 +6,7 @@
     <v-row dense>
       <v-col cols="10">
         <v-file-input
+          v-model="file"
           accept="text/csv"
           show-size
           label="CSV File" />
@@ -23,19 +24,32 @@ export default {
   },
   data () {
     return {
-      loading: false
+      loading: false,
+      file: null
     }
   },
   mounted () {
   },
   methods: {
-    upload () {
+    async upload () {
       this.loading = true
-      setTimeout(() => {
-        this.$toast.success('Uploaded successfully!')
-        this.loading = false
-        this.$router.push({ path: '.' })
-      }, 1000)
+      const url = `/api/tables/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}`
+      const data = new FormData()
+      data.append('file', this.file)
+      try {
+        const res = await this.$axios.post(url, data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        if (res.data.Result) {
+          this.$toast.success('Uploaded successfully!')
+          this.$router.push({ path: '.' })
+        } else {
+          this.$toast.error('Could not upload CSV data')
+        }
+      } catch (err) {
+        this.$toast.error('Could not upload data.')
+      }
+      this.loading = false
     }
   }
 }
