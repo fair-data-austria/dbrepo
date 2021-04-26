@@ -27,6 +27,7 @@ import static at.tuwien.api.dto.container.ContainerActionTypeDto.*;
 
 @Log4j2
 @RestController
+@CrossOrigin(origins = "*")
 @ControllerAdvice
 @RequestMapping("/api/container")
 public class ContainerEndpoint {
