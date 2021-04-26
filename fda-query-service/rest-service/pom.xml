@@ -21,6 +21,21 @@
             <artifactId>services</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-oas</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-oas</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-oas</artifactId>
+            <version>3.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -29,7 +44,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <finalName>${project.parent.artifactId}-${project.version}</finalName>
-                    <mainClass>at.tuwien.application.FdaQueryServiceApplication</mainClass>
+                    <mainClass>at.tuwien.FdaQueryServiceApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

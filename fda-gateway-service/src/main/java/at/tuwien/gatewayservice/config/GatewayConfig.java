@@ -14,7 +14,7 @@ public class GatewayConfig {
                 .route("container-service", r -> r.path("/api/container/**")
                         .and()
                         .uri("lb://fda-container-service"))
-                .route("table-service", r -> r.path("/api/database/**/table/**")
+                .route("table-service", r -> r.path("/api/database/{id}/table/**")
                         .and()
                         .uri("lb://fda-table-service"))
                 .route("database-service", r -> r.path("/api/database/**")
