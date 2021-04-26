@@ -68,14 +68,9 @@ export default {
     }]
   ],
 
-  serverMiddleware: [
-    // { path: '/api', handler: '~/server-middleware/index.js' }
-  ],
-
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
     proxy: true
-    // baseURL: process.env.API_URL.startsWith('//') ? `http:${process.env.API_URL}` : process.env.API_URL
   },
 
   proxy: {
