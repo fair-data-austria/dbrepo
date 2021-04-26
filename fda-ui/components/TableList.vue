@@ -88,7 +88,7 @@ export default {
         const tableId = this.tables[this.panelIndex].id
         try {
           const res = await this.$axios.get(`/api/tables/api/database/${this.$route.params.db_id}/table/${tableId}`)
-          this.tableDetails = res.data[0] // It's a list with one element
+          this.tableDetails = res.data
         } catch (err) {
           this.$toast.error('Could not get table details.')
         }
