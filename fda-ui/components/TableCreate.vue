@@ -33,10 +33,16 @@
             label="Data Type" />
         </v-col>
         <v-col cols="2">
-          <v-checkbox v-model="c.primaryKey" label="Primary Key" />
+          <v-checkbox
+            v-model="c.primaryKey"
+            label="Primary Key"
+            @change="(x) => onChange(idx, x, 'primaryKey')" />
         </v-col>
         <v-col cols="2">
-          <v-checkbox v-model="c.nullAllowed" label="Null Allowed" />
+          <v-checkbox
+            v-model="c.nullAllowed"
+            label="Null Allowed"
+            @change="(x) => onChange(idx, x, 'nullAllowed')" />
         </v-col>
         <v-spacer />
         <v-btn title="Remove column" outlined icon @click="removeColumn(idx)">
@@ -71,7 +77,24 @@ export default {
       ]
     }
   },
+  mounted () {
+    this.addColumn()
+  },
   methods: {
+    onChange (idx, val, name) {
+      const c = this.columns[idx]
+      if (name === 'nullAllowed' && val === true) {
+        if (c.primaryKey) {
+          c.primaryKey = false
+        }
+      }
+      if (name === 'primaryKey' && val === true) {
+        if (c.nullAllowed) {
+          c.nullAllowed = false
+        }
+      }
+      this.columns[idx] = c
+    },
     addColumn () {
       this.columns.push({
         // default column
