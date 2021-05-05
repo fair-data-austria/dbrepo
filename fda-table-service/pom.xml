@@ -57,7 +57,12 @@
         <!-- Entities and API -->
         <dependency>
             <groupId>at.tuwien</groupId>
-            <artifactId>fda-metadata-db</artifactId>
+            <artifactId>fda-metadata-db-entites</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>fda-metadata-db-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!-- DataSource -->

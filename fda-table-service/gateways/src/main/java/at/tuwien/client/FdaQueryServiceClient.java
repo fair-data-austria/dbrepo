@@ -1,6 +1,6 @@
 package at.tuwien.client;
 
-import at.tuwien.dto.CreateTableViaCsvDTO;
+import at.tuwien.api.database.table.CreateTableViaCsvDTO;
 import at.tuwien.mapper.ContainerIdAndQueryToExecuteInternalQueryMapper;
 import at.tuwien.mapper.CreateTableViaCsvToExecuteStatementMapper;
 import at.tuwien.model.CreateCSVTableWithDataset;
