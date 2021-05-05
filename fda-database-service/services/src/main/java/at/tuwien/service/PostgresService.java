@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.entity.Database;
+import at.tuwien.entities.database.Database;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseMalformedException;
 import at.tuwien.mapper.DatabaseMapper;
