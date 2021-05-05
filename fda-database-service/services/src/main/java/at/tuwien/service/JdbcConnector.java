@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.entity.Database;
+import at.tuwien.entities.database.Database;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseMalformedException;
 
@@ -38,7 +38,7 @@ public abstract class JdbcConnector {
      * Helper function that compiles a creation statement
      *
      * @param connection The JDBC connection
-     * @param databaseName The database name
+     * @param database The database name
      * @return A prepared statement
      * @throws SQLException In case the compiled query is invalid
      */
@@ -49,7 +49,7 @@ public abstract class JdbcConnector {
      * Helper function that compiles a delete statement
      *
      * @param connection The JDBC connection
-     * @param databaseName The database name
+     * @param database The database name
      * @return A prepared statement
      * @throws SQLException In case the compiled query is invalid
      */

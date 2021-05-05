@@ -1,7 +1,7 @@
 package at.tuwien.mapper;
 
-import at.tuwien.dto.database.DatabaseBriefDto;
-import at.tuwien.entity.Database;
+import at.tuwien.api.database.DatabaseBriefDto;
+import at.tuwien.entities.database.Database;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
