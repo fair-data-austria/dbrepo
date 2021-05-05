@@ -8,11 +8,10 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 
 COPY ./api ./api
 COPY ./gateways ./gateways
-COPY ./persistence ./persistence
 COPY ./rest-service ./rest-service
 COPY ./services ./services
 
-RUN mvn -q clean package > /dev/null
+RUN mvn -q clean package -DskipTests
 
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
