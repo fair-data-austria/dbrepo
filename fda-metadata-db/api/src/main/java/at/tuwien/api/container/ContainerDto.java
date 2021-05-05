@@ -1,6 +1,7 @@
 package at.tuwien.api.container;
 
-import at.tuwien.api.IpAddressDto;
+import at.tuwien.api.container.image.ImageDto;
+import at.tuwien.api.container.network.IpAddressDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,8 +16,8 @@ import java.time.Instant;
 public class ContainerDto extends ContainerBriefDto {
 
     @NotNull
-    @ApiModelProperty(name = "status", example = "RUNNING")
-    private ContainerStateDto status;
+    @ApiModelProperty(name = "state", example = "RUNNING")
+    private ContainerStateDto state;
 
     @NotNull
     private IpAddressDto ipAddress;

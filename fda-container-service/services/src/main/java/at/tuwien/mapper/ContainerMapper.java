@@ -1,12 +1,11 @@
 package at.tuwien.mapper;
 
-import at.tuwien.api.dto.container.ContainerBriefDto;
-import at.tuwien.api.dto.IpAddressDto;
-import at.tuwien.api.dto.container.ContainerCreateRequestDto;
-import at.tuwien.api.dto.container.ContainerDto;
-import at.tuwien.api.dto.container.ContainerStateDto;
-import at.tuwien.entity.Container;
-import at.tuwien.entity.ContainerImage;
+import at.tuwien.api.container.ContainerBriefDto;
+import at.tuwien.api.container.ContainerCreateRequestDto;
+import at.tuwien.api.container.ContainerDto;
+import at.tuwien.api.container.ContainerStateDto;
+import at.tuwien.entities.container.Container;
+import at.tuwien.entities.container.image.ContainerImage;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.mapstruct.*;
 
@@ -34,7 +33,7 @@ public interface ContainerMapper {
     @Mappings({
             @Mapping(source = "state", target = "state", qualifiedByName = "containerStateDto"),
             @Mapping(source = "id", target = "hash"),
-            @Mapping(target = "id", ignore = true)
+//            @Mapping(target = "id", ignore = true)
     })
     ContainerDto inspectContainerResponseToContainerDto(InspectContainerResponse data);
 

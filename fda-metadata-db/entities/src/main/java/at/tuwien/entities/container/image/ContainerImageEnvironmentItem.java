@@ -1,4 +1,4 @@
-package at.tuwien.entities.container;
+package at.tuwien.entities.container.image;
 
 import at.tuwien.entities.Auditable;
 import lombok.*;
@@ -13,7 +13,7 @@ import javax.persistence.Entity;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
-public class EnvironmentItem extends Auditable {
+public class ContainerImageEnvironmentItem extends Auditable {
 
     @ToString.Include
     @Column(nullable = false)
