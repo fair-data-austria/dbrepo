@@ -1,6 +1,7 @@
 package at.tuwien.api.dto.container;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
