@@ -1,5 +1,6 @@
 package at.tuwien;
 
+import at.tuwien.entities.container.image.ContainerImage;
 import org.springframework.test.context.TestPropertySource;
 
 
