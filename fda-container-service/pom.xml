@@ -17,7 +17,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>rest-service</module>
-        <module>api</module>
         <module>services</module>
     </modules>
 
@@ -52,6 +51,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <!-- Entities and API -->
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>fda-metadata-db</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!-- DataSource -->
         <dependency>

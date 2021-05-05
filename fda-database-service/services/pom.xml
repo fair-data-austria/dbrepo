@@ -16,12 +16,6 @@
     <dependencies>
         <dependency>
             <groupId>at.tuwien</groupId>
-            <artifactId>api</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>at.tuwien</groupId>
             <artifactId>gateway</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

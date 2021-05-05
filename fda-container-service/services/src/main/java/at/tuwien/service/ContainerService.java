@@ -3,8 +3,6 @@ package at.tuwien.service;
 import at.tuwien.api.dto.container.ContainerCreateRequestDto;
 import at.tuwien.api.dto.container.ContainerDto;
 import at.tuwien.api.dto.container.ContainerStateDto;
-import at.tuwien.entity.Container;
-import at.tuwien.entity.ContainerImage;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
