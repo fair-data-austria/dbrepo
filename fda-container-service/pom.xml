@@ -136,4 +136,6 @@
         </dependency>
     </dependencies>
 
+    <!-- build at.tuwien.gateway.config in ./rest-service/pom.xml -->
+
 </project>
