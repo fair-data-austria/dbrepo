@@ -1,8 +1,8 @@
 package at.tuwien.service;
 
-import at.tuwien.dto.database.DatabaseCreateDto;
-import at.tuwien.entity.Container;
-import at.tuwien.entity.Database;
+import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.entities.container.Container;
+import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.repository.ContainerRepository;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @Log4j2
 @Service
