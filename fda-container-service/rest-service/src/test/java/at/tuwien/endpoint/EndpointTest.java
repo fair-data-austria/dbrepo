@@ -1,10 +1,7 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.BaseIntegrationTest;
-import at.tuwien.api.dto.container.ContainerBriefDto;
-import at.tuwien.api.dto.container.ContainerCreateRequestDto;
-import at.tuwien.api.dto.container.ContainerDto;
-import at.tuwien.api.dto.container.ContainerStateDto;
+import at.tuwien.api.dto.container.*;
 import at.tuwien.endpoints.ContainerEndpoint;
 import at.tuwien.entity.Container;
 import at.tuwien.exception.ContainerNotFoundException;
@@ -23,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -148,13 +146,73 @@ public class EndpointTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void change_succeeds() {
-        //
+    public void change_start_succeeds() throws DockerClientException, ContainerNotFoundException, ContainerStillRunningException {
+        final ContainerChangeDto request = ContainerChangeDto.builder()
+                .action(ContainerActionTypeDto.START)
+                .build();
+        when(containerService.start(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+
+        /* test */
+        final ResponseEntity<ContainerBriefDto> response = containerEndpoint.modify(CONTAINER_1_ID, request);
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        assertEquals(CONTAINER_1_ID, Objects.requireNonNull(response.getBody()).getId());
     }
 
     @Test
-    public void change_fails() {
-        //
+    public void change_stop_succeeds() throws DockerClientException, ContainerNotFoundException, ContainerStillRunningException {
+        final ContainerChangeDto request = ContainerChangeDto.builder()
+                .action(ContainerActionTypeDto.STOP)
+                .build();
+        when(containerService.stop(CONTAINER_1_ID))
+                .thenReturn(CONTAINER_1);
+
+        /* test */
+        final ResponseEntity<ContainerBriefDto> response = containerEndpoint.modify(CONTAINER_1_ID, request);
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        assertEquals(CONTAINER_1_ID, Objects.requireNonNull(response.getBody()).getId());
+    }
+
+    @Test
+    public void change_start_docker_fails() throws DockerClientException, ContainerNotFoundException {
+        final ContainerChangeDto request = ContainerChangeDto.builder()
+                .action(ContainerActionTypeDto.START)
+                .build();
+        when(containerService.start(CONTAINER_1_ID))
+                .thenThrow(DockerClientException.class);
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerEndpoint.modify(CONTAINER_1_ID, request);
+        });
+    }
+
+    @Test
+    public void change_stop_docker_fails() throws DockerClientException, ContainerNotFoundException {
+        final ContainerChangeDto request = ContainerChangeDto.builder()
+                .action(ContainerActionTypeDto.STOP)
+                .build();
+        when(containerService.stop(CONTAINER_1_ID))
+                .thenThrow(DockerClientException.class);
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerEndpoint.modify(CONTAINER_1_ID, request);
+        });
+    }
+
+    @Test
+    public void change_stop_noContainer_fails() throws DockerClientException, ContainerNotFoundException {
+        final ContainerChangeDto request = ContainerChangeDto.builder()
+                .action(ContainerActionTypeDto.STOP)
+                .build();
+        when(containerService.stop(CONTAINER_1_ID))
+                .thenThrow(ContainerNotFoundException.class);
+
+        /* test */
+        assertThrows(ContainerNotFoundException.class, () -> {
+            containerEndpoint.modify(CONTAINER_1_ID, request);
+        });
     }
 
     @Test

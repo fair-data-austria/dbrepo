@@ -6,5 +6,5 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum ContainerActionTypeDto {
-    START, STOP, REMOVE
+    START, STOP
 }

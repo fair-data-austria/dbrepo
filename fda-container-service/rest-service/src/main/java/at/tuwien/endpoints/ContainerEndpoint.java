@@ -97,24 +97,26 @@ public class ContainerEndpoint {
     }
 
     @PutMapping("/{id}")
-    @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP/REMOVE.")
+    @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP.")
     @ApiResponses({
             @ApiResponse(code = 202, message = "Changed the state of a container."),
             @ApiResponse(code = 400, message = "Malformed payload."),
             @ApiResponse(code = 401, message = "Not authorized to modify a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<?> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
+    public ResponseEntity<ContainerBriefDto> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
             throws ContainerNotFoundException, DockerClientException, ContainerStillRunningException {
+        ContainerBriefDto container;
         if (changeDto.getAction().equals(START)) {
-            containerService.start(id);
+            container = containerMapper.containerToDatabaseContainerBriefDto(containerService.start(id));
         } else if (changeDto.getAction().equals(STOP)) {
-            containerService.stop(id);
-        } else if (changeDto.getAction().equals(REMOVE)) {
-            containerService.remove(id);
+            container = containerMapper.containerToDatabaseContainerBriefDto(containerService.stop(id));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .build();
         }
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .build();
+                .body(container);
     }
 
     @DeleteMapping("/{id}")
