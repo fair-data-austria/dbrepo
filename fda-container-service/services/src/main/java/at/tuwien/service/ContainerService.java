@@ -1,8 +1,10 @@
 package at.tuwien.service;
 
-import at.tuwien.api.dto.container.ContainerCreateRequestDto;
-import at.tuwien.api.dto.container.ContainerDto;
-import at.tuwien.api.dto.container.ContainerStateDto;
+import at.tuwien.api.container.ContainerCreateRequestDto;
+import at.tuwien.api.container.ContainerDto;
+import at.tuwien.api.container.ContainerStateDto;
+import at.tuwien.entities.container.Container;
+import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
@@ -17,7 +19,9 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.*;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Link;
+import com.github.dockerjava.api.model.PortBinding;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
