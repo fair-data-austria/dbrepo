@@ -1,15 +1,11 @@
 package at.tuwien;
 
-import at.tuwien.api.dto.container.ContainerBriefDto;
-import at.tuwien.api.dto.container.ContainerDto;
-import at.tuwien.entity.Container;
-import at.tuwien.entity.ContainerImage;
-import at.tuwien.entity.EnvironmentItem;
+import at.tuwien.entities.container.Container;
+import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import org.springframework.test.context.TestPropertySource;
 
-import java.math.BigInteger;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -23,11 +19,11 @@ public abstract class BaseIntegrationTest {
     public final String IMAGE_1_HASH = "83b40f2726e5";
     public final Integer IMAGE_1_PORT = 5432;
     public final Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
-    public final List<EnvironmentItem> IMAGE_1_ENV = List.of(EnvironmentItem.builder()
+    public final List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
                     .build(),
-            EnvironmentItem.builder()
+            ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
                     .build());
@@ -37,11 +33,11 @@ public abstract class BaseIntegrationTest {
     public final String IMAGE_2_HASH = "f877e80bb9ef";
     public final Integer IMAGE_2_PORT = 6379;
     public final Instant IMAGE_2_BUILT = Instant.now().minus(9, DAYS);
-    public final List<EnvironmentItem> IMAGE_2_ENV = List.of(EnvironmentItem.builder()
+    public final List<ContainerImageEnvironmentItem> IMAGE_2_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
                     .build(),
-            EnvironmentItem.builder()
+            ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
                     .build());

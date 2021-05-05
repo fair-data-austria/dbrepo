@@ -1,16 +1,14 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.BaseIntegrationTest;
-import at.tuwien.api.dto.container.*;
+import at.tuwien.api.container.*;
 import at.tuwien.endpoints.ContainerEndpoint;
-import at.tuwien.entity.Container;
+import at.tuwien.entities.container.Container;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
-import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.service.ContainerService;
-import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,8 +27,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 @ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class EndpointTest extends BaseIntegrationTest {
 
     @MockBean

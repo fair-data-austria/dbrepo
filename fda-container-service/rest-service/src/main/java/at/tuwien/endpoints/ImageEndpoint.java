@@ -1,10 +1,10 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.dto.image.ImageBriefDto;
-import at.tuwien.api.dto.image.ImageChangeDto;
-import at.tuwien.api.dto.image.ImageCreateDto;
-import at.tuwien.api.dto.image.ImageDto;
-import at.tuwien.entity.ContainerImage;
+import at.tuwien.api.container.image.ImageBriefDto;
+import at.tuwien.api.container.image.ImageChangeDto;
+import at.tuwien.api.container.image.ImageCreateDto;
+import at.tuwien.api.container.image.ImageDto;
+import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.ImageMapper;
