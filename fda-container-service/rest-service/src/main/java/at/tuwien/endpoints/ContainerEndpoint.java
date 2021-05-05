@@ -66,8 +66,9 @@ public class ContainerEndpoint {
     public ResponseEntity<ContainerBriefDto> create(@Valid @RequestBody ContainerCreateRequestDto data)
             throws ImageNotFoundException, DockerClientException {
         final Container container = containerService.create(data);
+        final ContainerBriefDto response = containerMapper.containerToDatabaseContainerBriefDto(container);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(containerMapper.containerToDatabaseContainerBriefDto(container));
+                .body(response);
     }
 
     @GetMapping("/{id}")
@@ -77,8 +78,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws ContainerNotFoundException,
-            DockerClientException {
+    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws DockerClientException, ContainerNotFoundException {
         final Container container = containerService.getById(id);
         final ContainerDto containerDto = containerMapper.containerToContainerDto(container);
         containerService.findIpAddresses(container.getHash())
@@ -86,9 +86,12 @@ public class ContainerEndpoint {
                         .network(key)
                         .ipv4(value)
                         .build()));
-        final ContainerDto inspectDto = containerMapper.inspectContainerResponseToContainerDto(
-                containerService.getContainerState(container.getHash()));
-        containerDto.setState(inspectDto.getState());
+        final ContainerStateDto stateDto = containerService.getContainerState(container.getHash());
+        try {
+            containerDto.setState(stateDto);
+        } catch(NullPointerException e) {
+            throw new DockerClientException("Could not get container state");
+        }
         return ResponseEntity.ok()
                 .body(containerDto);
     }
