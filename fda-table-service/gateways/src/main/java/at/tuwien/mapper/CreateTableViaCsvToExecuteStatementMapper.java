@@ -1,6 +1,6 @@
 package at.tuwien.mapper;
 
-import at.tuwien.dto.CreateTableViaCsvDTO;
+import at.tuwien.api.database.table.CreateTableViaCsvDTO;
 import at.tuwien.model.ExecuteStatementDTO;
 import org.springframework.stereotype.Component;
 
