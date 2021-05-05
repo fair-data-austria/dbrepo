@@ -1,6 +1,7 @@
 package at.tuwien.entities.database;
 
 import at.tuwien.entities.container.Container;
+import at.tuwien.entities.database.table.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

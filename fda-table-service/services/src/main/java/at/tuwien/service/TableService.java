@@ -1,34 +1,26 @@
 package at.tuwien.service;
 
-import at.tuwien.dto.table.TableBriefDto;
-import at.tuwien.dto.table.TableCreateDto;
-import at.tuwien.dto.table.TableDto;
-import at.tuwien.entity.ColumnType;
-import at.tuwien.entity.Database;
-import at.tuwien.entity.Table;
-import at.tuwien.entity.TableColumn;
+import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.model.QueryResult;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
-import com.opencsv.CSVReader;
-import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvBeanReader;
 import org.supercsv.io.CsvMapReader;
-import org.supercsv.io.ICsvBeanReader;
 import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -36,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -85,7 +76,9 @@ public class TableService {
     }
 
     public Table findById(Long databaseId, Long tableId) throws TableNotFoundException {
-        final Optional<Table> table = tableRepository.findByDatabaseAndId(new Database(databaseId), tableId);
+        final Database database = new Database();
+        database.setId(databaseId);
+        final Optional<Table> table = tableRepository.findByDatabaseAndId(database, tableId);
         if (table.isEmpty()) {
             log.error("table {} not found in database {}", tableId, databaseId);
             throw new TableNotFoundException("table not found in database");
@@ -125,7 +118,7 @@ public class TableService {
         table.setInternalName(tableMapper.columnNameToString(table.getName()));
         final Table out = tableRepository.save(table);
         log.debug("saved table {}", out);
-        log.info("Created table {} in database {}", out.getId(), out.getDatabase().getId());
+        log.info("Created table {} in database {}", out.getName(), out.getDatabase().getId());
         return out;
     }
 
