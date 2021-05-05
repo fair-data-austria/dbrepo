@@ -23,6 +23,8 @@
 
     <properties>
         <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <docker.version>3.2.7</docker.version>
