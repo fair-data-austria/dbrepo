@@ -1,8 +1,8 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.dto.IpAddressDto;
-import at.tuwien.api.dto.container.*;
-import at.tuwien.entity.Container;
+import at.tuwien.api.container.*;
+import at.tuwien.api.container.network.IpAddressDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
@@ -23,7 +23,6 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static at.tuwien.api.dto.container.ContainerActionTypeDto.*;
 
 @Log4j2
 @RestController
@@ -82,8 +81,7 @@ public class ContainerEndpoint {
         final Container container = containerService.getById(id);
         final ContainerDto containerDto = containerMapper.containerToContainerDto(container);
         containerService.findIpAddresses(container.getHash())
-                .forEach((key, value) -> containerDto.getAddresses().add(IpAddressDto.builder()
-                        .network(key)
+                .forEach((key, value) -> containerDto.setIpAddress(IpAddressDto.builder()
                         .ipv4(value)
                         .build()));
         final ContainerStateDto stateDto = containerService.getContainerState(container.getHash());
@@ -105,11 +103,11 @@ public class ContainerEndpoint {
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
     public ResponseEntity<ContainerBriefDto> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
-            throws ContainerNotFoundException, DockerClientException, ContainerStillRunningException {
+            throws ContainerNotFoundException, DockerClientException {
         ContainerBriefDto container;
-        if (changeDto.getAction().equals(START)) {
+        if (changeDto.getAction().equals(ContainerActionTypeDto.START)) {
             container = containerMapper.containerToDatabaseContainerBriefDto(containerService.start(id));
-        } else if (changeDto.getAction().equals(STOP)) {
+        } else if (changeDto.getAction().equals(ContainerActionTypeDto.STOP)) {
             container = containerMapper.containerToDatabaseContainerBriefDto(containerService.stop(id));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

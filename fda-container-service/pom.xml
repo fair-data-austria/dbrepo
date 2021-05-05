@@ -52,11 +52,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        <!-- Entities and API -->
+        <!-- Entity and API -->
         <dependency>
             <groupId>at.tuwien</groupId>
-            <artifactId>fda-metadata-db</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <artifactId>fda-metadata-db-api</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>fda-metadata-db-entites</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
         <!-- DataSource -->
         <dependency>

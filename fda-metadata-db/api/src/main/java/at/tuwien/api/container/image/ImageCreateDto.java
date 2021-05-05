@@ -1,4 +1,4 @@
-package at.tuwien.api.container;
+package at.tuwien.api.container.image;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -11,11 +11,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
-public class ImageBriefDto {
-
-    @NotNull
-    @ApiModelProperty(required = true, example = "1")
-    private Long id;
+public class ImageCreateDto {
 
     @NotBlank
     @ApiModelProperty(required = true, example = "postgres")
@@ -24,5 +20,12 @@ public class ImageBriefDto {
     @NotBlank
     @ApiModelProperty(required = true, example = "latest")
     private String tag;
+
+    @NotNull
+    @ApiModelProperty(required = true, example = "5432")
+    private Integer defaultPort;
+
+    @ApiModelProperty(required = true, example = "[{\"key\":\"POSTGRES_USER\",\"value\":\"postgres\"},{\"key\":\"POSTGRES_PASSWORD\",\"value\":\"postgres\"}]")
+    private ImageEnvItemDto[] environment;
 
 }
