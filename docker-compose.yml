@@ -3,16 +3,32 @@ version: "3.6"
 volumes:
   fda-metadata-db-data:
 
-services:
+networks:
+  fda-public:
+    name: fda-public
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/16
+          gateway: 172.29.0.1
+  fda-userdb:
+    name: fda-userdb
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
 
+services:
   fda-metadata-db:
     restart: always
     container_name: fda-metadata-db
     hostname: fda-metadata-db
     image: postgres:13-alpine
+    networks:
+      - fda-public
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
-    network_mode: bridge
     ports:
       - 5432:5432
     environment:
@@ -26,9 +42,10 @@ services:
     hostname: fda-discovery-server
     build: ./fda-discovery-server
     image: fda-discovery-server
+    networks:
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
-    network_mode: bridge
     ports:
       - 9090:9090
 
@@ -38,15 +55,16 @@ services:
     hostname: fda-gateway-service
     build: ./fda-gateway-service
     image: fda-gateway-service
-    network_mode: bridge
+    networks:
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9095:9095
     links:
       - fda-discovery-server
-      - fda-database-managing-service
-      - fda-container-managing-service
+      - fda-database-service
+      - fda-container-service
       - fda-query-service
       - fda-table-service
     depends_on:
@@ -54,36 +72,38 @@ services:
     logging:
       driver: json-file
 
-  fda-database-managing-service:
+  fda-database-service:
     restart: always
-    container_name: fda-database-managing-service
-    hostname: fda-database-managing-service
-    build:
-      context: ./fda-database-managing-service
-    image: fda-database-managing-service
-    network_mode: bridge
+    container_name: fda-database-service
+    hostname: fda-database-service
+    build: ./fda-database-service
+    image: fda-database-service
+    networks:
+      - fda-userdb
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9092:9092
     links:
       - fda-discovery-server
-      - fda-container-managing-service
+      - fda-container-service
       - fda-metadata-db
     depends_on:
       - fda-discovery-server
-      - fda-container-managing-service
+      - fda-container-service
       - fda-metadata-db
     logging:
       driver: json-file
 
-  fda-container-managing-service:
+  fda-container-service:
     restart: always
-    container_name: fda-container-managing-service
-    hostname: fda-container-managing-service
-    build: ./fda-container-managing-service
-    image: fda-container-managing-service
-    network_mode: bridge
+    container_name: fda-container-service
+    hostname: fda-container-service
+    build: ./fda-container-service
+    image: fda-container-service
+    networks:
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -105,7 +125,9 @@ services:
     hostname: fda-query-service
     build: ./fda-query-service
     image: fda-query-service
-    network_mode: bridge
+    networks:
+      - fda-public
+      - fda-userdb
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -114,10 +136,10 @@ services:
       - /tmp:/tmp
     links:
       - fda-discovery-server
-      - fda-container-managing-service
+      - fda-container-service
     depends_on:
       - fda-discovery-server
-      - fda-container-managing-service
+      - fda-container-service
     logging:
       driver: json-file
 
@@ -127,7 +149,9 @@ services:
     hostname: fda-table-service
     build: ./fda-table-service
     image: fda-table-service
-    network_mode: bridge
+    networks:
+      - fda-public
+      - fda-userdb
     environment:
       SPRING_PROFILES_ACTIVE: docker
       multipart.location: /tmp
@@ -136,8 +160,10 @@ services:
     volumes:
       - /tmp:/tmp
     links:
+      - fda-metadata-db
       - fda-discovery-server
     depends_on:
+      - fda-metadata-db
       - fda-discovery-server
 
   fda-analyse-service:
@@ -146,7 +172,8 @@ services:
     hostname: fda-analyse-service
     build: ./fda-analyse-service
     image: fda-analyse-service
-    network_mode: bridge
+    networks:
+      - fda-public
     command: sh -c "/wait && flask run"
     environment:
       EUREKA_SERVER: http://fda-discovery-server:9090/eureka
@@ -171,11 +198,16 @@ services:
     hostname: fda-ui
     build: ./fda-ui
     image: fda-ui
+    networks:
+      - fda-public
     ports:
       - 3000:3000
     depends_on:
-      - fda-container-managing-service
-      - fda-database-managing-service
+      - fda-container-service
+      - fda-database-service
+      - fda-table-service
     environment:
       HOST: 0.0.0.0
-      API_URL: //fda-database-managing-service:9092/api
+      API_CONTAINER: http://fda-container-service:9091
+      API_DATABASE: http://fda-database-service:9092
+      API_TABLES: http://fda-table-service:9094
