@@ -1,9 +1,9 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.dto.database.DatabaseBriefDto;
-import at.tuwien.dto.database.DatabaseChangeDto;
-import at.tuwien.dto.database.DatabaseCreateDto;
-import at.tuwien.entity.Database;
+import at.tuwien.api.database.DatabaseBriefDto;
+import at.tuwien.api.database.DatabaseChangeDto;
+import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.service.DatabaseService;
