@@ -1,11 +1,11 @@
 package at.tuwien.service;
 
-import at.tuwien.dto.table.TableCreateDto;
-import at.tuwien.dto.table.columns.ColumnCreateDto;
-import at.tuwien.dto.table.columns.ColumnTypeDto;
-import at.tuwien.entity.Database;
-import at.tuwien.entity.Table;
-import at.tuwien.entity.TableColumn;
+import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.columns.ColumnCreateDto;
+import at.tuwien.api.database.table.columns.ColumnTypeDto;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.DataProcessingException;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.TableMalformedException;
