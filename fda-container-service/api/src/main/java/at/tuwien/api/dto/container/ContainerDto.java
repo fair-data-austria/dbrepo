@@ -3,6 +3,7 @@ package at.tuwien.api.dto.container;
 import at.tuwien.api.dto.IpAddressDto;
 import at.tuwien.api.dto.image.ImageDto;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

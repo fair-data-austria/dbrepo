@@ -1,6 +1,8 @@
 package at.tuwien.service;
 
 import at.tuwien.api.dto.container.ContainerCreateRequestDto;
+import at.tuwien.api.dto.container.ContainerDto;
+import at.tuwien.api.dto.container.ContainerStateDto;
 import at.tuwien.entity.Container;
 import at.tuwien.entity.ContainerImage;
 import at.tuwien.exception.ContainerNotFoundException;
@@ -53,9 +55,8 @@ public class ContainerService {
     }
 
     public Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException {
-        final ContainerImage tmp = containerMapper.containerCreateRequestDtoToContainerImage(createDto);
-        final ContainerImage containerImage = imageRepository.findByRepositoryAndTag(tmp.getRepository(), tmp.getTag());
-        if (containerImage == null) {
+        final Optional<ContainerImage> image = imageRepository.findByRepositoryAndTag(createDto.getRepository(), createDto.getTag());
+        if (image.isEmpty()) {
             log.error("failed to get image with name {}:{}", createDto.getRepository(), createDto.getTag());
             throw new ImageNotFoundException("image was not found in metadata database.");
         }
@@ -63,11 +64,11 @@ public class ContainerService {
         final HostConfig hostConfig = this.hostConfig
                 .withNetworkMode("fda-userdb")
                 .withLinks(List.of(new Link("fda-database-managing-service", "fda-database-managing-service")))
-                .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
+                .withPortBindings(PortBinding.parse(availableTcpPort + ":" + image.get().getDefaultPort()));
         /* save to metadata database */
         Container container = new Container();
         container.setContainerCreated(Instant.now());
-        container.setImage(containerImage);
+        container.setImage(image.get());
         container.setPort(availableTcpPort);
         container.setName(createDto.getName());
         container.setInternalName(containerMapper.containerToInternalContainerName(container));
@@ -77,7 +78,7 @@ public class ContainerService {
             response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
                     .withName(container.getInternalName())
                     .withHostName(container.getInternalName())
-                    .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
+                    .withEnv(imageMapper.environmentItemsToStringList(image.get().getEnvironment()))
                     .withHostConfig(hostConfig)
                     .exec();
         } catch (ConflictException e) {
@@ -177,7 +178,7 @@ public class ContainerService {
         return networks;
     }
 
-    public InspectContainerResponse getContainerState(String containerHash) throws DockerClientException {
+    public ContainerStateDto getContainerState(String containerHash) throws DockerClientException {
         final InspectContainerResponse response;
         try {
             response = dockerClient.inspectContainerCmd(containerHash)
@@ -188,7 +189,8 @@ public class ContainerService {
             throw new DockerClientException("docker client failed", e);
         }
         log.debug("received container state {}", response);
-        return response;
+        final ContainerDto dto = containerMapper.inspectContainerResponseToContainerDto(response);
+        return dto.getState();
     }
 
 }

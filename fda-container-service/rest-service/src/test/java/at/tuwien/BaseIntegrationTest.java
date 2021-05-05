@@ -1,5 +1,7 @@
 package at.tuwien;
 
+import at.tuwien.api.dto.container.ContainerBriefDto;
+import at.tuwien.api.dto.container.ContainerDto;
 import at.tuwien.entity.Container;
 import at.tuwien.entity.ContainerImage;
 import at.tuwien.entity.EnvironmentItem;
