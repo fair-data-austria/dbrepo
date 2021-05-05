@@ -104,9 +104,8 @@ public class ContainerService {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        final Container container1 = containerRepository.save(container.get());
-        log.debug("Stopped container {}", container1);
-        return container1;
+        log.debug("Stopped container {}", container.get());
+        return container.get();
     }
 
     public void remove(Long containerId) throws ContainerNotFoundException, DockerClientException,
@@ -155,7 +154,6 @@ public class ContainerService {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        container = containerRepository.save(container);
         return container;
     }
 
