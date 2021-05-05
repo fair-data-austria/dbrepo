@@ -1,13 +1,12 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseIntegrationTest;
-import at.tuwien.api.dto.container.ContainerCreateRequestDto;
-import at.tuwien.entity.Container;
+import at.tuwien.api.container.ContainerCreateRequestDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -31,9 +31,6 @@ public class ServiceTest extends BaseIntegrationTest {
 
     @MockBean
     private ContainerRepository containerRepository;
-
-    @MockBean
-    private ImageRepository imageRepository;
 
     @Autowired
     private ContainerService containerService;

@@ -1,4 +1,4 @@
-package at.tuwien.entities.container;
+package at.tuwien.entities.container.image;
 
 import at.tuwien.entities.Auditable;
 import lombok.*;
@@ -43,6 +43,6 @@ public class ContainerImage extends Auditable {
 
     @ToString.Include
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<EnvironmentItem> environment;
+    private List<ContainerImageEnvironmentItem> environment;
 
 }

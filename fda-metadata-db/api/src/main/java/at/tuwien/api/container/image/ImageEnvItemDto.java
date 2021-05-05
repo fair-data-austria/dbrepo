@@ -1,4 +1,4 @@
-package at.tuwien.api.container;
+package at.tuwien.api.container.image;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
