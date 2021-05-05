@@ -1,7 +1,8 @@
 package at.tuwien.service;
 
-import at.tuwien.dto.table.TableCreateDto;
-import at.tuwien.entity.Table;
+
+import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.entities.database.table.Table;
 
 import java.sql.*;
 import java.util.List;

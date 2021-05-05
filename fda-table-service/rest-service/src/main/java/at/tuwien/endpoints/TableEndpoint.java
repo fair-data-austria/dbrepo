@@ -1,14 +1,14 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.dto.table.TableBriefDto;
-import at.tuwien.dto.table.TableCreateDto;
-import at.tuwien.dto.table.TableDto;
-import at.tuwien.entity.Table;
+import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.table.TableBriefDto;
+import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.TableDto;
+import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryResultMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.model.QueryResult;
-import at.tuwien.model.QueryResultDto;
 import at.tuwien.service.TableService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;

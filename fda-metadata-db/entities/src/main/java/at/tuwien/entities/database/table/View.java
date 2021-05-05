@@ -1,6 +1,7 @@
-package at.tuwien.entities.database;
+package at.tuwien.entities.database.table;
 
 import at.tuwien.entities.Auditable;
+import at.tuwien.entities.database.Database;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -8,21 +9,21 @@ import lombok.ToString;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import java.util.List;
 
 @Data
-@Entity(name = "mdb_tables")
+@Entity(name = "mdb_views")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
-public class Table extends Auditable {
+public class View extends Auditable {
 
     @ToString.Include
     @Column(nullable = false)
     private String name;
 
     @ToString.Include
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Database database;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Database> databases;
 
 }
-
