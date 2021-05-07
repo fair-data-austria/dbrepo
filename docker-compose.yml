@@ -22,7 +22,8 @@ services:
     restart: always
     container_name: fda-metadata-db
     hostname: fda-metadata-db
-    image: postgres:13-alpine
+    build: ./fda-metadata-db
+    image: fda-metadata-db
     networks:
       - fda-public
     volumes:
