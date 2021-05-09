@@ -11,7 +11,7 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 @EnableJpaAuditing
 @EnableOpenApi
 @EnableJpaRepositories(basePackages = {"at.tuwien.repository"})
-@EntityScan(basePackages = {"at.tuwien.entity"})
+@EntityScan(basePackages = {"at.tuwien.entities"})
 public class FdaContainerManagingApplication {
 
     public static void main(String[] args) {
