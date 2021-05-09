@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.api.database.query.ExecuteQueryDTO;
+import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.query.QueryResult;
@@ -34,7 +34,7 @@ public class QueryService {
     }
 
 
-    public QueryResult executeQuery(String id, ExecuteQueryDTO dto) {
+    public QueryResult executeQuery(String id, ExecuteQueryDto dto) {
         System.out.println("test");
 
         return null;

@@ -1,6 +1,6 @@
 package at.tuwien.utils;
 
-import at.tuwien.api.database.query.ExecuteQueryDTO;
+import at.tuwien.api.database.query.ExecuteQueryDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ public class ReWrittenQueryWrapperTest {
     @Test
     public void test_determineReWrittenQuery() {
         ReWrittenQueryWrapper wrapper = new ReWrittenQueryWrapper();
-        ExecuteQueryDTO dto = new ExecuteQueryDTO();
+        ExecuteQueryDto dto = new ExecuteQueryDto();
         dto.setQuery("SELECT * FROM TABLEA WHERE TABLEA.ID = '2'");
 
 
