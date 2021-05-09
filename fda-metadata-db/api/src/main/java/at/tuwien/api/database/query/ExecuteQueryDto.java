@@ -8,8 +8,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ExecuteStatementDTO {
+public class ExecuteQueryDto {
 
-    @JsonProperty("Statement")
-    private String statement;
+    @JsonProperty("Query")
+    private String query;
+
 }
