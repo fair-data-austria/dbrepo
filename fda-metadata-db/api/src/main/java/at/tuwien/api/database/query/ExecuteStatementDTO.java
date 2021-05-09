@@ -1,4 +1,4 @@
-package at.tuwien.dto;
+package at.tuwien.api.database.query;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
