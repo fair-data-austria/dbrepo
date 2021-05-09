@@ -7,11 +7,15 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.3.10.RELEASE</version>
     </parent>
+
     <groupId>at.tuwien</groupId>
-    <artifactId>fda-discovery-server</artifactId>
+    <artifactId>fda-discovery-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-discovery-server</name>
+    <name>fda-discovery-service</name>
     <description>Demo project for Spring Boot</description>
+
+    <packaging>jar</packaging>
+    <modules />
 
     <properties>
         <java.version>11</java.version>
@@ -20,8 +24,24 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>${spring-cloud.version}</artifactId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+            <version>${spring-cloud.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+            <version>${spring-cloud.version}</version>
+        </dependency>
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

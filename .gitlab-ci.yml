@@ -18,10 +18,11 @@ stages:
 test-backend: 
   script: 
     - "mvn -f fda-container-service/pom.xml clean test"
-    - "mvn -f fda-table-service/pom.xml clean test"
     - "mvn -f fda-database-service/pom.xml clean test"
-    - "mvn -f fda-discovery-server/pom.xml clean test"
+    - "mvn -f fda-discovery-service/pom.xml clean test"
+    - "mvn -f fda-gateway-service/pom.xml clean test"
     - "mvn -f fda-query-service/pom.xml clean test"
+    - "mvn -f fda-table-service/pom.xml clean test"
   stage: test
 test-frontend: 
   script: 
