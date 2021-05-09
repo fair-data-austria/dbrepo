@@ -1,7 +1,7 @@
 package at.tuwien.service;
 
-import at.tuwien.entity.Database;
-import at.tuwien.entity.Query;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.DatabaseConnectionException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +60,8 @@ public class PostgresService extends JdbcConnector {
                 results.add(Query.builder()
                         .id(result.getLong("id"))
                         .query(result.getString("query"))
-                        .query_normalized(result.getString("query_normalized"))
-                        .execution_timestamp(result.getTimestamp("execution_timestamp"))
+                        .queryNormalized(result.getString("query_normalized"))
+                        .executionTimestamp(result.getTimestamp("execution_timestamp"))
                         .build());
             }
         } catch(DatabaseConnectionException e) {
@@ -81,11 +81,11 @@ public class PostgresService extends JdbcConnector {
             PreparedStatement statement = connection.prepareStatement(saveQuery);
             System.out.println(query.toString());
             statement.setString(1, "'"+query.getQuery()+"'");
-            statement.setString(2, "'"+query.getQuery_normalized()+"'");
-            statement.setString(3, query.getQuery_hash());
-            statement.setTimestamp(4, query.getExecution_timestamp());
-            statement.setString(5, query.getResult_hash());
-            statement.setInt(6, query.getResult_number());
+            statement.setString(2, "'"+query.getQueryNormalized()+"'");
+            statement.setString(3, query.getQueryHash());
+            statement.setTimestamp(4, query.getExecutionTimestamp());
+            statement.setString(5, query.getResultHash());
+            statement.setInt(6, query.getResultNumber());
             log.debug(statement.toString());
             return statement.execute();
 
