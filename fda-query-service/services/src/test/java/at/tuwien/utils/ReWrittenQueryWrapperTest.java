@@ -1,12 +1,14 @@
 package at.tuwien.utils;
 
-import at.tuwien.dto.ExecuteQueryDTO;
+import at.tuwien.api.database.query.ExecuteQueryDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(classes = ReWrittenQueryWrapper.class)
+@TestPropertySource(locations = "classpath:application.properties")
 public class ReWrittenQueryWrapperTest {
 
     @Disabled

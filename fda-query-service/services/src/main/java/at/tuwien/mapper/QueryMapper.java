@@ -1,8 +1,8 @@
 package at.tuwien.mapper;
 
-import at.tuwien.dto.ExecuteQueryDTO;
-import at.tuwien.dto.QueryDto;
-import at.tuwien.entity.Query;
+import at.tuwien.api.database.query.ExecuteQueryDTO;
+import at.tuwien.api.database.query.QueryDto;
+import at.tuwien.entities.database.query.Query;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
