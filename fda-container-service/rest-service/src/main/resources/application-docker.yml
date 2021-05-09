@@ -13,6 +13,8 @@ spring:
     open-in-view: false
   application:
     name: fda-container-service
+  cloud:
+    loadbalancer.ribbon.enabled: false
 server.port: 9091
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"

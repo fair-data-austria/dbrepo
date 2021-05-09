@@ -1,8 +1,8 @@
 package at.tuwien.service;
 
 
-import at.tuwien.entity.Database;
-import at.tuwien.entity.Query;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.Query;
 
 import java.sql.*;
 import java.util.List;
