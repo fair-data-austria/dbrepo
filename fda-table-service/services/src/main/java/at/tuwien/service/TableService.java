@@ -2,11 +2,11 @@ package at.tuwien.service;
 
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.QueryResult;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.model.QueryResult;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import lombok.extern.log4j.Log4j2;

@@ -1,4 +1,4 @@
-package at.tuwien.model;
+package at.tuwien.api.database.query;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -8,10 +8,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ExecuteInternalQueryDTO {
+public class ExecuteInternalQueryDto {
 
     @JsonProperty("ContainerID")
-    private String containerID;
+    private String containerId;
+
     @JsonProperty("Query")
     private String query;
 
