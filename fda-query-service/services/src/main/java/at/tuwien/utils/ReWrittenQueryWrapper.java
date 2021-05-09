@@ -1,6 +1,6 @@
 package at.tuwien.utils;
 
-import at.tuwien.dto.ExecuteQueryDTO;
+import at.tuwien.api.database.query.ExecuteQueryDTO;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
