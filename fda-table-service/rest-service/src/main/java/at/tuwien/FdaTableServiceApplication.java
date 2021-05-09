@@ -14,7 +14,7 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 @EnableOpenApi
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {"at.tuwien.repository"})
-@EntityScan(basePackages = {"at.tuwien.entity"})
+@EntityScan(basePackages = {"at.tuwien.entities"})
 public class FdaTableServiceApplication {
 
     public static void main(String[] args) {
