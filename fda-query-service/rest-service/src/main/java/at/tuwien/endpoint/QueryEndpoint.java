@@ -1,6 +1,6 @@
 package at.tuwien.endpoint;
 
-import at.tuwien.api.database.query.ExecuteQueryDTO;
+import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.query.QueryResult;
@@ -74,7 +74,7 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResult> modify(@PathVariable Long id, @RequestBody ExecuteQueryDTO dto) throws DatabaseNotFoundException, ImageNotSupportedException, SQLSyntaxErrorException {
+    public ResponseEntity<QueryResult> modify(@PathVariable Long id, @RequestBody ExecuteQueryDto dto) throws DatabaseNotFoundException, ImageNotSupportedException, SQLSyntaxErrorException {
         final QueryResult qr = queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +85,7 @@ public class QueryEndpoint {
     @PutMapping("/query/version/{timestamp}")
     @ApiOperation(value = "executes a query with a given timestamp")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query with Timestamp")})
-    public ResponseEntity<?> modify(@PathVariable Long id, @PathVariable String timestamp, @RequestBody ExecuteQueryDTO dto) throws DatabaseNotFoundException, ImageNotSupportedException, SQLSyntaxErrorException {
+    public ResponseEntity<?> modify(@PathVariable Long id, @PathVariable String timestamp, @RequestBody ExecuteQueryDto dto) throws DatabaseNotFoundException, ImageNotSupportedException, SQLSyntaxErrorException {
         queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
