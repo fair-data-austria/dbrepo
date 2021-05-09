@@ -3,31 +3,39 @@ before_script:
   - "docker version"
   - "docker-compose version"
   - "mvn --version"
-build: 
-  script: 
-    - "docker-compose build"
-  stage: build
+
 cache: 
   paths: 
     - /root/.m2/repository/
     - /root/.npm/
+
 image: "docker/compose:latest"
+
 stages: 
   - build
   - test
-test-backend: 
-  script: 
+
+build:
+  stage: build
+  script:
+    - "docker-compose build"
+
+test-backend:
+  stage: test
+  script:
+    - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
     - "mvn -f fda-container-service/pom.xml clean test"
     - "mvn -f fda-database-service/pom.xml clean test"
     - "mvn -f fda-discovery-service/pom.xml clean test"
     - "mvn -f fda-gateway-service/pom.xml clean test"
     - "mvn -f fda-query-service/pom.xml clean test"
     - "mvn -f fda-table-service/pom.xml clean test"
+
+test-frontend:
   stage: test
-test-frontend: 
   script: 
     - "echo \"todo\""
-  stage: test
+
 variables: 
   DOCKER_TLS_CERTDIR: /certs
 
