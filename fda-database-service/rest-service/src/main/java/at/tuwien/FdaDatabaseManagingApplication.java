@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableOpenApi
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {"at.tuwien.repository"})
-@EntityScan(basePackages = {"at.tuwien.entity"})
+@EntityScan(basePackages = {"at.tuwien.entities"})
 public class FdaDatabaseManagingApplication {
 
     public static void main(String[] args) {
