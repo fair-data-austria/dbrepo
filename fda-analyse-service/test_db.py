@@ -3,24 +3,28 @@ import requests
 import json 
 import subprocess
 import time
-#import docker 
-#import os
-#import tarfile
+import docker 
+import os
+import tarfile
 
-#def copy_to(src, dst):
-#    name, dst = dst.split(':')
-#    container = client.containers.get(name)
-#
-#    os.chdir(os.path.dirname(src))
-#    srcname = os.path.basename(src)
-#    tar = tarfile.open(src + '.tar', mode='w')
-#    try:
-#        tar.add(srcname)
-#    finally:
-#        tar.close()
-#
-#    data = open(src + '.tar', 'rb').read()
-#    container.put_archive(os.path.dirname(dst), data)
+client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+
+def copy_to(src, dst):
+    name, dst = dst.split(':')
+    container = client.containers.get(name)
+
+    os.chdir(os.path.dirname(src))
+    srcname = os.path.basename(src)
+    tar = tarfile.open(src + '.tar', mode='w')
+    try:
+        tar.add(srcname)
+    finally:
+        tar.close()
+
+    data = open(src + '.tar', 'rb').read()
+    container.put_archive(os.path.dirname(dst), data)
+    
+    container.exec_run('tar -xf ' + dst)
 
 
 # Create postgres image
@@ -94,12 +98,13 @@ try:
     cursor.execute(sql_file.read())
     conn.commit()
     
-#    copy_to('./ex-dbs/insert_ex_db.sql', 'fda-userdb-'+str(r.json()['internalName']).replace('_','-')+':/insert_ex_db.sql')
-#    
-#    insert_file = open('insert_ex_db.sql')
-#    cursor.execute(insert_file.read())
-#    conn.commit()
+    copy_to('/ex-dbs', str(r.json()['internalName']).replace('_','-') + ':/ex-dbs')
+    #copy_to('/ex-dbs/insert_ex_db.sql', str(r.json()['internalName']).replace('_','-')+':/insert_ex_db.sql')
+    
+    insert_file = open('/ex-dbs/insert_ex_db.sql', 'r')
+    cursor.execute(insert_file.read())
+    conn.commit()
     conn.close()
-except: 
-    print("Error while connecting to database.") 
+except Exception as e: 
+    print("Error while connecting to database.", e) 
 

@@ -174,7 +174,7 @@ services:
     networks:
       - fda-public
       - fda-userdb
-    command: sh -c "/wait && flask run"
+    command: sh -c "/wait && python test_db.py && flask run"
     environment:
       EUREKA_SERVER: http://fda-discovery-server:9090/eureka
       WAIT_HOSTS: fda-discovery-server:9090
@@ -185,6 +185,7 @@ services:
       - 5000:5000
     volumes:
       - /tmp:/tmp
+      - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-server
     depends_on:
@@ -192,22 +193,22 @@ services:
     logging:
       driver: json-file
 
-  fda-ui:
-    restart: always
-    container_name: fda-ui
-    hostname: fda-ui
-    build: ./fda-ui
-    image: fda-ui
-    networks:
-      - fda-public
-    ports:
-      - 3000:3000
-    depends_on:
-      - fda-container-service
-      - fda-database-service
-      - fda-table-service
-    environment:
-      HOST: 0.0.0.0
-      API_CONTAINER: http://fda-container-service:9091
-      API_DATABASE: http://fda-database-service:9092
-      API_TABLES: http://fda-table-service:9094
+#  fda-ui:
+#    restart: always
+#    container_name: fda-ui
+#    hostname: fda-ui
+#    build: ./fda-ui
+#    image: fda-ui
+#    networks:
+#      - fda-public
+#    ports:
+#      - 3000:3000
+#    depends_on:
+#      - fda-container-service
+#      - fda-database-service
+#      - fda-table-service
+#    environment:
+#      HOST: 0.0.0.0
+#      API_CONTAINER: http://fda-container-service:9091
+#      API_DATABASE: http://fda-database-service:9092
+#      API_TABLES: http://fda-table-service:9094
