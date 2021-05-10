@@ -8,9 +8,12 @@ import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.service.ContainerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.jvnet.hk2.annotations.Service;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -39,16 +42,14 @@ public class EndpointTest extends BaseIntegrationTest {
 
     @Test
     public void listAllDatabases_succeeds() {
-        when(containerService.getAll())
-                .thenReturn(List.of(CONTAINER_1, CONTAINER_2));
+        when(containerEndpoint.findAll())
+                .thenReturn(ResponseEntity.ok(List.of(CONTAINER_1_BRIEF_DTO, CONTAINER_2_BRIEF_DTO)));
 
-        final List<Container> response = containerService.getAll();
+        final ResponseEntity<List<ContainerBriefDto>> response = containerEndpoint.findAll();
 
-        assertEquals(2, response.size());
-        assertEquals(CONTAINER_1_ID, response.get(0).getId());
-        assertEquals(CONTAINER_1_NAME, response.get(0).getName());
-        assertEquals(CONTAINER_2_ID, response.get(1).getId());
-        assertEquals(CONTAINER_2_NAME, response.get(1).getName());
+        /* test */
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, Objects.requireNonNull(response.getBody()).size());
     }
 
     @Test
@@ -57,35 +58,31 @@ public class EndpointTest extends BaseIntegrationTest {
                 .name(CONTAINER_1_NAME)
                 .repository(CONTAINER_1_IMAGE.getRepository())
                 .tag(CONTAINER_1_IMAGE.getTag())
-                .name(CONTAINER_1_DATABASE)
                 .build();
-        when(containerService.getById(CONTAINER_1_ID))
-                .thenReturn(CONTAINER_1);
-        when(containerService.getContainerState(CONTAINER_1_HASH))
-                .thenReturn(ContainerStateDto.CREATED);
-        when(containerService.findIpAddresses(CONTAINER_1_HASH))
-                .thenReturn(Map.of("test", CONTAINER_1_IP));
+        when(containerEndpoint.create(request))
+                .thenReturn(ResponseEntity.ok(CONTAINER_1_BRIEF_DTO));
+
+        final ResponseEntity<ContainerBriefDto> response = containerEndpoint.create(request);
 
         /* test */
-        final ResponseEntity<ContainerBriefDto> response = containerEndpoint.create(request);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(CONTAINER_1_NAME, Objects.requireNonNull(response.getBody()).getName());
     }
 
     @Test
     public void create_noImage_fails() throws DockerClientException, ImageNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
-                .repository(CONTAINER_1_IMAGE.getRepository())
-                .tag(CONTAINER_1_IMAGE.getTag())
-                .name(CONTAINER_1_DATABASE)
+                .repository("image")
+                .tag("notexisting")
                 .build();
-        given(containerService.create(request))
-                .willAnswer(invocation -> { throw new ImageNotFoundException("no image"); });
+        when(containerEndpoint.create(request))
+                .thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).body(CONTAINER_1_BRIEF_DTO));
+
+        final ResponseEntity<ContainerBriefDto> response = containerEndpoint.create(request);
 
         /* test */
-        assertThrows(ImageNotFoundException.class, () -> {
-            containerEndpoint.create(request);
-        });
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -94,15 +91,14 @@ public class EndpointTest extends BaseIntegrationTest {
                 .name(CONTAINER_1_NAME)
                 .repository(CONTAINER_1_IMAGE.getRepository())
                 .tag(CONTAINER_1_IMAGE.getTag())
-                .name(CONTAINER_1_DATABASE)
                 .build();
-        given(containerService.create(request))
-                .willAnswer(invocation -> { throw new DockerClientException("name already occupied"); });
+        when(containerEndpoint.create(request))
+                .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CONTAINER_1_BRIEF_DTO));
+
+        final ResponseEntity<ContainerBriefDto> response = containerEndpoint.create(request);
 
         /* test */
-        assertThrows(DockerClientException.class, () -> {
-            containerEndpoint.create(request);
-        });
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -121,7 +117,9 @@ public class EndpointTest extends BaseIntegrationTest {
     @Test
     public void findById_notFound_fails() throws ContainerNotFoundException {
         given(containerService.getById(CONTAINER_1_ID))
-                .willAnswer(invocation -> { throw new ContainerNotFoundException("no container"); });
+                .willAnswer(invocation -> {
+                    throw new ContainerNotFoundException("no container");
+                });
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
@@ -132,7 +130,9 @@ public class EndpointTest extends BaseIntegrationTest {
     @Test
     public void findById_docker_fails() throws ContainerNotFoundException, DockerClientException {
         given(containerService.getById(CONTAINER_1_ID))
-                .willAnswer(invocation -> { throw new DockerClientException("no state"); });
+                .willAnswer(invocation -> {
+                    throw new DockerClientException("no state");
+                });
         when(containerService.getContainerState(CONTAINER_1_HASH))
                 .thenReturn(null);
 

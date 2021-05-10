@@ -23,7 +23,6 @@ public interface TableMapper {
     @Mappings({
             @Mapping(source = "columns", target = "columns", qualifiedByName = "columnMapping"),
             @Mapping(source = "name", target = "name"),
-            @Mapping(source = "description", target = "description"),
     })
     Table tableCreateDtoToTable(TableCreateDto data);
 

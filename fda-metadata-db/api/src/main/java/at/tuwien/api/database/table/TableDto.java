@@ -3,9 +3,7 @@ package at.tuwien.api.database.table;
 import at.tuwien.api.database.table.columns.RowDto;
 import at.tuwien.api.database.table.columns.ColumnDto;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -13,7 +11,14 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
-public class TableDto extends TableBriefDto {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class TableDto {
+
+    @NotNull
+    @ApiModelProperty(name = "table id", example = "1")
+    private Long id;
 
     @NotBlank
     @ApiModelProperty(name = "table name", example = "Fundamentals")
