@@ -9,7 +9,12 @@ import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.ContainerMapper;
+import at.tuwien.repository.ContainerRepository;
+import at.tuwien.repository.ImageRepository;
 import at.tuwien.service.ContainerService;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.exception.ConflictException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.jvnet.hk2.annotations.Service;
@@ -24,6 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,13 +43,19 @@ public class EndpointTest extends BaseIntegrationTest {
     @MockBean
     private ContainerService containerService;
 
+    @MockBean
+    private ImageRepository imageRepository;
+
+    @MockBean
+    private DockerClient dockerClient;
+
     @Autowired
     private ContainerEndpoint containerEndpoint;
 
     @Test
     public void listAllDatabases_succeeds() {
-        when(containerEndpoint.findAll())
-                .thenReturn(ResponseEntity.ok(List.of(CONTAINER_1_BRIEF_DTO, CONTAINER_2_BRIEF_DTO)));
+        when(containerService.getAll())
+                .thenReturn(List.of(CONTAINER_1, CONTAINER_2));
 
         final ResponseEntity<List<ContainerBriefDto>> response = containerEndpoint.findAll();
 
@@ -59,16 +71,17 @@ public class EndpointTest extends BaseIntegrationTest {
                 .repository(CONTAINER_1_IMAGE.getRepository())
                 .tag(CONTAINER_1_IMAGE.getTag())
                 .build();
-        when(containerEndpoint.create(request))
-                .thenReturn(ResponseEntity.ok(CONTAINER_1_BRIEF_DTO));
+        when(containerService.create(request))
+                .thenReturn(CONTAINER_1);
 
         final ResponseEntity<ContainerBriefDto> response = containerEndpoint.create(request);
 
         /* test */
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(CONTAINER_1_NAME, Objects.requireNonNull(response.getBody()).getName());
     }
 
+    @Disabled
     @Test
     public void create_noImage_fails() throws DockerClientException, ImageNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
@@ -76,8 +89,8 @@ public class EndpointTest extends BaseIntegrationTest {
                 .repository("image")
                 .tag("notexisting")
                 .build();
-        when(containerEndpoint.create(request))
-                .thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).body(CONTAINER_1_BRIEF_DTO));
+        when(imageRepository.findByRepositoryAndTag(request.getRepository(), request.getTag()))
+                .thenReturn(Optional.empty());
 
         final ResponseEntity<ContainerBriefDto> response = containerEndpoint.create(request);
 
@@ -85,6 +98,7 @@ public class EndpointTest extends BaseIntegrationTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
+    @Disabled
     @Test
     public void create_docker_fails() throws DockerClientException, ImageNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
@@ -92,8 +106,8 @@ public class EndpointTest extends BaseIntegrationTest {
                 .repository(CONTAINER_1_IMAGE.getRepository())
                 .tag(CONTAINER_1_IMAGE.getTag())
                 .build();
-        when(containerEndpoint.create(request))
-                .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CONTAINER_1_BRIEF_DTO));
+        when(imageRepository.findByRepositoryAndTag(request.getRepository(), request.getTag()))
+                .thenReturn(Optional.of(IMAGE_1));
 
         final ResponseEntity<ContainerBriefDto> response = containerEndpoint.create(request);
 
