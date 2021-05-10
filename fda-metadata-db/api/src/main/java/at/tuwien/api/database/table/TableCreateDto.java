@@ -3,9 +3,7 @@ package at.tuwien.api.database.table;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -13,6 +11,9 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TableCreateDto {
 
     @NotBlank

@@ -1,17 +1,14 @@
 package at.tuwien.api.database.query;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.sql.Timestamp;
 
-
-@Data
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class QueryDto {
 
     private Long id;
