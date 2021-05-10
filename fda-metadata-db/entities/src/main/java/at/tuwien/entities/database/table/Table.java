@@ -25,10 +25,6 @@ public class Table extends Auditable {
     private String internalName;
 
     @ToString.Include
-    @Column
-    private String description;
-
-    @ToString.Include
     @ManyToOne
     private Database database;
 

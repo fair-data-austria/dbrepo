@@ -1,17 +1,19 @@
 package at.tuwien.api.container.image;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
+import java.time.Instant;
 
 @Getter
 @Setter
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ImageDto {
 
     @NotBlank
@@ -28,7 +30,7 @@ public class ImageDto {
 
     @NotBlank
     @ApiModelProperty(required = true, example = "2021-03-12T15:26:21.678396092Z")
-    private String compiled;
+    private Instant compiled;
 
     @NotNull
     @ApiModelProperty(required = true, example = "314295447")
