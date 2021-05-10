@@ -125,7 +125,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
             @ApiResponse(code = 409, message = "Container is still running."),
     })
-    public ResponseEntity delete(@NotNull @PathVariable Long id) throws ContainerNotFoundException,
+    public ResponseEntity<?> delete(@NotNull @PathVariable Long id) throws ContainerNotFoundException,
             DockerClientException, ContainerStillRunningException {
         containerService.remove(id);
         return ResponseEntity.status(HttpStatus.OK)
