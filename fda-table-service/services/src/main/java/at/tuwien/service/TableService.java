@@ -1,8 +1,8 @@
 package at.tuwien.service;
 
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
-import at.tuwien.entities.database.query.QueryResult;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
@@ -122,7 +122,7 @@ public class TableService {
         return out;
     }
 
-    public QueryResult insert(Long databaseId, Long tableId, MultipartFile file) throws Exception {
+    public QueryResultDto insert(Long databaseId, Long tableId, MultipartFile file) throws Exception {
         Table t = findById(databaseId, tableId);
         Database d = findDatabase(databaseId);
         log.debug(t.toString());
@@ -182,8 +182,8 @@ public class TableService {
         return null;
     }
 
-    public QueryResult showData(Long databaseId, Long tableId) throws ImageNotSupportedException, DatabaseNotFoundException, TableNotFoundException {
-        QueryResult queryResult= postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
+    public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException, DatabaseNotFoundException, TableNotFoundException {
+        QueryResultDto queryResult= postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
         for (Map<String, Object> m : queryResult.getResult() ) {
             for ( Map.Entry<String,Object> entry : m.entrySet()) {
                 System.out.print(entry.getKey()+": "+entry.getValue()+", ");
