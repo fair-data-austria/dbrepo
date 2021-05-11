@@ -1,5 +1,5 @@
 ###### FIRST STAGE ######
-FROM node:alpine3.13 as build
+FROM node:lts-alpine3.12 as build
 MAINTAINER Martin Weise <martin.weise@tuwien.ac.at>
 
 RUN apk add --no-cache build-base python3 > /dev/null
@@ -7,7 +7,7 @@ RUN apk add --no-cache build-base python3 > /dev/null
 COPY ./package.json ./
 COPY ./yarn.lock ./
 
-RUN yarn install > /dev/null
+RUN yarn install --frozen-lockfile > /dev/null
 
 COPY ./assets ./assets
 COPY ./components ./components
