@@ -1,10 +1,10 @@
 package at.tuwien.service;
 
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.entities.database.Database;
-import at.tuwien.entities.database.query.QueryResult;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.DataProcessingException;
@@ -64,7 +64,7 @@ public class PostgresService extends JdbcConnector {
         }
     }
 
-    public QueryResult insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) throws DatabaseConnectionException, DataProcessingException {
+    public QueryResultDto insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) throws DatabaseConnectionException, DataProcessingException {
         try{
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(insertStatement(processedData, t, headers));
@@ -87,12 +87,12 @@ public class PostgresService extends JdbcConnector {
      * @param t
      * @return
      */
-    public QueryResult getAllRows(Database database, Table t) {
+    public QueryResultDto getAllRows(Database database, Table t) {
         try{
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(selectStatement(t));
             ResultSet result = statement.executeQuery();
-            QueryResult qr = new QueryResult();
+            QueryResultDto qr = new QueryResultDto();
             List<Map<String,Object>> res = new ArrayList<>();
             while(result.next()) {
                 Map<String,Object> r = new HashMap<>();

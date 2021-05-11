@@ -1,9 +1,9 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
-import at.tuwien.entities.database.query.QueryResult;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
@@ -34,7 +34,7 @@ public class QueryService {
     }
 
 
-    public QueryResult executeQuery(String id, ExecuteQueryDto dto) {
+    public QueryResultDto executeQuery(String id, ExecuteQueryDto dto) {
         System.out.println("test");
 
         return null;
@@ -44,7 +44,7 @@ public class QueryService {
         return postgresService.getQueries(findDatabase(id));
     }
 
-    public QueryResult executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, SQLSyntaxErrorException {
+    public QueryResultDto executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, SQLSyntaxErrorException {
         if (checkValidity(query.getQuery()) == false) {
             throw new SQLSyntaxErrorException("SQL Query contains invalid Syntax");
         }
@@ -79,7 +79,7 @@ public class QueryService {
         return database.get();
     }
 
-    private Query saveQuery(Database database, Query query, QueryResult queryResult) {
+    private Query saveQuery(Database database, Query query, QueryResultDto queryResult) {
         //TODO in next sprint
         String q = query.getQuery();
         query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
