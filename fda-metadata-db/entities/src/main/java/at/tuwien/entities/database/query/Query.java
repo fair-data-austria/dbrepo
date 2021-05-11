@@ -18,7 +18,7 @@ import java.time.Instant;
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "mdb_query")
+@Table(name = "mdb_queries")
 public class Query  {
 
 	@Id

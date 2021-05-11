@@ -18,6 +18,6 @@ RUN mvn clean install
 ###### SECOND STAGE ######
 FROM postgres:latest as runtime
 
-COPY ./create_mdb.py /docker-entrypoint-initdb.d/
+# Scripts are copied to /docker-entrypoint-initdb.d/ in docker-compose from analyze service
 
 COPY --from=build /root/.m2/repository/at/tuwien /root/.m2/repository/at/tuwien
