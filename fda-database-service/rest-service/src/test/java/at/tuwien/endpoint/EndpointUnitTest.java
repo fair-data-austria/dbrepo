@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class EndpointTest extends BaseIntegrationTest {
+public class EndpointUnitTest extends BaseIntegrationTest {
 
     @MockBean
     private DatabaseService databaseService;
