@@ -10,14 +10,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.time.Instant;
 
-@Entity(name = "mdb_container")
 @Data
+@Entity
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table(name = "mdb_container")
 public class Container {
 
     @Id
@@ -30,14 +31,6 @@ public class Container {
             parameters = @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true")
     )
     private Long id;
-
-    @Column(nullable = false, updatable = false)
-    @CreatedDate
-    private Instant created;
-
-    @Column
-    @LastModifiedDate
-    private Instant lastModified;
 
     @ToString.Include
     @Column(nullable = false)
@@ -62,5 +55,13 @@ public class Container {
     @ToString.Include
     @ManyToOne(fetch = FetchType.EAGER)
     private ContainerImage image;
+
+    @Column(nullable = false, updatable = false)
+    @CreatedDate
+    private Instant created;
+
+    @Column
+    @LastModifiedDate
+    private Instant lastModified;
 
 }
