@@ -6,8 +6,6 @@ import at.tuwien.entities.database.Database;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
-import java.util.concurrent.TimeUnit;
-
 
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseIntegrationTest {
@@ -15,13 +13,14 @@ public abstract class BaseIntegrationTest {
     public final Long IMAGE_1_ID = 1L;
     public final String IMAGE_1_REPO = "postgres";
     public final String IMAGE_1_TAG = "latest";
+    public final Integer IMAGE_1_PORT = 5432;
     public final Instant IMAGE_1_CREATED = Instant.now();
     public final Instant IMAGE_1_UPDATED = Instant.now();
 
     public final Long DATABASE_1_ID = 1L;
     public final String DATABASE_1_NAME = "Fundamentals SEC";
-    public final String DATABASE_1_INTERNALNAME = "fundamentals-sec";
-    public final String DATABASE_1_IMAGE = "postgres";
+    public final String DATABASE_1_INTERNALNAME = "fundamentals_sec";
+    public final String DATABASE_1_IMAGE = "postgres:latest";
     public final Instant DATABASE_1_CREATED = Instant.now();
     public final Instant DATABASE_1_UPDATED = Instant.now();
 
@@ -35,6 +34,7 @@ public abstract class BaseIntegrationTest {
             .repository(IMAGE_1_REPO)
             .tag(IMAGE_1_TAG)
             .created(IMAGE_1_CREATED)
+            .defaultPort(IMAGE_1_PORT)
             .compiled(IMAGE_1_UPDATED)
             .build();
 
@@ -55,5 +55,4 @@ public abstract class BaseIntegrationTest {
             .lastModified(DATABASE_1_UPDATED)
             .container(CONTAINER_1)
             .build();
-
 }
