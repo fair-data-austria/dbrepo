@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/database")
-public class DatabaseController {
+public class DatabaseEndpoint {
 
     private final DatabaseMapper databaseMapper;
     private final DatabaseService databaseService;
 
     @Autowired
-    public DatabaseController(DatabaseMapper databaseMapper, DatabaseService databaseService) {
+    public DatabaseEndpoint(DatabaseMapper databaseMapper, DatabaseService databaseService) {
         this.databaseMapper = databaseMapper;
         this.databaseService = databaseService;
     }
@@ -99,7 +99,6 @@ public class DatabaseController {
             @ApiResponse(code = 401, message = "Not authorized to delete a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
-            @ApiResponse(code = 406, message = "The Docker image is not supported (currently only postgres)"),
     })
     public ResponseEntity<?> delete(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException,
             DatabaseMalformedException, ImageNotSupportedException, DatabaseConnectionException {

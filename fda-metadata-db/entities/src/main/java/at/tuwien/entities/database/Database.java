@@ -2,9 +2,7 @@ package at.tuwien.entities.database;
 
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.table.Table;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -15,10 +13,14 @@ import java.time.Instant;
 import java.util.List;
 
 @Data
-@Entity(name = "mdb_databases")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@javax.persistence.Table(name = "mdb_databases")
 public class Database {
 
     @Id
@@ -31,14 +33,6 @@ public class Database {
             parameters = @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true")
     )
     private Long id;
-
-    @Column(nullable = false, updatable = false)
-    @CreatedDate
-    private Instant created;
-
-    @Column
-    @LastModifiedDate
-    private Instant lastModified;
 
     @ToString.Include
     @ManyToOne
@@ -59,5 +53,13 @@ public class Database {
     @ToString.Include
     @Column(nullable = false)
     private Boolean isPublic;
+
+    @Column(nullable = false, updatable = false)
+    @CreatedDate
+    private Instant created;
+
+    @Column
+    @LastModifiedDate
+    private Instant lastModified;
 
 }
