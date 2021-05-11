@@ -4,7 +4,6 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableDto;
-import at.tuwien.entities.database.query.QueryResult;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
@@ -119,7 +118,7 @@ public class TableEndpoint {
             @ApiResponse(code = 404, message = "The table is not found in database."),
     })
     public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId, @RequestParam("file") MultipartFile file) throws Exception {
-        final QueryResult queryResult = tableService.insert(databaseId, tableId, file);
+        final QueryResultDto queryResult = tableService.insert(databaseId, tableId, file);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
 
@@ -130,7 +129,7 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
     public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
-        final QueryResult queryResult = tableService.showData(databaseId, tableId);
+        final QueryResultDto queryResult = tableService.showData(databaseId, tableId);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
 
