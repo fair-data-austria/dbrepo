@@ -35,7 +35,7 @@ public class Table {
     private Long id;
 
     @ToString.Include
-    @Column(nullable = false)
+    @Column(nullable = false, name = "tname")
     private String name;
 
     @ToString.Include
@@ -44,6 +44,7 @@ public class Table {
 
     @ToString.Include
     @ManyToOne
+    @JoinColumn(name = "tdbid")
     private Database database;
 
     @ToString.Include
