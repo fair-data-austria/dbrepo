@@ -23,6 +23,7 @@ build:
 test-backend:
   stage: test
   script:
+    - "docker-compose up -d fda-metadata-db-test"
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
     - "mvn -f fda-container-service/pom.xml clean test"
     - "mvn -f fda-database-service/pom.xml clean test"
@@ -30,6 +31,7 @@ test-backend:
     - "mvn -f fda-gateway-service/pom.xml clean test"
     - "mvn -f fda-query-service/pom.xml clean test"
     - "mvn -f fda-table-service/pom.xml clean test"
+    - "docker-compose down fda-metadata-db-test"
 
 test-frontend:
   stage: test
