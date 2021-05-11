@@ -44,12 +44,12 @@ public class PostgresIntegrationTest extends BaseIntegrationTest {
 
     @BeforeEach
     public void beforeEach() throws SQLException {
-        CONNECTION = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fda-test", postgresProperties);
+        CONNECTION = DriverManager.getConnection("jdbc:postgresql://localhost:5433/fda-test", postgresProperties);
     }
 
     @AfterEach
     public void afterEach() throws SQLException {
-        final Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", postgresProperties);
+        final Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5433/", postgresProperties);
         final PreparedStatement statement = connection.prepareStatement("DROP DATABASE IF EXISTS " + DATABASE_1_INTERNALNAME + ";");
         statement.execute();
     }
