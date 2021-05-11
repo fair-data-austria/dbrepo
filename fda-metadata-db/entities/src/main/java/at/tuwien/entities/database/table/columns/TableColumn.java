@@ -18,7 +18,7 @@ import java.time.Instant;
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@javax.persistence.Table(name = "mdb_table_columns")
+@javax.persistence.Table(name = "mdb_columns")
 public class TableColumn {
 
     @Id
@@ -33,10 +33,11 @@ public class TableColumn {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "tid")
     private Table table;
 
     @ToString.Include
-    @Column(nullable = false)
+    @Column(nullable = false, name = "cname")
     private String name;
 
     @ToString.Include
@@ -48,8 +49,8 @@ public class TableColumn {
     private Boolean isPrimaryKey;
 
     @ToString.Include
-    @Column(nullable = false)
-    private ColumnType columnType;
+    @Column(nullable = false, name = "datatype")
+    private String columnType;
 
     @ToString.Include
     @Column(nullable = false)
