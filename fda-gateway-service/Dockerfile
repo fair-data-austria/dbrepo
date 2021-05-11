@@ -8,7 +8,7 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 
 COPY ./src ./src
 
-RUN mvn -q clean package > /dev/null
+RUN mvn -q clean package
 
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime
