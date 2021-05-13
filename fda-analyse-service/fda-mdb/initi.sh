@@ -55,6 +55,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MINVALUE
 		NO MAXVALUE
 		CACHE 1;
+
+	CREATE SEQUENCE public.mdb_user_seq
+		START WITH 1
+		INCREMENT BY 1
+		NO MINVALUE
+		NO MAXVALUE
+		CACHE 1;
 	
 	CREATE TABLE IF NOT EXISTS mdb_CONTAINER ( 
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_container_seq'),
@@ -77,7 +84,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		CACHE 1;
 
 	CREATE TABLE IF NOT EXISTS mdb_DATA ( 
-		ID INTEGER PRIMARY KEY DEFAULT nextval('mdb_data_seq'), 
+		ID bigint PRIMARY KEY DEFAULT nextval('mdb_data_seq'),
 		PROVENANCE TEXT, 
 		FileEncoding TEXT, 
 		FileType VARCHAR(100),
@@ -86,15 +93,17 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	);  
 
 	CREATE TABLE IF NOT EXISTS mdb_USERS ( 
-		UserID INTEGER PRIMARY KEY,
-		TISS_ID INTEGER,
-		OID INTEGER,
+		UserID bigint PRIMARY KEY DEFAULT nextval('mdb_user_seq'),
+		TISS_ID bigint,
+		OID bigint,
 		First_name VARCHAR(50),
 		Last_name VARCHAR(50),
 		Gender gender,
 		Preceding_titles VARCHAR(50),
 		Postpositioned_title VARCHAR(50),
-		Main_Email TEXT
+		Main_Email TEXT,
+		created timestamp without time zone NOT NULL,
+		last_modified timestamp without time zone
 	); 
 	
 	CREATE SEQUENCE public.mdb_databases_seq
