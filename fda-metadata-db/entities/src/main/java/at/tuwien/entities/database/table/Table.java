@@ -31,7 +31,7 @@ public class Table {
     @GenericGenerator(
             name = "sequence-per-entity",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_tables_seq")
     )
     private Long id;
 
@@ -50,10 +50,15 @@ public class Table {
 
     @ToString.Include
     @ManyToOne
+    @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;
 
     @ToString.Include
     @OneToMany
+    @JoinColumns({
+            @JoinColumn(name = "id", insertable = false, updatable = false),
+            @JoinColumn(name = "tid", insertable = false, updatable = false),
+    })
     private List<TableColumn> columns;
 
     @Column(nullable = false, updatable = false)

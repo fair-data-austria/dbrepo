@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Data
-@Entity
+//@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,7 +29,7 @@ public class View {
     @GenericGenerator(
             name = "sequence-per-entity",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_view_seq")
     )
     private Long id;
 
