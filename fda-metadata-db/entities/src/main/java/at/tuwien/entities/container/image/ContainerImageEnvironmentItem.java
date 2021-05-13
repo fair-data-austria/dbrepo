@@ -27,7 +27,7 @@ public class ContainerImageEnvironmentItem {
     @GenericGenerator(
             name = "sequence-per-entity",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_environment_item_seq")
     )
     public Long id;
 
