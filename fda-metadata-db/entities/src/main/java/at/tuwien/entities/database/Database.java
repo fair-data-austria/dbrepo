@@ -53,7 +53,7 @@ public class Database {
     private String internalName;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "database")
+    @OneToMany(mappedBy = "id")
     private List<Table> tables;
 
     @ToString.Include
