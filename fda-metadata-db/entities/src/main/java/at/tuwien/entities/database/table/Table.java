@@ -17,6 +17,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@IdClass(TableKey.class)
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -34,6 +35,11 @@ public class Table {
     )
     private Long id;
 
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Long tdbid;
+
     @ToString.Include
     @Column(nullable = false, name = "tname")
     private String name;
@@ -44,7 +50,6 @@ public class Table {
 
     @ToString.Include
     @ManyToOne
-    @JoinColumn(name = "tdbid")
     private Database database;
 
     @ToString.Include

@@ -1,5 +1,6 @@
 package at.tuwien.entities.database.table.columns;
 
+import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -15,6 +16,7 @@ import java.time.Instant;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@IdClass(TableColumnKey.class)
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -32,8 +34,22 @@ public class TableColumn {
     )
     private Long id;
 
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Long tid;
+
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Long cdbid;
+
+    @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "tid")
+    @JoinColumns({
+            @JoinColumn(name = "id", insertable = false, updatable = false),
+            @JoinColumn(name = "tdbid", insertable = false, updatable = false)
+    })
     private Table table;
 
     @ToString.Include
