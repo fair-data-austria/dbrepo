@@ -30,7 +30,7 @@ public class TableColumn {
     @GenericGenerator(
             name = "sequence-per-entity",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_columns_seq")
     )
     private Long id;
 
@@ -48,7 +48,7 @@ public class TableColumn {
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "id", insertable = false, updatable = false),
-            @JoinColumn(name = "tdbid", insertable = false, updatable = false)
+            @JoinColumn(name = "cdbid", insertable = false, updatable = false)
     })
     private Table table;
 
