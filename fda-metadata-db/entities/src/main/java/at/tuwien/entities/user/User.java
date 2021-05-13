@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -24,12 +25,12 @@ public class User {
 	@Id
 	@EqualsAndHashCode.Include
 	@ToString.Include
-	@Column(name = "userid")
+	@Column(name = "userid", columnDefinition = "numeric(19, 2)")
 	@GeneratedValue(generator = "sequence-per-entity")
 	@GenericGenerator(
 			name = "sequence-per-entity",
 			strategy = "enhanced-sequence",
-			parameters = @org.hibernate.annotations.Parameter(name = "prefer_sequence_per_entity", value = "true")
+			parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_user_seq")
 	)
 	private Long id;
 
@@ -63,9 +64,7 @@ public class User {
 	@Column(name = "main_email")
 	private String email;
 
-	@ToString.Include
-	@Column(nullable = false)
-	private Gender gender;
+
 
 	@Column(nullable = false, updatable = false)
 	@CreatedDate
