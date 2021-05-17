@@ -6,8 +6,12 @@ const fetch = require('node-fetch')
 
 // TODO extend me
 const colTypeMap = {
+  Boolean: 'BOOLEAN',
+  Date: 'DATE',
   Integer: 'NUMBER',
-  String: 'TEXT'
+  Numeric: 'NUMBER',
+  String: 'TEXT',
+  Timestamp: 'DATE'
 }
 
 app.post('/table_from_csv', upload.single('file'), async (req, res) => {
@@ -22,20 +26,21 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
   } catch (error) {
     res.json({ success: false, error })
   }
-  console.log('Analysis', analysis)
 
-  // map `determine_dt` column types to ours
+  // map messytables / CoMi's `determine_dt` column types to ours
   // e.g. "Integer" -> "NUMBER"
   let entries = Object.entries(analysis.columns)
-  console.log(entries)
   entries = entries.map(([k, v]) => {
     if (colTypeMap[v]) {
       v = colTypeMap[v]
     }
-    return [k, v]
+    return {
+      name: k,
+      type: v,
+      nullAllowed: true,
+      primaryKey: false
+    }
   })
-
-  console.log(entries)
 
   res.json({ success: true, file, columns: entries })
 })
