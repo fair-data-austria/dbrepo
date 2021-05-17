@@ -2,7 +2,9 @@ import os
 from flask import Flask, flash, request, redirect, url_for, Response, abort, jsonify
 from determine_dt import determine_datatypes
 from analysecsv import analysecsv
+from insert_mdb_db import insert_mdb_db
 from import_db import import_db
+from update_mdb_db_ispublic import insert_mdb_db_pub
 #from werkzeug.utils import secure_filename
 #from werkzeug import cached_property
 import logging
@@ -64,7 +66,7 @@ def determinedt():
         if 'seperator' in input_json: 
             seperator = str(input_json['seperator'])
         res = determine_datatypes(filepath,enum,enum_tol,seperator)
-    except e: 
+    except Exception as e: 
         print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
@@ -86,27 +88,35 @@ def checkcsv():
         if 'seperator' in input_json: 
             seperator = str(input_json['seperator'])
         res = analysecsv(filepath,seperator,intdbname, dbhost, dbid, tname, header)
-    except e: 
+    except Exception as e: 
         print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/importdatabase', methods=["POST"])
+@app.route('/insert_mdb_db', methods=["POST"])
 @swag_from('/as-yml/importdb.yml')
 def importdb(): 
     input_json = request.get_json() 
     try: 
-        cid=int(input_json['cid'])
         dbid=int(input_json['dbid'])
         resourcetype = str(input_json['resourcetype'])
         description = str(input_json['description'])
         publisher = str(input_json['publisher'])
-        year = int(input_json['year'])
-        bool_open = True 
-        if 'bool_open' in input_json: 
-            bool_open = bool(input_json['bool_open'])
-        res = import_db(cid,dbid, resourcetype, description, publisher,year,bool_open)
-    except e:
+        res = insert_mdb_db(dbid, resourcetype, description, publisher)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
+@app.route('/update_mdb_db_ispublic', methods=["POST"])
+@swag_from('/as-yml/updateispub.yml')
+def updateispublic(): 
+    input_json = request.get_json() 
+    try: 
+        dbid=int(input_json['dbid'])
+        ispublic=bool(input_json['is_public'])
+        res = insert_mdb_db_pub(dbid, ispublic)
+    except Exception as e:
         print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
