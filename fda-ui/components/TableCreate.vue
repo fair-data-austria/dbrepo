@@ -1,56 +1,58 @@
 <template>
-  <v-card>
-    <v-card-title class="pb-0">
-      Create Table
-    </v-card-title>
-    <!-- <v-card-subtitle>
-         Table is not created until the "Create Table" button is pressed.
-         </v-card-subtitle> -->
-    <v-card-text>
-      <v-text-field
-        v-model="name"
-        label="Table Name"
-        :rules="[v => !!v || $t('Required')]"
-        required />
-      <v-text-field
-        v-model="description"
-        label="Description" />
-      <v-btn @click="addColumn">
-        Add Column
-      </v-btn>
-    </v-card-text>
-    <v-card-text v-for="(c, idx) in columns" :key="idx" class="pa-3">
-      <v-row class="column pa-2 ml-1 mr-1">
-        <v-col cols="4">
-          <v-text-field v-model="c.name" required label="Name" />
-        </v-col>
-        <v-col cols="3">
-          <v-select
-            v-model="c.type"
-            :items="columnTypes"
-            item-value="value"
-            required
-            label="Data Type" />
-        </v-col>
-        <v-col cols="2">
-          <v-checkbox v-model="c.primaryKey" label="Primary Key" />
-        </v-col>
-        <v-col cols="2">
-          <v-checkbox v-model="c.nullAllowed" label="Null Allowed" />
-        </v-col>
-        <v-spacer />
-        <v-btn title="Remove column" outlined icon @click="removeColumn(idx)">
-          <v-icon>mdi-minus</v-icon>
-        </v-btn>
-      </v-row>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer />
-      <v-btn :disabled="!canCreateTable()" @click="createTable">
+  <div>
+    <v-card>
+      <v-card-title class="pb-0">
         Create Table
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+      </v-card-title>
+      <!-- <v-card-subtitle>
+           Table is not created until the "Create Table" button is pressed.
+           </v-card-subtitle> -->
+      <v-card-text>
+        <v-text-field
+          v-model="name"
+          label="Table Name"
+          :rules="[v => !!v || $t('Required')]"
+          required />
+        <v-text-field
+          v-model="description"
+          label="Description" />
+        <v-btn @click="addColumn">
+          Add Column
+        </v-btn>
+      </v-card-text>
+      <v-card-text v-for="(c, idx) in columns" :key="idx" class="pa-3">
+        <v-row class="column pa-2 ml-1 mr-1">
+          <v-col cols="4">
+            <v-text-field v-model="c.name" required label="Name" />
+          </v-col>
+          <v-col cols="3">
+            <v-select
+              v-model="c.type"
+              :items="columnTypes"
+              item-value="value"
+              required
+              label="Data Type" />
+          </v-col>
+          <v-col cols="2">
+            <v-checkbox v-model="c.primaryKey" label="Primary Key" />
+          </v-col>
+          <v-col cols="2">
+            <v-checkbox v-model="c.nullAllowed" label="Null Allowed" />
+          </v-col>
+          <v-spacer />
+          <v-btn title="Remove column" outlined icon @click="removeColumn(idx)">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+        </v-row>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn :disabled="!canCreateTable()" @click="createTable">
+          Create Table
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </div>
 </template>
 
 <script>
