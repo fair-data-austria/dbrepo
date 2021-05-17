@@ -100,13 +100,7 @@ export default {
       const data = {
         name: this.name,
         description: this.description,
-        columns: this.columns.map((c) => {
-          // c.nullAllowed = c.isNullAllowed
-          // c.primaryKey = c.isPrimaryKey
-          // delete c.isPrimaryKey
-          // delete c.isNullAllowed
-          return c
-        })
+        columns: this.columns
       }
       try {
         const res = await this.$axios.post(`/api/tables/api/database/${this.$route.params.db_id}/table`, data)

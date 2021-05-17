@@ -14,7 +14,7 @@
             label="CSV File" />
         </v-col>
         <v-col cols="4" class="mt-3">
-          <v-btn :loading="loading" @click="upload">Upload</v-btn>
+          <v-btn :disabled="!file" :loading="loading" @click="upload">Upload</v-btn>
         </v-col>
       </v-row>
     </v-stepper-content>
@@ -23,7 +23,28 @@
       Choose data type of columns
     </v-stepper-step>
     <v-stepper-content step="2">
-      Column select controls
+      <div v-for="(c, idx) in columns" :key="idx">
+        <v-row dense class="column pa-2 ml-1 mr-1">
+          <v-col cols="4">
+            <v-text-field v-model="c.name" required label="Name" />
+          </v-col>
+          <v-col cols="3">
+            <v-select
+              v-model="c.type"
+              :items="columnTypes"
+              item-value="value"
+              required
+              label="Data Type" />
+          </v-col>
+          <v-col cols="auto" class="pl-2">
+            <v-checkbox v-model="c.primaryKey" label="Primary Key" />
+          </v-col>
+          <v-col cols="auto" class="pl-10">
+            <v-checkbox v-model="c.nullAllowed" label="Null Allowed" />
+          </v-col>
+        </v-row>
+      </div>
+
       <v-btn color="primary" @click="step = 3">
         Continue
       </v-btn>
@@ -49,7 +70,17 @@ export default {
     return {
       step: 1,
       loading: false,
-      file: null
+      file: null,
+      columns: [],
+      columnTypes: [
+        { value: 'ENUM', text: 'ENUM' },
+        { value: 'BOOLEAN', text: 'BOOLEAN' },
+        { value: 'NUMBER', text: 'NUMBER' },
+        { value: 'BLOB', text: 'BLOB' },
+        { value: 'DATE', text: 'DATE' },
+        { value: 'STRING', text: 'STRING' },
+        { value: 'TEXT', text: 'TEXT' }
+      ]
     }
   },
   mounted () {
@@ -57,7 +88,6 @@ export default {
   methods: {
     async upload () {
       this.loading = true
-      // TODO fix url
       const url = '/server-middleware/table_from_csv'
       const data = new FormData()
       data.append('file', this.file)
@@ -66,7 +96,8 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         if (res.data.success) {
-          this.$toast.success('Uploaded successfully!')
+          this.columns = res.data.columns
+          this.step = 2
         } else {
           this.$toast.error('Could not upload CSV data')
         }
