@@ -229,6 +229,7 @@ public class TableService {
                 c.setName(header[i]);
                 c.setType(headers.getColumns().get(i));
                 c.setNullAllowed(true);
+                //TODO FIX THAT not only id is primary key
                 if(header[i].equals("id")) {
                     c.setPrimaryKey(true);
                 } else {
