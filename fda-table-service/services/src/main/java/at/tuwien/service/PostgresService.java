@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.dto.table.columns.ColumnCreateDto;
 import at.tuwien.dto.table.columns.ColumnTypeDto;
+import at.tuwien.entity.ColumnType;
 import at.tuwien.entity.Database;
 import at.tuwien.entity.Table;
 import at.tuwien.entity.TableColumn;
@@ -97,10 +98,19 @@ public class PostgresService extends JdbcConnector {
             while(result.next()) {
                 Map<String,Object> r = new HashMap<>();
                 for(TableColumn tc : t.getColumns()) {
-                    r.put(tc.getName(), result.getString(tc.getInternalName()));
+                    if(tc.getColumnType() == ColumnType.NUMBER) {
+                        r.put(tc.getName(), result.getDouble(tc.getInternalName()));
+                    }
+                    if(tc.getColumnType() == ColumnType.BOOLEAN) {
+                        r.put(tc.getName(), result.getBoolean(tc.getInternalName()));
+                    }
+                    else {
+                        r.put(tc.getName(), result.getString(tc.getInternalName()));
+                    }
                 }
                 res.add(r);
             }
+            log.debug(res.toString());
             qr.setResult(res);
             return qr;
         } catch(DatabaseConnectionException e) {
