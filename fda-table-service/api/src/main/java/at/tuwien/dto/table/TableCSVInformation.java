@@ -1,5 +1,6 @@
-package at.tuwien.dto.table.columns;
+package at.tuwien.dto.table;
 
+import at.tuwien.dto.table.columns.ColumnTypeDto;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
@@ -25,4 +26,6 @@ public class TableCSVInformation {
 
     @NotBlank
     private List<ColumnTypeDto> columns;
+
+    private String fileLocation;
 }

@@ -3,7 +3,7 @@ package at.tuwien.endpoints;
 import at.tuwien.dto.table.TableBriefDto;
 import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.dto.table.TableDto;
-import at.tuwien.dto.table.columns.TableCSVInformation;
+import at.tuwien.dto.table.TableCSVInformation;
 import at.tuwien.entity.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryResultMapper;
@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,7 @@ public class TableEndpoint {
     }
 
     @PostMapping("/table/csv")
-    @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container. For the colum definition use the following example: [{\"name\": \"Ticker Symbol\", \"primaryKey\": true, \"type\": \"STRING\", \"nullAllowed\": false, \"checkExpression\": null, \"foreignKey\": null},{\"name\": \"Accounts Payable\", \"primaryKey\": false, \"type\": \"NUMBER\", \"nullAllowed\": false, \"checkExpression\": \"Accounts Payable > 0\", \"foreignKey\": null},{\"name\": \"Company\", \"primaryKey\": false, \"type\": \"STRING\", \"nullAllowed\": false, \"checkExpression\": null, \"foreignKey\": null}]")
+    @ApiOperation(value = "Create a table", notes = "Creates a file, which is given as a multipart file.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "The table was created."),
             @ApiResponse(code = 400, message = "The creation form contains invalid data."),
@@ -84,12 +85,28 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers)
-            throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
+    public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) {
         final QueryResult queryResult = tableService.create(databaseId, file, headers);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
+
+    @PostMapping("/table/csv/local")
+    @ApiOperation(value = "Create a table", notes = "This is done by saving a file on the shared docker filesystem and then sending the link to the file.")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "The table was created."),
+            @ApiResponse(code = 400, message = "The creation form contains invalid data."),
+            @ApiResponse(code = 401, message = "Not authorized to create a tables."),
+            @ApiResponse(code = 404, message = "The database does not exist."),
+            @ApiResponse(code = 405, message = "The container is not running."),
+            @ApiResponse(code = 409, message = "The container image is not supported."),
+    })
+    public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCSVInformation tableCSVInformation) throws IOException {
+        final QueryResult queryResult = tableService.create(databaseId, tableCSVInformation);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(queryResultMapper.queryResultToQueryResultDto(queryResult));
+    }
+
 
     @GetMapping("/table/{tableId}")
     @ApiOperation(value = "List all tables", notes = "Lists the tables in the metadata database for this database.")
