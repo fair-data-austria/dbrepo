@@ -3,6 +3,7 @@ package at.tuwien.endpoints;
 import at.tuwien.dto.table.TableBriefDto;
 import at.tuwien.dto.table.TableCreateDto;
 import at.tuwien.dto.table.TableDto;
+import at.tuwien.dto.table.columns.TableCSVInformation;
 import at.tuwien.entity.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryResultMapper;
@@ -71,6 +72,23 @@ public class TableEndpoint {
         final Table table = tableService.create(databaseId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
+    }
+
+    @PostMapping("/table/csv")
+    @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container. For the colum definition use the following example: [{\"name\": \"Ticker Symbol\", \"primaryKey\": true, \"type\": \"STRING\", \"nullAllowed\": false, \"checkExpression\": null, \"foreignKey\": null},{\"name\": \"Accounts Payable\", \"primaryKey\": false, \"type\": \"NUMBER\", \"nullAllowed\": false, \"checkExpression\": \"Accounts Payable > 0\", \"foreignKey\": null},{\"name\": \"Company\", \"primaryKey\": false, \"type\": \"STRING\", \"nullAllowed\": false, \"checkExpression\": null, \"foreignKey\": null}]")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "The table was created."),
+            @ApiResponse(code = 400, message = "The creation form contains invalid data."),
+            @ApiResponse(code = 401, message = "Not authorized to create a tables."),
+            @ApiResponse(code = 404, message = "The database does not exist."),
+            @ApiResponse(code = 405, message = "The container is not running."),
+            @ApiResponse(code = 409, message = "The container image is not supported."),
+    })
+    public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers)
+            throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
+        final QueryResult queryResult = tableService.create(databaseId, file, headers);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
 
     @GetMapping("/table/{tableId}")
