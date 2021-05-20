@@ -1,8 +1,7 @@
 from psycopg2 import connect 
+import psycopg2.extras
 import requests
 import json 
-
-############# Baustelle #######################################################
 
 def insert_mdb_tbl(dbid): 
     # Get database info 
@@ -17,40 +16,52 @@ def insert_mdb_tbl(dbid):
     # Conneting to database 
     try: 
         conn=connect( 
-                dbname = s.json()[0]['internalName'], 
+                dbname = s[0]['internalName'], 
                 user = "postgres", 
-                host = 'fda-userdb-'+ s.json()[0]['internalName'].replace('_', '-'), 
+                host = 'fda-userdb-'+ s[0]['internalName'].replace('_', '-'), 
                 password = "postgres"
                 )
         cursor = conn.cursor() 
         
         # Extract table names, number of tables 
-        cursor.execute(f"""SELECT columns.table_name, count(columns.column_name)
+        cursor.execute("""SELECT columns.table_name, count(columns.column_name) as colcount, 
+                       (select n_live_tup from pg_stat_user_tables where relname = columns.table_name) as rowcount
         FROM information_schema.columns 
         WHERE table_schema='public'
         GROUP BY columns.table_name;"""
         )
             
         res = cursor.fetchall()
-        # Merge table names with containerid for inserting tuples 
+        # Merge table names with dbid for inserting tuples 
         tblnames=[]
         for item in res:
-            tblnames.append((cid,item[0],item[1]))
+            tblnames.append((item[1],item[2],dbid,item[0],))
         print(tblnames)
-    
-        # Extract column information 
-        cursor.execute(f"""SELECT columns.table_name, columns.column_name, columns.data_type 
-        FROM information_schema.columns 
-        WHERE table_schema='public';"""
+       
+        conn.commit() 
+        conn.close() 
+    except Exception as e: 
+        print("Error while connecting to database.", e) 
+        
+    try: 
+        # Connecting to metadatabase 
+        conn=connect(
+        dbname="fda", 
+        user = "postgres",
+        host = "fda-metadata-db", 
+        password = "postgres"
         )
-        res2 = cursor.fetchall() 
-        # Merge column information with containerid for inserting tuples 
-        colnames=[]
-        for item in res2:
-            colnames.append((cid,item[0],item[1], item[2]))
-        print(colnames)    
     
+        cursor = conn.cursor() 
+        
+        # Prepare and insert tblnames into table mdb_TABLES 
+        cursor.execute("PREPARE stmt AS Update mdb_TABLES set (numcols,numrows,last_modified) = ($1,$2,current_timestamp) where tdbid = $3 and internal_name = $4")
+        psycopg2.extras.execute_batch(cursor, 
+                      """EXECUTE stmt (%s,%s,%s,%s)"""
+                      , tblnames)
+        cursor.execute("DEALLOCATE stmt")
+               
         conn.commit()
         conn.close()
     except Exception as e: 
-        print("Error while connecting to database.", e) 
+        print("Error while connecting to metadatabase.",e)

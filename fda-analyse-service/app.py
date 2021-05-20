@@ -5,6 +5,7 @@ from analysecsv import analysecsv
 from insert_mdb_db import insert_mdb_db
 from import_db import import_db
 from update_mdb_db_ispublic import insert_mdb_db_pub
+from insert_mdb_tbl import insert_mdb_tbl
 #from werkzeug.utils import secure_filename
 #from werkzeug import cached_property
 import logging
@@ -108,6 +109,18 @@ def importdb():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
+@app.route('/insert_mdb_tbl', methods=["POST"])
+@swag_from('/as-yml/importtbl.yml')
+def importtbl(): 
+    input_json = request.get_json() 
+    try: 
+        dbid=int(input_json['dbid'])
+        res = insert_mdb_tbl(dbid)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
 @app.route('/update_mdb_db_ispublic', methods=["POST"])
 @swag_from('/as-yml/updateispub.yml')
 def updateispublic(): 
@@ -121,7 +134,7 @@ def updateispublic():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/importdata', methods=["POST"])
+@app.route('/insert_mdb_data', methods=["POST"])
 @swag_from('/as-yml/importdata.yml')
 def importdb1(): 
     input_json = request.get_json() 

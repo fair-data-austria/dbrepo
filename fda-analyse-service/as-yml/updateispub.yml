@@ -1,0 +1,26 @@
+summary: "Update into Entity md_Databases to metadatabase"
+description: "Update attribute is_public in metadatabase"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "to-do description"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      dbid: 
+        type: "integer"
+        example: 1
+      is_public: 
+        type: "boolean"
+        example: "false"
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    
