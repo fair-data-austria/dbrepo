@@ -6,6 +6,7 @@ from insert_mdb_db import insert_mdb_db
 from import_db import import_db
 from update_mdb_db_ispublic import insert_mdb_db_pub
 from insert_mdb_tbl import insert_mdb_tbl
+from insert_mdb_col import insert_mdb_col
 #from werkzeug.utils import secure_filename
 #from werkzeug import cached_property
 import logging
@@ -129,6 +130,19 @@ def updateispublic():
         dbid=int(input_json['dbid'])
         ispublic=bool(input_json['is_public'])
         res = insert_mdb_db_pub(dbid, ispublic)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
+@app.route('/insert_mdb_col', methods=["POST"])
+@swag_from('/as-yml/importcol.yml')
+def importcol(): 
+    input_json = request.get_json() 
+    try: 
+        dbid=int(input_json['dbid'])
+        tid=int(input_json['tid'])
+        res = insert_mdb_col(dbid,tid)
     except Exception as e:
         print(e)
         res = {"success": False, "message": "Unknown error"}

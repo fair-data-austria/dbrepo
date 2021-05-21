@@ -5,3 +5,4 @@ flasgger==0.9.5
 psycopg2-binary==2.8.6
 py-eureka-client==0.9.1
 docker==5.0.0
+sqlalchemy==1.4.15

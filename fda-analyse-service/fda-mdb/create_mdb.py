@@ -164,7 +164,7 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 		cName VARCHAR(50), 
 		Datatype VARCHAR(50), 
 		ordinal_position INTEGER,
-		check_expression character varying(255),
+		null_constraint character varying(255),
 		FOREIGN KEY (cDBID,tID) REFERENCES mdb_TABLES(tDBID,ID), 
 		PRIMARY KEY(cDBID, tID, ID)
 	);

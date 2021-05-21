@@ -1,0 +1,26 @@
+summary: "Update into Entity mdb_columns to metadatabase"
+description: "Import into entity columns in metadatabase"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "to-do description"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      dbid: 
+        type: "integer"
+        example: 1
+      tid: 
+        type: "integer" 
+        example: 1
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    
