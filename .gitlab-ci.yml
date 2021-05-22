@@ -33,6 +33,12 @@ test-backend:
     - "mvn -f fda-query-service/pom.xml clean test"
     - "mvn -f fda-table-service/pom.xml clean test"
     - "docker-compose down fda-metadata-db-test"
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+        - target/failsafe-reports/TEST-*.xml
 
 test-frontend:
   stage: test
