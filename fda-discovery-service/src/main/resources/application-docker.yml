@@ -12,15 +12,15 @@ spring:
       ddl-auto: validate
     open-in-view: false
   application:
-    name: fda-container-service
-  cloud:
-    loadbalancer.ribbon.enabled: false
-server.port: 9091
+    name: fda-discovery-service
+server.port: 9090
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
     root: warn
     at.tuwien.: debug
 eureka:
+  eureka.client.register-with-eureka: false
+  eureka.client.fetch-registry: false
   instance.hostname: fda-discovery-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
