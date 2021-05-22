@@ -37,8 +37,13 @@ test-backend:
     when: always
     reports:
       junit:
-        - target/surefire-reports/TEST-*.xml
-        - target/failsafe-reports/TEST-*.xml
+        - fda-metadata-service/rest-service/target/surefire-reports/TEST-*.xml
+        - fda-container-service/rest-service/target/surefire-reports/TEST-*.xml
+        - fda-database-service/rest-service/target/surefire-reports/TEST-*.xml
+        - fda-discovery-service/rest-service/target/surefire-reports/TEST-*.xml
+        - fda-gateway-service/rest-service/target/surefire-reports/TEST-*.xml
+        - fda-query-service/rest-service/target/surefire-reports/TEST-*.xml
+        - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-frontend:
   stage: test
