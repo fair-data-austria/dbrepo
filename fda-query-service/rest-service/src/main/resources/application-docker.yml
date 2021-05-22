@@ -22,5 +22,5 @@ logging:
     root: warn
     at.tuwien.: debug
 eureka:
-  instance.hostname: fda-query-service
-  client.serviceUrl.defaultZone: http://fda-discovery-server:9090/eureka/
+  instance.hostname: fda-discovery-service
+  client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
