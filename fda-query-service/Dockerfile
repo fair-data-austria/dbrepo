@@ -20,8 +20,8 @@ RUN mvn -q clean package -DskipTests
 ###### THIRD STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-COPY --from=build ./rest-service/target/rest-service-*.jar ./rest.jar
+COPY --from=build ./rest-service/target/rest-service-*.jar ./rest-service.jar
 
 EXPOSE 9093
 
-ENTRYPOINT ["java", "-jar", "./rest.jar"]
+ENTRYPOINT ["java", "-jar", "./rest-service.jar"]
