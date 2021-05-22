@@ -18,8 +18,10 @@ def insert_mdb_db(dbid, resourcetype, description, publisher):
         cursor.execute("""Update mdb_databases set (ResourceType,Description,Publisher,last_modified) = 
         (%s,%s,%s,current_timestamp)
         where id=%s;""", (resourcetype, description, publisher,dbid,))
+        r = cursor.statusmessage
         conn.commit()
         conn.close()
     except Exception as e: 
         print("Error while connecting to mdb",e)
+    return json.dumps(r)
         

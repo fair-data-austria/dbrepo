@@ -7,6 +7,7 @@ from import_db import import_db
 from update_mdb_db_ispublic import insert_mdb_db_pub
 from insert_mdb_tbl import insert_mdb_tbl
 from insert_mdb_col import insert_mdb_col
+from insert_mdb_col import update_mdb_siunit
 #from werkzeug.utils import secure_filename
 #from werkzeug import cached_property
 import logging
@@ -95,7 +96,7 @@ def checkcsv():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/insert_mdb_db', methods=["POST"])
+@app.route('/update_mdb_db', methods=["POST"])
 @swag_from('/as-yml/importdb.yml')
 def importdb(): 
     input_json = request.get_json() 
@@ -110,7 +111,7 @@ def importdb():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/insert_mdb_tbl', methods=["POST"])
+@app.route('/update_mdb_tbl', methods=["POST"])
 @swag_from('/as-yml/importtbl.yml')
 def importtbl(): 
     input_json = request.get_json() 
@@ -135,7 +136,22 @@ def updateispublic():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/insert_mdb_col', methods=["POST"])
+@app.route('/update_mdb_columns_num_siunit', methods=["POST"])
+@swag_from('/as-yml/updatesiunit.yml')
+def updatesiunit(): 
+    input_json = request.get_json() 
+    try: 
+        dbid=int(input_json['dbid'])
+        tid=int(input_json['tid'])
+        cid=int(input_json['cid'])
+        siunit=str(input_json['siunit'])
+        res = update_mdb_siunit(dbid,tid,cid,siunit)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
+@app.route('/update_mdb_col', methods=["POST"])
 @swag_from('/as-yml/importcol.yml')
 def importcol(): 
     input_json = request.get_json() 
@@ -148,26 +164,6 @@ def importcol():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/insert_mdb_data', methods=["POST"])
-@swag_from('/as-yml/importdata.yml')
-def importdb1(): 
-    input_json = request.get_json() 
-    try: 
-        res = ok 
-    except: 
-        res = {"success": False, "message": "Unknown error"}
-    return jsonify(res), 200
-
-@app.route('/updatecolumns', methods=["POST"])
-@swag_from('/as-yml/updatecol.yml')
-def importdb2(): 
-    input_json = request.get_json() 
-    try: 
-        res = ok 
-    except: 
-        res = {"success": False, "message": "Unknown error"}
-    return jsonify(res), 200
-        
 rest_server_port = 5000
 eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
                    app_name="fda-analyse-service",
