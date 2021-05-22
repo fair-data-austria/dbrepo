@@ -12,10 +12,8 @@ spring:
       ddl-auto: validate
     open-in-view: false
   application:
-    name: fda-container-service
-  cloud:
-    loadbalancer.ribbon.enabled: false
-server.port: 9091
+    name: fda-gateway-service
+server.port: 9095
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
