@@ -40,7 +40,7 @@ test-backend-container:
     when: always
     paths:
       - fda-container-service/rest-service/target/site/jacoco/jacoco.xml
-      - target/site/jacoco/index.html
+      - fda-container-service/rest-servicetarget/site/jacoco/index.html
     reports:
       junit:
         - fda-container-service/target/surefire-reports/TEST-*.xml
@@ -120,15 +120,15 @@ deploy-coverage:
   stage: deploy
   image: registry.gitlab.com/haynes/jacoco2cobertura:latest
   script:
-    - 'python /opt/cover2cover.py target/site/jacoco/jacoco.xml src/main/java > target/site/cobertura.xml'
-    - 'python /opt/source2filename.py target/site/cobertura.xml'
+    - 'python /opt/cover2cover.py fda-container-service/rest-service/target/site/jacoco/jacoco.xml src/main/java > fda-container-service/rest-service/target/site/cobertura.xml'
+    - 'python /opt/source2filename.py fda-container-service/rest-service/target/site/cobertura.xml'
   needs:
     - test-backend-container
   dependencies:
     - test-backend-container
   artifacts:
     reports:
-      cobertura: target/site/cobertura.xml
+      cobertura: fda-container-service/rest-service/target/site/cobertura.xml
 
 variables: 
   DOCKER_TLS_CERTDIR: /certs
