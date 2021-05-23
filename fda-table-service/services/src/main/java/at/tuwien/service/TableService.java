@@ -76,8 +76,9 @@ public class TableService {
     }
 
     public Table findById(Long databaseId, Long tableId) throws TableNotFoundException {
-        final Database database = new Database();
-        database.setId(databaseId);
+        final Database database = Database.builder()
+                .id(databaseId)
+                .build();
         final Optional<Table> table = tableRepository.findByDatabaseAndId(database, tableId);
         if (table.isEmpty()) {
             log.error("table {} not found in database {}", tableId, databaseId);
@@ -87,13 +88,7 @@ public class TableService {
     }
 
     private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
-        final Optional<Database> database;
-        try {
-            database = databaseRepository.findById(id);
-        } catch (EntityNotFoundException e) {
-            log.error("database not found in metadata database");
-            throw new DatabaseNotFoundException("database not found in metadata database", e);
-        }
+        final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
             log.error("no database with this id found in metadata database");
             throw new DatabaseNotFoundException("database not found in metadata database");
@@ -103,6 +98,7 @@ public class TableService {
             log.error("Right now only PostgreSQL is supported!");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
         }
+        log.debug("found database: {}", database.get());
         return database.get();
     }
 
