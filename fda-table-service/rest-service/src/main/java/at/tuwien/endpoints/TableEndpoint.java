@@ -63,6 +63,7 @@ public class TableEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
+            @ApiResponse(code = 422, message = "The ."),
     })
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId, @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException,
@@ -116,7 +117,9 @@ public class TableEndpoint {
             @ApiResponse(code = 400, message = "The form contains invalid data."),
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
+            @ApiResponse(code = 422, message = "The csv was not processible."),
     })
+    /* FIXME: this should be in a different endpoint */
     public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId, @RequestParam("file") MultipartFile file) throws Exception {
         final QueryResultDto queryResult = tableService.insert(databaseId, tableId, file);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
@@ -128,6 +131,7 @@ public class TableEndpoint {
             @ApiResponse(code = 200, message = "All tables are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
+    /* FIXME: this should be a different endpoint */
     public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
         final QueryResultDto queryResult = tableService.showData(databaseId, tableId);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
