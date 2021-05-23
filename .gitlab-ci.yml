@@ -123,9 +123,9 @@ deploy-coverage:
     - 'python /opt/cover2cover.py target/site/jacoco/jacoco.xml src/main/java > target/site/cobertura.xml'
     - 'python /opt/source2filename.py target/site/cobertura.xml'
   needs:
-    - build-metadata-db-container
+    - test-backend-container
   dependencies:
-    - build-metadata-db-container
+    - test-backend-container
   artifacts:
     reports:
       cobertura: target/site/cobertura.xml
