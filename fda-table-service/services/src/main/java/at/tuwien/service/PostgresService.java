@@ -65,18 +65,17 @@ public class PostgresService extends JdbcConnector {
     }
 
     public QueryResultDto insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) throws DatabaseConnectionException, DataProcessingException {
-        try{
+        try {
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(insertStatement(processedData, t, headers));
             statement.execute();
-            return getAllRows(database,t);
-        } catch(DatabaseConnectionException e) {
-            log.error("Problem with connecting to the database while selecting from Querystore");
-            throw new DatabaseConnectionException(e.getMessage());
-        } catch(SQLException e) {
-            log.debug(e.getMessage());
-            log.error("The SQL statement seems to contain invalid syntax");
-            throw new DataProcessingException(e.getMessage());
+            return getAllRows(database, t);
+        } catch (DatabaseConnectionException e) {
+            log.error("Problem with connecting to the database while selecting from query store: {}", e.getMessage());
+            throw new DatabaseConnectionException("database connection problem with query store", e);
+        } catch (SQLException e) {
+            log.error("The SQL statement seems to contain invalid syntax: {}", e.getMessage());
+            throw new DataProcessingException("invalid syntax", e);
         }
     }
 
@@ -87,25 +86,23 @@ public class PostgresService extends JdbcConnector {
      * @param t
      * @return
      */
-    public QueryResultDto getAllRows(Database database, Table t) {
-        try{
+    public QueryResultDto getAllRows(Database database, Table t) throws DatabaseConnectionException {
+        try {
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(selectStatement(t));
             ResultSet result = statement.executeQuery();
             QueryResultDto qr = new QueryResultDto();
-            List<Map<String,Object>> res = new ArrayList<>();
-            while(result.next()) {
-                Map<String,Object> r = new HashMap<>();
-                for(TableColumn tc : t.getColumns()) {
+            List<Map<String, Object>> res = new ArrayList<>();
+            while (result.next()) {
+                Map<String, Object> r = new HashMap<>();
+                for (TableColumn tc : t.getColumns()) {
                     r.put(tc.getName(), result.getString(tc.getInternalName()));
                 }
                 res.add(r);
             }
             qr.setResult(res);
             return qr;
-        } catch(DatabaseConnectionException e) {
-            log.error("Problem with connecting to the database while selecting from Querystore");
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             log.debug(e.getMessage());
             log.error("The SQL statement seems to contain invalid syntax");
         }
@@ -121,7 +118,7 @@ public class PostgresService extends JdbcConnector {
                 .append(" (");
         final Iterator<String> columnIterator = mockAnalyzeService(createDto.getColumns())
                 .listIterator();
-        while(columnIterator.hasNext()) {
+        while (columnIterator.hasNext()) {
             queryBuilder.append(columnIterator.next());
             if (columnIterator.hasNext()) {
                 queryBuilder.append(", ");
@@ -133,15 +130,15 @@ public class PostgresService extends JdbcConnector {
         return connection.prepareStatement(createQuery);
     }
 
-    public String selectStatement(Table t) {
+    private String selectStatement(Table t) {
         log.debug("selecting data from {}", t.getName());
 
         StringBuilder queryBuilder = new StringBuilder()
                 .append("SELECT ");
-        for( TableColumn tc: t.getColumns()) {
-            queryBuilder.append(tc.getInternalName()+",");
+        for (TableColumn tc : t.getColumns()) {
+            queryBuilder.append(tc.getInternalName() + ",");
         }
-        queryBuilder.deleteCharAt(queryBuilder.length()-1);
+        queryBuilder.deleteCharAt(queryBuilder.length() - 1);
         queryBuilder.append(" FROM " + t.getInternalName());
         log.debug(queryBuilder.toString());
         return queryBuilder.toString();
@@ -149,6 +146,7 @@ public class PostgresService extends JdbcConnector {
 
     /**
      * FIXME THIS IS REMOVED IN SPRINT 2
+     *
      * @param processedData
      * @param t
      * @return
@@ -160,27 +158,26 @@ public class PostgresService extends JdbcConnector {
                 .append("INSERT INTO ")
                 .append(tableMapper.columnNameToString(t.getInternalName()))
                 .append("(");
-        for(String h : headers) {
-            queryBuilder.append(t.getColumns().stream().filter(x -> x.getName().equals(h)).findFirst().get().getInternalName()+",");
+        for (String h : headers) {
+            queryBuilder.append(t.getColumns().stream().filter(x -> x.getName().equals(h)).findFirst().get().getInternalName() + ",");
         }
-        queryBuilder.deleteCharAt(queryBuilder.length()-1);
+        queryBuilder.deleteCharAt(queryBuilder.length() - 1);
         queryBuilder.append(") VALUES ");
 
-        for (Map<String, Object> m : processedData ) {
+        for (Map<String, Object> m : processedData) {
             queryBuilder.append("(");
-            for ( Map.Entry<String,Object> entry : m.entrySet()) {
+            for (Map.Entry<String, Object> entry : m.entrySet()) {
                 TableColumn tc = t.getColumns().stream().filter(x -> x.getName().equals(entry.getKey())).findFirst().get();
-                if(tc.getColumnType().toString().equals("STRING")) {
+                if (tc.getColumnType().toString().equals("STRING")) {
                     queryBuilder.append("'" + entry.getValue() + "'" + ",");
-                }
-                else {
-                    queryBuilder.append(entry.getValue()+",");
+                } else {
+                    queryBuilder.append(entry.getValue() + ",");
                 }
             }
-            queryBuilder.deleteCharAt(queryBuilder.length()-1);
+            queryBuilder.deleteCharAt(queryBuilder.length() - 1);
             queryBuilder.append("),");
         }
-        queryBuilder.deleteCharAt(queryBuilder.length()-1);
+        queryBuilder.deleteCharAt(queryBuilder.length() - 1);
         queryBuilder.append(";");
         log.debug(queryBuilder.toString());
         return queryBuilder.toString();
