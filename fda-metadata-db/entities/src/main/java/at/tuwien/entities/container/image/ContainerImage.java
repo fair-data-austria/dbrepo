@@ -1,5 +1,6 @@
 package at.tuwien.entities.container.image;
 
+import at.tuwien.entities.container.Container;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -56,8 +57,12 @@ public class ContainerImage {
     @Column(nullable = false)
     private Integer defaultPort;
 
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Container> containers;
+
     @ToString.Include
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ContainerImageEnvironmentItem> environment;
 
     @Column(nullable = false, updatable = false)

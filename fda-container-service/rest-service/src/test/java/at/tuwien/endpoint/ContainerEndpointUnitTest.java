@@ -1,24 +1,18 @@
 package at.tuwien.endpoint;
 
-import at.tuwien.BaseIntegrationTest;
+import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.*;
 import at.tuwien.endpoints.ContainerEndpoint;
-import at.tuwien.entities.container.Container;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ContainerStillRunningException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
-import at.tuwien.mapper.ContainerMapper;
-import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
 import at.tuwien.service.ContainerService;
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.exception.ConflictException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.jvnet.hk2.annotations.Service;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class EndpointTest extends BaseIntegrationTest {
+public class ContainerEndpointUnitTest extends BaseUnitTest {
 
     @MockBean
     private ContainerService containerService;

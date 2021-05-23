@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.BaseIntegrationTest;
+import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.*;
 import at.tuwien.entities.container.Container;
 import at.tuwien.exception.ContainerNotFoundException;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ServiceTest extends BaseIntegrationTest {
+public class ServiceUnitTest extends BaseUnitTest {
 
     @Autowired
     private ContainerService containerService;
