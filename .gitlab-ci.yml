@@ -21,15 +21,26 @@ build:
   script:
     - "docker-compose build"
 
-test-backend-container:
+test-backend:
   stage: test
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
+
+test-backend-container:
+  stage: test
+  script:
     - "./fda-container-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-container-service/pom.xml clean test"
+    - "mvn -f fda-container-service/pom.xml clean test org.jacoco:jacoco-maven-plugin:prepare-agent test jacoco:report"
     - "./fda-container-service/rest-service/src/test/resources/integration-test.after"
+  needs:
+    - test-backend
+  dependencies:
+    - test-backend
   artifacts:
     when: always
+    paths:
+      - fda-container-service/rest-service/target/site/jacoco/jacoco.xml
+      - target/site/jacoco/index.html
     reports:
       junit:
         - fda-container-service/target/surefire-reports/TEST-*.xml
@@ -37,10 +48,13 @@ test-backend-container:
 test-backend-database:
   stage: test
   script:
-    - "mvn -f fda-metadata-db/pom.xml clean install"
     - "./fda-database-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-database-service/pom.xml clean test"
     - "./fda-database-service/rest-service/src/test/resources/integration-test.after"
+  needs:
+    - test-backend
+  dependencies:
+    - test-backend
   artifacts:
     when: always
     reports:
@@ -62,10 +76,13 @@ test-backend-gateway:
 test-backend-query:
   stage: test
   script:
-    - "mvn -f fda-metadata-db/pom.xml clean install"
     - "./fda-query-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-query-service/pom.xml clean test"
     - "./fda-query-service/rest-service/src/test/resources/integration-test.after"
+  needs:
+    - test-backend
+  dependencies:
+    - test-backend
   artifacts:
     when: always
     reports:
@@ -75,10 +92,13 @@ test-backend-query:
 test-backend-table:
   stage: test
   script:
-    - "mvn -f fda-metadata-db/pom.xml clean install"
     - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-table-service/pom.xml clean test"
     - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
+  needs:
+    - test-backend
+  dependencies:
+    - test-backend
   artifacts:
     when: always
     reports:
@@ -90,11 +110,25 @@ test-frontend:
   script: 
     - "echo \"todo\""
 
-deploy:
+deploy-all:
   stage: deploy
   script:
     - "docker-compose up -d"
     - "docker-compose down"
+
+deploy-coverage:
+  stage: deploy
+  image: registry.gitlab.com/haynes/jacoco2cobertura:latest
+  script:
+    - 'python /opt/cover2cover.py target/site/jacoco/jacoco.xml src/main/java > target/site/cobertura.xml'
+    - 'python /opt/source2filename.py target/site/cobertura.xml'
+  needs:
+    - test-backend-container
+  dependencies:
+    - test-backend-container
+  artifacts:
+    reports:
+      cobertura: target/site/cobertura.xml
 
 variables: 
   DOCKER_TLS_CERTDIR: /certs
