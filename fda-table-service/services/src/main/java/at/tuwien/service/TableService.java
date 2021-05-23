@@ -180,7 +180,8 @@ public class TableService {
         }
     }
 
-    public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException, DatabaseNotFoundException, TableNotFoundException {
+    public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
+            DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException {
         QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
         for (Map<String, Object> m : queryResult.getResult()) {
             for (Map.Entry<String, Object> entry : m.entrySet()) {
