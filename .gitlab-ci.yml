@@ -30,7 +30,7 @@ test-backend-container:
   stage: test
   script:
     - "./fda-container-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-container-service/pom.xml clean test org.jacoco:jacoco-maven-plugin:prepare-agent test jacoco:report"
+    - "mvn -f fda-container-service/pom.xml clean test verify"
     - "./fda-container-service/rest-service/src/test/resources/integration-test.after"
   needs:
     - build-metadata-db
@@ -49,7 +49,7 @@ test-backend-database:
   stage: test
   script:
     - "./fda-database-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-database-service/pom.xml clean test"
+    - "mvn -f fda-database-service/pom.xml clean test verify"
     - "./fda-database-service/rest-service/src/test/resources/integration-test.after"
   needs:
     - build-metadata-db
@@ -65,13 +65,13 @@ test-backend-discovery:
   stage: test
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install"
-    - "mvn -f fda-discovery-service/pom.xml clean test"
+    - "mvn -f fda-discovery-service/pom.xml clean test verify"
 
 test-backend-gateway:
   stage: test
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install"
-    - "mvn -f fda-gateway-service/pom.xml clean test"
+    - "mvn -f fda-gateway-service/pom.xml clean test verify"
 
 test-backend-query:
   stage: test
@@ -93,7 +93,7 @@ test-backend-table:
   stage: test
   script:
     - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-table-service/pom.xml clean test"
+    - "mvn -f fda-table-service/pom.xml clean test verify"
     - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
   needs:
     - build-metadata-db
