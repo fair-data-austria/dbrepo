@@ -53,7 +53,7 @@ public class Container {
     private Integer port;
 
     @ToString.Include
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private ContainerImage image;
 
     @Column(nullable = false, updatable = false)
