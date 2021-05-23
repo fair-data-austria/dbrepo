@@ -84,12 +84,16 @@ test-backend-query:
     - "./fda-query-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-query-service/pom.xml clean test"
     - "./fda-query-service/rest-service/src/test/resources/integration-test.after"
+    - cat fda-query-service/rest-service/target/site/jacoco/index.html
   needs:
     - build-metadata-db
   dependencies:
     - build-metadata-db
   artifacts:
     when: always
+    paths:
+      - fda-query-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-query-service/rest-service/target/site/jacoco/index.html
     reports:
       junit:
         - fda-query-service/rest-service/target/surefire-reports/TEST-*.xml
@@ -100,12 +104,16 @@ test-backend-table:
     - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-table-service/pom.xml clean test verify"
     - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
+    - cat fda-table-service/rest-service/target/site/jacoco/index.html
   needs:
     - build-metadata-db
   dependencies:
     - build-metadata-db
   artifacts:
     when: always
+    paths:
+      - fda-table-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-table-service/rest-service/target/site/jacoco/index.html
     reports:
       junit:
         - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
