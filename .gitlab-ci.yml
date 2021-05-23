@@ -51,27 +51,13 @@ test-backend-discovery:
   stage: test
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install"
-    - "./fda-discovery-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-discovery-service/pom.xml clean test"
-    - "./fda-discovery-service/rest-service/src/test/resources/integration-test.after"
-  artifacts:
-    when: always
-    reports:
-      junit:
-        - fda-discovery-service/target/surefire-reports/TEST-*.xml
 
 test-backend-gateway:
   stage: test
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install"
-    - "./fda-gateway-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-gateway-service/pom.xml clean test"
-    - "./fda-gateway-service/rest-service/src/test/resources/integration-test.after"
-  artifacts:
-    when: always
-    reports:
-      junit:
-        - fda-gateway-service/target/surefire-reports/TEST-*.xml
 
 test-backend-query:
   stage: test
