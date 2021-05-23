@@ -122,71 +122,73 @@ public class TableService {
         return out;
     }
 
-    public QueryResultDto insert(Long databaseId, Long tableId, MultipartFile file) throws Exception {
+    public QueryResultDto insert(Long databaseId, Long tableId, MultipartFile file) throws TableNotFoundException,
+            ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, DataProcessingException {
         Table t = findById(databaseId, tableId);
         Database d = findDatabase(databaseId);
         log.debug(t.toString());
         log.info("Reading CSV file {}", file.getName());
         List<Map<String, Object>> processedData = readCsv(file, t);
         List<String> headers = new ArrayList<>();
-        for (Map<String, Object> m : processedData ) {
-            for ( Map.Entry<String,Object> entry : m.entrySet()) {
+        for (Map<String, Object> m : processedData) {
+            for (Map.Entry<String, Object> entry : m.entrySet()) {
                 headers.add(entry.getKey());
             }
             break;
         }
-        return postgresService.insertIntoTable(d, t,processedData, headers);
+        return postgresService.insertIntoTable(d, t, processedData, headers);
     }
 
-    private List<Map<String, Object>> readCsv(MultipartFile file, Table table) throws IOException {
+    /* helper functions */
+
+    private List<Map<String, Object>> readCsv(MultipartFile file, Table table) throws FileStorageException {
         ICsvMapReader mapReader = null;
         try {
             Reader reader = new InputStreamReader(file.getInputStream());
             mapReader = new CsvMapReader(reader, CsvPreference.STANDARD_PREFERENCE);
 
             String[] header = mapReader.getHeader(true);
-            for(String s : header) {
+            for (String s : header) {
                 System.out.println(s);
             }
             String[] columnHeader = new String[header.length];
             final CellProcessor[] processors = new CellProcessor[header.length];
-            for(int i = 0; i < header.length; i++) {
+            for (int i = 0; i < header.length; i++) {
                 int finalI = i;
                 Optional<TableColumn> tcx = table.getColumns().stream().filter(x -> x.getName().equals(header[finalI])).findFirst();
                 TableColumn tc;
-                if (tcx.isEmpty()) {
-                    continue;
-                } else {
+                if (tcx.isPresent()) {
                     tc = tcx.get();
                     columnHeader[i] = tc.getName();
                     processors[i] = tc.getIsNullAllowed() ? new org.supercsv.cellprocessor.Optional() : new NotNull();
                 }
-
             }
-
             List<Map<String, Object>> listMaps = new ArrayList<>();
             Map<String, Object> tableMap;
-            while( (tableMap = mapReader.read(columnHeader, processors)) != null ) {
+            while ((tableMap = mapReader.read(columnHeader, processors)) != null) {
                 listMaps.add(tableMap);
             }
 
             return listMaps;
 
-        } catch(IOException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new FileStorageException("csv was unprocessible", e);
         } finally {
-            if( mapReader != null ) {
-                mapReader.close();
+            if (mapReader != null) {
+                try {
+                    mapReader.close();
+                } catch (IOException e) {
+                    // cannot catch anymore
+                }
             }
         }
-        return null;
     }
 
     public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException, DatabaseNotFoundException, TableNotFoundException {
-        QueryResultDto queryResult= postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
-        for (Map<String, Object> m : queryResult.getResult() ) {
-            for ( Map.Entry<String,Object> entry : m.entrySet()) {
-                System.out.print(entry.getKey()+": "+entry.getValue()+", ");
+        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
+        for (Map<String, Object> m : queryResult.getResult()) {
+            for (Map.Entry<String, Object> entry : m.entrySet()) {
+                System.out.print(entry.getKey() + ": " + entry.getValue() + ", ");
             }
         }
         return queryResult;

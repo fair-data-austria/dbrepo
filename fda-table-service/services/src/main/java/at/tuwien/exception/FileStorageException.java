@@ -1,15 +1,20 @@
 package at.tuwien.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(code = HttpStatus.UNPROCESSABLE_ENTITY)
 public class FileStorageException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
-    private String msg;
-
     public FileStorageException(String msg) {
-        this.msg = msg;
+        super(msg);
     }
 
-    public String getMsg() {
-        return msg;
+    public FileStorageException(String msg, Throwable thr) {
+        super(msg, thr);
+    }
+
+    public FileStorageException(Throwable thr) {
+        super(thr);
     }
 }
