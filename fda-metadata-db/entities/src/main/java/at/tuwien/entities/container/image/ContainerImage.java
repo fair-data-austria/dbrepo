@@ -57,10 +57,6 @@ public class ContainerImage {
     @Column(nullable = false)
     private Integer defaultPort;
 
-    @ToString.Exclude
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Container> containers;
-
     @ToString.Include
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ContainerImageEnvironmentItem> environment;
