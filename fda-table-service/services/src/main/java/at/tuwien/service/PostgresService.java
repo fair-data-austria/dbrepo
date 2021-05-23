@@ -113,7 +113,7 @@ public class PostgresService extends JdbcConnector {
     }
 
     @Override
-    final PreparedStatement getCreateTableStatement(Connection connection, TableCreateDto createDto) throws SQLException {
+    public final PreparedStatement getCreateTableStatement(Connection connection, TableCreateDto createDto) throws SQLException {
         log.debug("create table columns {}", Arrays.toString(createDto.getColumns()));
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("CREATE TABLE ")
