@@ -52,12 +52,16 @@ test-backend-database:
     - "./fda-database-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-database-service/pom.xml clean test verify"
     - "./fda-database-service/rest-service/src/test/resources/integration-test.after"
+    - cat fda-database-service/rest-service/target/site/jacoco/index.html
   needs:
     - build-metadata-db
   dependencies:
     - build-metadata-db
   artifacts:
     when: always
+    paths:
+      - fda-database-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-database-service/rest-service/target/site/jacoco/index.html
     reports:
       junit:
         - fda-database-service/rest-service/target/surefire-reports/TEST-*.xml
