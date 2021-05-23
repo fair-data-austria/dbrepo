@@ -36,19 +36,6 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fda
 
-  fda-metadata-db-test:
-    restart: always
-    container_name: fda-metadata-db-test
-    image: postgres:latest
-    networks:
-      - fda-public
-    ports:
-      - 5433:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fda-test
-
   fda-discovery-service:
     restart: always
     container_name: fda-discovery-service
