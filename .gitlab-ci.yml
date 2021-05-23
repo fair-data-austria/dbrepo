@@ -32,6 +32,7 @@ test-backend-container:
     - "./fda-container-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-container-service/pom.xml clean test verify"
     - "./fda-container-service/rest-service/src/test/resources/integration-test.after"
+    - cat fda-container-service/rest-service/target/site/jacoco/index.html
   needs:
     - build-metadata-db
   dependencies:
@@ -40,10 +41,10 @@ test-backend-container:
     when: always
     paths:
       - fda-container-service/rest-service/target/site/jacoco/jacoco.xml
-      - fda-container-service/rest-servicetarget/site/jacoco/index.html
+      - fda-container-service/rest-service/target/site/jacoco/index.html
     reports:
       junit:
-        - fda-container-service/target/surefire-reports/TEST-*.xml
+        - fda-container-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-database:
   stage: test
@@ -59,7 +60,7 @@ test-backend-database:
     when: always
     reports:
       junit:
-        - fda-database-service/target/surefire-reports/TEST-*.xml
+        - fda-database-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-discovery:
   stage: test
@@ -87,7 +88,7 @@ test-backend-query:
     when: always
     reports:
       junit:
-        - fda-query-service/target/surefire-reports/TEST-*.xml
+        - fda-query-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-table:
   stage: test
@@ -103,7 +104,7 @@ test-backend-table:
     when: always
     reports:
       junit:
-        - fda-table-service/target/surefire-reports/TEST-*.xml
+        - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-frontend:
   stage: test
@@ -115,20 +116,6 @@ deploy-all:
   script:
     - "docker-compose up -d"
     - "docker-compose down"
-
-deploy-coverage:
-  stage: deploy
-  script:
-    - cd fda-container-service/rest-service/
-    - 'python /opt/cover2cover.py target/site/jacoco/jacoco.xml src/main/java > target/site/cobertura.xml'
-    - 'python /opt/source2filename.py target/site/cobertura.xml'
-  needs:
-    - test-backend-container
-  dependencies:
-    - test-backend-container
-  artifacts:
-    reports:
-      cobertura: fda-container-service/rest-service/target/site/cobertura.xml
 
 variables: 
   DOCKER_TLS_CERTDIR: /certs
