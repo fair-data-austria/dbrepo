@@ -11,11 +11,7 @@
 
     <artifactId>rest-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-query-service-rest-service</name>
-
-    <properties>
-        <jacoco.version>0.8.7</jacoco.version>
-    </properties>
+    <name>fda-query-service-rest</name>
 
     <dependencies>
         <dependency>
