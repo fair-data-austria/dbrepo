@@ -21,29 +21,83 @@ build:
   script:
     - "docker-compose build"
 
-test-backend:
+test-backend-container:
   stage: test
   script:
-    - "docker-compose up -d fda-metadata-db-test"
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
+    - "./fda-container-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-container-service/pom.xml clean test"
-    - "mvn -f fda-database-service/pom.xml clean test"
-    - "mvn -f fda-discovery-service/pom.xml clean test"
-    - "mvn -f fda-gateway-service/pom.xml clean test"
-    - "mvn -f fda-query-service/pom.xml clean test"
-    - "mvn -f fda-table-service/pom.xml clean test"
-    - "docker-compose down fda-metadata-db-test"
+    - "./fda-container-service/rest-service/src/test/resources/integration-test.after"
   artifacts:
     when: always
     reports:
       junit:
-        - fda-metadata-service/rest-service/target/surefire-reports/TEST-*.xml
-        - fda-container-service/rest-service/target/surefire-reports/TEST-*.xml
-        - fda-database-service/rest-service/target/surefire-reports/TEST-*.xml
-        - fda-discovery-service/rest-service/target/surefire-reports/TEST-*.xml
-        - fda-gateway-service/rest-service/target/surefire-reports/TEST-*.xml
-        - fda-query-service/rest-service/target/surefire-reports/TEST-*.xml
-        - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
+        - fda-container-service/target/surefire-reports/TEST-*.xml
+
+test-backend-database:
+  stage: test
+  script:
+    - "mvn -f fda-metadata-db/pom.xml clean install"
+    - "./fda-database-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-database-service/pom.xml clean test"
+    - "./fda-database-service/rest-service/src/test/resources/integration-test.after"
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - fda-database-service/target/surefire-reports/TEST-*.xml
+
+test-backend-discovery:
+  stage: test
+  script:
+    - "mvn -f fda-metadata-db/pom.xml clean install"
+    - "./fda-discovery-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-discovery-service/pom.xml clean test"
+    - "./fda-discovery-service/rest-service/src/test/resources/integration-test.after"
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - fda-discovery-service/target/surefire-reports/TEST-*.xml
+
+test-backend-gateway:
+  stage: test
+  script:
+    - "mvn -f fda-metadata-db/pom.xml clean install"
+    - "./fda-gateway-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-gateway-service/pom.xml clean test"
+    - "./fda-gateway-service/rest-service/src/test/resources/integration-test.after"
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - fda-gateway-service/target/surefire-reports/TEST-*.xml
+
+test-backend-query:
+  stage: test
+  script:
+    - "mvn -f fda-metadata-db/pom.xml clean install"
+    - "./fda-query-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-query-service/pom.xml clean test"
+    - "./fda-query-service/rest-service/src/test/resources/integration-test.after"
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - fda-query-service/target/surefire-reports/TEST-*.xml
+
+test-backend-table:
+  stage: test
+  script:
+    - "mvn -f fda-metadata-db/pom.xml clean install"
+    - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-table-service/pom.xml clean test"
+    - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - fda-table-service/target/surefire-reports/TEST-*.xml
 
 test-frontend:
   stage: test
