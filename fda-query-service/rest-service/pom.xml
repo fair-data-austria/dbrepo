@@ -10,6 +10,12 @@
     </parent>
 
     <artifactId>rest-service</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>fda-query-service-rest-service</name>
+
+    <properties>
+        <jacoco.version>0.8.7</jacoco.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -28,6 +34,26 @@
                     <execution>
                         <goals>
                             <goal>repackage</goal><!-- to make it exuteable with $ java -jar ./app.jar -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
