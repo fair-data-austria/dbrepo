@@ -16,13 +16,13 @@ stages:
   - test
   - deploy
 
-build:
+build-docker:
   stage: build
   script:
     - "docker-compose build"
 
-test-backend:
-  stage: test
+build-metadata-db:
+  stage: build
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
 
@@ -33,9 +33,9 @@ test-backend-container:
     - "mvn -f fda-container-service/pom.xml clean test org.jacoco:jacoco-maven-plugin:prepare-agent test jacoco:report"
     - "./fda-container-service/rest-service/src/test/resources/integration-test.after"
   needs:
-    - test-backend
+    - build-metadata-db
   dependencies:
-    - test-backend
+    - build-metadata-db
   artifacts:
     when: always
     paths:
@@ -52,9 +52,9 @@ test-backend-database:
     - "mvn -f fda-database-service/pom.xml clean test"
     - "./fda-database-service/rest-service/src/test/resources/integration-test.after"
   needs:
-    - test-backend
+    - build-metadata-db
   dependencies:
-    - test-backend
+    - build-metadata-db
   artifacts:
     when: always
     reports:
@@ -80,9 +80,9 @@ test-backend-query:
     - "mvn -f fda-query-service/pom.xml clean test"
     - "./fda-query-service/rest-service/src/test/resources/integration-test.after"
   needs:
-    - test-backend
+    - build-metadata-db
   dependencies:
-    - test-backend
+    - build-metadata-db
   artifacts:
     when: always
     reports:
@@ -96,9 +96,9 @@ test-backend-table:
     - "mvn -f fda-table-service/pom.xml clean test"
     - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
   needs:
-    - test-backend
+    - build-metadata-db
   dependencies:
-    - test-backend
+    - build-metadata-db
   artifacts:
     when: always
     reports:
@@ -123,9 +123,9 @@ deploy-coverage:
     - 'python /opt/cover2cover.py target/site/jacoco/jacoco.xml src/main/java > target/site/cobertura.xml'
     - 'python /opt/source2filename.py target/site/cobertura.xml'
   needs:
-    - test-backend-container
+    - build-metadata-db-container
   dependencies:
-    - test-backend-container
+    - build-metadata-db-container
   artifacts:
     reports:
       cobertura: target/site/cobertura.xml
