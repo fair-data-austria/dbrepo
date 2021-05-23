@@ -82,7 +82,7 @@ test-backend-query:
   stage: test
   script:
     - "./fda-query-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-query-service/pom.xml clean test"
+    - "mvn -f fda-query-service/pom.xml clean test verify"
     - "./fda-query-service/rest-service/src/test/resources/integration-test.after"
     - cat fda-query-service/rest-service/target/site/jacoco/index.html
   needs:
