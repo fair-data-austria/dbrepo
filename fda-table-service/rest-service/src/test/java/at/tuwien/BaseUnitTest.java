@@ -22,7 +22,7 @@ public abstract class BaseUnitTest {
     public final static String DATABASE_1_INTERNALNAME = "nyse";
     public final static String TABLE_1_DESCRIPTION = "New York Stock Exchange";
 
-    public final static Long TABLE_1_ID = 3L;
+    public final static Long TABLE_1_ID = 1L;
     public final static String TABLE_1_NAME = "Stock Exchange";
     public final static String TABLE_1_INTERNALNAME = "stock_exchange";
 
@@ -56,7 +56,7 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_REPOSITORY = "postgres";
     public final static String IMAGE_1_TAG = "13-alpine";
     public final static String IMAGE_1_HASH = "83b40f2726e5";
-    public final static Integer IMAGE_1_PORT = 5432;
+    public final static Integer IMAGE_1_PORT = 5433;
     public final static Long IMAGE_1_SIZE = 12000L;
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
 
@@ -84,7 +84,7 @@ public abstract class BaseUnitTest {
     public final static String CONTAINER_1_HASH = "deadbeef";
     public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
     public final static String CONTAINER_1_NAME = "u01";
-    public final static String CONTAINER_1_INTERNALNAME = "u01";
+    public final static String CONTAINER_1_INTERNALNAME = "localhost";
     public final static String CONTAINER_1_DATABASE = "univie";
     public final static String CONTAINER_1_IP = "231.145.98.83";
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
@@ -104,6 +104,7 @@ public abstract class BaseUnitTest {
             .internalName(TABLE_1_INTERNALNAME)
             .name(TABLE_1_NAME)
             .lastModified(Instant.now())
+            .tdbid(DATABASE_1_ID)
             .build();
 
     public final static Database DATABASE_1 = Database.builder()
@@ -111,7 +112,6 @@ public abstract class BaseUnitTest {
             .created(Instant.now().minus(1, HOURS))
             .lastModified(Instant.now())
             .isPublic(false)
-            .tables(List.of(TABLE_1))
             .name(DATABASE_1_NAME)
             .container(CONTAINER_1)
             .internalName(DATABASE_1_INTERNALNAME)
