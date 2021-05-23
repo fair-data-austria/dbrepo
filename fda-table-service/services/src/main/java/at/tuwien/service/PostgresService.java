@@ -49,7 +49,7 @@ public class PostgresService extends JdbcConnector {
             connection = open(URL, postgresProperties);
         } catch (SQLException e) {
             log.error("Could not connect to the database container, is it running from Docker container? IT DOES NOT WORK FROM IDE! URL: {} Params: {}", URL, postgresProperties);
-            throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
+            throw new DatabaseConnectionException("Could not connect to the database container, is it running at: " + URL, e);
         }
         return connection;
     }
