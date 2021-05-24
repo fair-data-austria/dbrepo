@@ -25,6 +25,7 @@ public interface ImageMapper {
     @Mappings({
             @Mapping(source = "id", target = "hash"),
             @Mapping(source = "created", target = "compiled"),
+            @Mapping(target = "id", ignore = true),
             @Mapping(target = "repository", expression = "java(data.getRepoTags().get(0).substring(0,data.getRepoTags().get(0).indexOf(\":\")))"),
             @Mapping(target = "tag", expression = "java(data.getRepoTags().get(0).substring(data.getRepoTags().get(0).indexOf(\":\")+1))"),
     })
