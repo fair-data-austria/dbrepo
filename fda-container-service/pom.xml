@@ -166,7 +166,7 @@
                         <exclude>at/tuwien/mapper/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>
-                        <exclude>**/FdaQueryServiceApplication.class</exclude>
+                        <exclude>**/FdaContainerManagingApplication.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
