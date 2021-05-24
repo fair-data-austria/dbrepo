@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.DatabaseConnectionException;
+import at.tuwien.exception.QueryMalformedException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,15 +49,15 @@ public class PostgresService extends JdbcConnector {
     }
 
     @Override
-    List<Query> getQueries(Database database){
+    List<Query> getQueries(Database database) throws DatabaseConnectionException, QueryMalformedException {
         log.debug("Get Queries from Querystore");
-        final String getQueries="SELECT id,query, query_normalized, execution_timestamp FROM querystore ORDER BY execution_timestamp desc;";
+        final String getQueries = "SELECT id,query, query_normalized, execution_timestamp FROM querystore ORDER BY execution_timestamp desc;";
         List<Query> results = new ArrayList<>();
+        Connection connection = getConnection(database);
         try {
-            Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(getQueries);
             ResultSet result = statement.executeQuery();
-            while(result.next()) {
+            while (result.next()) {
                 results.add(Query.builder()
                         .id(result.getLong("id"))
                         .query(result.getString("query"))
@@ -64,24 +65,23 @@ public class PostgresService extends JdbcConnector {
                         .executionTimestamp(result.getTimestamp("execution_timestamp"))
                         .build());
             }
-        } catch(DatabaseConnectionException e) {
-            log.error("Problem with connecting to the database while selecting from Querystore");
-        } catch(SQLException e) {
-            log.error("The SQL statement seems to contain invalid syntax");
+        } catch (SQLException e) {
+            log.error("sql failed: {}", e.getMessage());
+            throw new QueryMalformedException("sql malformed", e);
         }
         return results;
     }
 
     @Override
-    public Boolean saveQuery(Database database,Query query) {
+    public Boolean saveQuery(Database database, Query query) {
         log.debug("Save Query {}", query.toString());
-        final String saveQuery="INSERT INTO querystore(query,query_normalized, query_hash, execution_timestamp, result_hash, result_number) VALUES(?,?,?,?,?,?);";
+        final String saveQuery = "INSERT INTO querystore(query,query_normalized, query_hash, execution_timestamp, result_hash, result_number) VALUES(?,?,?,?,?,?);";
         try {
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(saveQuery);
             System.out.println(query.toString());
-            statement.setString(1, "'"+query.getQuery()+"'");
-            statement.setString(2, "'"+query.getQueryNormalized()+"'");
+            statement.setString(1, "'" + query.getQuery() + "'");
+            statement.setString(2, "'" + query.getQueryNormalized() + "'");
             statement.setString(3, query.getQueryHash());
             statement.setTimestamp(4, query.getExecutionTimestamp());
             statement.setString(5, query.getResultHash());
@@ -89,9 +89,9 @@ public class PostgresService extends JdbcConnector {
             log.debug(statement.toString());
             return statement.execute();
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             log.error("The SQL statement seems to contain invalid syntax");
-        } catch(DatabaseConnectionException e) {
+        } catch (DatabaseConnectionException e) {
             log.error("Problem with connecting to the database while inserting into Querystore");
         }
         return false;
@@ -100,7 +100,7 @@ public class PostgresService extends JdbcConnector {
     @Override
     PreparedStatement getCreateQueryStoreStatement(Connection connection) throws SQLException {
         log.debug("create querystore");
-        final String createQuery="CREATE TABLE IF NOT EXISTS querystore (" +
+        final String createQuery = "CREATE TABLE IF NOT EXISTS querystore (" +
                 "                id serial PRIMARY KEY," +
                 "                query text," +
                 "                query_normalized text," +
@@ -112,7 +112,6 @@ public class PostgresService extends JdbcConnector {
         log.debug("compiled query as \"{}\"", createQuery);
         return connection.prepareStatement(createQuery);
     }
-
 
 
 }
