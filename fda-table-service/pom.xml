@@ -18,7 +18,8 @@
     <modules>
         <module>rest-service</module>
         <module>services</module>
-        <module>gateways</module>
+        <module>gateway</module>
+        <module>report</module>
     </modules>
 
     <properties>
@@ -169,6 +170,37 @@
         </dependency>
     </dependencies>
 
-    <!-- build in ./rest-service/pom.xml -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>at/tuwien/mapper/**/*</exclude>
+                        <exclude>at/tuwien/exception/**/*</exclude>
+                        <exclude>at/tuwien/utils/**/*</exclude>
+                        <exclude>**/FdaTableServiceApplication.class</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
