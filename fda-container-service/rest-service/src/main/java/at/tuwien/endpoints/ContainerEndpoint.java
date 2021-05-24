@@ -3,10 +3,7 @@ package at.tuwien.endpoints;
 import at.tuwien.api.container.*;
 import at.tuwien.api.container.network.IpAddressDto;
 import at.tuwien.entities.container.Container;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.ContainerStillRunningException;
-import at.tuwien.exception.DockerClientException;
-import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.service.ContainerService;
 import io.swagger.annotations.ApiOperation;
@@ -80,14 +77,18 @@ public class ContainerEndpoint {
     public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws DockerClientException, ContainerNotFoundException {
         final Container container = containerService.getById(id);
         final ContainerDto containerDto = containerMapper.containerToContainerDto(container);
-        containerService.findIpAddresses(container.getHash())
-                .forEach((key, value) -> containerDto.setIpAddress(IpAddressDto.builder()
-                        .ipv4(value)
-                        .build()));
+        try {
+            containerService.findIpAddresses(container.getHash())
+                    .forEach((key, value) -> containerDto.setIpAddress(IpAddressDto.builder()
+                            .ipv4(value)
+                            .build()));
+        } catch (ContainerNotRunningException e) {
+            throw new DockerClientException("Could not get container IP", e);
+        }
         final ContainerStateDto stateDto = containerService.getContainerState(container.getHash());
         try {
             containerDto.setState(stateDto);
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             throw new DockerClientException("Could not get container state");
         }
         return ResponseEntity.ok()
