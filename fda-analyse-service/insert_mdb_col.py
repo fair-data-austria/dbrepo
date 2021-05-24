@@ -54,10 +54,10 @@ def insert_mdb_col(dbid, tid):
             cid = cursor.fetchone()[0]
             tuplelist[i] = tuple([cid]+list(tuplelist[i]))
             i = i+1
-        
-        ret = cursor.statusmessage
 
         conn.commit()
+        
+        ret = cursor.statusmessage
         
         nomdtlist = ['text','character varying','varchar','char']
         numdtlist = ['bigint','integer','smallint','decimal','numeric','real','double precision']
@@ -132,7 +132,7 @@ def insert_mdb_nomcol(dbid,tid,cid):
             ON CONFLICT (cdbid,tid,cid) do update set (maxlength,last_modified) = (%s,current_timestamp)""",(dbid,tid,cid,maxlen,maxlen,))
 
         ret = cursor.statusmessage 
-        cursor.commit()  
+        conn.commit()  
     except Exception as e: 
         print("Error while inserting into metadatabase",e)
     return json.dumps(ret)
@@ -218,7 +218,7 @@ def insert_mdb_numcol(dbid,tid,cid):
             (dbid,tid,cid,minval,maxval,meanval,sdval,minval,maxval,meanval,sdval,))
 
         ret = cursor.statusmessage 
-        cursor.commit()  
+        conn.commit()  
     except Exception as e: 
         print("Error while inserting into metadatabase",e)
     return json.dumps(ret)
@@ -277,7 +277,94 @@ def update_mdb_siunit(dbid,tid,cid,siunit):
             (dbid,tid,cid,siunit,))
 
         ret = cursor.statusmessage 
-        cursor.commit()  
+        conn.commit()  
     except Exception as e: 
         print("Error while inserting into metadatabase",e)
+    return json.dumps(ret)
+
+def update_mdb_col(dbid, tid, cid): 
+    # Get database info 
+    try: 
+        s = requests.get(
+        "http://fda-database-service:9092/api/database/",
+        params = {"id":dbid}
+        ).json()
+    except Exception as e: 
+        print("Error while trying to get database info",e)
+        
+    # Get tablename by dbid and tid 
+    try: 
+        tbl_info = requests.get(
+        "http://fda-table-service:9094/api/database/{0}/table/{1}/".format(dbid,tid)).json()
+        tbl_name = tbl_info['internalName']
+    except Exception as e: 
+        print("Error:", e)
+        
+    # Get columnname  
+    try:
+        conn=connect(
+        dbname="fda", 
+        user = "postgres",
+        host = "fda-metadata-db", 
+        password = "postgres"
+        )
+    
+        cursor = conn.cursor() 
+        
+        cursor.execute("SELECT cname from mdb_columns where cdbid=%s and tid =%s and id=%s ",(dbid,tid,cid))
+        cname=cursor.fetchone()[0]
+    except Exception as e: 
+        print("Error while trying to get cname from mdb",e)
+    
+    # to-do case distiction between type of engine 
+      
+    # Conneting to database 
+    try: 
+        engine = create_engine('postgresql+psycopg2://postgres:postgres@fda-userdb-'+s[0]['internalName'].replace('_', '-')+'/'+s[0]['internalName'])
+        
+        sql = text("""SELECT column_name, columns.data_type, columns.ordinal_position, is_nullable 
+                   from information_schema.columns 
+                   where columns.table_name= :tblname and column_name=:colname""")
+        
+        with engine.begin() as conn: 
+            res = conn.execute(sql, tblname=tbl_name,colname=cname).fetchone()
+    except Exception as e: 
+        print("Error while connecting to database.", e) 
+        
+    try: 
+        # Connecting to metadatabase 
+        conn=connect(
+        dbname="fda", 
+        user = "postgres",
+        host = "fda-metadata-db", 
+        password = "postgres"
+        )
+    
+        cursor = conn.cursor() 
+        
+        # Prepare and insert into table mdb_COLUMNS 
+        uptuple = tuple([item for item in res[0]] + [dbid,tid,cid])
+        
+        cursor.execute("""UPDATE mdb_columns SET (cName,datatype,ordinal_position,check_expression) = 
+                       (%s,%s,%s,%s) WHERE cDBID =%s and tID=%s and ID=%s;""", uptuple)
+        
+        ret = cursor.statusmessage
+
+        conn.commit()
+        
+        nomdtlist = ['text','character varying','varchar','char']
+        numdtlist = ['bigint','integer','smallint','decimal','numeric','real','double precision']
+#       catdtlist = ['boolean','enum','USER-DEFINED']
+        
+        if ('INSERT' or 'UPDATE') in ret: 
+            if uptuple[1] in nomdtlist: 
+                insert_mdb_nomcol(uptuple[0][-1],uptuple[0][-2],uptuple[0][-3])
+            if uptuple[1] in numdtlist: 
+                insert_mdb_numcol(uptuple[0][-1],uptuple[0][-2],uptuple[0][-3])
+#           if uptuple[1] in catdtlist: 
+#               insert_mdb_catcol(uptuple[0][-1],uptuple[0][-2],uptuple[0][-3])
+                    
+        conn.close()
+    except Exception as e: 
+        print("Error while connecting to metadatabase.",e)
     return json.dumps(ret)
