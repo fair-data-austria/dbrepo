@@ -131,14 +131,14 @@ public abstract class BaseUnitTest {
     public final static Long CONTAINER_2_ID = 2L;
     public final static String CONTAINER_2_HASH = "0ff1ce";
     public final static ContainerImage CONTAINER_2_IMAGE = IMAGE_2;
-    public final static String CONTAINER_2_NAME = "t01";
-    public final static String CONTAINER_2_INTERNALNAME = "t01";
+    public final static String CONTAINER_2_NAME = "fda-userdb-t01";
+    public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-t01";
     public final static String CONTAINER_2_DATABASE = "tuw";
-    public final static String CONTAINER_2_IP = "233.145.99.83";
+    public final static String CONTAINER_2_IP = "172.28.0.8";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Container CONTAINER_1 = Container.builder()
-            .id(1L)
+            .id(CONTAINER_1_ID)
             .name(CONTAINER_1_NAME)
             .internalName(CONTAINER_1_INTERNALNAME)
             .image(CONTAINER_1_IMAGE)
@@ -147,7 +147,7 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static Container CONTAINER_2 = Container.builder()
-            .id(2L)
+            .id(CONTAINER_2_ID)
             .name(CONTAINER_2_NAME)
             .internalName(CONTAINER_2_INTERNALNAME)
             .image(CONTAINER_2_IMAGE)

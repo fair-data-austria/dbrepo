@@ -2,8 +2,11 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.ContainerCreateRequestDto;
+import at.tuwien.api.container.ContainerStateDto;
 import at.tuwien.api.container.image.ImageCreateDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.ContainerNotRunningException;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.repository.ContainerRepository;
@@ -119,53 +122,80 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void findIpAddress_notRunning_fails() {
-        dockerClient.startContainerCmd(CONTAINER_1.getHash());
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
 
         /* test */
-        assertThrows(DockerClientException.class, () -> {
+        assertThrows(ContainerNotRunningException.class, () -> {
             containerService.findIpAddresses(CONTAINER_1.getHash());
         });
     }
 
     @Test
     public void findIpAddress_notFound_fails() {
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
+        dockerClient.removeContainerCmd(CONTAINER_1.getHash()).exec();
 
+        /* test */
+        assertThrows(ContainerNotFoundException.class, () -> {
+            containerService.findIpAddresses(CONTAINER_1.getHash());
+        });
     }
 
     @Test
     public void getContainerState_succeeds() {
 
+        /* test */
+        final ContainerStateDto response = containerService.getContainerState(CONTAINER_1.getHash());
+        assertEquals(ContainerStateDto.RUNNING, response);
     }
 
     @Test
     public void getContainerState_notFound_fails() {
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
+        dockerClient.removeContainerCmd(CONTAINER_1.getHash()).exec();
 
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.getContainerState(CONTAINER_1.getHash());
+        });
     }
 
     @Test
     public void create_succeeds() {
-        final ImageCreateDto request = ImageCreateDto.builder()
+        final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
-                .defaultPort(IMAGE_1_PORT)
-                .environment(IMAGE_1_ENV_DTO)
+                .name(CONTAINER_1_NAME)
                 .build();
+
+        /* test */
+        final Container container = containerService.create(request);
+        assertEquals(CONTAINER_1_NAME, container.getName());
     }
 
 
     @Test
     public void findById_docker_fails() {
-        // cannot test
+
+        /* test */
+        assertThrows(ContainerNotFoundException.class, () -> {
+            containerService.getById(CONTAINER_2_ID);
+        });
     }
 
     @Test
     public void change_start_succeeds() {
-        // cannot test
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
+
+        /* test */
+        containerService.start(CONTAINER_1_ID);
     }
 
     @Test
     public void change_stop_succeeds() {
-        // cannot test
+
+        /* test */
+        containerService.stop(CONTAINER_1_ID);
     }
 
 }
