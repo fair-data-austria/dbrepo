@@ -7,6 +7,7 @@ import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.QueryMalformedException;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +41,12 @@ public class QueryService {
         return null;
     }
 
-    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException {
+    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException {
         return postgresService.getQueries(findDatabase(id));
     }
 
     public QueryResultDto executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, SQLSyntaxErrorException {
-        if (checkValidity(query.getQuery()) == false) {
+        if (!checkValidity(query.getQuery())) {
             throw new SQLSyntaxErrorException("SQL Query contains invalid Syntax");
         }
         Database database = findDatabase(id);
@@ -58,6 +59,8 @@ public class QueryService {
     public void create(Long id) throws DatabaseConnectionException, ImageNotSupportedException, DatabaseNotFoundException {
         postgresService.createQuerystore(findDatabase(id));
     }
+
+    /* helper functions */
 
     private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
         final Optional<Database> database;
