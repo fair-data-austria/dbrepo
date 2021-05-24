@@ -91,14 +91,14 @@ public class ImageService {
         return imageRepository.save(image);
     }
 
-    public void delete(Long databaseId) throws ImageNotFoundException {
+    public void delete(Long id) throws ImageNotFoundException {
         try {
-            imageRepository.deleteById(databaseId);
+            imageRepository.deleteById(id);
         } catch (EntityNotFoundException | EmptyResultDataAccessException e) {
-            log.error("image id {} not found in metadata database", databaseId);
+            log.error("image id {} not found in metadata database", id);
             throw new ImageNotFoundException("no image with this id found in metadata database.");
         }
-        log.info("deleted image with id {}", databaseId);
+        log.info("deleted image with id {}", id);
     }
 
     /** HELPER FUNCTIONS */

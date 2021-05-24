@@ -1,8 +1,10 @@
 package at.tuwien;
 
 import at.tuwien.api.container.ContainerBriefDto;
+import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.image.ImageBriefDto;
+import at.tuwien.api.container.image.ImageCreateDto;
 import at.tuwien.api.container.image.ImageDto;
 import at.tuwien.api.container.image.ImageEnvItemDto;
 import at.tuwien.api.container.network.IpAddressDto;
@@ -12,6 +14,7 @@ import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.core.command.CreateContainerCmdImpl;
+import com.github.dockerjava.core.exec.CreateContainerCmdExec;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigInteger;
@@ -48,6 +51,8 @@ public abstract class BaseUnitTest {
                     .value("postgres")
                     .build())
             .toArray(new ImageEnvItemDto[0]);
+    public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
+            "POSTGRES_PASSWORD=postgres");
 
     public final static String IMAGE_2_REPOSITORY = "redis";
     public final static String IMAGE_2_TAG = "latest";
@@ -74,7 +79,7 @@ public abstract class BaseUnitTest {
             .toArray(new ImageEnvItemDto[0]);
 
     public final static ContainerImage IMAGE_1 = ContainerImage.builder()
-            .id(IMAGE_1_ID)
+            .id(1L)
             .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
             .hash(IMAGE_1_HASH)
@@ -117,10 +122,10 @@ public abstract class BaseUnitTest {
     public final static Long CONTAINER_1_ID = 1L;
     public final static String CONTAINER_1_HASH = "deadbeef";
     public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
-    public final static String CONTAINER_1_NAME = "u01";
-    public final static String CONTAINER_1_INTERNALNAME = "u01";
+    public final static String CONTAINER_1_NAME = "fda-userdb-u01";
+    public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
     public final static String CONTAINER_1_DATABASE = "univie";
-    public final static String CONTAINER_1_IP = "231.145.98.83";
+    public final static String CONTAINER_1_IP = "172.28.0.5";
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Long CONTAINER_2_ID = 2L;
@@ -133,7 +138,7 @@ public abstract class BaseUnitTest {
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Container CONTAINER_1 = Container.builder()
-            .id(CONTAINER_1_ID)
+            .id(1L)
             .name(CONTAINER_1_NAME)
             .internalName(CONTAINER_1_INTERNALNAME)
             .image(CONTAINER_1_IMAGE)
@@ -142,7 +147,7 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static Container CONTAINER_2 = Container.builder()
-            .id(CONTAINER_2_ID)
+            .id(2L)
             .name(CONTAINER_2_NAME)
             .internalName(CONTAINER_2_INTERNALNAME)
             .image(CONTAINER_2_IMAGE)
@@ -151,7 +156,6 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static ContainerDto CONTAINER_1_DTO = ContainerDto.builder()
-            .id(CONTAINER_1_ID)
             .name(CONTAINER_1_NAME)
             .image(IMAGE_1_DTO)
             .hash(CONTAINER_1_HASH)
@@ -162,20 +166,17 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static ContainerBriefDto CONTAINER_1_BRIEF_DTO = ContainerBriefDto.builder()
-            .id(CONTAINER_1_ID)
             .name(CONTAINER_1_NAME)
             .internalName(CONTAINER_1_INTERNALNAME)
             .hash(CONTAINER_1_HASH)
             .build();
 
     public final static ImageBriefDto IMAGE_1_BRIEFDTO = ImageBriefDto.builder()
-            .id(IMAGE_1_ID)
             .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
             .build();
 
     public final static ContainerDto CONTAINER_2_DTO = ContainerDto.builder()
-            .id(CONTAINER_2_ID)
             .name(CONTAINER_2_NAME)
             .image(IMAGE_2_DTO)
             .hash(CONTAINER_2_HASH)
@@ -192,5 +193,16 @@ public abstract class BaseUnitTest {
             .hash(CONTAINER_2_HASH)
             .build();
 
-    public final static CreateContainerResponse CONTAINER_1_RESPONSE = new CreateContainerResponse();
+    public final static ImageCreateDto IMAGE_1_CREATE_DTO = ImageCreateDto.builder()
+            .repository(IMAGE_1_REPOSITORY)
+            .tag(IMAGE_1_TAG)
+            .environment(IMAGE_1_ENV_DTO)
+            .defaultPort(IMAGE_1_PORT)
+            .build();
+
+    public final static ContainerCreateRequestDto CONTAINER_1_CREATE_DTO = ContainerCreateRequestDto.builder()
+            .repository(IMAGE_1_REPOSITORY)
+            .tag(IMAGE_1_TAG)
+            .name(CONTAINER_1_NAME)
+            .build();
 }
