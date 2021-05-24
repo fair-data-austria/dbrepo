@@ -13,6 +13,7 @@ COPY --from=dependency /root/.m2/repository/at/tuwien /root/.m2/repository/at/tu
 
 COPY ./rest-service ./rest-service
 COPY ./services ./services
+COPY ./report ./report
 
 RUN mvn -q clean package -DskipTests
 
