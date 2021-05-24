@@ -7,6 +7,7 @@ import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.QueryMalformedException;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.QueryService;
 import io.swagger.annotations.ApiOperation;
@@ -45,9 +46,11 @@ public class QueryEndpoint {
     @ApiOperation(value = "List all queries", notes = "Lists all already executed queries")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All queries are listed."),
+            @ApiResponse(code = 400, message = "Problem with reading the stored queries."),
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
-    public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
+    public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
+            ImageNotSupportedException, DatabaseConnectionException, QueryMalformedException {
         final List<Query> queries = queryService.findAll(id);
         return ResponseEntity.ok(queries.stream()
                 .map(queryMapper::queryToQueryDTO)
