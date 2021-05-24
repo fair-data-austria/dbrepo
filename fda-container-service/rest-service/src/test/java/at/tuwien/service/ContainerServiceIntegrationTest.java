@@ -179,7 +179,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            containerService.getById(CONTAINER_2_ID);
+            containerService.getById(9999999L);
         });
     }
 
