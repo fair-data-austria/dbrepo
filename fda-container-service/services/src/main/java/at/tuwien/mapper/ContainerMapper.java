@@ -33,7 +33,7 @@ public interface ContainerMapper {
     @Mappings({
             @Mapping(source = "state", target = "state", qualifiedByName = "containerStateDto"),
             @Mapping(source = "id", target = "hash"),
-//            @Mapping(target = "id", ignore = true)
+            @Mapping(target = "id", ignore = true)
     })
     ContainerDto inspectContainerResponseToContainerDto(InspectContainerResponse data);
 
