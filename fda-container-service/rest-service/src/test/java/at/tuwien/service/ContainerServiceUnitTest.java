@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ServiceUnitTest extends BaseUnitTest {
+public class ContainerServiceUnitTest extends BaseUnitTest {
 
     @Autowired
     private ContainerService containerService;
@@ -122,24 +122,6 @@ public class ServiceUnitTest extends BaseUnitTest {
         assertThrows(ContainerNotFoundException.class, () -> {
             containerService.getById(CONTAINER_1_ID);
         });
-    }
-
-    @Disabled(value = "cannot test docker api")
-    @Test
-    public void findById_docker_fails() {
-        // cannot test
-    }
-
-    @Disabled(value = "cannot test docker api")
-    @Test
-    public void change_start_succeeds() {
-        // cannot test
-    }
-
-    @Disabled(value = "cannot test docker api")
-    @Test
-    public void change_stop_succeeds() {
-        // cannot test
     }
 
     @Test

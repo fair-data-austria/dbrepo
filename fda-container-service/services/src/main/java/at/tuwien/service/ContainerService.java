@@ -5,10 +5,7 @@ import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.ContainerStateDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.ContainerStillRunningException;
-import at.tuwien.exception.DockerClientException;
-import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ContainerRepository;
@@ -27,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
+import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +54,7 @@ public class ContainerService {
         this.imageMapper = imageMapper;
     }
 
+    @Transactional
     public Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException {
         final Optional<ContainerImage> image = imageRepository.findByRepositoryAndTag(createDto.getRepository(), createDto.getTag());
         if (image.isEmpty()) {
@@ -159,7 +158,7 @@ public class ContainerService {
         return container;
     }
 
-    public Map<String, String> findIpAddresses(String containerHash) throws ContainerNotFoundException {
+    public Map<String, String> findIpAddresses(String containerHash) throws ContainerNotFoundException, ContainerNotRunningException {
         final InspectContainerResponse response;
         try {
             response = dockerClient.inspectContainerCmd(containerHash)
@@ -169,6 +168,10 @@ public class ContainerService {
             throw new ContainerNotFoundException("container not found", e);
         }
         final Map<String, String> networks = new HashMap<>();
+        if (!response.getState().getRunning()) {
+            log.warn("cannot get IPv4 of container that is not running");
+            throw new ContainerNotRunningException("container is not running");
+        }
         response.getNetworkSettings()
                 .getNetworks()
                 .forEach((key, value) -> {
