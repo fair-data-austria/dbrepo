@@ -22,6 +22,4 @@
         </dependency>
     </dependencies>
 
-    <!-- maven compile plugin for mapstruct and project lombok -->
-
 </project>
