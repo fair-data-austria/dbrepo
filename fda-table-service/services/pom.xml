@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>at.tuwien</groupId>
-            <artifactId>gateways</artifactId>
+            <artifactId>gateway</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
