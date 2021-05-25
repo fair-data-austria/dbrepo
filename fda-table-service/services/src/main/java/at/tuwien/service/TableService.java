@@ -47,7 +47,7 @@ public class TableService {
         this.tableMapper = tableMapper;
     }
 
-    public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
+    public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException, TableNotFoundException {
         final Optional<Database> database;
         try {
             database = databaseRepository.findById(databaseId);
@@ -59,14 +59,11 @@ public class TableService {
             log.error("Unable to find database {}", databaseId);
             throw new DatabaseNotFoundException("Unable to find database.");
         }
-        final List<Table> tables;
-        try {
-            tables = tableRepository.findByDatabase(database.get());
-        } catch (EntityNotFoundException e) {
+        if (database.get().getTables().size() == 0) {
             log.error("Unable to find tables for database {}.", database);
-            throw new DatabaseNotFoundException("Unable to find tables.");
+            throw new TableNotFoundException("Unable to find tables.");
         }
-        return tables;
+        return database.get().getTables();
     }
 
     public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException, DataProcessingException {
