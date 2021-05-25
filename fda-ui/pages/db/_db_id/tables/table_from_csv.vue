@@ -40,7 +40,7 @@
         <div v-for="(c, idx) in columns" :key="idx">
           <v-row dense class="column pa-2 ml-1 mr-1">
             <v-col cols="4">
-              <v-text-field v-model="c.name" required label="Name" />
+              <v-text-field disabled v-model="c.name" required label="Name" />
             </v-col>
             <v-col cols="3">
               <v-select
@@ -59,7 +59,7 @@
           </v-row>
         </div>
 
-        <v-btn color="primary" @click="step = 4">
+        <v-btn class="mt-2" color="primary" @click="createTable">
           Continue
         </v-btn>
       </v-stepper-content>
@@ -88,6 +88,7 @@ export default {
       tableDesc: '',
       loading: false,
       file: null,
+      fileLocation: null,
       columns: [],
       columnTypes: [
         { value: 'ENUM', text: 'ENUM' },
@@ -114,6 +115,7 @@ export default {
         })
         if (res.data.success) {
           this.columns = res.data.columns
+          this.fileLocation = res.data.file.filename
           this.step = 3
         } else {
           this.$toast.error('Could not upload CSV data')
@@ -122,6 +124,24 @@ export default {
         this.$toast.error('Could not upload data.')
       }
       this.loading = false
+    },
+    async createTable () {
+      const url = `/api/tables/api/database/${this.$route.params.db_id}/table/csv/local`
+      const data = {
+        columns: this.columns.map(c => c.type),
+        description: this.tableDesc,
+        name: this.tableName,
+        fileLocation: this.fileLocation
+      }
+      let res
+      try {
+        res = await this.$axios.post(url, data)
+        console.log(res.data)
+      } catch (err) {
+        console.log(err)
+      }
+
+      // this.step = 4
     }
   }
 }
