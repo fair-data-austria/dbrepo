@@ -86,9 +86,9 @@ public class TableEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
     public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) {
-        final QueryResult queryResult = tableService.create(databaseId, file, headers);
+        final Table table = tableService.create(databaseId, file, headers);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(queryResultMapper.queryResultToQueryResultDto(queryResult));
+                .body(tableMapper.tableToTableDto(table));
     }
 
     @PostMapping("/table/csv/local")
@@ -101,10 +101,10 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCSVInformation tableCSVInformation) throws IOException {
-        final QueryResult queryResult = tableService.create(databaseId, tableCSVInformation);
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCSVInformation tableCSVInformation) throws IOException {
+        final Table table = tableService.create(databaseId, tableCSVInformation);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(queryResultMapper.queryResultToQueryResultDto(queryResult));
+                .body(tableMapper.tableToTableDto(table));
     }
 
 
@@ -164,7 +164,7 @@ public class TableEndpoint {
             @ApiResponse(code = 200, message = "All tables are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
-    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
+    public ResponseEntity<TableDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
         final QueryResult queryResult = tableService.showData(databaseId, tableId);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
