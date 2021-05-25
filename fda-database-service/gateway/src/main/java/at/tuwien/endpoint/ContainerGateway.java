@@ -23,11 +23,11 @@ public class ContainerGateway {
         this.restClient = restClient;
     }
 
-    public ContainerDto inspect(Long id) {
-        final ResponseEntity<ContainerDto> response;
-        response = restClient.exchange(URL + id, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-            });
-        return response.getBody();
-    }
+//    public ContainerDto inspect(Long id) {
+//        final ResponseEntity<ContainerDto> response;
+//        response = restClient.exchange(URL + id, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+//            });
+//        return response.getBody();
+//    }
 
 }

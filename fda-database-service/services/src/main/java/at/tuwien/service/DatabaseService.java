@@ -70,7 +70,7 @@ public class DatabaseService {
         log.debug("retrieved database {}", database);
         // check if postgres
         if (!database.getContainer().getImage().getRepository().equals("postgres")) {
-            log.error("only postgres is supported currently");
+            log.error("No support for {}:{}", database.getContainer().getImage().getRepository(), database.getContainer().getImage().getTag());
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
         }
         // call container to create database
