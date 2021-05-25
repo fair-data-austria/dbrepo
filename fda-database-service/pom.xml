@@ -169,6 +169,10 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
+                        <exclude>at/tuwien/config/**/*</exclude>
+                        <exclude>at/tuwien/mapper/**/*</exclude>
+                        <exclude>at/tuwien/exception/**/*</exclude>
+                        <exclude>**/JdbcConnector.class</exclude>
                         <exclude>**/FdaDatabaseManagingApplication.class</exclude>
                     </excludes>
                 </configuration>
