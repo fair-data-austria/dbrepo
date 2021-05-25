@@ -24,7 +24,7 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
     analysis = await fetch(`${process.env.API_ANALYSE}/datatypesbypath?filepath=${path}`)
     analysis = await analysis.json()
   } catch (error) {
-    res.json({ success: false, error })
+    return res.json({ success: false, error })
   }
 
   // map messytables / CoMi's `determine_dt` column types to ours
