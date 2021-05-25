@@ -1,6 +1,6 @@
 package at.tuwien.endpoint;
 
-import at.tuwien.BaseIntegrationTest;
+import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.endpoints.DatabaseEndpoint;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class EndpointUnitTest extends BaseIntegrationTest {
+public class EndpointUnitTest extends BaseUnitTest {
 
     @MockBean
     private DatabaseService databaseService;
