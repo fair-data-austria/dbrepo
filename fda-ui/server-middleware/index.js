@@ -10,7 +10,7 @@ const colTypeMap = {
   Date: 'DATE',
   Integer: 'NUMBER',
   Numeric: 'NUMBER',
-  String: 'TEXT',
+  String: 'STRING',
   Timestamp: 'DATE'
 }
 
