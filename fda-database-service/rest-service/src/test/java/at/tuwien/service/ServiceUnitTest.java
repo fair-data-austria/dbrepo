@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.BaseIntegrationTest;
+import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class ServiceUnitTest extends BaseIntegrationTest {
+public class ServiceUnitTest extends BaseUnitTest {
 
     @Autowired
     private DatabaseService databaseService;
@@ -73,7 +73,8 @@ public class ServiceUnitTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void delete_succeeds() throws DatabaseConnectionException, DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
+    public void delete_succeeds() throws DatabaseConnectionException, DatabaseNotFoundException,
+            ImageNotSupportedException, DatabaseMalformedException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
 
@@ -106,7 +107,8 @@ public class ServiceUnitTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void create_succeeds() throws DatabaseConnectionException, ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
+    public void create_succeeds() throws DatabaseConnectionException, ImageNotSupportedException,
+            ContainerNotFoundException, DatabaseMalformedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .name(DATABASE_1_NAME)
                 .containerId(CONTAINER_1_ID)
@@ -139,14 +141,12 @@ public class ServiceUnitTest extends BaseIntegrationTest {
 
     @Test
     public void create_notSupported_fails() {
-        final Container notPostgresContainer = CONTAINER_1;
-        notPostgresContainer.getImage().setRepository("mariadb");
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .name(DATABASE_1_NAME)
-                .containerId(CONTAINER_1_ID)
+                .name(DATABASE_2_NAME)
+                .containerId(CONTAINER_2_ID)
                 .build();
-        when(containerRepository.findById(CONTAINER_1_ID))
-                .thenReturn(Optional.of(notPostgresContainer));
+        when(containerRepository.findById(CONTAINER_2_ID))
+                .thenReturn(Optional.of(CONTAINER_2));
 
         /* test */
         assertThrows(ImageNotSupportedException.class, () -> {
