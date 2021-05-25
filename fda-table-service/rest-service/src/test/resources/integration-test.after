@@ -1,3 +1,1 @@
 #!/bin/bash
-docker stop fda-metadata-db-test
-docker rm fda-metadata-db-test
