@@ -1,8 +1,1 @@
 #!/bin/bash
-docker stop fda-metadata-db-test
-docker rm fda-metadata-db-test
-docker run --name fda-metadata-db-test \
-    --publish 5433:5432 \
-    --env POSTGRES_USER=postgres \
-    --env POSTGRES_PASSWORD=postgres \
-    --detach postgres:latest
