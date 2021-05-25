@@ -71,13 +71,11 @@ test-backend-database:
 test-backend-discovery:
   stage: test
   script:
-    - "mvn -f fda-metadata-db/pom.xml clean install"
     - "mvn -f fda-discovery-service/pom.xml clean test verify"
 
 test-backend-gateway:
   stage: test
   script:
-    - "mvn -f fda-metadata-db/pom.xml clean install"
     - "mvn -f fda-gateway-service/pom.xml clean test verify"
 
 test-backend-query:
