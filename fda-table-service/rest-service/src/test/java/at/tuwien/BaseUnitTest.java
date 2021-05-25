@@ -197,6 +197,7 @@ public abstract class BaseUnitTest {
             .isPublic(false)
             .name(DATABASE_1_NAME)
             .container(CONTAINER_1)
+            .tables(List.of(TABLE_1))
             .internalName(DATABASE_1_INTERNALNAME)
             .build();
 
@@ -207,6 +208,7 @@ public abstract class BaseUnitTest {
             .lastModified(Instant.now())
             .isPublic(false)
             .name(DATABASE_2_NAME)
+            .tables(List.of())
             .container(CONTAINER_2)
             .internalName(DATABASE_2_INTERNALNAME)
             .build();

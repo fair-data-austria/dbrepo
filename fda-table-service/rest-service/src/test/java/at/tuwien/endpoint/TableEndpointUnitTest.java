@@ -48,7 +48,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     private TableEndpoint tableEndpoint;
 
     @Test
-    public void findAll_succeeds() throws DatabaseNotFoundException {
+    public void findAll_succeeds() throws DatabaseNotFoundException, TableNotFoundException {
         when(tableService.findAll(DATABASE_1_ID))
                 .thenReturn(List.of(TABLE_1));
 
