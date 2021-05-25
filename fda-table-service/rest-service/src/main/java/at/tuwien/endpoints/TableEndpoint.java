@@ -85,7 +85,7 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) {
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) {
         final Table table = tableService.create(databaseId, file, headers);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableDto(table));
@@ -164,7 +164,7 @@ public class TableEndpoint {
             @ApiResponse(code = 200, message = "All tables are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
-    public ResponseEntity<TableDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
+    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
         final QueryResult queryResult = tableService.showData(databaseId, tableId);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
