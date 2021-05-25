@@ -46,7 +46,7 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
     public ResponseEntity<List<TableBriefDto>> findAll(@PathVariable("id") Long databaseId)
-            throws DatabaseNotFoundException {
+            throws DatabaseNotFoundException, TableNotFoundException {
         final List<Table> tables = tableService.findAll(databaseId);
         log.debug("received tables {}", tables);
         return ResponseEntity.ok(tables.stream()
