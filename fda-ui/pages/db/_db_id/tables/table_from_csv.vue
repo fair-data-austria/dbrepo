@@ -9,7 +9,7 @@
       <v-stepper-content class="pt-0 pb-1" step="1">
         <v-text-field v-model="tableName" required label="Name" />
         <v-text-field v-model="tableDesc" label="Description" />
-        <v-btn color="primary" @click="step = 2">
+        <v-btn :disabled="!step1Valid" color="primary" @click="step = 2">
           Continue
         </v-btn>
       </v-stepper-content>
@@ -40,7 +40,7 @@
         <div v-for="(c, idx) in columns" :key="idx">
           <v-row dense class="column pa-2 ml-1 mr-1">
             <v-col cols="4">
-              <v-text-field disabled v-model="c.name" required label="Name" />
+              <v-text-field v-model="c.name" disabled required label="Name" />
             </v-col>
             <v-col cols="3">
               <v-select
@@ -71,7 +71,13 @@
       </v-stepper-step>
 
       <v-stepper-content step="4">
-        Done. Go to table.
+        Proceed to table view.
+        <div class="mt-2">
+          <v-btn :to="`/db/${$route.params.db_id}/tables/${newTableId}`" outlined>
+            <v-icon>mdi-table</v-icon>
+            View
+          </v-btn>
+        </div>
       </v-stepper-content>
     </v-stepper>
   </div>
@@ -98,7 +104,13 @@ export default {
         { value: 'DATE', text: 'DATE' },
         { value: 'STRING', text: 'STRING' },
         { value: 'TEXT', text: 'TEXT' }
-      ]
+      ],
+      newTableId: 42
+    }
+  },
+  computed: {
+    step1Valid () {
+      return this.tableName.length
     }
   },
   mounted () {
@@ -136,12 +148,13 @@ export default {
       let res
       try {
         res = await this.$axios.post(url, data)
-        console.log(res.data)
+        // TODO check success
+        this.newTableId = res.data.tableId // FIXME
       } catch (err) {
         console.log(err)
       }
 
-      // this.step = 4
+      this.step = 4
     }
   }
 }
