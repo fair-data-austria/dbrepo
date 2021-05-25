@@ -1,3 +1,4 @@
+import path from 'path'
 import colors from 'vuetify/es5/util/colors'
 import isDocker from 'is-docker'
 
@@ -81,7 +82,7 @@ export default {
   },
 
   serverMiddleware: [
-    { path: '/server-middleware', handler: '@/server-middleware/index.js' }
+    { path: '/server-middleware', handler: path.resolve(__dirname, 'server-middleware/index.js') }
   ],
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
