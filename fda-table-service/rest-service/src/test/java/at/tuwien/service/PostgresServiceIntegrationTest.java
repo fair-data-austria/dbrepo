@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class PostgresIntegrationTest extends BaseUnitTest {
+public class PostgresServiceIntegrationTest extends BaseUnitTest {
 
     @Autowired
     private PostgresService postgresService;
