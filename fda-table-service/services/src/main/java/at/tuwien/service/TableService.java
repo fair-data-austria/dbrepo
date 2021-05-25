@@ -215,7 +215,7 @@ public class TableService {
         return queryResult;
     }
 
-    public QueryResult create(Long databaseId, MultipartFile file, TableCSVInformation tableCSVInformation) {
+    public Table create(Long databaseId, MultipartFile file, TableCSVInformation tableCSVInformation) {
         try {
             String[] header = readHeader(file);
             for (String s : header) {
@@ -244,7 +244,7 @@ public class TableService {
             tcd.setColumns(cdtos);
             Table table = create(databaseId, tcd);
             QueryResult insert = insert(databaseId, table.getId(), file);
-            return insert;
+            return table;
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
@@ -252,7 +252,7 @@ public class TableService {
         return null;
     }
 
-    public QueryResult create(Long databaseId, TableCSVInformation tableCSVInformation) throws IOException {
+    public Table create(Long databaseId, TableCSVInformation tableCSVInformation) throws IOException {
         Path path = Paths.get("/tmp/" + tableCSVInformation.getFileLocation());
         String contentType = "multipart/form-data";
         byte[] content = null;

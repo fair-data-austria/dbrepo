@@ -85,10 +85,10 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) {
-        final QueryResult queryResult = tableService.create(databaseId, file, headers);
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) {
+        final Table table = tableService.create(databaseId, file, headers);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(queryResultMapper.queryResultToQueryResultDto(queryResult));
+                .body(tableMapper.tableToTableDto(table));
     }
 
     @PostMapping("/table/csv/local")
@@ -101,10 +101,10 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<QueryResultDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCSVInformation tableCSVInformation) throws IOException {
-        final QueryResult queryResult = tableService.create(databaseId, tableCSVInformation);
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCSVInformation tableCSVInformation) throws IOException {
+        final Table table = tableService.create(databaseId, tableCSVInformation);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(queryResultMapper.queryResultToQueryResultDto(queryResult));
+                .body(tableMapper.tableToTableDto(table));
     }
 
 
