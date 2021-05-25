@@ -38,7 +38,7 @@
       </v-stepper-step>
       <v-stepper-content step="3">
         <div v-for="(c, idx) in columns" :key="idx">
-          <v-row dense class="column pa-2 ml-1 mr-1">
+          <v-row dense class="column pa-2 ml-1 mr-1 mb-2">
             <v-col cols="4">
               <v-text-field v-model="c.name" disabled required label="Name" />
             </v-col>
@@ -148,13 +148,15 @@ export default {
       let res
       try {
         res = await this.$axios.post(url, data)
-        // TODO check success
-        this.newTableId = res.data.tableId // FIXME
+        this.newTableId = res.data.id
       } catch (err) {
         console.log(err)
       }
-
-      this.step = 4
+      if (res && res.data && res.data.id) {
+        this.step = 4
+      } else {
+        this.$toast.error('Could not create table.')
+      }
     }
   }
 }
