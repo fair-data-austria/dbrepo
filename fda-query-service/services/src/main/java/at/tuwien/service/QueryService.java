@@ -11,10 +11,18 @@ import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.entity.QueryResult;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.StringReader;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -47,11 +55,22 @@ public class QueryService {
         return postgresService.getQueries(findDatabase(id));
     }
 
-    public QueryResult executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, SQLSyntaxErrorException {
-        if(checkValidity(query.getQuery())==false) {
-            throw new SQLSyntaxErrorException("SQL Query contains invalid Syntax");
-        }
+    public QueryResult executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLFeatureNotSupportedException {
+        CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
+
+        Statement stmt = parserRealSql.parse(new StringReader(query.getQuery()));
         Database database = findDatabase(id);
+        if(stmt instanceof Select) {
+            Select selectStatement = (Select) stmt;
+            PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
+
+            List<SelectItem> selectitems = ps.getSelectItems();
+            System.out.println(ps.getFromItem().toString());
+            selectitems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
+        }
+        else {
+            throw new SQLFeatureNotSupportedException("SQL Query is not a SELECT statement - please only use SELECT statements");
+        }
         saveQuery(database, query, null);
 
         return null;
