@@ -160,6 +160,7 @@ services:
     ports:
       - 9094:9094
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
     links:
       - fda-metadata-db

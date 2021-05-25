@@ -48,13 +48,13 @@ public class PostgresService extends JdbcConnector {
         try {
             connection = open(URL, postgresProperties);
         } catch (SQLException e) {
-            log.error("Could not connect to the database container, is it running from Docker container? IT DOES NOT WORK FROM IDE! URL: {} Params: {}", URL, postgresProperties);
+            log.error("Could not connect to the database container, is it running from Docker container? URL: {} Params: {}", URL, postgresProperties);
             throw new DatabaseConnectionException("Could not connect to the database container, is it running at: " + URL, e);
         }
         return connection;
     }
 
-    public void createTable(Database database, TableCreateDto createDto) throws DatabaseConnectionException, TableMalformedException {
+    public void createTable(Database database, TableCreateDto createDto) throws DatabaseConnectionException, TableMalformedException, DataProcessingException {
         try {
             final PreparedStatement statement = getCreateTableStatement(getConnection(database), createDto);
             statement.execute();
@@ -73,7 +73,7 @@ public class PostgresService extends JdbcConnector {
         } catch (DatabaseConnectionException e) {
             log.error("Problem with connecting to the database while selecting from query store: {}", e.getMessage());
             throw new DatabaseConnectionException("database connection problem with query store", e);
-        } catch (SQLException e) {
+        } catch (SQLException | NullPointerException e) {
             log.error("The SQL statement seems to contain invalid syntax: {}", e.getMessage());
             throw new DataProcessingException("invalid syntax", e);
         }
@@ -86,7 +86,7 @@ public class PostgresService extends JdbcConnector {
      * @param t
      * @return
      */
-    public QueryResultDto getAllRows(Database database, Table t) throws DatabaseConnectionException {
+    public QueryResultDto getAllRows(Database database, Table t) throws DatabaseConnectionException, DataProcessingException {
         try {
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(selectStatement(t));
@@ -103,14 +103,13 @@ public class PostgresService extends JdbcConnector {
             qr.setResult(res);
             return qr;
         } catch (SQLException e) {
-            log.debug(e.getMessage());
-            log.error("The SQL statement seems to contain invalid syntax");
+            log.error("The SQL statement seems to contain invalid syntax: {}", e.getMessage());
+            throw new DataProcessingException("invalid syntax", e);
         }
-        return null;
     }
 
     @Override
-    public final PreparedStatement getCreateTableStatement(Connection connection, TableCreateDto createDto) throws SQLException {
+    public final PreparedStatement getCreateTableStatement(Connection connection, TableCreateDto createDto) throws DataProcessingException {
         log.debug("create table columns {}", Arrays.toString(createDto.getColumns()));
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("CREATE TABLE ")
@@ -127,25 +126,18 @@ public class PostgresService extends JdbcConnector {
         queryBuilder.append(");");
         final String createQuery = queryBuilder.toString();
         log.debug("compiled query as \"{}\"", createQuery);
-        return connection.prepareStatement(createQuery);
-    }
-
-    private String selectStatement(Table t) {
-        log.debug("selecting data from {}", t.getName());
-
-        StringBuilder queryBuilder = new StringBuilder()
-                .append("SELECT ");
-        for (TableColumn tc : t.getColumns()) {
-            queryBuilder.append(tc.getInternalName() + ",");
+        try {
+            return connection.prepareStatement(createQuery);
+        } catch (SQLException e) {
+            log.error("invalid syntax: {}", e.getMessage());
+            throw new DataProcessingException("invalid syntax", e);
         }
-        queryBuilder.deleteCharAt(queryBuilder.length() - 1);
-        queryBuilder.append(" FROM " + t.getInternalName());
-        log.debug(queryBuilder.toString());
-        return queryBuilder.toString();
     }
 
     /**
      * FIXME THIS IS REMOVED IN SPRINT 2
+     * Very weird ordering of arguments in the processedData for-for loop
+     * Why not use PostgreSQL COPY statement?
      *
      * @param processedData
      * @param t
@@ -153,22 +145,25 @@ public class PostgresService extends JdbcConnector {
      */
     @Override
     public String insertStatement(List<Map<String, Object>> processedData, Table t, List<String> headers) {
-        log.debug("insertStatement data into {}", t.getName());
+        log.debug("insert table name: {}", t.getInternalName());
         StringBuilder queryBuilder = new StringBuilder()
                 .append("INSERT INTO ")
                 .append(tableMapper.columnNameToString(t.getInternalName()))
                 .append("(");
         for (String h : headers) {
+            // FIXME empty columns list in table produces nullpointer exception
             queryBuilder.append(t.getColumns().stream().filter(x -> x.getName().equals(h)).findFirst().get().getInternalName() + ",");
         }
         queryBuilder.deleteCharAt(queryBuilder.length() - 1);
         queryBuilder.append(") VALUES ");
 
+        // FIXME: no rows in processed data produce invalid syntax, but no exception thrown
         for (Map<String, Object> m : processedData) {
             queryBuilder.append("(");
+            // FIXME: no rows in processed data produce invalid syntax, but no exception thrown
             for (Map.Entry<String, Object> entry : m.entrySet()) {
                 TableColumn tc = t.getColumns().stream().filter(x -> x.getName().equals(entry.getKey())).findFirst().get();
-                if (tc.getColumnType().toString().equals("STRING")) {
+                if (tc.getColumnType().toString().equals("STRING") || tc.getColumnType().equals("TEXT")) {
                     queryBuilder.append("'" + entry.getValue() + "'" + ",");
                 } else {
                     queryBuilder.append(entry.getValue() + ",");
@@ -183,7 +178,7 @@ public class PostgresService extends JdbcConnector {
         return queryBuilder.toString();
     }
 
-    public void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException {
+    public void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException, DataProcessingException {
         try {
             final PreparedStatement statement = getDeleteStatement(getConnection(table.getDatabase()), table);
             statement.execute();
@@ -194,12 +189,31 @@ public class PostgresService extends JdbcConnector {
     }
 
     @Override
-    final PreparedStatement getDeleteStatement(Connection connection, Table table) throws SQLException {
+    final PreparedStatement getDeleteStatement(Connection connection, Table table) throws DataProcessingException {
         final StringBuilder deleteQuery = new StringBuilder("DROP TABLE ")
                 .append(tableMapper.columnNameToString(table.getInternalName()))
                 .append(";");
         log.debug("compiled delete table statement as {}", deleteQuery.toString());
-        return connection.prepareStatement(deleteQuery.toString());
+        try {
+            return connection.prepareStatement(deleteQuery.toString());
+        } catch (SQLException e) {
+            log.error("invalid syntax: {}", e.getMessage());
+            throw new DataProcessingException("invalid syntax", e);
+        }
+    }
+
+    private String selectStatement(Table t) {
+        log.debug("selecting data from {}", t.getName());
+
+        StringBuilder queryBuilder = new StringBuilder()
+                .append("SELECT ");
+        for (TableColumn tc : t.getColumns()) {
+            queryBuilder.append(tc.getInternalName() + ",");
+        }
+        queryBuilder.deleteCharAt(queryBuilder.length() - 1);
+        queryBuilder.append(" FROM " + t.getInternalName());
+        log.debug(queryBuilder.toString());
+        return queryBuilder.toString();
     }
 
     /**

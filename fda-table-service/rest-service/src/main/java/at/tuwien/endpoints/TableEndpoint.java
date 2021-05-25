@@ -55,7 +55,7 @@ public class TableEndpoint {
     }
 
     @PostMapping("/table")
-    @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container. For the colum definition use the following example: [{\"name\": \"Ticker Symbol\", \"primaryKey\": true, \"type\": \"STRING\", \"nullAllowed\": false, \"checkExpression\": null, \"foreignKey\": null},{\"name\": \"Accounts Payable\", \"primaryKey\": false, \"type\": \"NUMBER\", \"nullAllowed\": false, \"checkExpression\": \"Accounts Payable > 0\", \"foreignKey\": null},{\"name\": \"Company\", \"primaryKey\": false, \"type\": \"STRING\", \"nullAllowed\": false, \"checkExpression\": null, \"foreignKey\": null}]")
+    @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "The table was created."),
             @ApiResponse(code = 400, message = "The creation form contains invalid data."),
@@ -65,9 +65,10 @@ public class TableEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),
             @ApiResponse(code = 422, message = "The ."),
     })
-    public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId, @RequestBody TableCreateDto createDto)
+    public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId,
+                                                @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException {
+            DatabaseNotFoundException, DataProcessingException {
         final Table table = tableService.create(databaseId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
@@ -80,7 +81,8 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
             @ApiResponse(code = 404, message = "Table not found in metadata database."),
     })
-    public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws TableNotFoundException {
+    public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId)
+            throws TableNotFoundException {
         final Table table = tableService.findById(databaseId, tableId);
         return ResponseEntity.ok(tableMapper.tableToTableDto(table));
     }
@@ -93,7 +95,8 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
     })
-    public ResponseEntity<TableBriefDto> update(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) {
+    public ResponseEntity<TableBriefDto> update(@PathVariable("id") Long databaseId,
+                                                @PathVariable("tableId") Long tableId) {
         // TODO
         return ResponseEntity.unprocessableEntity().body(new TableBriefDto());
     }
@@ -106,7 +109,9 @@ public class TableEndpoint {
             @ApiResponse(code = 404, message = "The table is not found in database."),
     })
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException {
+    public void delete(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId)
+            throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
+            DataProcessingException {
         tableService.delete(databaseId, tableId);
     }
 
@@ -120,7 +125,9 @@ public class TableEndpoint {
             @ApiResponse(code = 422, message = "The csv was not processible."),
     })
     /* FIXME: this should be in a different endpoint */
-    public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId, @RequestParam("file") MultipartFile file) throws Exception {
+    public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId,
+                                                 @PathVariable("tableId") Long tableId,
+                                                 @RequestParam("file") MultipartFile file) throws Exception {
         final QueryResultDto queryResult = tableService.insert(databaseId, tableId, file);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
@@ -132,8 +139,10 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
     /* FIXME: this should be a different endpoint */
-    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId)
-            throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException, DatabaseConnectionException {
+    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId,
+                                                   @PathVariable("tableId") Long tableId)
+            throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException,
+            DatabaseConnectionException, DataProcessingException {
         final QueryResultDto queryResult = tableService.showData(databaseId, tableId);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }

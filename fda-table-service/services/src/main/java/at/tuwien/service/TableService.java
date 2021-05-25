@@ -69,7 +69,7 @@ public class TableService {
         return tables;
     }
 
-    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException {
+    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException, DataProcessingException {
         final Table table = findById(databaseId, tableId);
         postgresService.deleteTable(table);
         tableRepository.deleteById(tableId);
@@ -104,7 +104,7 @@ public class TableService {
 
     @Transactional
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException {
+            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, DataProcessingException {
         final Database database = findDatabase(databaseId);
 
         /* save in metadata db */
@@ -181,7 +181,7 @@ public class TableService {
     }
 
     public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
-            DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException {
+            DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
         QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
         for (Map<String, Object> m : queryResult.getResult()) {
             for (Map.Entry<String, Object> entry : m.entrySet()) {
