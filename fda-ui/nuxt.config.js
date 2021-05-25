@@ -81,7 +81,7 @@ export default {
   },
 
   serverMiddleware: [
-    { path: '/server-middleware', handler: '~/server-middleware/index.js' }
+    { path: '/server-middleware', handler: 'server-middleware/index.js' }
   ],
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
