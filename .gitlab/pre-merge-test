@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# DESCRIPTION: script to check if the current code base passes all tests before submitting to pipeline
+# WHEN: merge to dev, master
+
+SERVICES="container
+          database
+          discovery
+          gateway
+          query
+          table"
+
+# 1) Docker
+echo -e "\e[96m1\e[39m) Docker"
+echo "Building all"
+docker-compose build >/dev/null 2>&1
+
+if [[ $? -ne 0 ]]; then
+  echo -e "... \e[91mNOT OK\e[39m"
+else
+  echo -e "... \e[92mOK\e[39m"
+fi
+
+# 2) Maven
+echo -e "\e[96m2\e[39m) Maven"
+
+for service in $SERVICES; do
+  echo "Testing ./fda-${service}-service"
+  RESULT=$(mvn -f "./fda-${service}-service/pom.xml" clean test verify | grep -o "FAILURE")
+  if [[ $RESULT ]]; then
+    echo -e "... \e[91mNOT OK\e[39m"
+  else
+    echo -e "... \e[92mOK\e[39m"
+  fi
+done
+
+# 3) Runtime
+echo -e "\e[96m3\e[39m) Runtime"
+echo "Execute Docker runtime, look for errors"
+docker-compose up

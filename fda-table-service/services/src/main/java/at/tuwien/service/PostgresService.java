@@ -96,10 +96,17 @@ public class PostgresService extends JdbcConnector {
             while (result.next()) {
                 Map<String, Object> r = new HashMap<>();
                 for (TableColumn tc : t.getColumns()) {
-                    r.put(tc.getName(), result.getString(tc.getInternalName()));
+                    if (ColumnTypeDto.valueOf(tc.getColumnType()).equals(ColumnTypeDto.NUMBER)) {
+                        r.put(tc.getName(), result.getDouble(tc.getInternalName()));
+                    } else if (ColumnTypeDto.valueOf(tc.getColumnType()).equals(ColumnTypeDto.BOOLEAN)) {
+                        r.put(tc.getName(), result.getBoolean(tc.getInternalName()));
+                    } else {
+                        r.put(tc.getName(), result.getString(tc.getInternalName()));
+                    }
                 }
                 res.add(r);
             }
+            log.debug("assembled result: {}", res);
             qr.setResult(res);
             return qr;
         } catch (SQLException e) {
