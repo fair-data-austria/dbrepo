@@ -27,10 +27,6 @@ public abstract class JdbcConnector {
         this.tableMapper = tableMapper;
     }
 
-    protected Connection open(String url, Properties properties) throws SQLException {
-        return DriverManager.getConnection(url, properties);
-    }
-
     abstract PreparedStatement getCreateTableStatement(Connection connection, TableCreateDto createDto) throws DataProcessingException;
 
     abstract PreparedStatement getInsertStatement(Connection connection, List<Map<String, Object>> processedData, Table table, List<String> headers) throws DataProcessingException;

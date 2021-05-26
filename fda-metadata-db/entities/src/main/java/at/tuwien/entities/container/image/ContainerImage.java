@@ -43,6 +43,18 @@ public class ContainerImage {
 
     @ToString.Include
     @Column(nullable = false)
+    private String driverClass;
+
+    @ToString.Include
+    @Column(nullable = false)
+    private String dialect;
+
+    @ToString.Include
+    @Column(nullable = false)
+    private String jdbcMethod;
+
+    @ToString.Include
+    @Column(nullable = false)
     private String hash;
 
     @ToString.Include
