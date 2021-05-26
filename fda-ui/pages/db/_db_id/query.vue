@@ -1,29 +1,22 @@
 <template>
   <div v-if="db">
     <DBToolbar />
-    <v-tabs-items v-model="tab">
-      <v-tab-item>
-        <v-card flat>
-          <v-card-text>
-            {{ db.name }}
-          </v-card-text>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
+    <QueryBuilder />
   </div>
 </template>
 
 <script>
 import DBToolbar from '@/components/DBToolbar'
+import QueryBuilder from '@/components/QueryBuilder'
 
 export default {
   components: {
-    DBToolbar
+    DBToolbar,
+    QueryBuilder
   },
   data () {
     return {
-      db: null,
-      tab: 0
+      db: null
     }
   },
   async mounted () {
@@ -33,6 +26,8 @@ export default {
     } catch (err) {
       this.$toast.error('Could not load database.')
     }
+  },
+  methods: {
   }
 }
 </script>
