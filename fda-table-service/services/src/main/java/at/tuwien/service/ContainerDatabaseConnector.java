@@ -4,10 +4,9 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.exception.DataProcessingException;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.TableMalformedException;
+import at.tuwien.exception.*;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,7 @@ public interface ContainerDatabaseConnector {
      * @throws TableMalformedException     When the specification was not transformable.
      * @throws DataProcessingException     When the database returned some error.
      */
-    void createTable(Database database, TableCreateDto tableSpecification) throws DatabaseConnectionException, TableMalformedException, DataProcessingException;
+    void createTable(Database database, TableCreateDto tableSpecification) throws DatabaseConnectionException, TableMalformedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, ImageNotSupportedException;
 
     /**
      * Inserts data into an existing table (of a user database running in a Docker container)

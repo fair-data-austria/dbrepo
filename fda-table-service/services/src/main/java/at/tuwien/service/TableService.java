@@ -24,6 +24,7 @@ import org.supercsv.prefs.CsvPreference;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -41,12 +42,12 @@ public class TableService {
 
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
-    private final PostgresService postgresService;
+    private final HibernateConnector postgresService;
     private final TableMapper tableMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        PostgresService postgresService, TableMapper tableMapper) {
+                        HibernateConnector postgresService, TableMapper tableMapper) {
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
         this.postgresService = postgresService;
@@ -107,7 +108,8 @@ public class TableService {
 
     @Transactional
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, DataProcessingException {
+            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, DataProcessingException,
+            ArbitraryPrimaryKeysException, ParserConfigurationException {
         final Database database = findDatabase(databaseId);
 
         /* save in metadata db */
