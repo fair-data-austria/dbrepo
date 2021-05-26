@@ -13,9 +13,9 @@ import at.tuwien.service.QueryService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import net.sf.jsqlparser.JSQLParserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.SQLSyntaxErrorException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,7 +64,8 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<?> create(@PathVariable Long id) throws ImageNotSupportedException, DatabaseConnectionException, DatabaseNotFoundException {
+    public ResponseEntity<?> create(@PathVariable Long id) throws ImageNotSupportedException,
+            DatabaseConnectionException, DatabaseNotFoundException {
         queryService.create(id);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .build();
@@ -77,22 +78,22 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> modify(@PathVariable Long id, @RequestBody ExecuteQueryDto dto) throws DatabaseNotFoundException, ImageNotSupportedException, SQLSyntaxErrorException {
-        final QueryResultDto qr = queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
-        return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(qr);
+    public ResponseEntity<QueryResultDto> modify(@PathVariable Long id, @RequestBody ExecuteQueryDto dto)
+            throws DatabaseNotFoundException, ImageNotSupportedException, SQLFeatureNotSupportedException,
+            JSQLParserException {
+        final QueryResultDto response = queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
+        return ResponseEntity.ok(response);
     }
 
 
     @PutMapping("/query/version/{timestamp}")
     @ApiOperation(value = "executes a query with a given timestamp")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query with Timestamp")})
-    public ResponseEntity<?> modify(@PathVariable Long id, @PathVariable String timestamp, @RequestBody ExecuteQueryDto dto) throws DatabaseNotFoundException, ImageNotSupportedException, SQLSyntaxErrorException {
-        queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
-        return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.APPLICATION_JSON)
-                .build();
+    public ResponseEntity<QueryResultDto> modify(@PathVariable Long id, @PathVariable String timestamp, @RequestBody ExecuteQueryDto dto)
+            throws DatabaseNotFoundException, ImageNotSupportedException, SQLFeatureNotSupportedException,
+            JSQLParserException {
+        final QueryResultDto response = queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
+        return ResponseEntity.ok(response);
     }
 
 }
