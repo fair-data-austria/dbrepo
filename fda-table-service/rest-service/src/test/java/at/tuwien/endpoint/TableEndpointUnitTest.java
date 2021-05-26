@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
@@ -60,7 +61,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException, DataProcessingException {
+            DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -78,7 +79,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_databaseNotFound_fails() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -97,7 +98,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_tableNotFound_fails() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
