@@ -14,10 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 @Log4j2
@@ -34,13 +31,12 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
         this.tableMapper = tableMapper;
     }
 
-    @Override
-    public Connection getConnection(Database database) throws DatabaseConnectionException {
+    private Connection getConnection(Database database) throws DatabaseConnectionException {
         Connection connection;
         final String URL = "jdbc:postgresql://" + database.getContainer().getInternalName() + ":"
                 + database.getContainer().getImage().getDefaultPort() + "/" + database.getInternalName();
         try {
-            connection = open(URL, postgresProperties);
+            connection = DriverManager.getConnection(URL, postgresProperties);
         } catch (SQLException e) {
             log.error("Could not connect to the database container, is it running from Docker container? URL: {} Params: {}", URL, postgresProperties);
             throw new DatabaseConnectionException("Could not connect to the database container, is it running at: " + URL, e);
