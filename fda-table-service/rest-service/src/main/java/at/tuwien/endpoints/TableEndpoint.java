@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,7 +71,7 @@ public class TableEndpoint {
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId,
                                                 @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, DataProcessingException {
+            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
         final Table table = tableService.create(databaseId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
