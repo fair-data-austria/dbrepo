@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h3>
-      Tables
-    </h3>
+    <DBToolbar v-model="db" />
     <TableList />
     <TableCreate />
     <v-card class="mt-1">
@@ -17,15 +15,19 @@
 <script>
 import TableList from '@/components/TableList'
 import TableCreate from '@/components/TableCreate'
+import DBToolbar from '@/components/DBToolbar'
 
 export default {
   name: 'Tables',
   components: {
     TableList,
-    TableCreate
+    TableCreate,
+    DBToolbar
   },
   data () {
-    return {}
+    return {
+      db: null
+    }
   },
   mounted () {
   },
