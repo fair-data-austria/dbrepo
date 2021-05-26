@@ -37,7 +37,9 @@
       </v-tab-item>
       <v-tab-item>
         <v-card flat>
-          <v-card-text>Query</v-card-text>
+          <v-card-text>
+            <QueryBuilder />
+          </v-card-text>
         </v-card>
       </v-tab-item>
       <v-tab-item>
@@ -71,8 +73,12 @@
 </template>
 
 <script>
+import QueryBuilder from '@/components/QueryBuilder'
+
 export default {
-  components: {},
+  components: {
+    QueryBuilder
+  },
   data () {
     return {
       db: null,
