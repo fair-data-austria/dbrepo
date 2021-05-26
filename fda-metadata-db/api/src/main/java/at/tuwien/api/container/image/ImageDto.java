@@ -25,6 +25,17 @@ public class ImageDto {
     private String tag;
 
     @NotBlank
+    @ApiModelProperty(required = true, example = "org.postgresql.Driver")
+    private String driverClass;
+
+    @NotBlank
+    @ApiModelProperty(required = true, example = "org.hibernate.dialect.PostgreSQL10Dialect")
+    private String dialect;
+    @NotBlank
+    @ApiModelProperty(required = true, example = "postgres")
+    private String jdbcMethod;
+
+    @NotBlank
     @ApiModelProperty(required = true, example = "sha256:c5ec7353d87dfc35067e7bffeb25d6a0d52dad41e8b7357213e3b12d6e7ff78e")
     private String hash;
 

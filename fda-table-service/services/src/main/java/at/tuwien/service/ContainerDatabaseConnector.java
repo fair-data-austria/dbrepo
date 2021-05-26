@@ -13,16 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface ContainerDatabaseConnector {
-
-    /**
-     * Opens a new connection to the user database (running in a Docker container)
-     *
-     * @param database The user database.
-     * @return A connection.
-     * @throws DatabaseConnectionException When the connection could not be established.
-     */
-    Connection getConnection(Database database) throws DatabaseConnectionException;
-
     /**
      * Creates a new table with the given table specification from the front-end
      *
