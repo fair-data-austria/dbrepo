@@ -22,7 +22,7 @@ import java.util.*;
 
 @Log4j2
 @Service
-public class PostgresService extends JdbcConnector implements ContainerDatabaseService {
+public class PostgresService extends JdbcConnector implements ContainerDatabaseConnector {
 
     private final Properties postgresProperties;
     private final TableMapper tableMapper;
