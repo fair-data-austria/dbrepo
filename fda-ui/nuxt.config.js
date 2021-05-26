@@ -1,3 +1,4 @@
+import path from 'path'
 import colors from 'vuetify/es5/util/colors'
 import isDocker from 'is-docker'
 
@@ -76,8 +77,13 @@ export default {
   proxy: {
     '/api/container': process.env.API_CONTAINER,
     '/api/database': process.env.API_DATABASE,
+    '/api/analyse': process.env.API_ANALYSE,
     '/api/tables': { target: process.env.API_TABLES, pathRewrite: { '^/api/tables/': '' } }
   },
+
+  serverMiddleware: [
+    { path: '/server-middleware', handler: path.resolve(__dirname, 'server-middleware/index.js') }
+  ],
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {

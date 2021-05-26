@@ -14,6 +14,7 @@ COPY ./components ./components
 COPY ./lang ./lang
 COPY ./layouts ./layouts
 COPY ./middleware ./middleware
+COPY ./server-middleware ./server-middleware
 COPY ./pages ./pages
 COPY ./plugins ./plugins
 COPY ./store ./store
