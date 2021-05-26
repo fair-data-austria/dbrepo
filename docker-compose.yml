@@ -206,6 +206,8 @@ services:
       - fda-public
     ports:
       - 3000:3000
+    volumes:
+      - /tmp:/tmp
     depends_on:
       - fda-container-service
       - fda-database-service
@@ -215,3 +217,4 @@ services:
       API_CONTAINER: http://fda-container-service:9091
       API_DATABASE: http://fda-database-service:9092
       API_TABLES: http://fda-table-service:9094
+      API_ANALYSE: http://fda-analyse-service:5000

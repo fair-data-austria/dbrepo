@@ -2,6 +2,8 @@ package at.tuwien.service;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.TableCsvInformationDto;
+import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
@@ -11,6 +13,7 @@ import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.constraint.NotNull;
@@ -24,6 +27,9 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -177,14 +183,83 @@ public class TableService {
         }
     }
 
+    private String[] readHeader(MultipartFile file) throws IOException {
+        ICsvMapReader mapReader = null;
+        try {
+            Reader reader = new InputStreamReader(file.getInputStream());
+            mapReader = new CsvMapReader(reader, CsvPreference.STANDARD_PREFERENCE);
+
+            String[] header = mapReader.getHeader(true);
+            return header;
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        } finally {
+            if( mapReader != null ) {
+                mapReader.close();
+            }
+        }
+        return null;
+    }
+
+    // TODO ms what is this for? It does ony print to stdout
     public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
             DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
         QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
-        for (Map<String, Object> m : queryResult.getResult()) {
+        for (Map<String, Object> m : queryResult.getResult() ) {
             for (Map.Entry<String, Object> entry : m.entrySet()) {
-                System.out.print(entry.getKey() + ": " + entry.getValue() + ", ");
+                log.debug("{}: {}", entry.getKey(), entry.getValue());
             }
         }
         return queryResult;
     }
+
+    public Table create(Long databaseId, MultipartFile file, TableCsvInformationDto tableCSVInformation) {
+        try {
+            String[] header = readHeader(file);
+            log.debug("table csv info: {}", tableCSVInformation);
+            TableCreateDto tcd = new TableCreateDto();
+            tcd.setName(tableCSVInformation.getName());
+            tcd.setDescription(tableCSVInformation.getDescription());
+            ColumnCreateDto[] cdtos = new ColumnCreateDto[header.length];
+            log.debug("header: {}", header);
+            for (int i = 0; i < header.length; i++) {
+                ColumnCreateDto c = new ColumnCreateDto();
+                c.setName(header[i]);
+                c.setType(tableCSVInformation.getColumns().get(i));
+                c.setNullAllowed(true);
+                //TODO FIX THAT not only id is primary key
+                if(header[i].equals("id")) {
+                    c.setPrimaryKey(true);
+                } else {
+                    c.setPrimaryKey(false);
+                }
+                cdtos[i] = c;
+            }
+            tcd.setColumns(cdtos);
+            Table table = create(databaseId, tcd);
+            QueryResultDto insert = insert(databaseId, table.getId(), file);
+            return table;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
+    public Table create(Long databaseId, TableCsvInformationDto tableCSVInformation) throws IOException {
+        Path path = Paths.get("/tmp/" + tableCSVInformation.getFileLocation());
+        String contentType = "multipart/form-data";
+        byte[] content = null;
+        try {
+            content = Files.readAllBytes(path);
+        } catch (final IOException e) {
+        }
+        MultipartFile multipartFile = new MockMultipartFile(tableCSVInformation.getFileLocation(),
+                tableCSVInformation.getFileLocation(), contentType, content);
+        Files.deleteIfExists(path);
+        return create(databaseId, multipartFile,tableCSVInformation);
+    }
+
+
 }
