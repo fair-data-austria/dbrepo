@@ -10,9 +10,6 @@ cache:
 
 image: "docker/compose:latest"
 
-services:
-  - docker:dind
-
 stages: 
   - build
   - test
@@ -27,11 +24,6 @@ build-metadata-db:
   stage: build
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
-
-run-docker:
-  stage: run
-  script:
-    - "docker-compose up -d"
 
 test-backend-container:
   stage: test
