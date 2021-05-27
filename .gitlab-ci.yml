@@ -3,6 +3,8 @@ before_script:
   - "docker version"
   - "docker-compose version"
   - "mvn --version"
+  - "yarn --version"
+  - "ava --version"
 
 cache: 
   paths: 
@@ -20,6 +22,11 @@ build-docker:
   stage: build
   script:
     - "docker-compose build"
+
+test-frontend:
+  stage: test
+  script:
+    - "cd fda-ui && yarn test"
 
 build-metadata-db:
   stage: build
@@ -119,11 +126,6 @@ test-backend-table:
     reports:
       junit:
         - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
-
-test-frontend:
-  stage: test
-  script: 
-    - "cd fda-ui && yarn test"
 
 deploy-all:
   stage: deploy
