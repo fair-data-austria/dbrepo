@@ -1,50 +1,5 @@
 const knex = require('knex')({ client: 'pg' })
 
-// just for information: allowed operators
-// eslint-disable-next-line
-const operators = [
-  '=',
-  '<',
-  '>',
-  '<=',
-  '>=',
-  '<>',
-  '!=',
-  'like',
-  'not like',
-  'between',
-  'not between',
-  'ilike',
-  'not ilike',
-  'exists',
-  'not exist',
-  'rlike',
-  'not rlike',
-  'regexp',
-  'not regexp',
-  'match',
-  '&',
-  '|',
-  '^',
-  '<<',
-  '>>',
-  '~',
-  '~=',
-  '~*',
-  '!~',
-  '!~*',
-  '#',
-  '&&',
-  '@>',
-  '<@',
-  '||',
-  '&<',
-  '&>',
-  '-|-',
-  '@@',
-  '!!'
-]
-
 export function buildQuery ({ table, select, clauses }) {
   const builder = knex(table)
   clauses = clauses || []
