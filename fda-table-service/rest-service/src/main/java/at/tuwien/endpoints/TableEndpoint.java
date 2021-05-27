@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,7 +86,7 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) {
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) throws IOException {
         final Table table = tableService.create(databaseId, file, headers);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableDto(table));
@@ -101,7 +102,7 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCSVInformation tableCSVInformation) throws IOException {
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCSVInformation tableCSVInformation) throws IOException, IllegalArgumentException {
         final Table table = tableService.create(databaseId, tableCSVInformation);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableDto(table));
@@ -152,8 +153,9 @@ public class TableEndpoint {
             @ApiResponse(code = 400, message = "The form contains invalid data."),
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
-    })
-    public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId, @RequestParam("file") MultipartFile file) throws Exception {
+    })//
+
+    public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId, @RequestParam("file") MultipartFile file) throws IOException {
         final QueryResult queryResult = tableService.insert(databaseId, tableId, file);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
@@ -167,6 +169,11 @@ public class TableEndpoint {
     public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId) throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
         final QueryResult queryResult = tableService.showData(databaseId, tableId);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
+    }
+
+    @ExceptionHandler
+    public void handleIllegalArgumentException(IllegalArgumentException e, HttpServletResponse response) throws IOException {
+        response.sendError(HttpStatus.BAD_REQUEST.value());
     }
 
 }

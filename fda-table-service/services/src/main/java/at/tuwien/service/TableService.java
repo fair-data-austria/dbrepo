@@ -126,7 +126,7 @@ public class TableService {
         return out;
     }
 
-    public QueryResult insert(Long databaseId, Long tableId, MultipartFile file) throws Exception {
+    public QueryResult insert(Long databaseId, Long tableId, MultipartFile file) throws IOException {
         Table t = findById(databaseId, tableId);
         Database d = findDatabase(databaseId);
         log.debug(t.toString());
@@ -149,9 +149,7 @@ public class TableService {
             mapReader = new CsvMapReader(reader, CsvPreference.STANDARD_PREFERENCE);
 
             String[] header = mapReader.getHeader(true);
-            for(String s : header) {
-                System.out.println(s);
-            }
+
             String[] columnHeader = new String[header.length];
             final CellProcessor[] processors = new CellProcessor[header.length];
             for(int i = 0; i < header.length; i++) {
@@ -215,26 +213,25 @@ public class TableService {
         return queryResult;
     }
 
-    public Table create(Long databaseId, MultipartFile file, TableCSVInformation tableCSVInformation) {
-        try {
+    public Table create(Long databaseId, MultipartFile file, TableCSVInformation tableCSVInformation) throws IOException, IllegalArgumentException {
+        log.info("Create a table in database: {}", databaseId);
             String[] header = readHeader(file);
-            for (String s : header) {
-                System.out.println(s);
+            if (header.length != tableCSVInformation.getColumns().size()) {
+                throw new IllegalArgumentException("The number of arguments do not match the number of columns in the CSV file");
             }
-            System.out.println(tableCSVInformation.toString());
             TableCreateDto tcd = new TableCreateDto();
             tcd.setName(tableCSVInformation.getName());
             tcd.setDescription(tableCSVInformation.getDescription());
             ColumnCreateDto[] cdtos = new ColumnCreateDto[header.length];
-            System.out.println(tableCSVInformation.getColumns().toString());
-            System.out.println(header.toString());
+            log.debug(tableCSVInformation.getColumns().toString());
+            log.debug(header.toString());
             for (int i = 0; i < header.length; i++) {
                 ColumnCreateDto c = new ColumnCreateDto();
                 c.setName(header[i]);
                 c.setType(tableCSVInformation.getColumns().get(i));
                 c.setNullAllowed(true);
                 //TODO FIX THAT not only id is primary key
-                if(header[i].equals("id")) {
+                if (header[i].equals("id")) {
                     c.setPrimaryKey(true);
                 } else {
                     c.setPrimaryKey(false);
@@ -245,11 +242,6 @@ public class TableService {
             Table table = create(databaseId, tcd);
             QueryResult insert = insert(databaseId, table.getId(), file);
             return table;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-        }
-        return null;
     }
 
     public Table create(Long databaseId, TableCSVInformation tableCSVInformation) throws IOException {
