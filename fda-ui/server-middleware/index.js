@@ -3,6 +3,7 @@ const app = require('express')()
 const multer = require('multer')
 const upload = multer({ dest: '/tmp' })
 const fetch = require('node-fetch')
+const { buildQuery } = require('./query')
 
 // TODO extend me
 const colTypeMap = {
@@ -43,6 +44,10 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
   })
 
   res.json({ success: true, file, columns: entries })
+})
+
+app.post('/query/build', (req, res) => {
+  return res.json(buildQuery(req.body))
 })
 
 module.exports = app
