@@ -1,8 +1,11 @@
-// const bodyParser = require('body-parser')
-const app = require('express')()
+const express = require('express')
+const app = express()
 const multer = require('multer')
 const upload = multer({ dest: '/tmp' })
 const fetch = require('node-fetch')
+
+app.use(express.json())
+
 const { buildQuery } = require('./query')
 
 // TODO extend me
