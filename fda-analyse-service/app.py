@@ -1,90 +1,140 @@
 import os
-import uuid
 from flask import Flask, flash, request, redirect, url_for, Response, abort, jsonify
-from werkzeug.utils import secure_filename
 from determine_dt import determine_datatypes
-#from extract_tables import extract_tbl
-#from extract_sqlmetadata import extract_sqlmetadata
+from analysecsv import analysecsv
+from import_db import import_db
+#from werkzeug.utils import secure_filename
+#from werkzeug import cached_property
 import logging
 import py_eureka_client.eureka_client as eureka_client
-from flask import Flask, flash, request, redirect, url_for, Response
-from werkzeug.utils import secure_filename
-from determine_dt import determine_datatypes
 from os import environ
+#from flask_swagger_ui import get_swaggerui_blueprint
+#from flask_restful_swagger_3 import Api, Resource, swagger, Schema
+import json
+from flasgger import Swagger
+from flasgger.utils import swag_from
+from flasgger import LazyString, LazyJSONEncoder
 
 
-logging.basicConfig()
-UPLOAD_FOLDER = '.'
-ALLOWED_EXTENSIONS = {'csv'}
+#logging.basicConfig()
+#UPLOAD_FOLDER = '.'
+#ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["SWAGGER"] = {"title": "FDA-Analyse-Service", "uiversion": 3}
 
-@app.route('/extract-metadata', methods=['POST'])
-def extract_metadata():
-    json = request.json
-    if not json or not "cname" in json:
-        abort(400)
-    extract_sqlmetadata(json['cname'])
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "api",
+            "route": "/api.json",
+            "rule_filter": lambda rule: True,  # all in
+            "model_filter": lambda tag: True,  # all in
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/swagger-ui/",
+}
 
-    return "OK",200
-    
+template = dict(
+    swaggerUiPrefix=LazyString(lambda: request.environ.get("HTTP_X_SCRIPT_NAME", ""))
+)
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-            ## check if csv TODO
-        if file:
-            filename = str(uuid.uuid1())
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            result = determine_datatypes(filename)
-            os.remove(filename)
-            return result, 200
-    else:
-            return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+app.json_encoder = LazyJSONEncoder
+swagger = Swagger(app, config=swagger_config, template=template)
 
-@app.route('/datatypesbypath',methods=['GET'])
-def datatypesbypath(): 
-    path = request.args.get('filepath')
-    result = determine_datatypes(path)
+#TODO GET instead of POST  
+@app.route('/determinedt', methods=["POST"])
+@swag_from('/as-yml/determinedt.yml')
+def determinedt(): 
+    input_json = request.get_json()
+    try: 
+        filepath = str(input_json['filepath'])
+        enum = False 
+        if 'enum' in input_json:
+            enum = bool(input_json['enum']) 
+            print(enum)
+        enum_tol = 0.001 
+        if 'enum_tol' in input_json:
+            enum_tol = float(input_json['enum_tol'])
+            print(enum_tol)
+        seperator = ','
+        if 'seperator' in input_json: 
+            seperator = str(input_json['seperator'])
+        res = determine_datatypes(filepath,enum,enum_tol,seperator)
+    except e: 
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
 
-    return jsonify(result), 200
+@app.route('/checkcsv', methods=["POST"])
+@swag_from('/as-yml/checkcsv.yml')
+def checkcsv(): 
+    input_json = request.get_json() 
+    try: 
+        filepath = str(input_json['filepath'])
+        intdbname = str(input_json['intdbname'])
+        dbhost = str(input_json['dbhost'])
+        dbid = int(input_json['dbid'])
+        tname = str(input_json['tname'])
+        header = True 
+        if 'header' in input_json:
+            header = bool(input_json['header']) 
+        seperator = ','
+        if 'seperator' in input_json: 
+            seperator = str(input_json['seperator'])
+        res = analysecsv(filepath,seperator,intdbname, dbhost, dbid, tname, header)
+    except e: 
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
 
-@app.route('/extract-tables', methods=['POST'])
-def extract_tables():
-    print(request.json)
-    if not request.json or not 'query' in request.json:
-        abort(400)
-    sql = request.json['query']
+@app.route('/importdatabase', methods=["POST"])
+@swag_from('/as-yml/importdb.yml')
+def importdb(): 
+    input_json = request.get_json() 
+    try: 
+        cid=int(input_json['cid'])
+        dbid=int(input_json['dbid'])
+        resourcetype = str(input_json['resourcetype'])
+        description = str(input_json['description'])
+        publisher = str(input_json['publisher'])
+        year = int(input_json['year'])
+        bool_open = True 
+        if 'bool_open' in input_json: 
+            bool_open = bool(input_json['bool_open'])
+        res = import_db(cid,dbid, resourcetype, description, publisher,year,bool_open)
+    except e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
 
-    # TODO add error handling in case of invalid SQL etc.
-    return jsonify(extract_tbl(sql)), 200
+@app.route('/importdata', methods=["POST"])
+@swag_from('/as-yml/importdata.yml')
+def importdb1(): 
+    input_json = request.get_json() 
+    try: 
+        res = ok 
+    except: 
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
 
+@app.route('/updatecolumns', methods=["POST"])
+@swag_from('/as-yml/updatecol.yml')
+def importdb2(): 
+    input_json = request.get_json() 
+    try: 
+        res = ok 
+    except: 
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+        
 rest_server_port = 5000
 eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
                    app_name="fda-analyse-service",
-                   instance_port=rest_server_port)
-
-
+                   instance_port=rest_server_port)    
+    
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
-
-
-
-
-

@@ -1,6 +1,6 @@
 package at.tuwien.utils;
 
-import at.tuwien.dto.ExecuteQueryDTO;
+import at.tuwien.api.database.query.ExecuteQueryDto;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
@@ -17,7 +17,7 @@ public class ReWrittenQueryWrapper {
 
     private String reWrittenQueryStatement = "%s JOIN %s_history where lower(sys_period) <= '%s' AND '%s' < upper(sys_period) OR upper(sys_period) IS NULL";
 
-    public String determineReWrittenQuery(ExecuteQueryDTO dto) {
+    public String determineReWrittenQuery(ExecuteQueryDto dto) {
         String query = dto.getQuery();
         try {
             Statement statement = CCJSqlParserUtil.parse(dto.getQuery());

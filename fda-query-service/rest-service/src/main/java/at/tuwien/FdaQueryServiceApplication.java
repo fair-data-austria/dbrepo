@@ -9,12 +9,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-@SpringBootApplication
-@EnableJpaAuditing
-@EntityScan(basePackages = "at.tuwien.entity")
-@EnableTransactionManagement
-@EnableJpaRepositories(basePackages = {"at.tuwien.repository"})
 @EnableOpenApi
+@EnableJpaAuditing
+@SpringBootApplication
+@EnableTransactionManagement
+@EntityScan(basePackages = "at.tuwien.entities")
+@EnableJpaRepositories(basePackages = {"at.tuwien.repository"})
 public class FdaQueryServiceApplication {
 
     public static void main(String[] args) {
@@ -22,3 +22,4 @@ public class FdaQueryServiceApplication {
     }
 
 }
+

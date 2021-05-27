@@ -1,14 +1,13 @@
 package at.tuwien.service;
 
-import at.tuwien.dto.CopyCSVIntoTableDTO;
-import at.tuwien.dto.ExecuteQueryDTO;
-import at.tuwien.dto.ExecuteStatementDTO;
-import at.tuwien.entity.Database;
-import at.tuwien.entity.Query;
+import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.entity.QueryResult;
+import at.tuwien.exception.QueryMalformedException;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
@@ -25,7 +24,6 @@ import java.io.StringReader;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,17 +43,17 @@ public class QueryService {
     }
 
 
-    public QueryResult executeQuery(String id, ExecuteQueryDTO dto) {
+    public QueryResultDto executeQuery(String id, ExecuteQueryDto dto) {
         System.out.println("test");
 
         return null;
     }
 
-    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException {
+    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException {
         return postgresService.getQueries(findDatabase(id));
     }
 
-    public QueryResult executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLFeatureNotSupportedException {
+    public QueryResultDto executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLFeatureNotSupportedException {
         CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
 
         Statement stmt = parserRealSql.parse(new StringReader(query.getQuery()));
@@ -81,6 +79,8 @@ public class QueryService {
         postgresService.createQuerystore(findDatabase(id));
     }
 
+    /* helper functions */
+
     private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
         final Optional<Database> database;
         try {
@@ -101,14 +101,14 @@ public class QueryService {
         return database.get();
     }
 
-    private Query saveQuery(Database database, Query query, QueryResult queryResult) {
+    private Query saveQuery(Database database, Query query, QueryResultDto queryResult) {
         //TODO in next sprint
         String q = query.getQuery();
-        query.setExecution_timestamp(new Timestamp(System.currentTimeMillis()));
-        query.setQuery_normalized(normalizeQuery(query.getQuery()));
-        query.setQuery_hash(query.getQuery_normalized().hashCode()+"");
-        query.setResult_hash(query.getQuery_hash());
-        query.setResult_number(0);
+        query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
+        query.setQueryNormalized(normalizeQuery(query.getQuery()));
+        query.setQueryHash(query.getQueryNormalized().hashCode() + "");
+        query.setResultHash(query.getQueryHash());
+        query.setResultNumber(0);
         postgresService.saveQuery(database, query);
         return null;
     }
@@ -116,9 +116,10 @@ public class QueryService {
     private String normalizeQuery(String query) {
         return query;
     }
+
     private boolean checkValidity(String query) {
         String queryparts[] = query.toLowerCase().split("from");
-        if(queryparts[0].contains("select")) {
+        if (queryparts[0].contains("select")) {
             //TODO add more checks
             return true;
         }

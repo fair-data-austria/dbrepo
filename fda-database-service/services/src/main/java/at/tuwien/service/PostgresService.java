@@ -1,10 +1,8 @@
 package at.tuwien.service;
 
-import at.tuwien.entity.Database;
+import at.tuwien.entities.database.Database;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseMalformedException;
-import at.tuwien.mapper.DatabaseMapper;
-import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,15 +17,10 @@ import java.util.Properties;
 public class PostgresService extends JdbcConnector {
 
     private final Properties postgresProperties;
-    private final DatabaseMapper databaseMapper;
-    private final DatabaseRepository databaseRepository;
 
     @Autowired
-    public PostgresService(Properties postgresProperties, DatabaseMapper databaseMapper,
-                           DatabaseRepository databaseRepository) {
+    public PostgresService(Properties postgresProperties) {
         this.postgresProperties = postgresProperties;
-        this.databaseMapper = databaseMapper;
-        this.databaseRepository = databaseRepository;
     }
 
     @Override

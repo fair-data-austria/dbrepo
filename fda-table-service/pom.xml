@@ -2,58 +2,66 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
-    <modules>
-        <module>api</module>
-        <module>rest-service</module>
-        <module>services</module>
-        <module>gateways</module>
-    </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.4.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>2.3.10.RELEASE</version>
     </parent>
+
     <groupId>at.tuwien</groupId>
     <artifactId>fda-table-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fda-table-service</name>
     <description>Demo project for Spring Boot</description>
 
+    <packaging>pom</packaging>
+    <modules>
+        <module>rest-service</module>
+        <module>services</module>
+        <module>gateway</module>
+        <module>report</module>
+    </modules>
+
     <properties>
         <java.version>11</java.version>
-        <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+        <spring-cloud.version>3.0.1</spring-cloud.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <docker.version>3.2.7</docker.version>
         <testcontainers.version>1.15.2</testcontainers.version>
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
+        <jacoco.version>0.8.7</jacoco.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-            <version>3.0.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.ws.rs</groupId>
-                    <artifactId>jsr311-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+            <version>${spring-cloud.version}</version>
+        </dependency>
+        <!-- Data Source -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <!-- Entities and API -->
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>fda-metadata-db-entites</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>fda-metadata-db-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <!-- DataSource -->
         <dependency>
@@ -68,7 +76,7 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <groupId>org.junit.vintage</groupId>
+                    <groupId>org.junit.jupiter</groupId>
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
@@ -77,6 +85,11 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco.version}</version>
         </dependency>
         <!-- DTO -->
         <dependency>
@@ -156,15 +169,40 @@
             <version>1.0.1.RELEASE</version>
         </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>at/tuwien/mapper/**/*</exclude>
+                        <exclude>at/tuwien/exception/**/*</exclude>
+                        <exclude>at/tuwien/utils/**/*</exclude>
+                        <exclude>at/tuwien/config/**/*</exclude>
+                        <exclude>**/FdaTableServiceApplication.class</exclude>
+                        <exclude>**/JdbcConnector.class</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

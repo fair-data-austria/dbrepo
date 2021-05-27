@@ -1,29 +1,26 @@
 from psycopg2 import connect
 import requests
 import json
-#to-do flexible URL 
 
-def extract_sqlmetadata(cname): 
+def extract_sqlmetadata(cid): 
     # Get container info  
     r = requests.get(
-	"http://localhost:9091/api/getDatabaseContainerByContainerID", 
-	params = {"containerID":cname}
+	"http://fda-container-managing-service:9091/api/container",
+    params = {"id":cid}
     )
     
     # ContainerID 
-    cid = r.json()['ContainerID']
+    #cid = r.json()['id']
 
     # Connecting to database 
     conn=connect(
-        dbname = r.json()['DbName'], 
+        dbname = r.json()['internalName'], 
         user = "postgres",
-        host = r.json()['IpAddress'], 
+        host = r.json()['adresses'][0]['ipv4'],
         password = "postgres"
     )
 
     cursor = conn.cursor() 
-
-
 
     # Extract database title
     cursor.execute(f"""Select table_catalog 
@@ -67,9 +64,9 @@ def extract_sqlmetadata(cname):
     r.json()
 
     conn=connect(
-        dbname="metadatabase", 
+        dbname="fda", 
         user = "postgres",
-        host = r.json()['IpAddress'], 
+        host = "fda-metadata-db", 
         password = "postgres"
     )
 
@@ -104,12 +101,3 @@ def extract_sqlmetadata(cname):
 
     conn.close()
 
-# ==================================================================================================
-# Ex. Container Info 
-# ==================================================================================================
-#   "ContainerID": "e1ee6ce7350f4a139d7c4617f7b0a210fb173edacead9a09e408c18c10f034fb",
-#   "Created": "2020-12-05T16:02:11.3704761Z",
-#   "ContainerName": "/Metadatabase",
-#   "DbName": "metadatabase",
-#   "Status": "running",
-#   "IpAddress": "172.17.0.7"

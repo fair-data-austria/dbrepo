@@ -1,0 +1,38 @@
+summary: "Import into Entity md_Data from metadatabase"
+description: "This is a simple API which imports into entity DATA in metadatabase"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "to-do description"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example : "4"
+      PROVENANCE: 
+        type: "string"
+        example: "Geographical Institute of Vienna"
+      FileEncoding: 
+        type: "string"
+        example: "UTF-8"
+      FileType: 
+        type: "string"
+        example: "CSV"
+      Version: 
+        type: "string"
+        example: "?"
+      Seperator: 
+        type: "string"
+        example: ";"
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    
