@@ -3,8 +3,6 @@ before_script:
   - "docker version"
   - "docker-compose version"
   - "mvn --version"
-  - "yarn --version"
-  - "ava --version"
 
 cache: 
   paths: 
@@ -26,7 +24,7 @@ build-docker:
 test-frontend:
   stage: test
   script:
-    - "cd fda-ui && yarn test"
+    - "docker exec -it fda-ui sh -c 'yarn test'"
 
 build-metadata-db:
   stage: build
