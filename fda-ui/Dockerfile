@@ -17,6 +17,7 @@ COPY ./middleware ./middleware
 COPY ./server-middleware ./server-middleware
 COPY ./pages ./pages
 COPY ./plugins ./plugins
+COPY ./test ./test
 COPY ./store ./store
 COPY ./nuxt.config.js ./
 COPY ./.babelrc ./
