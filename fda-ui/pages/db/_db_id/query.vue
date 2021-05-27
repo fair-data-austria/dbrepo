@@ -7,7 +7,7 @@
 
 <script>
 import DBToolbar from '@/components/DBToolbar'
-import QueryBuilder from '@/components/QueryBuilder'
+import QueryBuilder from '@/components/query/QueryBuilder'
 
 export default {
   components: {
