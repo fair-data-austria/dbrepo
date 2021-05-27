@@ -13,6 +13,7 @@ image: "docker/compose:latest"
 
 stages: 
   - build
+  - run
   - test
   - deploy
 
@@ -21,15 +22,15 @@ build-docker:
   script:
     - "docker-compose build"
 
-test-frontend:
-  stage: test
-  script:
-    - "docker exec -it fda-ui sh -c 'yarn test'"
-
 build-metadata-db:
   stage: build
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
+
+run-docker:
+  stage: run
+  script:
+    - "docker-compose up"
 
 test-backend-container:
   stage: test
@@ -125,6 +126,11 @@ test-backend-table:
       junit:
         - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
 
+test-frontend:
+  stage: test
+  script:
+    - "docker exec -it fda-ui sh -c 'yarn test'"
+
 deploy-all:
   stage: deploy
   script:
@@ -133,4 +139,3 @@ deploy-all:
 
 variables: 
   DOCKER_TLS_CERTDIR: /certs
-
