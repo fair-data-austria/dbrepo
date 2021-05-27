@@ -1,6 +1,6 @@
 <template>
-  <v-toolbar v-if="value" dense flat>
-    <v-toolbar-title>{{ value.name }}</v-toolbar-title>
+  <v-toolbar v-if="db" dense flat>
+    <v-toolbar-title>{{ db.name }}</v-toolbar-title>
     <template v-slot:extension>
       <v-tabs v-model="tab" color="primary" class="mb-1">
         <v-tabs-slider color="primary" />
@@ -25,19 +25,13 @@
 export default {
   data () {
     return {
-      value: null,
       tab: null
     }
   },
-  async mounted () {
-    try {
-      const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
-      this.value = res.data
-    } catch (err) {
-      this.$toast.error('Could not load database.')
+  computed: {
+    db () {
+      return this.$store.state.db
     }
-  },
-  methods: {
   }
 }
 </script>
