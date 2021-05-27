@@ -22,12 +22,19 @@
           @change="buildQuery" />
       </v-col>
     </v-row>
-    {{ query.sql }}
+    <QBFilter v-if="selectItems" v-model="clauses" :columns="selectItems.map(s => s.name)" />
+    <pre v-if="query.sql" v-text="query.sql" />
+    <!-- {{clauses}} -->
   </div>
 </template>
 
 <script>
+import QBFilter from './QBFilters'
+
 export default {
+  components: {
+    QBFilter
+  },
   data () {
     return {
       table: null,
@@ -41,6 +48,14 @@ export default {
   computed: {
     selectItems () {
       return this.tableDetails && this.tableDetails.columns
+    }
+  },
+  watch: {
+    clauses: {
+      deep: true,
+      handler () {
+        this.buildQuery()
+      }
     }
   },
   async mounted () {
@@ -91,4 +106,8 @@ export default {
 /* .select {
    width: 200px;
    } */
+pre {
+  background-color: #eee;
+  padding: 8px;
+}
 </style>
