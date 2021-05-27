@@ -123,7 +123,7 @@ test-backend-table:
 test-frontend:
   stage: test
   script: 
-    - "echo \"todo\""
+    - "cd fda-ui && yarn test"
 
 deploy-all:
   stage: deploy
