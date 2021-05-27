@@ -19,6 +19,7 @@
       "./test/setup.js",
       "@babel/polyfill"
     ],
+    "timeout": "20s",
     "files": [
       "test/unit/**/*",
       "test/e2e/**/*"
