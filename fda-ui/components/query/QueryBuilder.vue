@@ -4,6 +4,7 @@
       <v-col cols="6">
         <v-select
           v-model="table"
+          autofocus
           :items="tables"
           item-text="name"
           return-object
