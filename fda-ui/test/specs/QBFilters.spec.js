@@ -35,6 +35,7 @@ test('deleting first without others', (t) => {
       columns: ['username', 'id']
     }
   })
+  // add one, then delete it -> we have none
   vm.addFirst()
   vm.remove(0)
   t.deepEqual(vm.value.map(x => x.type), [])
@@ -46,9 +47,15 @@ test('deleting first with others', (t) => {
       columns: ['username', 'id']
     }
   })
+  // add where, and, where
   vm.addFirst()
   vm.addAnd()
+  t.deepEqual(vm.value.map(x => x.type), ['where', 'and', 'where'])
   t.is(vm.value.length, 3)
+
+  // remove the first where
   vm.remove(0)
+
+  // -> only the second where left
   t.deepEqual(vm.value.map(x => x.type), ['where'])
 })
