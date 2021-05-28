@@ -22,9 +22,8 @@
           @change="buildQuery" />
       </v-col>
     </v-row>
-    <QBFilter v-if="selectItems" v-model="clauses" :columns="selectItems.map(s => s.name)" />
+    <QBFilter v-if="table" v-model="clauses" :columns="selectItems && selectItems.map(s => s.name)" />
     <pre v-if="query.sql" v-text="query.sql" />
-    <!-- {{clauses}} -->
   </div>
 </template>
 

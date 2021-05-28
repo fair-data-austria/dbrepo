@@ -41,3 +41,5 @@ export const operators = [
   '@@',
   '!!'
 ]
+
+export const types = ['where']
