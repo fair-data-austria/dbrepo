@@ -30,7 +30,7 @@
         <v-col class="acitons mt-1" cols="3">
           <v-btn :disabled="!canAdd(idx)" class="mr-1" depressed tile @click="addAnd">AND</v-btn>
           <v-btn :disabled="!canAdd(idx)" class="mr-1" depressed tile @click="addOr">OR</v-btn>
-          <v-btn depressed @click="remove"><v-icon>mdi-delete</v-icon></v-btn>
+          <v-btn depressed tile @click="remove(idx)"><v-icon>mdi-delete</v-icon></v-btn>
         </v-col>
       </v-row>
     </div>
@@ -74,7 +74,17 @@ export default {
       this.value.push({ type: 'or' })
       this.addFirst()
     },
-    remove () {
+    remove (idx) {
+      if (idx === 0) {
+        if (this.value.length === 1) {
+          this.value.splice(idx, 1)
+        } else {
+          this.value.splice(idx, 2)
+        }
+      } else {
+        // remove current and previous
+        this.value.splice(idx - 1, 2)
+      }
     },
     getPrefix (clause) {
       return 'FOO'
