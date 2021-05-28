@@ -1,17 +1,15 @@
 package at.tuwien.mapper;
 
-import at.tuwien.dto.table.TableBriefDto;
-import at.tuwien.dto.table.TableCreateDto;
-import at.tuwien.dto.table.TableDto;
-import at.tuwien.dto.table.columns.ColumnCreateDto;
-import at.tuwien.dto.table.columns.ColumnDto;
-import at.tuwien.entity.Table;
-import at.tuwien.entity.TableColumn;
+import at.tuwien.api.database.table.TableBriefDto;
+import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.TableDto;
+import at.tuwien.api.database.table.columns.ColumnCreateDto;
+import at.tuwien.api.database.table.columns.ColumnDto;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
 import org.mapstruct.*;
 
 import java.text.Normalizer;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -25,7 +23,6 @@ public interface TableMapper {
     @Mappings({
             @Mapping(source = "columns", target = "columns", qualifiedByName = "columnMapping"),
             @Mapping(source = "name", target = "name"),
-            @Mapping(source = "description", target = "description"),
     })
     Table tableCreateDtoToTable(TableCreateDto data);
 

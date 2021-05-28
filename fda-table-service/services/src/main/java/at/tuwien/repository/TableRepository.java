@@ -1,9 +1,8 @@
 package at.tuwien.repository;
 
-import at.tuwien.entity.Database;
-import at.tuwien.entity.Table;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.Table;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

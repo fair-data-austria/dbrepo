@@ -1,12 +1,9 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.dto.IpAddressDto;
-import at.tuwien.api.dto.container.*;
-import at.tuwien.entity.Container;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.ContainerStillRunningException;
-import at.tuwien.exception.DockerClientException;
-import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.api.container.*;
+import at.tuwien.api.container.network.IpAddressDto;
+import at.tuwien.entities.container.Container;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.service.ContainerService;
 import io.swagger.annotations.ApiOperation;
@@ -23,7 +20,6 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static at.tuwien.api.dto.container.ContainerActionTypeDto.*;
 
 @Log4j2
 @RestController
@@ -66,8 +62,9 @@ public class ContainerEndpoint {
     public ResponseEntity<ContainerBriefDto> create(@Valid @RequestBody ContainerCreateRequestDto data)
             throws ImageNotFoundException, DockerClientException {
         final Container container = containerService.create(data);
+        final ContainerBriefDto response = containerMapper.containerToDatabaseContainerBriefDto(container);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(containerMapper.containerToDatabaseContainerBriefDto(container));
+                .body(response);
     }
 
     @GetMapping("/{id}")
@@ -77,41 +74,48 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws ContainerNotFoundException,
-            DockerClientException {
+    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws DockerClientException, ContainerNotFoundException {
         final Container container = containerService.getById(id);
         final ContainerDto containerDto = containerMapper.containerToContainerDto(container);
-        containerService.findIpAddresses(container.getHash())
-                .forEach((key, value) -> containerDto.getAddresses().add(IpAddressDto.builder()
-                        .network(key)
-                        .ipv4(value)
-                        .build()));
-        final ContainerDto inspectDto = containerMapper.inspectContainerResponseToContainerDto(
-                containerService.getContainerState(container.getHash()));
-        containerDto.setState(inspectDto.getState());
+        try {
+            containerService.findIpAddresses(container.getHash())
+                    .forEach((key, value) -> containerDto.setIpAddress(IpAddressDto.builder()
+                            .ipv4(value)
+                            .build()));
+        } catch (ContainerNotRunningException e) {
+            throw new DockerClientException("Could not get container IP", e);
+        }
+        final ContainerStateDto stateDto = containerService.getContainerState(container.getHash());
+        try {
+            containerDto.setState(stateDto);
+        } catch (NullPointerException e) {
+            throw new DockerClientException("Could not get container state");
+        }
         return ResponseEntity.ok()
                 .body(containerDto);
     }
 
     @PutMapping("/{id}")
-    @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP/REMOVE.")
+    @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP.")
     @ApiResponses({
             @ApiResponse(code = 202, message = "Changed the state of a container."),
             @ApiResponse(code = 400, message = "Malformed payload."),
             @ApiResponse(code = 401, message = "Not authorized to modify a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<?> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
-            throws ContainerNotFoundException, DockerClientException, ContainerStillRunningException {
-        if (changeDto.getAction().equals(START)) {
-            containerService.start(id);
-        } else if (changeDto.getAction().equals(STOP)) {
-            containerService.stop(id);
-        } else if (changeDto.getAction().equals(REMOVE)) {
-            containerService.remove(id);
+    public ResponseEntity<ContainerBriefDto> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
+            throws ContainerNotFoundException, DockerClientException {
+        ContainerBriefDto container;
+        if (changeDto.getAction().equals(ContainerActionTypeDto.START)) {
+            container = containerMapper.containerToDatabaseContainerBriefDto(containerService.start(id));
+        } else if (changeDto.getAction().equals(ContainerActionTypeDto.STOP)) {
+            container = containerMapper.containerToDatabaseContainerBriefDto(containerService.stop(id));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .build();
         }
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .build();
+                .body(container);
     }
 
     @DeleteMapping("/{id}")
@@ -122,7 +126,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
             @ApiResponse(code = 409, message = "Container is still running."),
     })
-    public ResponseEntity delete(@NotNull @PathVariable Long id) throws ContainerNotFoundException,
+    public ResponseEntity<?> delete(@NotNull @PathVariable Long id) throws ContainerNotFoundException,
             DockerClientException, ContainerStillRunningException {
         containerService.remove(id);
         return ResponseEntity.status(HttpStatus.OK)

@@ -3,28 +3,134 @@ before_script:
   - "docker version"
   - "docker-compose version"
   - "mvn --version"
-build: 
-  script: 
-    - "docker-compose build"
-  stage: build
+
 cache: 
   paths: 
     - /root/.m2/repository/
     - /root/.npm/
+
 image: "docker/compose:latest"
+
 stages: 
   - build
   - test
-test-backend: 
-  script: 
-    - "mvn -f fda-container-service/pom.xml clean test"
-    - "mvn -f fda-table-service/pom.xml clean test"
-    - "mvn -f fda-database-service/pom.xml clean test"
+  - deploy
+
+build-docker:
+  stage: build
+  script:
+    - "docker-compose build"
+
+build-metadata-db:
+  stage: build
+  script:
+    - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
+
+test-backend-container:
   stage: test
-test-frontend: 
+  script:
+    - docker system prune -f
+    - "./fda-container-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-container-service/pom.xml clean test verify"
+    - "./fda-container-service/rest-service/src/test/resources/integration-test.after"
+    - cat ./fda-container-service/report/target/site/jacoco-aggregate/index.html
+  needs:
+    - build-metadata-db
+  dependencies:
+    - build-metadata-db
+  artifacts:
+    when: always
+    paths:
+      - fda-container-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-container-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-container-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-database:
+  stage: test
+  script:
+    - docker system prune -f
+    - "./fda-database-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-database-service/pom.xml clean test verify"
+    - "./fda-database-service/rest-service/src/test/resources/integration-test.after"
+    - cat ./fda-database-service/report/target/site/jacoco-aggregate/index.html
+  needs:
+    - build-metadata-db
+  dependencies:
+    - build-metadata-db
+  artifacts:
+    when: always
+    paths:
+      - fda-database-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-database-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-database-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-discovery:
+  stage: test
+  script:
+    - "mvn -f fda-discovery-service/pom.xml clean test verify"
+
+test-backend-gateway:
+  stage: test
+  script:
+    - "mvn -f fda-gateway-service/pom.xml clean test verify"
+
+test-backend-query:
+  stage: test
+  script:
+    - docker system prune -f
+    - "./fda-query-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-query-service/pom.xml clean test verify"
+    - "./fda-query-service/rest-service/src/test/resources/integration-test.after"
+    - cat ./fda-query-service/report/target/site/jacoco-aggregate/index.html
+  needs:
+    - build-metadata-db
+  dependencies:
+    - build-metadata-db
+  artifacts:
+    when: always
+    paths:
+      - fda-query-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-query-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-query-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-table:
+  stage: test
+  script:
+    - docker system prune -f
+    - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-table-service/pom.xml clean test verify"
+    - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
+    - cat ./fda-table-service/report/target/site/jacoco-aggregate/index.html
+  needs:
+    - build-metadata-db
+  dependencies:
+    - build-metadata-db
+  artifacts:
+    when: always
+    paths:
+      - fda-table-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-table-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-frontend:
+  stage: test
   script: 
     - "echo \"todo\""
-  stage: test
+
+deploy-all:
+  stage: deploy
+  script:
+    - "docker-compose up -d"
+    - "docker-compose down"
+
 variables: 
   DOCKER_TLS_CERTDIR: /certs
 

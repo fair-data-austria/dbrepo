@@ -11,14 +11,17 @@
 
     <artifactId>rest-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-database-service-rest-services</name>
+    <name>fda-database-service-rest-service</name>
+
+    <properties>
+        <jacoco.version>0.8.7</jacoco.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>services</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

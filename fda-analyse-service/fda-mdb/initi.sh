@@ -55,6 +55,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MINVALUE
 		NO MAXVALUE
 		CACHE 1;
+
+	CREATE SEQUENCE public.mdb_user_seq
+		START WITH 1
+		INCREMENT BY 1
+		NO MINVALUE
+		NO MAXVALUE
+		CACHE 1;
 	
 	CREATE TABLE IF NOT EXISTS mdb_CONTAINER ( 
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_container_seq'),
@@ -77,7 +84,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		CACHE 1;
 
 	CREATE TABLE IF NOT EXISTS mdb_DATA ( 
-		ID INTEGER PRIMARY KEY DEFAULT nextval('mdb_data_seq'), 
+		ID bigint PRIMARY KEY DEFAULT nextval('mdb_data_seq'),
 		PROVENANCE TEXT, 
 		FileEncoding TEXT, 
 		FileType VARCHAR(100),
@@ -86,15 +93,17 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	);  
 
 	CREATE TABLE IF NOT EXISTS mdb_USERS ( 
-		UserID INTEGER PRIMARY KEY,
-		TISS_ID INTEGER,
-		OID INTEGER,
+		UserID bigint PRIMARY KEY DEFAULT nextval('mdb_user_seq'),
+		TISS_ID bigint,
+		OID bigint,
 		First_name VARCHAR(50),
 		Last_name VARCHAR(50),
 		Gender gender,
 		Preceding_titles VARCHAR(50),
 		Postpositioned_title VARCHAR(50),
-		Main_Email TEXT
+		Main_Email TEXT,
+		created timestamp without time zone NOT NULL,
+		last_modified timestamp without time zone
 	); 
 	
 	CREATE SEQUENCE public.mdb_databases_seq
@@ -117,6 +126,26 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MINVALUE
 		NO MAXVALUE
 		CACHE 1;
+
+  CREATE SEQUENCE public.mdb_queries_seq
+		START WITH 1
+		INCREMENT BY 1
+		NO MINVALUE
+		NO MAXVALUE
+		CACHE 1;
+
+	CREATE TABLE IF NOT EXISTS mdb_queries (
+    ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
+    execution_timestamp timestamp without time zone NOT NULL,
+    query TEXT NOT NULL,
+    query_normalized TEXT NOT NULL,
+    query_hash character varying(255) NULL,
+    result_hash character varying(255) NULL,
+    result_number INTEGER NULL,
+    created timestamp without time zone NOT NULL,
+    last_modified timestamp without time zone,
+    PRIMARY KEY(ID)
+    );
 
 	CREATE TABLE IF NOT EXISTS mdb_DATABASES ( 
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'), 
@@ -152,10 +181,16 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		ID bigint DEFAULT nextval('mdb_columns_seq'), 
 		cDBID bigint, 
 		tID bigint, 
-		cName VARCHAR(50), 
+		cName VARCHAR(50),
+    internal_name VARCHAR(50) NOT NULL,
 		Datatype VARCHAR(50), 
 		ordinal_position INTEGER,
+		is_primary_key BOOLEAN,
+		is_null_allowed BOOLEAN,
+		foreign_key VARCHAR(50),
 		check_expression character varying(255),
+		created timestamp without time zone NOT NULL,
+		last_modified timestamp without time zone,
 		FOREIGN KEY (cDBID,tID) REFERENCES mdb_TABLES(tDBID,ID), 
 		PRIMARY KEY(cDBID, tID, ID)
 	);

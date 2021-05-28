@@ -1,19 +1,21 @@
 package at.tuwien.utils;
 
-import at.tuwien.dto.ExecuteQueryDTO;
+import at.tuwien.api.database.query.ExecuteQueryDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(classes = ReWrittenQueryWrapper.class)
+@TestPropertySource(locations = "classpath:application.properties")
 public class ReWrittenQueryWrapperTest {
 
     @Disabled
     @Test
     public void test_determineReWrittenQuery() {
         ReWrittenQueryWrapper wrapper = new ReWrittenQueryWrapper();
-        ExecuteQueryDTO dto = new ExecuteQueryDTO();
+        ExecuteQueryDto dto = new ExecuteQueryDto();
         dto.setQuery("SELECT * FROM TABLEA WHERE TABLEA.ID = '2'");
 
 

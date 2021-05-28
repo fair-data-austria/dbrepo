@@ -9,10 +9,12 @@ spring:
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
   application:
     name: fda-container-service
+  cloud:
+    loadbalancer.ribbon.enabled: false
 server.port: 9091
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
@@ -20,5 +22,5 @@ logging:
     root: warn
     at.tuwien.: debug
 eureka:
-  instance.hostname: fda-container-service
-  client.serviceUrl.defaultZone: http://fda-discovery-server:9090/eureka/
+  instance.hostname: fda-discovery-service
+  client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/

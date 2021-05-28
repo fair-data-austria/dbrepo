@@ -1,12 +1,11 @@
 package at.tuwien.service;
 
-import at.tuwien.api.dto.container.ContainerCreateRequestDto;
-import at.tuwien.entity.Container;
-import at.tuwien.entity.ContainerImage;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.ContainerStillRunningException;
-import at.tuwien.exception.DockerClientException;
-import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.api.container.ContainerCreateRequestDto;
+import at.tuwien.api.container.ContainerDto;
+import at.tuwien.api.container.ContainerStateDto;
+import at.tuwien.entities.container.Container;
+import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ContainerRepository;
@@ -17,12 +16,15 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.*;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Link;
+import com.github.dockerjava.api.model.PortBinding;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
+import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -52,10 +54,10 @@ public class ContainerService {
         this.imageMapper = imageMapper;
     }
 
+    @Transactional
     public Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException {
-        final ContainerImage tmp = containerMapper.containerCreateRequestDtoToContainerImage(createDto);
-        final ContainerImage containerImage = imageRepository.findByRepositoryAndTag(tmp.getRepository(), tmp.getTag());
-        if (containerImage == null) {
+        final Optional<ContainerImage> image = imageRepository.findByRepositoryAndTag(createDto.getRepository(), createDto.getTag());
+        if (image.isEmpty()) {
             log.error("failed to get image with name {}:{}", createDto.getRepository(), createDto.getTag());
             throw new ImageNotFoundException("image was not found in metadata database.");
         }
@@ -63,11 +65,11 @@ public class ContainerService {
         final HostConfig hostConfig = this.hostConfig
                 .withNetworkMode("fda-userdb")
                 .withLinks(List.of(new Link("fda-database-managing-service", "fda-database-managing-service")))
-                .withPortBindings(PortBinding.parse(availableTcpPort + ":" + containerImage.getDefaultPort()));
+                .withPortBindings(PortBinding.parse(availableTcpPort + ":" + image.get().getDefaultPort()));
         /* save to metadata database */
         Container container = new Container();
         container.setContainerCreated(Instant.now());
-        container.setImage(containerImage);
+        container.setImage(image.get());
         container.setPort(availableTcpPort);
         container.setName(createDto.getName());
         container.setInternalName(containerMapper.containerToInternalContainerName(container));
@@ -77,7 +79,7 @@ public class ContainerService {
             response = dockerClient.createContainerCmd(containerMapper.containerCreateRequestDtoToDockerImage(createDto))
                     .withName(container.getInternalName())
                     .withHostName(container.getInternalName())
-                    .withEnv(imageMapper.environmentItemsToStringList(containerImage.getEnvironment()))
+                    .withEnv(imageMapper.environmentItemsToStringList(image.get().getEnvironment()))
                     .withHostConfig(hostConfig)
                     .exec();
         } catch (ConflictException e) {
@@ -103,9 +105,8 @@ public class ContainerService {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        final Container container1 = containerRepository.save(container.get());
-        log.debug("Stopped container {}", container1);
-        return container1;
+        log.debug("Stopped container {}", container.get());
+        return container.get();
     }
 
     public void remove(Long containerId) throws ContainerNotFoundException, DockerClientException,
@@ -154,11 +155,10 @@ public class ContainerService {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        container = containerRepository.save(container);
         return container;
     }
 
-    public Map<String, String> findIpAddresses(String containerHash) throws ContainerNotFoundException {
+    public Map<String, String> findIpAddresses(String containerHash) throws ContainerNotFoundException, ContainerNotRunningException {
         final InspectContainerResponse response;
         try {
             response = dockerClient.inspectContainerCmd(containerHash)
@@ -168,6 +168,10 @@ public class ContainerService {
             throw new ContainerNotFoundException("container not found", e);
         }
         final Map<String, String> networks = new HashMap<>();
+        if (!response.getState().getRunning()) {
+            log.warn("cannot get IPv4 of container that is not running");
+            throw new ContainerNotRunningException("container is not running");
+        }
         response.getNetworkSettings()
                 .getNetworks()
                 .forEach((key, value) -> {
@@ -177,7 +181,7 @@ public class ContainerService {
         return networks;
     }
 
-    public InspectContainerResponse getContainerState(String containerHash) throws DockerClientException {
+    public ContainerStateDto getContainerState(String containerHash) throws DockerClientException {
         final InspectContainerResponse response;
         try {
             response = dockerClient.inspectContainerCmd(containerHash)
@@ -188,7 +192,8 @@ public class ContainerService {
             throw new DockerClientException("docker client failed", e);
         }
         log.debug("received container state {}", response);
-        return response;
+        final ContainerDto dto = containerMapper.inspectContainerResponseToContainerDto(response);
+        return dto.getState();
     }
 
 }

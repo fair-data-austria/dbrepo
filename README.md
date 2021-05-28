@@ -42,6 +42,17 @@ Everything is handled by compose, just build it by running:
 docker-compose build
 ```
 
+Local development minimum requirements:
+
+- Ubuntu 18.04 LTS
+- Apache Maven 3.0.0
+- OpenJDK 11.0.0
+
+Local deployment minimum versions:
+
+- Docker Engine 20.10.0
+- Docker Compose 1.28.0
+
 ## Deployment
 
 The pipeline is set-up to build and test all commits. A commit to dev or master branch triggers additional jobs.
