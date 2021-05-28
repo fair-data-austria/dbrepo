@@ -1,3 +1,4 @@
+const { format } = require('sql-formatter');
 const knex = require('knex')({ client: 'pg' })
 
 export function buildQuery ({ table, select, clauses }) {
@@ -15,9 +16,10 @@ export function buildQuery ({ table, select, clauses }) {
     }
   }
 
-  let sql
+  let sql, formatted
   try {
     sql = builder.toQuery()
+    formatted = format(sql)
   } catch (e) {
     return {
       error: e.message
@@ -26,6 +28,7 @@ export function buildQuery ({ table, select, clauses }) {
   return {
     table,
     statements: builder._statements,
-    sql
+    sql,
+    formatted
   }
 }
