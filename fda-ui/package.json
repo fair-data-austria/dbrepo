@@ -30,6 +30,7 @@
     "node-fetch": "^2.6.1",
     "nuxt": "^2.12.2",
     "nuxt-i18n": "^6.15.4",
+    "sql-formatter": "^4.0.2",
     "vue-toast-notification": "^0.5.4",
     "vuex-persist": "^3.1.3"
   },
