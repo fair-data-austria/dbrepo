@@ -11,19 +11,10 @@
     "ver": "nuxt --version",
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js",
-    "test": "ava --verbose",
-    "test:watch": "ava --watch"
-  },
-  "ava": {
-    "require": [
-      "./test/setup.js",
-      "@babel/polyfill"
-    ],
-    "timeout": "20s",
-    "files": [
-      "test/unit/**/*",
-      "test/e2e/**/*"
-    ]
+    "test:unit": "cross-env TEST=unit ava --config ava.config.cjs ./test/unit/**/* ./test/specs/**/*",
+    "test:watch": "cross-env TEST=unit ava --config ava.config.cjs --watch",
+    "test:e2e": "cross-env TEST=e2e ava --config ava.config.cjs ./test/e2e/**/*",
+    "test": "yarn test:unit & yarn test:e2e"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.13.9",
@@ -43,6 +34,7 @@
     "vuex-persist": "^3.1.3"
   },
   "devDependencies": {
+    "@ava/babel": "^1.0.1",
     "@babel/core": "^7.14.3",
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.14.2",
@@ -51,10 +43,18 @@
     "@nuxtjs/eslint-config": "^3.1.0",
     "@nuxtjs/eslint-module": "^2.0.0",
     "@nuxtjs/vuetify": "^1.11.2",
+    "@vue/test-utils": "^1.2.0",
     "ava": "^3.15.0",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "cross-env": "^7.0.3",
     "eslint": "^7.10.0",
     "eslint-plugin-nuxt": "^1.0.0",
-    "nyc": "^15.1.0"
+    "jsdom": "^16.6.0",
+    "jsdom-global": "^3.0.2",
+    "nyc": "^15.1.0",
+    "require-extension-hooks": "^0.3.3",
+    "require-extension-hooks-babel": "^1.0.0-beta.1",
+    "require-extension-hooks-vue": "^3.0.0"
   }
 }
