@@ -1,4 +1,4 @@
-###### FIRST STAGE ######
+###### FIRST TableCsvInformationDtoSTAGE ######
 FROM maven:slim as build
 MAINTAINER Cornelia Michlits <cornelia.michlits@tuwien.ac.at>
 

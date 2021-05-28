@@ -2,14 +2,16 @@ package at.tuwien.api.database.table;
 
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import java.util.HashMap;
 import java.util.List;
 
-@Setter
 @Getter
-@Builder
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class TableCsvInformationDto {
@@ -19,13 +21,11 @@ public class TableCsvInformationDto {
     private String name;
 
     @NotBlank
-    @ApiModelProperty(name = "table description", required = true, example = "SEC 10K annual fillings (2016-2012) ")
+    @Parameter(name = "table description", required = true, example = "SEC 10K annual fillings (2016-2012) ")
     private String description;
 
     @NotBlank
     private List<ColumnTypeDto> columns;
 
-    @NotBlank
     private String fileLocation;
-
 }

@@ -5,6 +5,7 @@ import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.QueryResult;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.DataProcessingException;
@@ -64,7 +65,7 @@ public class PostgresService extends JdbcConnector {
         }
     }
 
-    public QueryResultDto insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) throws DatabaseConnectionException, DataProcessingException {
+    public QueryResult insertIntoTable(Database database, Table t, List<Map<String, Object>> processedData, List<String> headers) throws DatabaseConnectionException, DataProcessingException {
         try {
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(insertStatement(processedData, t, headers));
@@ -86,19 +87,19 @@ public class PostgresService extends JdbcConnector {
      * @param t
      * @return
      */
-    public QueryResultDto getAllRows(Database database, Table t) throws DatabaseConnectionException, DataProcessingException {
+    public QueryResult getAllRows(Database database, Table t) throws DatabaseConnectionException, DataProcessingException {
         try {
             Connection connection = getConnection(database);
             PreparedStatement statement = connection.prepareStatement(selectStatement(t));
             ResultSet result = statement.executeQuery();
-            QueryResultDto qr = new QueryResultDto();
+            QueryResult qr = new QueryResult();
             List<Map<String, Object>> res = new ArrayList<>();
             while (result.next()) {
                 Map<String, Object> r = new HashMap<>();
                 for (TableColumn tc : t.getColumns()) {
-                    if (ColumnTypeDto.valueOf(tc.getColumnType()).equals(ColumnTypeDto.NUMBER)) {
+                    if (ColumnTypeDto.valueOf(String.valueOf(tc.getColumnType())).equals(ColumnTypeDto.NUMBER)) {
                         r.put(tc.getName(), result.getDouble(tc.getInternalName()));
-                    } else if (ColumnTypeDto.valueOf(tc.getColumnType()).equals(ColumnTypeDto.BOOLEAN)) {
+                    } else if (ColumnTypeDto.valueOf(String.valueOf(tc.getColumnType())).equals(ColumnTypeDto.BOOLEAN)) {
                         r.put(tc.getName(), result.getBoolean(tc.getInternalName()));
                     } else {
                         r.put(tc.getName(), result.getString(tc.getInternalName()));

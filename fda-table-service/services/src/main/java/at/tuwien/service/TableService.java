@@ -1,13 +1,14 @@
 package at.tuwien.service;
 
-import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.entities.database.query.QueryResult;
 import at.tuwien.api.database.table.TableCsvInformationDto;
+import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
@@ -43,14 +44,17 @@ public class TableService {
     private final DatabaseRepository databaseRepository;
     private final PostgresService postgresService;
     private final TableMapper tableMapper;
+    private final QueryMapper queryMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        PostgresService postgresService, TableMapper tableMapper) {
+                        PostgresService postgresService, TableMapper tableMapper,
+                        QueryMapper queryMapper) {
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
         this.postgresService = postgresService;
         this.tableMapper = tableMapper;
+        this.queryMapper = queryMapper;
     }
 
     public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException, TableNotFoundException {
@@ -200,9 +204,9 @@ public class TableService {
     }
 
     // TODO ms what is this for? It does ony print to stdout
-    public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
+    public QueryResult showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
             DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
-        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
+        QueryResult queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
         for (Map<String, Object> m : queryResult.getResult() ) {
             for (Map.Entry<String, Object> entry : m.entrySet()) {
                 log.debug("{}: {}", entry.getKey(), entry.getValue());
@@ -211,7 +215,7 @@ public class TableService {
         return queryResult;
     }
 
-    public Table create(Long databaseId, MultipartFile file, TableCSVInformationDto tableCSVInformation) throws IOException, IllegalArgumentException {
+    public Table create(Long databaseId, MultipartFile file, TableCsvInformationDto tableCSVInformation) throws IOException, IllegalArgumentException {
         log.info("Create a table in database: {}", databaseId);
             String[] header = readHeader(file);
             if (header.length != tableCSVInformation.getColumns().size()) {
@@ -238,7 +242,7 @@ public class TableService {
             }
             tcd.setColumns(cdtos);
             Table table = create(databaseId, tcd);
-            QueryResultDto insert = insert(databaseId, table.getId(), file);
+            QueryResult insert = insert(databaseId, table.getId(), file);
             return table;
     }
 
@@ -253,7 +257,7 @@ public class TableService {
         MultipartFile multipartFile = new MockMultipartFile(tableCSVInformation.getFileLocation(),
                 tableCSVInformation.getFileLocation(), contentType, content);
         Files.deleteIfExists(path);
-        return create(databaseId, multipartFile,tableCSVInformation);
+        return create(databaseId, multipartFile, tableCSVInformation);
     }
 
 

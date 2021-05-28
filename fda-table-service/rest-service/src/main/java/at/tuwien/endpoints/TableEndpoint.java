@@ -5,6 +5,7 @@ import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvInformationDto;
 import at.tuwien.api.database.table.TableDto;
+import at.tuwien.entities.database.query.QueryResult;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
@@ -36,10 +37,10 @@ public class TableEndpoint {
     private final QueryMapper queryResultMapper;
 
     @Autowired
-    public TableEndpoint(TableService tableService, TableMapper tableMapper, QueryMapper queryResultMapper) {
+    public TableEndpoint(TableService tableService, TableMapper tableMapper, QueryMapper queryMapper) {
         this.tableService = tableService;
         this.tableMapper = tableMapper;
-        this.queryResultMapper = queryResultMapper;
+        this.queryResultMapper = queryMapper;
     }
 
     @GetMapping("/table")
@@ -87,7 +88,7 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCSVInformation headers) throws IOException {
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCsvInformationDto headers) throws IOException {
         final Table table = tableService.create(databaseId, file, headers);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableDto(table));
@@ -103,7 +104,7 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCSVInformation tableCSVInformation) throws IOException, IllegalArgumentException {
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCsvInformationDto tableCSVInformation) throws IOException, IllegalArgumentException {
         final Table table = tableService.create(databaseId, tableCSVInformation);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableDto(table));
@@ -164,7 +165,7 @@ public class TableEndpoint {
     public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId,
                                                  @PathVariable("tableId") Long tableId,
                                                  @RequestParam("file") MultipartFile file) throws Exception {
-        final QueryResultDto queryResult = tableService.insert(databaseId, tableId, file);
+        final QueryResult queryResult = tableService.insert(databaseId, tableId, file);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
 
@@ -179,7 +180,7 @@ public class TableEndpoint {
                                                    @PathVariable("tableId") Long tableId)
             throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException,
             DatabaseConnectionException, DataProcessingException {
-        final QueryResultDto queryResult = tableService.showData(databaseId, tableId);
+        final QueryResult queryResult = tableService.showData(databaseId, tableId);
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
 
