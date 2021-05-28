@@ -11,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +80,7 @@ public class DatabaseService {
         databaseRepository.deleteById(databaseId);
     }
 
+    @Transactional
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, DatabaseConnectionException,
             DatabaseMalformedException, ContainerNotFoundException {
         log.debug("get container {}", createDto.getContainerId());
