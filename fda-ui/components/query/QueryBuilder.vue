@@ -24,7 +24,10 @@
       </v-col>
     </v-row>
     <QBFilter v-if="table" v-model="clauses" :columns="selectItems && selectItems.map(s => s.name)" />
-    <pre v-if="query.formatted" v-text="query.formatted" />
+    <highlightjs
+      v-if="query.formatted"
+      autodetect
+      :code="query.formatted" />
   </div>
 </template>
 
@@ -102,12 +105,11 @@ export default {
 }
 </script>
 
-<style scoped>
-/* .select {
-   width: 200px;
-   } */
-pre {
-  background-color: #eee;
-  padding: 8px;
+<style lang="scss" scoped>
+/* these are taked from solarized-light (plugins/vendors.js), to override the
+main.scss file from vuetify, because it paints it red */
+::v-deep code {
+  background: #fdf6e3;
+  color: #657b83;
 }
 </style>
