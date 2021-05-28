@@ -24,7 +24,7 @@
       </v-col>
     </v-row>
     <QBFilter v-if="table" v-model="clauses" :columns="selectItems && selectItems.map(s => s.name)" />
-    <pre v-if="query.sql" v-text="query.sql" />
+    <pre v-if="query.formatted" v-text="query.formatted" />
   </div>
 </template>
 
