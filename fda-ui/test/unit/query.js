@@ -1,7 +1,5 @@
 const test = require('ava')
-const { buildQuery } = require('../../server-middleware/query')
-
-// for e2e nuxt see https://soshace.com/writing-end-to-end-tests-for-nuxt-apps-using-jsdom-and-ava/
+const { buildQuery, castNum } = require('@/server-middleware/query')
 
 test('simple select', (t) => {
   const r = buildQuery({
@@ -26,6 +24,26 @@ test('simple where clause', (t) => {
     ]
   })
   t.is(r.sql, 'select * from "Table" where "foo" = 42')
+})
+
+test('simple where clause with numeric string', (t) => {
+  const r = buildQuery({
+    table: 'Table',
+    clauses: [
+      { type: 'where', params: ['foo', '=', '42'] }
+    ]
+  })
+  t.is(r.sql, 'select * from "Table" where "foo" = 42')
+})
+
+test('simple where clause with non-numeric string', (t) => {
+  const r = buildQuery({
+    table: 'Table',
+    clauses: [
+      { type: 'where', params: ['foo', '=', 'bla'] }
+    ]
+  })
+  t.is(r.sql, 'select * from "Table" where "foo" = \'bla\'')
 })
 
 test('using unallowed operator', (t) => {
@@ -73,4 +91,18 @@ test('where clause with "or"', (t) => {
     ]
   })
   t.is(r.sql, 'select * from "Table" where "foo" = 42 or "bar" = 42')
+})
+
+test('cast numeric strings to numbers', (t) => {
+  t.is(castNum(''), '')
+  t.is(castNum(' '), ' ')
+  t.is(castNum('0'), 0)
+  t.is(castNum('0 '), '0 ')
+  t.is(castNum('1'), 1)
+  t.is(castNum('1 '), '1 ')
+  t.is(castNum(1), 1)
+  t.is(castNum('1'), 1)
+  t.is(castNum('1.1'), 1.1)
+  t.is(castNum('69.420'), '69.420')
+  t.is(castNum('a'), 'a')
 })
