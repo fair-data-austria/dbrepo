@@ -14,7 +14,7 @@
     "test:unit": "cross-env TEST=unit ava --config ava.config.cjs ./test/unit/**/* ./test/specs/**/*",
     "test:watch": "cross-env TEST=unit ava --config ava.config.cjs --watch",
     "test:e2e": "cross-env TEST=e2e ava --config ava.config.cjs ./test/e2e/**/*",
-    "test": "yarn test:unit & yarn test:e2e"
+    "test": "yarn test:unit && yarn test:e2e"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.13.9",
