@@ -1,5 +1,9 @@
 module.exports = {
   sourceMaps: 'both',
+
+  // for jest / e2e
+  presets: [['@babel/preset-env', { targets: { node: 'current' } }]],
+
   env: {
     test: {
       plugins: [
