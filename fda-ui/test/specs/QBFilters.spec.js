@@ -1,6 +1,6 @@
 import test from 'ava'
 import { mount, shallowMount } from '@vue/test-utils'
-import QBFilters from '@/components/query/QBFilters'
+import QBFilters from '@/components/query/Filters'
 
 test('is a Vue instance', (t) => {
   const wrapper = mount(QBFilters)
