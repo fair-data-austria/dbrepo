@@ -4,7 +4,6 @@
       <v-col cols="6">
         <v-select
           v-model="table"
-          autofocus
           :items="tables"
           item-text="name"
           return-object
@@ -23,7 +22,10 @@
           @change="buildQuery" />
       </v-col>
     </v-row>
-    <QBFilter v-if="table" v-model="clauses" :columns="selectItems && selectItems.map(s => s.name)" />
+    <QBFilter
+      v-if="table"
+      v-model="clauses"
+      :columns="columnNames" />
     <highlightjs
       v-if="query.formatted"
       autodetect
@@ -50,7 +52,11 @@ export default {
   },
   computed: {
     selectItems () {
-      return this.tableDetails && this.tableDetails.columns
+      const columns = this.tableDetails && this.tableDetails.columns
+      return columns || []
+    },
+    columnNames () {
+      return this.selectItems && this.selectItems.map(s => s.name)
     }
   },
   watch: {

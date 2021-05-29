@@ -1,26 +1,28 @@
-###### FIRST STAGE ######
 FROM node:lts-alpine as build
-MAINTAINER Martin Weise <martin.weise@tuwien.ac.at>
+MAINTAINER Kirill Stytsenko <kirill.stytsenko@univie.ac.at>
 
+# python, make, g++ are needed by node-gyp
 RUN apk add --no-cache build-base python3 > /dev/null
 
-COPY ./package.json ./
-COPY ./yarn.lock ./
-
-RUN yarn install --frozen-lockfile > /dev/null
-
+COPY ./.env ./
 COPY ./assets ./assets
+COPY ./ava.config.cjs ./
+COPY ./babel.config.js ./
 COPY ./components ./components
 COPY ./lang ./lang
 COPY ./layouts ./layouts
 COPY ./middleware ./middleware
-COPY ./server-middleware ./server-middleware
+COPY ./nuxt.config.js ./
+COPY ./package.json ./
 COPY ./pages ./pages
 COPY ./plugins ./plugins
-COPY ./test ./test
+COPY ./server-middleware ./server-middleware
+COPY ./static ./static
 COPY ./store ./store
-COPY ./nuxt.config.js ./
-COPY ./.babelrc ./
+COPY ./test ./test
+COPY ./yarn.lock ./
+
+RUN yarn install --frozen-lockfile > /dev/null 2>&1
 
 RUN yarn build
 
