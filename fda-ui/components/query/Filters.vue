@@ -32,7 +32,7 @@
             </v-col>
           </v-row>
         </v-col>
-        <v-col class="acitons mt-1" cols="3">
+        <v-col class="acitons" cols="3">
           <v-btn :disabled="!canAdd(idx)" class="mr-1" depressed tile @click="addAnd">AND</v-btn>
           <v-btn :disabled="!canAdd(idx)" class="mr-1" depressed tile @click="addOr">OR</v-btn>
           <v-btn depressed tile @click="remove(idx)"><v-icon>mdi-delete</v-icon></v-btn>

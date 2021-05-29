@@ -6,14 +6,7 @@
 </template>
 
 <script>
-import DBToolbar from '@/components/DBToolbar'
-import QueryBuilder from '@/components/query/QueryBuilder'
-
 export default {
-  components: {
-    DBToolbar,
-    QueryBuilder
-  },
   data () {
     return {
     }
