@@ -4,15 +4,20 @@
       <v-btn @click="addFirst">Add filter</v-btn>
     </div>
     <div v-for="(clause, idx) in value" :key="idx">
-      <v-row v-if="clause.type === 'and'" class="connector" dense>
+      <v-row v-if="clause.type === 'and'" class="connector pt-2" dense>
         and
       </v-row>
-      <v-row v-else-if="clause.type === 'or'" class="connector" dense>
+      <v-row v-else-if="clause.type === 'or'" class="connector pt-2" dense>
         or
       </v-row>
       <v-row v-else dense>
         <v-col cols="2">
-          <v-select v-model="clause.type" hide-details disabled :items="types" />
+          <v-select
+            v-model="clause.type"
+            class="pb-2"
+            hide-details
+            disabled
+            :items="types" />
         </v-col>
         <v-col>
           <v-row dense>
@@ -85,9 +90,6 @@ export default {
         // remove current and previous
         this.value.splice(idx - 1, 2)
       }
-    },
-    getPrefix (clause) {
-      return 'FOO'
     }
   }
 }
@@ -112,6 +114,6 @@ export default {
   padding-top: 0;
 }
 .col {
-  padding-top: 0;
+  /* padding-top: 0; */
 }
 </style>
