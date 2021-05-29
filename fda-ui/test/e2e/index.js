@@ -1,7 +1,14 @@
 const test = require('ava')
+const { pageMacro, before, after } = require('./_utils')
 
-// for e2e nuxt see https://soshace.com/writing-end-to-end-tests-for-nuxt-apps-using-jsdom-and-ava/
+test.before(before)
+test.after(after)
 
 test('e2e placeholder', (t) => {
   t.is(1, 1)
+})
+
+test('visit homepage', pageMacro, async (t, page) => {
+  await page.go('/')
+  t.is(await page.title(), 'fda-ui - fda-ui')
 })
