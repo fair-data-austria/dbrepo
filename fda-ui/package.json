@@ -12,7 +12,7 @@
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js",
     "test:unit": "ava test/unit/**/* test/specs/**/*",
-    "test:watch": "ava --watch",
+    "test:watch": "ava --watch test/unit/**/* test/specs/**/*",
     "test:e2e:dev": "cross-env PORT=3001 ava test/e2e/**",
     "test:e2e:prod": "cross-env PORT=3000 ava test/e2e/**",
     "test": "yarn test:unit && yarn test:e2e:prod"
@@ -42,7 +42,6 @@
   "devDependencies": {
     "@ava/babel": "^1.0.1",
     "@babel/core": "^7.14.3",
-    "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.14.4",
     "@babel/register": "^7.13.16",
     "@nuxt/test-utils": "^0.2.2",
