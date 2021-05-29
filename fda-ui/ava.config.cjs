@@ -1,8 +1,7 @@
 module.exports = () => {
   return {
     require: [
-      './test/_setup.js',
-      '@babel/polyfill'
+      './test/_setup.js'
     ],
     timeout: '20s',
     ignoredByWatcher: ['!**/*.{js,vue}'],
