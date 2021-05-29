@@ -22,24 +22,26 @@
           @change="buildQuery" />
       </v-col>
     </v-row>
-    <QBFilter
+    <QueryFilters
       v-if="table"
       v-model="clauses"
       :columns="columnNames" />
-    <highlightjs
-      v-if="query.formatted"
-      autodetect
-      :code="query.formatted" />
+    <v-row v-if="query.formatted">
+      <v-col>
+        <highlightjs autodetect :code="query.formatted" />
+      </v-col>
+      <v-col cols="3" class="actions">
+        <v-btn class="execute" color="primary">
+          <v-icon>mdi-refresh</v-icon>
+          Execute
+        </v-btn>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script>
-import QBFilter from './QBFilters'
-
 export default {
-  components: {
-    QBFilter
-  },
   data () {
     return {
       table: null,
@@ -117,5 +119,11 @@ main.scss file from vuetify, because it paints it red */
 ::v-deep code {
   background: #fdf6e3;
   color: #657b83;
+}
+
+.actions {
+  align-items: center;
+  display: flex;
+  justify-content: center;
 }
 </style>
