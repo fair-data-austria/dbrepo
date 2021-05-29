@@ -11,7 +11,6 @@ COPY ./babel.config.js ./
 COPY ./components ./components
 COPY ./lang ./lang
 COPY ./layouts ./layouts
-COPY ./middleware ./middleware
 COPY ./nuxt.config.js ./
 COPY ./package.json ./
 COPY ./pages ./pages
