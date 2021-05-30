@@ -68,7 +68,7 @@ public class QueryService {
 
         return null;
     }
-    
+
     public void create(Long id) throws DatabaseConnectionException, ImageNotSupportedException, DatabaseNotFoundException {
         postgresService.createQuerystore(findDatabase(id));
     }
