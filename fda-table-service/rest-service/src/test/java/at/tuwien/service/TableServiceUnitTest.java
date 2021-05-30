@@ -73,17 +73,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
         });
     }
 
-    @Test
-    public void findAll_noTable_fails() {
-        when(databaseRepository.findById(DATABASE_2_ID))
-                .thenReturn(Optional.of(DATABASE_2));
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
-            tableService.findAll(DATABASE_2_ID);
-        });
-    }
-
     @Disabled("invalid mock")
     @Test
     public void delete_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
