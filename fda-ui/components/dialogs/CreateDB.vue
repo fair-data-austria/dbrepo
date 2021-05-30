@@ -6,6 +6,7 @@
     <v-card-text>
       <v-form v-model="formValid">
         <v-text-field
+          id="dbname"
           v-model="database"
           label="Name"
           :rules="[v => !!v || $t('Required')]"

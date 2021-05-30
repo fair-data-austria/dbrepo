@@ -112,13 +112,28 @@ export default {
       return this.$store.state.db
     }
   },
-  async mounted () {
-    if (this.$route.params.db_id && !this.db) {
-      try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
-        this.$store.commit('SET_DATABASE', res.data)
-      } catch (err) {
-        this.$toast.error('Could not load database.')
+  watch: {
+    $route () {
+      this.loadDB()
+    }
+  },
+  mounted () {
+    this.loadDB()
+  },
+  methods: {
+    async loadDB () {
+      // this route already loads the db itself
+      if (this.$route.name.startsWith('db-db_id___')) {
+        return
+      }
+
+      if (this.$route.params.db_id && !this.db) {
+        try {
+          const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
+          this.$store.commit('SET_DATABASE', res.data)
+        } catch (err) {
+          this.$toast.error('Could not load database.')
+        }
       }
     }
   }
