@@ -58,7 +58,7 @@ public class ContainerImage {
     private Integer defaultPort;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ContainerImageEnvironmentItem> environment;
 
     @Column(nullable = false, updatable = false)
