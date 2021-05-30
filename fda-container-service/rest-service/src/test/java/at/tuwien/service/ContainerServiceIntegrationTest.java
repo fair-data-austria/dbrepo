@@ -55,6 +55,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     @BeforeEach
     public void beforeEach() {
+        afterEach();
         /* create network */
         dockerClient.createNetworkCmd()
                 .withName("fda-userdb")
