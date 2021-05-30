@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +109,7 @@ public class ContainerService {
         return container.get();
     }
 
+    @Transactional
     public void remove(Long containerId) throws ContainerNotFoundException, DockerClientException,
             ContainerStillRunningException {
         final Optional<Container> container = containerRepository.findById(containerId);
@@ -128,6 +129,7 @@ public class ContainerService {
         log.debug("Removed container {}", containerId);
     }
 
+    @Transactional
     public Container getById(Long containerId) throws ContainerNotFoundException {
         final Optional<Container> container = containerRepository.findById(containerId);
         if (container.isEmpty()) {
@@ -137,6 +139,7 @@ public class ContainerService {
         return container.get();
     }
 
+    @Transactional
     public List<Container> getAll() {
         return containerRepository.findAll();
     }
@@ -147,6 +150,7 @@ public class ContainerService {
      * @param containerId The container ID
      * @return The container
      */
+    @Transactional
     public Container start(Long containerId) throws ContainerNotFoundException, DockerClientException {
         Container container = getById(containerId);
         try {
