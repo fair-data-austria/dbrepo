@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
@@ -40,10 +41,12 @@ public class ImageService {
         this.imageMapper = imageMapper;
     }
 
+    @Transactional
     public List<ContainerImage> getAll() {
         return imageRepository.findAll();
     }
 
+    @Transactional
     public ContainerImage getById(Long imageId) throws ImageNotFoundException {
         final Optional<ContainerImage> image = imageRepository.findById(imageId);
         if (image.isEmpty()) {
@@ -53,6 +56,7 @@ public class ImageService {
         return image.get();
     }
 
+    @Transactional
     public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException {
         pull(createDto.getRepository(), createDto.getTag());
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
@@ -70,6 +74,7 @@ public class ImageService {
         return out;
     }
 
+    @Transactional
     public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException {
         final ContainerImage image = getById(imageId);
         /* pull changes */

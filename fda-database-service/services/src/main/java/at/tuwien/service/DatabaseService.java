@@ -11,7 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +39,7 @@ public class DatabaseService {
      *
      * @return A list of databases
      */
+    @Transactional
     public List<Database> findAll() {
         return databaseRepository.findAll();
     }
@@ -50,6 +51,7 @@ public class DatabaseService {
      * @return The database
      * @throws DatabaseNotFoundException In case the database was not found
      */
+    @Transactional
     public Database findById(Long databaseId) throws DatabaseNotFoundException {
         final Optional<Database> opt = databaseRepository.findById(databaseId);
         if (opt.isEmpty()) {

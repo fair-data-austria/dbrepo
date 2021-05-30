@@ -16,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -39,6 +40,7 @@ public class ImageEndpoint {
         this.imageMapper = imageMapper;
     }
 
+    @Transactional
     @GetMapping("/")
     @ApiOperation(value = "List all images", notes = "Lists the images in the metadata database.")
     @ApiResponses({
@@ -53,6 +55,7 @@ public class ImageEndpoint {
                         .collect(Collectors.toList()));
     }
 
+    @Transactional
     @PostMapping("/")
     @ApiOperation(value = "Creates a new image", notes = "Creates a new image in the metadata database.")
     @ApiResponses({
@@ -68,6 +71,7 @@ public class ImageEndpoint {
                 .body(imageMapper.containerImageToImageDto(image));
     }
 
+    @Transactional
     @GetMapping("/{id}")
     @ApiOperation(value = "Get all informations about a image", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
     @ApiResponses({
@@ -81,6 +85,7 @@ public class ImageEndpoint {
                 .body(imageMapper.containerImageToImageDto(image));
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @ApiOperation(value = "Update image information", notes = "Polls new information about an image")
     @ApiResponses({
@@ -102,7 +107,7 @@ public class ImageEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to delete a image."),
             @ApiResponse(code = 404, message = "No image found with this id in metadata database."),
     })
-    public ResponseEntity delete(@NotNull @PathVariable Long id) throws ImageNotFoundException {
+    public ResponseEntity<?> delete(@NotNull @PathVariable Long id) throws ImageNotFoundException {
         imageService.delete(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
