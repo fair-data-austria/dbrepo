@@ -29,6 +29,14 @@ export default {
     db () {
       return this.$store.state.db
     }
+  },
+  async mounted () {
+    try {
+      const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
+      this.$store.commit('SET_DATABASE', res.data)
+    } catch (err) {
+      this.$toast.error('Could not load database.')
+    }
   }
 }
 </script>
