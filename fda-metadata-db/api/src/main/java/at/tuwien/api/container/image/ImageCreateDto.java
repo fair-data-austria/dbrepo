@@ -23,6 +23,10 @@ public class ImageCreateDto {
     private String tag;
 
     @NotNull
+    @ApiModelProperty(required = true, example = "false", notes = "when false, the service pulls it from hub.docker.com")
+    private Boolean local;
+
+    @NotNull
     @ApiModelProperty(required = true, example = "5432")
     private Integer defaultPort;
 

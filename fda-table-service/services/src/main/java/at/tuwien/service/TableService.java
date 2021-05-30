@@ -15,6 +15,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
@@ -23,7 +24,6 @@ import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
 import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -53,6 +53,7 @@ public class TableService {
         this.tableMapper = tableMapper;
     }
 
+    @Transactional
     public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException, TableNotFoundException {
         final Optional<Database> database;
         try {
@@ -65,24 +66,19 @@ public class TableService {
             log.error("Unable to find database {}", databaseId);
             throw new DatabaseNotFoundException("Unable to find database.");
         }
-        if (database.get().getTables().size() == 0) {
-            log.error("Unable to find tables for database {}.", database);
-            throw new TableNotFoundException("Unable to find tables.");
-        }
         return database.get().getTables();
     }
 
-    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException, DataProcessingException {
+    @Transactional
+    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException, DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
         final Table table = findById(databaseId, tableId);
         postgresService.deleteTable(table);
         tableRepository.deleteById(tableId);
     }
 
-    public Table findById(Long databaseId, Long tableId) throws TableNotFoundException {
-        final Database database = Database.builder()
-                .id(databaseId)
-                .build();
-        final Optional<Table> table = tableRepository.findByDatabaseAndId(database, tableId);
+    @Transactional
+    public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
+        final Optional<Table> table = tableRepository.findByDatabaseAndId(findDatabase(databaseId), tableId);
         if (table.isEmpty()) {
             log.error("table {} not found in database {}", tableId, databaseId);
             throw new TableNotFoundException("table not found in database");
@@ -96,7 +92,6 @@ public class TableService {
             log.error("no database with this id found in metadata database");
             throw new DatabaseNotFoundException("database not found in metadata database");
         }
-        log.debug("retrieved db {}", database);
         if (!database.get().getContainer().getImage().getRepository().equals("postgres")) {
             log.error("Right now only PostgreSQL is supported!");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
@@ -112,15 +107,32 @@ public class TableService {
 
         /* save in metadata db */
         postgresService.createTable(database, createDto);
-        final Table table = tableMapper.tableCreateDtoToTable(createDto);
-        table.setDatabase(database);
-        table.setInternalName(tableMapper.columnNameToString(table.getName()));
-        final Table out = tableRepository.save(table);
-        log.debug("saved table {}", out);
+        final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
+        mappedTable.setDatabase(database);
+        mappedTable.setTdbid(databaseId);
+        mappedTable.setColumns(List.of());
+        final Table table;
+        try {
+            table = tableRepository.save(mappedTable);
+        } catch (EntityNotFoundException e) {
+            throw new DataProcessingException("failed to create table compound key", e);
+        }
+        table.getColumns().forEach(column -> {
+            column.setCdbid(databaseId);
+            column.setTid(table.getId());
+        });
+        final Table out;
+        try {
+            out = tableRepository.save(table);
+        } catch (EntityNotFoundException e) {
+            throw new DataProcessingException("failed to create column compound key", e);
+        }
+        log.debug("saved table: {}", out);
         log.info("Created table {} in database {}", out.getName(), out.getDatabase().getId());
         return out;
     }
 
+    @Transactional
     public QueryResultDto insert(Long databaseId, Long tableId, MultipartFile file) throws TableNotFoundException,
             ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, DataProcessingException {
         Table t = findById(databaseId, tableId);
@@ -192,10 +204,10 @@ public class TableService {
             String[] header = mapReader.getHeader(true);
             return header;
 
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if( mapReader != null ) {
+            if (mapReader != null) {
                 mapReader.close();
             }
         }
@@ -206,7 +218,7 @@ public class TableService {
     public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
             DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
         QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
-        for (Map<String, Object> m : queryResult.getResult() ) {
+        for (Map<String, Object> m : queryResult.getResult()) {
             for (Map.Entry<String, Object> entry : m.entrySet()) {
                 log.debug("{}: {}", entry.getKey(), entry.getValue());
             }
@@ -229,7 +241,7 @@ public class TableService {
                 c.setType(tableCSVInformation.getColumns().get(i));
                 c.setNullAllowed(true);
                 //TODO FIX THAT not only id is primary key
-                if(header[i].equals("id")) {
+                if (header[i].equals("id")) {
                     c.setPrimaryKey(true);
                 } else {
                     c.setPrimaryKey(false);
@@ -258,7 +270,7 @@ public class TableService {
         MultipartFile multipartFile = new MockMultipartFile(tableCSVInformation.getFileLocation(),
                 tableCSVInformation.getFileLocation(), contentType, content);
         Files.deleteIfExists(path);
-        return create(databaseId, multipartFile,tableCSVInformation);
+        return create(databaseId, multipartFile, tableCSVInformation);
     }
 
 
