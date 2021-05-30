@@ -27,8 +27,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -94,26 +92,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
             tableEndpoint.create(DATABASE_1_ID, request);
         });
     }
-
-    @Test
-    public void create_tableNotFound_fails() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
-                .build();
-        when(tableService.create(DATABASE_1_ID, request))
-                .thenAnswer(invocation -> {
-                    throw new TableNotFoundException("no table");
-                });
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
-            tableEndpoint.create(DATABASE_1_ID, request);
-        });
-    }
-
+    
     @Disabled("not throwing")
     @Test
     public void create_notPostgres_fails() {
