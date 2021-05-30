@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,7 +69,7 @@ public class TableEndpoint {
             @ApiResponse(code = 422, message = "The ."),
     })
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId,
-                                                @RequestBody TableCreateDto createDto)
+                                                @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException,
             DatabaseNotFoundException, DataProcessingException {
         final Table table = tableService.create(databaseId, createDto);
@@ -102,7 +103,7 @@ public class TableEndpoint {
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),
     })
-    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestBody TableCsvInformationDto tableCSVInformation) throws IOException {
+    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @Valid @RequestBody TableCsvInformationDto tableCSVInformation) throws IOException {
         final Table table = tableService.create(databaseId, tableCSVInformation);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableDto(table));
