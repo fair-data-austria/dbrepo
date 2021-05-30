@@ -47,7 +47,7 @@ public class Database {
     private String internalName;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Table> tables;
 
     @ToString.Include

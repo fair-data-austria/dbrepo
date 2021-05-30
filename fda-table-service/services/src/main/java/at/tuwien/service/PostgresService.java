@@ -117,7 +117,7 @@ public class PostgresService extends JdbcConnector {
 
     @Override
     public final PreparedStatement getCreateTableStatement(Connection connection, TableCreateDto createDto) throws DataProcessingException {
-        log.debug("create table columns {}", Arrays.toString(createDto.getColumns()));
+        log.debug("create table columns {}", Arrays.asList(createDto.getColumns()));
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("CREATE TABLE ")
                 .append(tableMapper.columnNameToString(createDto.getName()))
@@ -231,6 +231,7 @@ public class PostgresService extends JdbcConnector {
      */
     private List<String> mockAnalyzeService(ColumnCreateDto[] columnDto) {
         final List<String> columns = new LinkedList<>();
+        log.debug("will map column: {}", Arrays.asList(columnDto));
         for (ColumnCreateDto column : columnDto) {
             final StringBuilder columnBuilder = new StringBuilder()
                     .append(tableMapper.columnNameToString(column.getName()))
