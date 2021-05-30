@@ -17,6 +17,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,6 +43,7 @@ public class TableEndpoint {
         this.queryResultMapper = queryResultMapper;
     }
 
+    @Transactional
     @GetMapping("/table")
     @ApiOperation(value = "List all tables", notes = "Lists the tables in the metadata database for this database.")
     @ApiResponses({
@@ -57,6 +59,7 @@ public class TableEndpoint {
                 .collect(Collectors.toList()));
     }
 
+    @Transactional
     @PostMapping("/table")
     @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container.")
     @ApiResponses({
@@ -77,6 +80,7 @@ public class TableEndpoint {
                 .body(tableMapper.tableToTableBriefDto(table));
     }
 
+    @Transactional
     @PostMapping("/table/csv")
     @ApiOperation(value = "Create a table", notes = "Creates a file, which is given as a multipart file.")
     @ApiResponses({
@@ -93,6 +97,7 @@ public class TableEndpoint {
                 .body(tableMapper.tableToTableDto(table));
     }
 
+    @Transactional
     @PostMapping("/table/csv/local")
     @ApiOperation(value = "Create a table", notes = "This is done by saving a file on the shared docker filesystem and then sending the link to the file.")
     @ApiResponses({
@@ -110,6 +115,7 @@ public class TableEndpoint {
     }
 
 
+    @Transactional
     @GetMapping("/table/{tableId}")
     @ApiOperation(value = "List all tables", notes = "Lists the tables in the metadata database for this database.")
     @ApiResponses({
@@ -118,7 +124,7 @@ public class TableEndpoint {
             @ApiResponse(code = 404, message = "Table not found in metadata database."),
     })
     public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId)
-            throws TableNotFoundException {
+            throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
         final Table table = tableService.findById(databaseId, tableId);
         return ResponseEntity.ok(tableMapper.tableToTableDto(table));
     }
@@ -147,10 +153,11 @@ public class TableEndpoint {
     @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId)
             throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DataProcessingException {
+            DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
         tableService.delete(databaseId, tableId);
     }
 
+    @Transactional
     @PostMapping("/table/{tableId}")
     @ApiOperation(value = "Insert values", notes = "Insert Data into a Table in the database.")
     @ApiResponses({
@@ -168,6 +175,7 @@ public class TableEndpoint {
         return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
     }
 
+    @Transactional
     @GetMapping("/table/{tableId}/data")
     @ApiOperation(value = "show data", notes = "Show all the data for a table")
     @ApiResponses({

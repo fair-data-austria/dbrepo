@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,6 +38,7 @@ public class ContainerEndpoint {
         this.containerService = containerService;
     }
 
+    @Transactional
     @GetMapping("/")
     @ApiOperation(value = "List all containers", notes = "Lists the containers in the metadata database.")
     @ApiResponses({
@@ -51,6 +53,7 @@ public class ContainerEndpoint {
                         .collect(Collectors.toList()));
     }
 
+    @Transactional
     @PostMapping("/")
     @ApiOperation(value = "Creates a new container", notes = "Creates a new container whose image is registered in the metadata database too.")
     @ApiResponses({
@@ -67,6 +70,7 @@ public class ContainerEndpoint {
                 .body(response);
     }
 
+    @Transactional
     @GetMapping("/{id}")
     @ApiOperation(value = "Get all informations about a container", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
     @ApiResponses({
@@ -95,6 +99,7 @@ public class ContainerEndpoint {
                 .body(containerDto);
     }
 
+    @Transactional
     @PutMapping("/{id}")
     @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP.")
     @ApiResponses({
