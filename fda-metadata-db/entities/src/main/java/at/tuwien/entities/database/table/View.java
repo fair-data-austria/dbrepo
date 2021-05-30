@@ -38,7 +38,7 @@ public class View {
     private String name;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Database> databases;
 
     @Column(nullable = false, updatable = false)
