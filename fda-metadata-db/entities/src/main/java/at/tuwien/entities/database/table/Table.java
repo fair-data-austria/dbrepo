@@ -48,7 +48,7 @@ public class Table {
     @Column(nullable = false, unique = true)
     private String internalName;
 
-    @ToString.Include
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;
