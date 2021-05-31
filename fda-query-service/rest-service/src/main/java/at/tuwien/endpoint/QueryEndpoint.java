@@ -1,7 +1,6 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.api.database.query.ExecuteQueryDto;
-import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.DatabaseConnectionException;
@@ -51,7 +50,7 @@ public class QueryEndpoint {
             @ApiResponse(code = 400, message = "Problem with reading the stored queries."),
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
-    public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
+    public ResponseEntity<List<QueryResultDto>> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
             ImageNotSupportedException, DatabaseConnectionException, QueryMalformedException {
         final List<Query> queries = queryService.findAll(id);
         return ResponseEntity.ok(queries.stream()
