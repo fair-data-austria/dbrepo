@@ -28,8 +28,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -138,7 +136,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Disabled("not throwing")
     @Test
-    public void create_notSql_fails() throws TableNotFoundException, SQLException {
+    public void create_notSql_fails() throws TableNotFoundException, SQLException, DatabaseNotFoundException, ImageNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -154,7 +152,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws TableNotFoundException {
+    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
         when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
                 .thenReturn(TABLE_1);
 
@@ -185,7 +183,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DataProcessingException {
+            TableMalformedException, DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
         doThrow(TableNotFoundException.class)
                 .when(tableService)
                 .delete(DATABASE_1_ID, TABLE_1_ID);
@@ -198,7 +196,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DataProcessingException {
+            DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
         /* test */
         tableEndpoint.delete(DATABASE_1_ID, TABLE_1_ID);
     }

@@ -9,7 +9,9 @@ import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.DataProcessingException;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.TableMalformedException;
+import at.tuwien.mapper.PostgresTableMapper;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.repository.TableRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,7 +72,6 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
         }
     }
 
-    @Override
     public QueryResultDto getAllRows(Database database, Table t) throws DatabaseConnectionException, DataProcessingException {
         try {
             Connection connection = getConnection(database);
@@ -102,7 +103,7 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
 
     @Override
     public final PreparedStatement getCreateTableStatement(Connection connection, TableCreateDto createDto) throws DataProcessingException {
-        log.debug("create table columns {}", Arrays.toString(createDto.getColumns()));
+        log.debug("create table columns {}", Arrays.asList(createDto.getColumns()));
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("CREATE TABLE ")
                 .append(tableMapper.columnNameToString(createDto.getName()))

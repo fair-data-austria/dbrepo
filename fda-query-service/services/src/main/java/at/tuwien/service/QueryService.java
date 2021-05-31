@@ -18,6 +18,7 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.StringReader;
@@ -42,13 +43,7 @@ public class QueryService {
         this.postgresService = postgresService;
     }
 
-
-    public QueryResultDto executeQuery(String id, ExecuteQueryDto dto) {
-        System.out.println("test");
-
-        return null;
-    }
-
+    @Transactional
     public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException {
         return postgresService.getQueries(findDatabase(id));
     }
@@ -73,7 +68,6 @@ public class QueryService {
 
         return null;
     }
-
 
     public void create(Long id) throws DatabaseConnectionException, ImageNotSupportedException, DatabaseNotFoundException {
         postgresService.createQuerystore(findDatabase(id));
