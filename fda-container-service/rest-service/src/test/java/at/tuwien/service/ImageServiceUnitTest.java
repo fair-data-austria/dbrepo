@@ -77,23 +77,6 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_notFound_fails() throws ImageNotFoundException {
-        final ImageCreateDto request = ImageCreateDto.builder()
-                .repository(IMAGE_1_REPOSITORY)
-                .tag(IMAGE_1_TAG)
-                .defaultPort(IMAGE_1_PORT)
-                .environment(IMAGE_1_ENV_DTO)
-                .build();
-        when(imageService.create(request))
-                .thenThrow(ImageNotFoundException.class);
-
-        /* test */
-        assertThrows(ImageNotFoundException.class, () -> {
-            imageService.create(request);
-        });
-    }
-
-    @Test
     public void create_duplicate_fails() throws ImageNotFoundException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
