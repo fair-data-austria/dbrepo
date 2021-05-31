@@ -81,7 +81,7 @@ public class PostgresService extends JdbcConnector {
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("DROP DATABASE ")
                 .append(database.getInternalName())
-                .append(" WITH (FORCE)"); // ignore existing connections
+                .append(" WITH (FORCE)"); // ignore existing connections (might be postgres-specific)
         queryBuilder.append(";");
         final String deleteQuery = queryBuilder.toString();
         log.debug("compiled delete db query as \"{}\"", deleteQuery);
