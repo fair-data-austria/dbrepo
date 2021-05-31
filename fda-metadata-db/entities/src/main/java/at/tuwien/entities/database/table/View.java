@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Data
-//@Entity
+@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,7 +31,7 @@ public class View {
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_view_seq")
     )
-    private Long id;
+    Long id;
 
     @ToString.Include
     @Column(nullable = false)
