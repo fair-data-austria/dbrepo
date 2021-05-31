@@ -28,8 +28,9 @@ public interface TableMapper {
     TableDto tableToTableDto(Table data);
 
     @Mappings({
-            @Mapping(source = "columns", target = "columns", qualifiedByName = "columnMapping"),
+            @Mapping(target = "columns"),
             @Mapping(source = "name", target = "name"),
+            @Mapping(source = "name", target = "internalName", qualifiedByName = "columnSlug"),
     })
     Table tableCreateDtoToTable(TableCreateDto data);
 
