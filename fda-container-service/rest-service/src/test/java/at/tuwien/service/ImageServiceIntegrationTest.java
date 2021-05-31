@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.BaseIntegrationTest;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerStateDto;
@@ -27,11 +28,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Map;
 
+import static at.tuwien.BaseUnitTest.IMAGE_1_ENV_DTO;
 import static org.junit.jupiter.api.Assertions.*;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ImageServiceIntegrationTest extends BaseUnitTest {
+public class ImageServiceIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private ImageService imageService;
