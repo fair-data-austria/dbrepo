@@ -61,6 +61,7 @@ public class DatabaseService {
         return opt.get();
     }
 
+    @Transactional
     public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseConnectionException, DatabaseMalformedException {
         log.debug("get database id {}", databaseId);
