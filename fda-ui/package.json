@@ -13,10 +13,9 @@
     "lint": "yarn lint:js",
     "test:unit": "ava test/unit/**/* test/specs/**/*",
     "test:watch": "ava --watch test/unit/**/* test/specs/**/*",
-    "test:watch:e2e": "cross-env PORT=3001 ava --watch test/e2e/**/*",
-    "test:e2e:dev": "cross-env PORT=3001 ava test/e2e/**",
-    "test:e2e:prod": "cross-env PORT=3000 ava test/e2e/**",
-    "test": "yarn test:unit && yarn test:e2e:prod"
+    "test:e2e": "cross-env PORT=3001 ava --timeout=2h --fail-fast test/e2e/**",
+    "test:e2e:docker": "cross-env PORT=3000 ava --timeout=2h --fail-fast test/e2e/**",
+    "test": "yarn test:unit && yarn test:e2e:docker"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.13.9",

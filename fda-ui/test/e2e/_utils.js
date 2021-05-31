@@ -3,9 +3,23 @@ const { chromium } = require('playwright')
 let browserPromise
 
 export function before (t) {
+  let config = {
+    // extra settings
+  }
+  if (process.env.SLOWMO) {
+    const debugConfig = {
+      headless: false,
+      // devtools: true,
+      slowMo: Number(process.env.SLOWMO)
+    }
+    config = {
+      ...config,
+      ...debugConfig
+    }
+  }
+
   browserPromise = chromium.launch({
-    // headless: false,
-    // slowMo: 500
+    ...config
   })
 }
 
