@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.BaseUnitTest;
+import at.tuwien.BaseIntegrationTest;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerStateDto;
 import at.tuwien.entities.container.Container;
@@ -24,12 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Map;
 
+import static at.tuwien.BaseUnitTest.IMAGE_1_ENVIRONMENT;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ContainerServiceIntegrationTest extends BaseUnitTest {
+public class ContainerServiceIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private ContainerService containerService;
@@ -52,7 +53,6 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     @BeforeEach
     public void beforeEach() {
-        afterEach();
         /* create network */
         dockerClient.createNetworkCmd()
                 .withName("fda-userdb")
@@ -71,7 +71,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
                         .withPortBindings(PortBinding.parse("5433:" + IMAGE_1_PORT)))
                 .withName(CONTAINER_1_NAME)
                 .withIpv4Address(CONTAINER_1_IP)
-                .withHostName(CONTAINER_1_INTERNALNAME)
+                .withHostName(CONTAINER_1_INTERNAL_NAME)
                 .exec();
         /* start container */
         dockerClient.startContainerCmd(request.getId()).exec();
@@ -106,7 +106,6 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
                     System.out.println("DELETE NETWORK " + network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
-        /* entities are deleted automatically by dirties context */
     }
 
     @Test
