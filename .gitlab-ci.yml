@@ -12,6 +12,7 @@ image: "docker/compose:latest"
 
 stages: 
   - build
+  - run-docker
   - test
   - deploy
 
@@ -24,6 +25,16 @@ build-metadata-db:
   stage: build
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
+
+run-docker:
+  stage: run-docker
+  script:
+    - "docker-compose up -d && ./wait-for-it.sh fda-discovery-service:9090"
+
+test-frontend:
+  stage: test
+  script:
+    - "docker exec -it fda-ui sh -c 'yarn test'"
 
 test-backend-container:
   stage: test
@@ -118,15 +129,6 @@ test-backend-table:
     reports:
       junit:
         - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
-
-test-frontend:
-  stage: test
-  script:
-    # - "docker exec -it fda-ui sh -c 'yarn test'"
-    # or
-    # - yarn test
-    # don't work
-    - "echo \"Martin, plz help run the tests!\""
 
 deploy-all:
   stage: deploy
