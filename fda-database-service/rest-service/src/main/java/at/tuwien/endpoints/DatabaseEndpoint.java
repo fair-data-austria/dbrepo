@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -36,6 +37,7 @@ public class DatabaseEndpoint {
         this.databaseService = databaseService;
     }
 
+    @Transactional
     @GetMapping("/")
     @ApiOperation(value = "List all databases", notes = "Currently a container supports only databases of the same image, e.g. there is one PostgreSQL engine running with multiple databases inside a container.")
     @ApiResponses({
@@ -50,6 +52,7 @@ public class DatabaseEndpoint {
         return ResponseEntity.ok(databases);
     }
 
+    @Transactional
     @PostMapping("/")
     @ApiOperation(value = "Creates a new database in a container", notes = "Creates a new database in a container. Note that the backend distincts between numerical (req: categories), nominal (req: max_length) and categorical (req: max_length, siUnit, min, max, mean, median, standard_deviation, histogram) column types.")
     @ApiResponses({
@@ -66,6 +69,7 @@ public class DatabaseEndpoint {
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));
     }
 
+    @Transactional
     @GetMapping("/{id}")
     @ApiOperation(value = "Get all informations about a database")
     @ApiResponses({

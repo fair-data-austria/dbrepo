@@ -17,6 +17,7 @@ import net.sf.jsqlparser.JSQLParserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +43,7 @@ public class QueryEndpoint {
         this.queryMapper = queryMapper;
     }
 
+    @Transactional
     @GetMapping("/query")
     @ApiOperation(value = "List all queries", notes = "Lists all already executed queries")
     @ApiResponses({
@@ -71,6 +73,7 @@ public class QueryEndpoint {
                 .build();
     }
 
+    @Transactional
     @PutMapping("/query")
     @ApiOperation(value = "executes a query")
     @ApiResponses(value = {
@@ -85,7 +88,7 @@ public class QueryEndpoint {
         return ResponseEntity.ok(response);
     }
 
-
+    @Transactional
     @PutMapping("/query/version/{timestamp}")
     @ApiOperation(value = "executes a query with a given timestamp")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query with Timestamp")})
