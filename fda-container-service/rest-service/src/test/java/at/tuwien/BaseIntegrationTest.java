@@ -73,7 +73,6 @@ public abstract class BaseIntegrationTest {
     public final ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
     public final String CONTAINER_1_NAME = "u01";
     public final String CONTAINER_1_INTERNAL_NAME = "u01";
-    public final String CONTAINER_1_DATABASE = "univie";
     public final String CONTAINER_1_IP = "172.28.0.3";
     public final Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
 
@@ -82,7 +81,6 @@ public abstract class BaseIntegrationTest {
     public final ContainerImage CONTAINER_2_IMAGE = IMAGE_2;
     public final String CONTAINER_2_NAME = "t01";
     public final String CONTAINER_2_INTERNAL_NAME = "u01";
-    public final String CONTAINER_2_DATABASE = "tuw";
     public final String CONTAINER_2_IP = "172.28.0.4";
     public final Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
 
