@@ -80,7 +80,8 @@ public class PostgresService extends JdbcConnector {
     PreparedStatement getDeleteDatabaseStatement(Connection connection, Database database) throws SQLException {
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("DROP DATABASE ")
-                .append(database.getInternalName());
+                .append(database.getInternalName())
+                .append(" WITH (FORCE)"); // ignore existing connections
         queryBuilder.append(";");
         final String deleteQuery = queryBuilder.toString();
         log.debug("compiled delete db query as \"{}\"", deleteQuery);
