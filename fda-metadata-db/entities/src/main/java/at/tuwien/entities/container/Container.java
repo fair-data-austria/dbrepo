@@ -1,6 +1,7 @@
 package at.tuwien.entities.container;
 
 import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.entities.database.Database;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Entity
@@ -53,8 +55,13 @@ public class Container {
     private Integer port;
 
     @ToString.Include
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ContainerImage image;
+
+//    @ToString.Include
+//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    private List<Database> databases;
+
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

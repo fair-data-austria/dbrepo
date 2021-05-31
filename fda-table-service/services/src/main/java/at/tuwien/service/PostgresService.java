@@ -190,8 +190,8 @@ public class PostgresService extends JdbcConnector {
             final PreparedStatement statement = getDeleteStatement(getConnection(table.getDatabase()), table);
             statement.execute();
         } catch (SQLException e) {
-            log.error("The SQL statement seems to contain invalid syntax");
-            throw new TableMalformedException("The SQL statement seems to contain invalid syntax", e);
+            log.error("The SQL statement seems to contain invalid syntax or table not existing");
+            throw new TableMalformedException("The SQL statement seems to contain invalid syntax or table not existing", e);
         }
     }
 
@@ -204,8 +204,8 @@ public class PostgresService extends JdbcConnector {
         try {
             return connection.prepareStatement(deleteQuery.toString());
         } catch (SQLException e) {
-            log.error("invalid syntax: {}", e.getMessage());
-            throw new DataProcessingException("invalid syntax", e);
+            log.error("invalid syntax or not existing table: {}", e.getMessage());
+            throw new DataProcessingException("invalid syntax or not existing table", e);
         }
     }
 

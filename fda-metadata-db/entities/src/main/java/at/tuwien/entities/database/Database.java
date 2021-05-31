@@ -34,7 +34,7 @@ public class Database {
     )
     private Long id;
 
-    @ToString.Include
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Container container;
 
@@ -46,7 +46,7 @@ public class Database {
     @Column(nullable = false)
     private String internalName;
 
-    @ToString.Exclude
+    @ToString.Include
     @OneToMany(mappedBy = "id", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Table> tables;
 
