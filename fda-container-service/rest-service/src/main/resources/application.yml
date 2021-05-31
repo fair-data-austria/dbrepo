@@ -6,7 +6,7 @@ spring:
     username: postgres
     password: postgres
   jpa:
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
@@ -15,7 +15,7 @@ spring:
     name: fda-container-service
   cloud:
     loadbalancer.ribbon.enabled: false
-server.port: 9091
+server.port: 9093
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
