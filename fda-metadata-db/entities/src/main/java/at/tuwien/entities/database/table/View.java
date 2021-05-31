@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Data
-@Entity
+/*@Entity // not yet in metadata db */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
