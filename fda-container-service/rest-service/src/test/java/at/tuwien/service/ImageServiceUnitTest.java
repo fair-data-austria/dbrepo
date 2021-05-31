@@ -55,7 +55,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void getById_succeeds() {
+    public void getById_succeeds() throws ImageNotFoundException {
         when(imageRepository.findById(IMAGE_1_ID))
                 .thenReturn(Optional.of(IMAGE_1));
 
@@ -77,7 +77,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_notFound_fails() {
+    public void create_notFound_fails() throws ImageNotFoundException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -94,7 +94,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_duplicate_fails() {
+    public void create_duplicate_fails() throws ImageNotFoundException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -111,7 +111,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_succeeds() {
+    public void update_succeeds() throws ImageNotFoundException {
         final ImageChangeDto request = ImageChangeDto.builder()
                 .environment(IMAGE_1_ENV_DTO)
                 .defaultPort(IMAGE_1_PORT)
@@ -143,7 +143,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_succeeds() {
+    public void delete_succeeds() throws ImageNotFoundException {
         doNothing()
                 .when(imageRepository)
                 .deleteById(IMAGE_1_ID);

@@ -16,7 +16,6 @@
 
     <packaging>pom</packaging>
     <modules>
-        <module>gateway</module>
         <module>rest-service</module>
         <module>services</module>
         <module>report</module>
