@@ -25,9 +25,9 @@ public class View {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "view-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "view-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_view_seq")
     )

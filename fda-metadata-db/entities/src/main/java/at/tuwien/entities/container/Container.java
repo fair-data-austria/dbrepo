@@ -26,9 +26,9 @@ public class Container {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "container-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "container-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_container_seq")
     )
@@ -55,7 +55,7 @@ public class Container {
     private Integer port;
 
     @ToString.Include
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY) // cascade none
     private ContainerImage image;
 
     @Column(nullable = false, updatable = false)
