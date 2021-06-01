@@ -15,11 +15,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>at.tuwien</groupId>
-            <artifactId>gateway</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
             <version>2.4.0</version>

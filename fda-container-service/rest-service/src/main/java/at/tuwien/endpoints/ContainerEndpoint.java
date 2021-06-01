@@ -81,22 +81,8 @@ public class ContainerEndpoint {
     public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws DockerClientException, ContainerNotFoundException {
         final Container container = containerService.getById(id);
         final ContainerDto containerDto = containerMapper.containerToContainerDto(container);
-        try {
-            containerService.findIpAddresses(container.getHash())
-                    .forEach((key, value) -> containerDto.setIpAddress(IpAddressDto.builder()
-                            .ipv4(value)
-                            .build()));
-        } catch (ContainerNotRunningException e) {
-            throw new DockerClientException("Could not get container IP", e);
-        }
-        final ContainerStateDto stateDto = containerService.getContainerState(container.getHash());
-        try {
-            containerDto.setState(stateDto);
-        } catch (NullPointerException e) {
-            throw new DockerClientException("Could not get container state");
-        }
         return ResponseEntity.ok()
-                .body(containerDto);
+                .body(containerService.packInspectResponse(container, containerDto));
     }
 
     @Transactional

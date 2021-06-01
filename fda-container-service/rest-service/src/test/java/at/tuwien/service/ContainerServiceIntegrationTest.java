@@ -4,10 +4,7 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerStateDto;
 import at.tuwien.entities.container.Container;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.ContainerNotRunningException;
-import at.tuwien.exception.ContainerStillRunningException;
-import at.tuwien.exception.DockerClientException;
+import at.tuwien.exception.*;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
@@ -109,7 +106,6 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
                     System.out.println("DELETE NETWORK " + network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
-        /* entities are deleted automatically by dirties context */
     }
 
     @Test
@@ -143,7 +139,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void getContainerState_succeeds() {
+    public void getContainerState_succeeds() throws DockerClientException {
 
         /* test */
         final ContainerStateDto response = containerService.getContainerState(CONTAINER_1_HASH);
@@ -162,7 +158,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() {
+    public void create_succeeds() throws DockerClientException, ImageNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -185,7 +181,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_start_succeeds() {
+    public void change_start_succeeds() throws DockerClientException {
         dockerClient.stopContainerCmd(CONTAINER_1_HASH).exec();
 
         /* test */
@@ -193,7 +189,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_stop_succeeds() {
+    public void change_stop_succeeds() throws DockerClientException {
 
         /* test */
         containerService.stop(CONTAINER_1_ID);
@@ -209,7 +205,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void remove_succeeds() {
+    public void remove_succeeds() throws DockerClientException {
         dockerClient.stopContainerCmd(CONTAINER_1_HASH).exec();
 
         /* test */

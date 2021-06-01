@@ -129,7 +129,7 @@ public abstract class BaseUnitTest {
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Long CONTAINER_2_ID = 2L;
-    public final static String CONTAINER_2_HASH = "0ff1ce";
+    public static String CONTAINER_2_HASH = "0ff1ce";
     public final static ContainerImage CONTAINER_2_IMAGE = IMAGE_2;
     public final static String CONTAINER_2_NAME = "fda-userdb-t01";
     public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-t01";
@@ -198,6 +198,13 @@ public abstract class BaseUnitTest {
             .tag(IMAGE_1_TAG)
             .environment(IMAGE_1_ENV_DTO)
             .defaultPort(IMAGE_1_PORT)
+            .build();
+
+    public final static ImageCreateDto IMAGE_2_CREATE_DTO = ImageCreateDto.builder()
+            .repository(IMAGE_2_REPOSITORY)
+            .tag(IMAGE_2_TAG)
+            .environment(IMAGE_2_ENV_DTO)
+            .defaultPort(IMAGE_2_PORT)
             .build();
 
     public final static ContainerCreateRequestDto CONTAINER_1_CREATE_DTO = ContainerCreateRequestDto.builder()

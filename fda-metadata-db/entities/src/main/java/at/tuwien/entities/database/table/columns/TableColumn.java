@@ -27,9 +27,9 @@ public class TableColumn {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "column-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "column-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_columns_seq")
     )
