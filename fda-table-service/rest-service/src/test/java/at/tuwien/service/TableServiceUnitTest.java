@@ -56,6 +56,8 @@ public class TableServiceUnitTest extends BaseUnitTest {
     public void findAll_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabase(DATABASE_1))
+                .thenReturn(List.of(TABLE_1));
 
         /* test */
         final List<Table> response = tableService.findAll(DATABASE_1_ID);

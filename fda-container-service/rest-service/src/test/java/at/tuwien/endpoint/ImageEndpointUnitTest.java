@@ -63,7 +63,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() {
+    public void create_succeeds() throws ImageNotFoundException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -81,7 +81,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_duplicate_fails() {
+    public void create_duplicate_fails() throws ImageNotFoundException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -100,7 +100,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_notExists_fails() {
+    public void create_notExists_fails() throws ImageNotFoundException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -119,7 +119,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() {
+    public void findById_succeeds() throws ImageNotFoundException {
         when(imageService.getById(IMAGE_1_ID))
                 .thenReturn(CONTAINER_1_IMAGE);
 
@@ -130,7 +130,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_notFound_fails() {
+    public void findById_notFound_fails() throws ImageNotFoundException {
         given(imageService.getById(IMAGE_1_ID))
                 .willAnswer(invocation -> {
                     throw new ImageNotFoundException("not existing in docker hub");
@@ -143,7 +143,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_fails() {
+    public void delete_fails() throws ImageNotFoundException {
         doThrow(new ImageNotFoundException("not found"))
                 .when(imageService)
                 .delete(IMAGE_1_ID);
@@ -155,7 +155,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_succeeds() {
+    public void update_succeeds() throws ImageNotFoundException {
         final ImageChangeDto request = ImageChangeDto.builder()
                 .defaultPort(1111)
                 .build();
@@ -166,7 +166,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_notFound_fails() {
+    public void update_notFound_fails() throws ImageNotFoundException {
         final ImageChangeDto request = ImageChangeDto.builder()
                 .defaultPort(1111)
                 .environment(IMAGE_1_ENV_DTO)
