@@ -35,7 +35,7 @@ test-frontend:
   stage: test-frontend
   script:
     - "docker-compose up -d && docker exec fda-analyse-service sh -c './wait'"
-    - "docker exec fda-ui sh -c 'yarn test'"
+    - "docker exec fda-ui yarn test"
 
 test-backend-container:
   stage: test
