@@ -1,16 +1,14 @@
 # FROM node:lts as build
 FROM mcr.microsoft.com/playwright:v1.11.1-focal as build
-
-ENV DEBIAN_FRONTEND noninteractive
-
 MAINTAINER Kirill Stytsenko <kirill.stytsenko@univie.ac.at>
+
 WORKDIR /app
 
 # python, make, g++ are needed by node-gyp
 # RUN apk add --no-cache build-base python3 > /dev/null
 RUN apt-get install make g++ python3 -y > /dev/null
 
-# 4. Install Chromium dependencies - playwright
+# Install Chromium dependencies - playwright
 RUN apt-get update && apt-get install -y --no-install-recommends \
   libnss3 \
   libxss1 \
