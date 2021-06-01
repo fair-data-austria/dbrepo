@@ -12,7 +12,7 @@ image: "docker/compose:latest"
 
 stages: 
   - build
-  - run-docker
+  - test-frontend
   - test
   - deploy
 
@@ -26,14 +26,15 @@ build-metadata-db:
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
 
-run-docker:
-  stage: run-docker
-  script:
-    - "docker-compose up -d && docker exec fda-analyse-service sh -c './wait'"
+# run-docker:
+#   stage: run-docker
+#   script:
+#     - "docker-compose up -d && docker exec fda-analyse-service sh -c './wait'"
 
 test-frontend:
-  stage: test
+  stage: test-frontend
   script:
+    - "docker-compose up -d && docker exec fda-analyse-service sh -c './wait'"
     - "docker exec fda-ui sh -c 'yarn test'"
 
 test-backend-container:
