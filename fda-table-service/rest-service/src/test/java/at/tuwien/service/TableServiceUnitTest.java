@@ -55,6 +55,8 @@ public class TableServiceUnitTest extends BaseUnitTest {
     public void findAll_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabase(DATABASE_1))
+                .thenReturn(List.of(TABLE_1));
 
         /* test */
         final List<Table> response = tableService.findAll(DATABASE_1_ID);
@@ -73,21 +75,10 @@ public class TableServiceUnitTest extends BaseUnitTest {
         });
     }
 
-    @Test
-    public void findAll_noTable_fails() {
-        when(databaseRepository.findById(DATABASE_2_ID))
-                .thenReturn(Optional.of(DATABASE_2));
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
-            tableService.findAll(DATABASE_2_ID);
-        });
-    }
-
     @Disabled("invalid mock")
     @Test
     public void delete_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DataProcessingException {
+            DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
         doNothing()
@@ -103,11 +94,11 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() {
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+        when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.empty());
 
         /* test */
-        assertThrows(TableNotFoundException.class, () -> {
+        assertThrows(DatabaseNotFoundException.class, () -> {
             tableService.delete(DATABASE_1_ID, TABLE_1_ID);
         });
     }
@@ -115,8 +106,8 @@ public class TableServiceUnitTest extends BaseUnitTest {
     @Test
     public void delete_noConnection_fails() throws DatabaseConnectionException, TableMalformedException,
             DataProcessingException {
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.empty());
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
         doAnswer(invocation -> new TableMalformedException("no connection"))
                 .when(postgresService)
                 .deleteTable(TABLE_1);
@@ -129,6 +120,8 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_noSql_fails() throws DataProcessingException {
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.empty());
 
@@ -139,7 +132,9 @@ public class TableServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws TableNotFoundException {
+    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
@@ -151,6 +146,8 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void findById_noTable_fails() {
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, 9999L))
                 .thenReturn(Optional.empty());
 

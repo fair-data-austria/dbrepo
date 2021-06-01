@@ -31,14 +31,14 @@ public class PostgresService extends JdbcConnector {
         try {
             connection = open(URL, postgresProperties);
         } catch (SQLException e) {
-            log.error("Could not connect to the database container, is it running from Docker container? IT DOES NOT WORK FROM IDE! URL: {} Params: {}", URL, postgresProperties);
+            log.error("Could not connect to the database container, is it running from Docker container? URL: {} Params: {}", URL, postgresProperties);
             throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
         }
         try {
             final PreparedStatement statement = getCreateDatabaseStatement(connection, database);
             statement.execute();
         } catch (SQLException e) {
-            log.error("The SQL statement seems to contain invalid syntax");
+            log.error("The SQL statement seems to contain invalid syntax or database already exists");
             throw new DatabaseMalformedException("The SQL statement seems to contain invalid syntax", e);
         }
     }
@@ -51,14 +51,14 @@ public class PostgresService extends JdbcConnector {
         try {
             connection = open(URL, postgresProperties);
         } catch (SQLException e) {
-            log.error("Could not connect to the database container, is it running from Docker container? IT DOES NOT WORK FROM IDE! URL: {} Params: {}", URL, postgresProperties);
+            log.error("Could not connect to the database container, is it running from Docker container? URL: {} Params: {}", URL, postgresProperties);
             throw new DatabaseConnectionException("Could not connect to the database container, is it running?", e);
         }
         try {
             final PreparedStatement statement = getDeleteDatabaseStatement(connection, database);
             statement.execute();
         } catch (SQLException e) {
-            log.error("The SQL statement seems to contain invalid syntax or already exists");
+            log.error("The SQL statement seems to contain invalid syntax or database does not exist");
             throw new DatabaseMalformedException("The SQL statement seems to contain invalid syntax or already exists", e);
         }
     }

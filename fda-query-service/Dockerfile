@@ -11,7 +11,6 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 
 COPY --from=dependency /root/.m2/repository/at/tuwien /root/.m2/repository/at/tuwien
 
-COPY ./gateways ./gateways
 COPY ./rest-service ./rest-service
 COPY ./services ./services
 COPY ./report ./report

@@ -26,15 +26,15 @@ public class Database {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "database-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "database-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_databases_seq")
     )
     private Long id;
 
-    @ToString.Include
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Container container;
 
@@ -46,8 +46,8 @@ public class Database {
     @Column(nullable = false)
     private String internalName;
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY)
+    @ToString.Include
+    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Table> tables;
 
     @ToString.Include
