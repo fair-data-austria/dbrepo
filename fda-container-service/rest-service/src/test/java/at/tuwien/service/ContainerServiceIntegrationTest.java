@@ -1,6 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.BaseIntegrationTest;
+import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerStateDto;
 import at.tuwien.entities.container.Container;
@@ -24,13 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Map;
 
-import static at.tuwien.BaseUnitTest.IMAGE_1_ENVIRONMENT;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ContainerServiceIntegrationTest extends BaseIntegrationTest {
+public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
     @Autowired
     private ContainerService containerService;
@@ -72,7 +71,7 @@ public class ContainerServiceIntegrationTest extends BaseIntegrationTest {
                         .withPortBindings(PortBinding.parse("5433:" + IMAGE_1_PORT)))
                 .withName(CONTAINER_1_NAME)
                 .withIpv4Address(CONTAINER_1_IP)
-                .withHostName(CONTAINER_1_INTERNAL_NAME)
+                .withHostName(CONTAINER_1_INTERNALNAME)
                 .exec();
         /* start container */
         dockerClient.startContainerCmd(request.getId()).exec();

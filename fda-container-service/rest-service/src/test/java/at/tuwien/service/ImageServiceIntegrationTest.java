@@ -1,32 +1,14 @@
 package at.tuwien.service;
 
-import at.tuwien.BaseIntegrationTest;
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.container.ContainerCreateRequestDto;
-import at.tuwien.api.container.ContainerStateDto;
 import at.tuwien.api.container.image.ImageCreateDto;
-import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
-import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.ImageRepository;
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Network;
-import com.github.dockerjava.api.model.PortBinding;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Arrays;
-import java.util.Map;
 
 import static at.tuwien.BaseUnitTest.IMAGE_1_ENV_DTO;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ImageServiceIntegrationTest extends BaseIntegrationTest {
+public class ImageServiceIntegrationTest extends BaseUnitTest {
 
     @Autowired
     private ImageService imageService;
