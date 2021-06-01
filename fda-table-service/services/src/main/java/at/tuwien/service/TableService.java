@@ -67,14 +67,16 @@ public class TableService {
             log.error("Unable to find database {}", databaseId);
             throw new DatabaseNotFoundException("Unable to find database.");
         }
-        return database.get().getTables();
+        final List<Table> tables = tableRepository.findByDatabase(database.get());
+        log.debug("found tables {} in database: {}", tables, database.get());
+        return tables;
     }
 
     @Transactional
     public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException, DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
         final Table table = findById(databaseId, tableId);
         postgresService.deleteTable(table);
-        tableRepository.deleteById(tableId);
+        tableRepository.delete(table);
     }
 
     @Transactional
