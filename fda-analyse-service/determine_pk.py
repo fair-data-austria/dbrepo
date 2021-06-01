@@ -11,7 +11,7 @@ def determine_pk(filepath,seperator=','):
     # {k.lower(): v for k, v in dt['columns'].items() if v != 'Numeric'}
     colnames = dt.keys()
     colindex = list(range(0,len(colnames)))
-    if Path(filepath).stat().st_size < 3000: # precise if lower than 400kB     
+    if Path(filepath).stat().st_size < 400000: # precise if lower than 400kB     
         pk = {}
         j = 0
         k = 0
