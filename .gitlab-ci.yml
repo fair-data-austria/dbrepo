@@ -29,12 +29,12 @@ build-metadata-db:
 run-docker:
   stage: run-docker
   script:
-    - "docker-compose up -d && docker exec -it fda-analyse-service sh -c './wait'"
+    - "docker-compose up -d && docker exec fda-analyse-service sh -c './wait'"
 
 test-frontend:
   stage: test
   script:
-    - "docker exec -it fda-ui sh -c 'yarn test'"
+    - "docker exec fda-ui sh -c 'yarn test'"
 
 test-backend-container:
   stage: test
