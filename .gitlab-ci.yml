@@ -29,7 +29,7 @@ build-metadata-db:
 run-docker:
   stage: run-docker
   script:
-    - "docker-compose up -d && ./wait-for-it.sh fda-discovery-service:9090"
+    - "docker-compose up -d && docker exec -it fda-analyse-service sh -c './wait'"
 
 test-frontend:
   stage: test
