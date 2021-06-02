@@ -9,6 +9,7 @@ from insert_mdb_tbl import insert_mdb_tbl
 from insert_mdb_col import insert_mdb_col, update_mdb_col
 from insert_mdb_col import update_mdb_siunit
 from update_mdb_data import update_mdb_data
+from determine_pk import determine_pk 
 #from werkzeug.utils import secure_filename
 #from werkzeug import cached_property
 import logging
@@ -78,6 +79,21 @@ def determinedt():
         if 'seperator' in input_json: 
             seperator = str(input_json['seperator'])
         res = determine_datatypes(filepath,enum,enum_tol,seperator)
+    except Exception as e: 
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
+@app.route('/determinepk', methods=["POST"], endpoint='analyze_determinepk')
+@swag_from('/as-yml/determinepk.yml')
+def determinepk(): 
+    input_json = request.get_json()
+    try: 
+        filepath = str(input_json['filepath'])
+        seperator = ','
+        if 'seperator' in input_json: 
+            seperator = str(input_json['seperator'])
+        res = determine_pk(filepath,seperator)
     except Exception as e: 
         print(e)
         res = {"success": False, "message": "Unknown error"}
