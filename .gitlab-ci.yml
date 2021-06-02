@@ -35,6 +35,7 @@ test-frontend:
   stage: test-frontend
   script:
     - "docker-compose up -d && docker exec fda-analyse-service sh -c './wait'"
+    - "sleep 30"
     - "docker exec fda-ui yarn test"
 
 test-backend-container:
