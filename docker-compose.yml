@@ -208,7 +208,6 @@ services:
       - 3000:3000
     volumes:
       - /tmp:/tmp
-      - /videos:/app/videos
     depends_on:
       - fda-container-service
       - fda-database-service
