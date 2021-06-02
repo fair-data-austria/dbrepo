@@ -19,9 +19,11 @@ import org.w3c.dom.Document;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -70,22 +72,27 @@ public abstract class HibernateConnector {
      *
      * @param database           The database the table should be created in.
      * @param tableSpecification The table specification.
+     * @return The mapped table
      * @throws DatabaseConnectionException When the connection could not be established.
      * @throws TableMalformedException     When the specification was not transformable.
      * @throws DataProcessingException     When the database returned some error.
      */
-    protected void createTable(Database database, TableCreateDto tableSpecification) throws ArbitraryPrimaryKeysException,
+    protected Table createTable(Database database, TableCreateDto tableSpecification) throws ArbitraryPrimaryKeysException,
             ImageNotSupportedException, TableMalformedException, EntityNotSupportedException {
+        final Table table = tableMapper.tableCreateDtoToTable(tableSpecification);
         final Document xml = tableMapper.tableCreateDtoToDocument(tableSpecification);
         final String clazz = tableMapper.tableCreateDtoToString(tableSpecification);
         /* debug mapping */
         try {
             final Transformer transformer = TransformerFactory.newInstance()
                     .newTransformer();
-            final Result output = new StreamResult(new File(mappingPath + "/mapping.xml"));
             final Source input = new DOMSource(xml);
+            final Result output = new StreamResult(new File(mappingPath + "/mapping.xml"));
 
+            final ByteArrayOutputStream mapping = new ByteArrayOutputStream();
             transformer.transform(input, output);
+            transformer.transform(input, new StreamResult(mapping));
+            table.setMapping(mapping.toByteArray());
             log.debug("Create mapping in {}", mappingPath + "/mapping.xml");
         } catch (TransformerException e) {
             throw new TableMalformedException("could not transform mapping", e);
@@ -95,6 +102,7 @@ public abstract class HibernateConnector {
             final FileWriter fileWriter = new FileWriter(tablePath + "/Table.java");
             fileWriter.append(clazz);
             fileWriter.close();
+            table.setDefinition(clazz.getBytes(StandardCharsets.UTF_8));
             log.debug("Create class in {}", tablePath + "/Table.java");
         } catch (IOException e) {
             throw new TableMalformedException("could not transform class", e);
@@ -103,6 +111,7 @@ public abstract class HibernateConnector {
         final Configuration configuration = getConfiguration(database);
         configuration.addDocument(xml);
         final Session session = getSession(configuration);
+        return table;
     }
 
     /**

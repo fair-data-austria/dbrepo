@@ -96,14 +96,17 @@ public interface TableMapper {
     default Document tableCreateDtoToDocument(TableCreateDto tableSpecification) throws EntityNotSupportedException, ArbitraryPrimaryKeysException {
         final long primaryKeys = Arrays.stream(tableSpecification.getColumns())
                 .filter(ColumnCreateDto::getPrimaryKey)
+                .filter(c -> !c.getNullAllowed())
                 .count();
         if (primaryKeys != 1) {
-            throw new ArbitraryPrimaryKeysException("Currently only exactly 1 primary key column is supported");
+            System.err.println("Currently only exactly 1 primary key column is supported that does not allow null values");
+            throw new ArbitraryPrimaryKeysException("Currently only exactly 1 primary key column is supported that does not allow null values");
         }
         final Optional<ColumnCreateDto> primaryKey = Arrays.stream(tableSpecification.getColumns())
                 .filter(ColumnCreateDto::getPrimaryKey)
                 .findFirst();
         if (primaryKey.isEmpty()) {
+            System.err.println("Primary key is empty.");
             throw new ArbitraryPrimaryKeysException("Primary key is empty.");
         }
 
@@ -132,6 +135,7 @@ public interface TableMapper {
         Element id = xml.createElement("id");
         id.setAttribute("name", nameToCamelCase(primaryKey.get().getName()));
         id.setAttribute("column", nameToInternalName(primaryKey.get().getName()));
+        id.setAttribute("type", primaryKey.get().getType().getRepresentation());
         table.appendChild(id);
 
         Element generator = xml.createElement("generator");
@@ -153,11 +157,13 @@ public interface TableMapper {
             if (!columnSpecification.getType().equals(ColumnTypeDto.ENUM)) {
                 table.appendChild(property);
             } else {
+                System.err.println("Enums are currently not supported");
                 throw new EntityNotSupportedException("Enums are currently not supported");
             }
             if (columnSpecification.getCheckExpression() == null) {
                 table.appendChild(property);
             } else {
+                System.err.println("Check expressions are not supported");
                 throw new EntityNotSupportedException("Check expressions are not supported");
             }
         }
@@ -191,7 +197,7 @@ public interface TableMapper {
 
         /* properties */
         for (ColumnCreateDto columnSpecification : tableSpecification.getColumns()) {
-            content.append("public ")
+            content.append("private ")
                     .append(columnSpecification.getType().getRepresentation())
                     .append(" ")
                     .append(nameToCamelCase(columnSpecification.getName()))

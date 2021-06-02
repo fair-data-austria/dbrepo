@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.sql.Blob;
 import java.time.Instant;
 import java.util.List;
 
@@ -47,6 +48,20 @@ public class Table {
     @ToString.Include
     @Column(nullable = false, unique = true)
     private String internalName;
+
+    /**
+     * Store the hibernate mapping in utf8 encoding as binary
+     */
+    @ToString.Exclude
+    @Lob
+    private byte[] mapping;
+
+    /**
+     * Store the Java class definition in utf8 encoding as binary
+     */
+    @ToString.Include
+    @Lob
+    private byte[] definition;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

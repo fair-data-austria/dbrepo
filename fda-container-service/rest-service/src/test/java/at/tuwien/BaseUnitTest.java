@@ -32,6 +32,9 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_TAG = "13-alpine";
     public final static String IMAGE_1_HASH = "83b40f2726e5";
     public final static Integer IMAGE_1_PORT = 5432;
+    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.PostgreSQLDialect";
+    public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
+    public final static String IMAGE_1_JDBC = "postgresql";
     public final static Long IMAGE_1_SIZE = 12000L;
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
@@ -58,6 +61,9 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_2_TAG = "latest";
     public final static String IMAGE_2_HASH = "f877e80bb9ef";
     public final static Integer IMAGE_2_PORT = 6379;
+    public final static String IMAGE_2_DIALECT = "org.hibernate.dialect.SQLServerDialect";
+    public final static String IMAGE_2_DRIVER = "redis.clients.Jedis";
+    public final static String IMAGE_2_JDBC = "redis";
     public final static Long IMAGE_2_SIZE = 24000L;
     public final static Instant IMAGE_2_BUILT = Instant.now().minus(9, DAYS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_2_ENV = List.of(ContainerImageEnvironmentItem.builder()
@@ -83,6 +89,9 @@ public abstract class BaseUnitTest {
             .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
             .hash(IMAGE_1_HASH)
+            .jdbcMethod(IMAGE_1_JDBC)
+            .dialect(IMAGE_1_DIALECT)
+            .driverClass(IMAGE_1_DRIVER)
             .compiled(IMAGE_1_BUILT)
             .size(IMAGE_1_SIZE)
             .environment(IMAGE_1_ENV)
@@ -93,6 +102,9 @@ public abstract class BaseUnitTest {
             .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
             .hash(IMAGE_1_HASH)
+            .jdbcMethod(IMAGE_1_JDBC)
+            .dialect(IMAGE_1_DIALECT)
+            .driverClass(IMAGE_1_DRIVER)
             .compiled(IMAGE_1_BUILT)
             .size(BigInteger.valueOf(IMAGE_1_SIZE))
             .environment(IMAGE_1_ENV_DTO)
@@ -103,6 +115,9 @@ public abstract class BaseUnitTest {
             .repository(IMAGE_2_REPOSITORY)
             .tag(IMAGE_2_TAG)
             .hash(IMAGE_2_HASH)
+            .jdbcMethod(IMAGE_2_JDBC)
+            .dialect(IMAGE_2_DIALECT)
+            .driverClass(IMAGE_2_DRIVER)
             .compiled(IMAGE_2_BUILT)
             .size(IMAGE_2_SIZE)
             .environment(IMAGE_2_ENV)
@@ -113,6 +128,9 @@ public abstract class BaseUnitTest {
             .repository(IMAGE_2_REPOSITORY)
             .tag(IMAGE_2_TAG)
             .hash(IMAGE_2_HASH)
+            .jdbcMethod(IMAGE_2_JDBC)
+            .dialect(IMAGE_2_DIALECT)
+            .driverClass(IMAGE_2_DRIVER)
             .size(BigInteger.valueOf(IMAGE_2_SIZE))
             .compiled(IMAGE_2_BUILT)
             .environment(IMAGE_2_ENV_DTO)
