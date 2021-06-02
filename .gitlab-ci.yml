@@ -36,8 +36,10 @@ test-e2e:
   artifacts:
     when: always
     paths:
-      - fda-ui/videos
+      - "fda-ui/videos/*"
     expire_in: 1 week
+  variables:
+    CI_DEBUG_TRACE: "true"
 
 test-backend-container:
   stage: test-backend
