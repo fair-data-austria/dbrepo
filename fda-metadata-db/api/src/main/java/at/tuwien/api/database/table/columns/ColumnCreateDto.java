@@ -30,10 +30,14 @@ public class ColumnCreateDto {
     @ApiModelProperty(name = "null values permitted", example = "false")
     private Boolean nullAllowed;
 
-    @ApiModelProperty(name = "check expression")
+    @NotNull
+    @ApiModelProperty(name = "unique", example = "true")
+    private Boolean unique;
+
+    @ApiModelProperty(name = "check expression", example = "null")
     private String checkExpression;
 
-    @ApiModelProperty(name = "foreign key")
+    @ApiModelProperty(name = "foreign key", example = "null")
     private String foreignKey;
 
 }
