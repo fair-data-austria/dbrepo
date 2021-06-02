@@ -3,23 +3,19 @@ const { chromium } = require('playwright')
 let browserPromise
 
 export function before (t) {
-  let config = {
+  const config = {
     // extra settings
+    // headless: false // helps debugging
   }
+  const debugConfig = {}
+
   if (process.env.SLOWMO) {
-    const debugConfig = {
-      headless: false,
-      // devtools: true,
-      slowMo: Number(process.env.SLOWMO)
-    }
-    config = {
-      ...config,
-      ...debugConfig
-    }
+    debugConfig.slowMo = Number(process.env.SLOWMO)
   }
 
   browserPromise = chromium.launch({
-    ...config
+    ...config,
+    ...debugConfig
   })
 }
 
@@ -29,7 +25,13 @@ export async function after (t) {
 
 export async function pageMacro (t, callback) {
   const browser = await browserPromise
-  const page = await browser.newPage()
+  const context = await browser.newContext({
+    recordVideo: {
+      dir: 'videos/',
+      size: { width: 1024, height: 768 }
+    }
+  })
+  const page = await context.newPage()
 
   page.go = function (s) {
     return this.goto('http://localhost:' + (process.env.PORT || 3001) + s)
@@ -38,6 +40,9 @@ export async function pageMacro (t, callback) {
   try {
     await callback(t, page)
   } finally {
+    const path = await page.video().path()
     await page.close()
+    await context.close()
+    console.log(`vvv Video vvv: ${path}`)
   }
 }
