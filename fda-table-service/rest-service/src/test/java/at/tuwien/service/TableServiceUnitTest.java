@@ -160,7 +160,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .columns(COLUMNS5)

@@ -15,7 +15,6 @@ import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 @Log4j2
 public abstract class JdbcConnector {
@@ -51,7 +50,7 @@ public abstract class JdbcConnector {
         final List<String> columns = new LinkedList<>();
         for (ColumnCreateDto column : columnDto) {
             final StringBuilder columnBuilder = new StringBuilder()
-                    .append(tableMapper.columnNameToString(column.getName()))
+                    .append(tableMapper.nameToInternalName(column.getName()))
                     .append(" ")
                     .append(mockDataTypeAnalyze(column.getType()))
                     .append(mockCheckExpression(column))
@@ -86,7 +85,7 @@ public abstract class JdbcConnector {
         if (column.getCheckExpression() == null || column.getCheckExpression().isEmpty()) {
             return "";
         }
-        final String columnName = tableMapper.columnNameToString(column.getName());
+        final String columnName = tableMapper.nameToInternalName(column.getName());
         final String expression = column.getCheckExpression().replace(column.getName(), columnName);
         return " CHECK ( " + expression + " )";
     }

@@ -75,7 +75,7 @@ public class TableEndpoint {
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId,
                                                 @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
+            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
         final Table table = tableService.create(databaseId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));

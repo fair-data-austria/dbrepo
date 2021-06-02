@@ -62,6 +62,9 @@ public class ImageService {
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
         image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(createDto.getEnvironment()));
         image.setDefaultPort(createDto.getDefaultPort());
+        image.setDialect(createDto.getDialect());
+        image.setDriverClass(createDto.getDriverClass());
+        image.setJdbcMethod(createDto.getJdbcMethod());
         log.debug("Create image {}", createDto);
         final ContainerImage out;
         try {
@@ -92,6 +95,9 @@ public class ImageService {
         image.setCompiled(dockerImage.getCompiled());
         image.setHash(dockerImage.getHash());
         image.setSize(dockerImage.getSize());
+        image.setDialect(changeDto.getDialect());
+        image.setDriverClass(changeDto.getDriverClass());
+        image.setJdbcMethod(changeDto.getJdbcMethod());
         log.debug("update image {}", image);
         /* update metadata db */
         return imageRepository.save(image);

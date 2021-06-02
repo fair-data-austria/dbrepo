@@ -59,7 +59,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
+            DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -77,7 +77,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_databaseNotFound_fails() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -96,7 +96,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_tableNotFound_fails() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException {
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
