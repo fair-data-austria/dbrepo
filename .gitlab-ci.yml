@@ -12,8 +12,8 @@ image: "docker/compose:latest"
 
 stages: 
   - build
-  - test-frontend
-  - test
+  - test-e2e
+  - test-backend
   - deploy
 
 build-docker:
@@ -26,20 +26,16 @@ build-metadata-db:
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
 
-# run-docker:
-#   stage: run-docker
-#   script:
-#     - "docker-compose up -d && docker exec fda-analyse-service sh -c './wait'"
-
-test-frontend:
-  stage: test-frontend
+test-e2e:
+  stage: test-e2e
   script:
-    - "docker-compose up -d && docker exec fda-analyse-service sh -c './wait'"
+    - "docker-compose up -d"
+    - "docker exec fda-ui './scripts/wait.sh http://fda-database-service:9092/api/database/'"
     - "sleep 30"
     - "docker exec fda-ui yarn test"
 
 test-backend-container:
-  stage: test
+  stage: test-backend
   script:
     - docker system prune -f
     - "./fda-container-service/rest-service/src/test/resources/integration-test.before"
@@ -60,7 +56,7 @@ test-backend-container:
         - fda-container-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-database:
-  stage: test
+  stage: test-backend
   script:
     - docker system prune -f
     - "./fda-database-service/rest-service/src/test/resources/integration-test.before"
@@ -81,17 +77,17 @@ test-backend-database:
         - fda-database-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-discovery:
-  stage: test
+  stage: test-backend
   script:
     - "mvn -f fda-discovery-service/pom.xml clean test verify"
 
 test-backend-gateway:
-  stage: test
+  stage: test-backend
   script:
     - "mvn -f fda-gateway-service/pom.xml clean test verify"
 
 test-backend-query:
-  stage: test
+  stage: test-backend
   script:
     - docker system prune -f
     - "./fda-query-service/rest-service/src/test/resources/integration-test.before"
@@ -112,7 +108,7 @@ test-backend-query:
         - fda-query-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-table:
-  stage: test
+  stage: test-backend
   script:
     - docker system prune -f
     - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
