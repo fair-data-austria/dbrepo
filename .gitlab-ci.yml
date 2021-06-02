@@ -34,8 +34,9 @@ test-e2e:
     - "sleep 30"
     - "docker exec fda-ui yarn test"
   artifacts:
+    when: always
     paths:
-      - "/videos"
+      - fda-ui/videos
     expire_in: 1 week
 
 test-backend-container:
