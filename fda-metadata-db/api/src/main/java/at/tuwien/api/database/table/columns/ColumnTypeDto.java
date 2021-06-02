@@ -6,7 +6,13 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum ColumnTypeDto {
-    ENUM("enum"), NUMBER("Double"), STRING("String"), TEXT("String"), BOOLEAN("Boolean"), DATE("Date"), BLOB("Blob");
+    ENUM("enum"),
+    NUMBER("java.lang.Double"),
+    STRING("java.lang.String"),
+    TEXT("java.lang.String"),
+    BOOLEAN("java.lang.Boolean"),
+    DATE("java.sql.Date"),
+    BLOB("java.sql.Blob");
 
     String representation;
 
