@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.io.IOException;
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-public class DataProcessingException extends IOException {
+public class DataProcessingException extends Exception {
 
     public DataProcessingException(String msg) {
         super(msg);

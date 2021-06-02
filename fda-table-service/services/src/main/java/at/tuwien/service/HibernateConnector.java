@@ -7,38 +7,53 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.utils.ContainerDatabaseUtil;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 @Log4j2
 @Component
-public class HibernateConnector implements ContainerDatabaseConnector {
+public abstract class HibernateConnector {
 
-    final TableMapper tableMapper;
+    private final TableMapper tableMapper;
+    private final Environment environment;
+
+    @Value("${fda.mapping.path}")
+    private String mappingPath;
+
+    @Value("${fda.table.path}")
+    private String tablePath;
 
     @Autowired
-    public HibernateConnector(TableMapper tableMapper) {
+    public HibernateConnector(TableMapper tableMapper, Environment environment) {
         this.tableMapper = tableMapper;
+        this.environment = environment;
     }
 
-    private static Configuration getConfiguration(Database database) throws ImageNotSupportedException {
+    private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
         final Configuration configuration = new Configuration();
-        configuration.setProperty("connection.driver_class", database.getContainer().getImage().getDriverClass());
-        configuration.setProperty("dialect", database.getContainer().getImage().getDialect());
-        configuration.setProperty("hibernate.connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
+        configuration.setProperty("hibernate.connection.driver_class", database.getContainer().getImage().getDriverClass());
+        configuration.setProperty("hibernate.dialect", database.getContainer().getImage().getDialect());
+        configuration.setProperty("hibernate.connection.url", getJdbcConnectionUrl(database));
         configuration.setProperty("hibernate.connection.username", ContainerDatabaseUtil.getUsername(database));
         configuration.setProperty("hibernate.connection.password", ContainerDatabaseUtil.getPassword(database));
         configuration.setProperty("hibernate.current_session_context_class", "thread");
-        configuration.setProperty("hibernate.hbm2ddl.auto", "create");
+        configuration.setProperty("hibernate.hbm2ddl.auto", "update");
         configuration.setProperty("hibernate.show_sql", "true");
         configuration.setProperty("hibernate.format_sql", "true");
         configuration.setProperty("hibernate.mapping", "true");
@@ -50,29 +65,94 @@ public class HibernateConnector implements ContainerDatabaseConnector {
                 .getCurrentSession();
     }
 
-    @Override
-    public void createTable(Database database, TableCreateDto tableSpecification) throws DatabaseConnectionException, TableMalformedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, ImageNotSupportedException {
+    /**
+     * Creates a new table with the given table specification from the front-end
+     *
+     * @param database           The database the table should be created in.
+     * @param tableSpecification The table specification.
+     * @throws DatabaseConnectionException When the connection could not be established.
+     * @throws TableMalformedException     When the specification was not transformable.
+     * @throws DataProcessingException     When the database returned some error.
+     */
+    protected void createTable(Database database, TableCreateDto tableSpecification) throws ArbitraryPrimaryKeysException,
+            ImageNotSupportedException, TableMalformedException, EntityNotSupportedException {
         final Document xml = tableMapper.tableCreateDtoToDocument(tableSpecification);
-        log.debug("created document {}", xml);
+        final String clazz = tableMapper.tableCreateDtoToString(tableSpecification);
+        /* debug mapping */
+        try {
+            final Transformer transformer = TransformerFactory.newInstance()
+                    .newTransformer();
+            final Result output = new StreamResult(new File(mappingPath + "/mapping.xml"));
+            final Source input = new DOMSource(xml);
+
+            transformer.transform(input, output);
+            log.debug("Create mapping in {}", mappingPath + "/mapping.xml");
+        } catch (TransformerException e) {
+            throw new TableMalformedException("could not transform mapping", e);
+        }
+        /* debug class */
+        try {
+            final FileWriter fileWriter = new FileWriter(tablePath + "/Table.java");
+            fileWriter.append(clazz);
+            fileWriter.close();
+            log.debug("Create class in {}", tablePath + "/Table.java");
+        } catch (IOException e) {
+            throw new TableMalformedException("could not transform class", e);
+        }
         /* hibernate session */
         final Configuration configuration = getConfiguration(database);
         configuration.addDocument(xml);
         final Session session = getSession(configuration);
-        session.flush();
     }
 
-    @Override
-    public QueryResultDto insertIntoTable(Database database, Table table, List<Map<String, Object>> data, List<String> headers) throws DatabaseConnectionException, DataProcessingException {
+    /**
+     * Inserts data into an existing table (of a user database running in a Docker container)
+     *
+     * @param database The database.
+     * @param table    The table.
+     * @param data     The data.
+     * @param headers  List of headers from the data.
+     * @return The parsed data.
+     * @throws DatabaseConnectionException When the connection could not be established.
+     * @throws DataProcessingException     When the database returned some error.
+     */
+    protected QueryResultDto insertIntoTable(Database database, Table table, List<Map<String, Object>> data, List<String> headers) {
         return null;
     }
 
-    @Override
-    public QueryResultDto getAllRows(Database database, Table table) throws DatabaseConnectionException, DataProcessingException {
+    /**
+     * Retrieve all rows of a table (of a user database running in a Docker container).
+     *
+     * @param database The database.
+     * @param table    The table.
+     * @return The parsed rows.
+     * @throws DatabaseConnectionException When the connection could not be established.
+     * @throws DataProcessingException     When the database returned some error.
+     */
+    protected QueryResultDto getAllRows(Database database, Table table) throws DatabaseConnectionException, DataProcessingException {
         return null;
     }
 
-    @Override
-    public void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException, DataProcessingException {
+    /**
+     * Deletes a table (of a user database running in a Docker container).
+     *
+     * @param table The table.
+     * @throws DatabaseConnectionException When the connection could not be established.
+     * @throws TableMalformedException     When the specification was not transformable.
+     * @throws DataProcessingException     When the database returned some error.
+     */
+    protected void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException, DataProcessingException {
 
+    }
+
+    /* helper functions */
+
+    private String getJdbcConnectionUrl(Database database) {
+        final boolean isDocker = Arrays.stream(environment.getActiveProfiles())
+                .anyMatch(env -> env.equalsIgnoreCase("docker"));
+        if (isDocker) {
+            return "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
+        }
+        return "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://localhost:" + database.getContainer().getPort() + "/" + database.getInternalName();
     }
 }

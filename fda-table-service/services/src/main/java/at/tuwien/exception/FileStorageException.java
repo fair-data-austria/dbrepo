@@ -1,6 +1,6 @@
 package at.tuwien.exception;
 
-public class FileStorageException extends RuntimeException {
+public class FileStorageException extends Exception {
 
 
     public FileStorageException(String msg) {

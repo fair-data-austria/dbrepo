@@ -9,9 +9,7 @@ import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.DataProcessingException;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.TableMalformedException;
-import at.tuwien.mapper.PostgresTableMapper;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.repository.TableRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,7 @@ import java.util.*;
 
 @Log4j2
 @Service
-public class PostgresService extends JdbcConnector implements ContainerDatabaseConnector {
+public class PostgresService extends JdbcConnector {
 
     private final Properties postgresProperties;
     private final TableMapper tableMapper;
@@ -46,7 +44,6 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
         return connection;
     }
 
-    @Override
     public void createTable(Database database, TableCreateDto createDto) throws DatabaseConnectionException, TableMalformedException, DataProcessingException {
         try {
             final PreparedStatement statement = getCreateTableStatement(getConnection(database), createDto);
@@ -57,7 +54,6 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
         }
     }
 
-    @Override
     public QueryResultDto insertIntoTable(Database database, Table table, List<Map<String, Object>> processedData, List<String> headers) throws DatabaseConnectionException, DataProcessingException {
         try {
             final PreparedStatement statement = getInsertStatement(getConnection(database), processedData, table, headers);
@@ -106,7 +102,7 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
         log.debug("create table columns {}", Arrays.asList(createDto.getColumns()));
         final StringBuilder queryBuilder = new StringBuilder()
                 .append("CREATE TABLE ")
-                .append(tableMapper.columnNameToString(createDto.getName()))
+                .append(tableMapper.nameToInternalName(createDto.getName()))
                 .append(" (");
         final Iterator<String> columnIterator = mockAnalyzeService(createDto.getColumns())
                 .listIterator();
@@ -132,7 +128,7 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
         log.debug("insert table name: {}", t.getInternalName());
         StringBuilder queryBuilder = new StringBuilder()
                 .append("INSERT INTO ")
-                .append(tableMapper.columnNameToString(t.getInternalName()))
+                .append(tableMapper.nameToInternalName(t.getInternalName()))
                 .append("(");
         for (String h : headers) {
             // FIXME empty columns list in table produces nullpointer exception
@@ -167,7 +163,6 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
         }
     }
 
-    @Override
     public void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException, DataProcessingException {
         try {
             final PreparedStatement statement = getDeleteStatement(getConnection(table.getDatabase()), table);
@@ -181,7 +176,7 @@ public class PostgresService extends JdbcConnector implements ContainerDatabaseC
     @Override
     final PreparedStatement getDeleteStatement(Connection connection, Table table) throws DataProcessingException {
         final StringBuilder deleteQuery = new StringBuilder("DROP TABLE ")
-                .append(tableMapper.columnNameToString(table.getInternalName()))
+                .append(tableMapper.nameToInternalName(table.getInternalName()))
                 .append(";");
         log.debug("compiled delete table statement as {}", deleteQuery.toString());
         try {
