@@ -33,6 +33,10 @@ test-e2e:
     - "docker exec fda-ui bash -c './scripts/wait.sh http://fda-database-service:9092/api/database/'"
     - "sleep 30"
     - "docker exec fda-ui yarn test"
+  artifacts:
+    paths:
+      - "/videos"
+    expire_in: 1 week
 
 test-backend-container:
   stage: test-backend
