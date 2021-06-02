@@ -13,6 +13,7 @@ import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,24 +39,23 @@ import java.util.Optional;
 
 @Log4j2
 @Service
-public class TableService {
+public class TableService extends HibernateConnector {
 
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
-    private final HibernateConnector postgresService;
     private final TableMapper tableMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        HibernateConnector postgresService, TableMapper tableMapper) {
+                        TableMapper tableMapper, Environment environment) {
+        super(tableMapper, environment);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
-        this.postgresService = postgresService;
         this.tableMapper = tableMapper;
     }
 
     @Transactional
-    public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException, TableNotFoundException {
+    public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
         final Optional<Database> database;
         try {
             database = databaseRepository.findById(databaseId);
@@ -73,9 +73,9 @@ public class TableService {
     }
 
     @Transactional
-    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException, TableMalformedException, DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
         final Table table = findById(databaseId, tableId);
-        postgresService.deleteTable(table);
+//        postgresService.deleteTable(table);
         tableRepository.delete(table);
     }
 
@@ -105,12 +105,12 @@ public class TableService {
 
     @Transactional
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, DataProcessingException,
-            ArbitraryPrimaryKeysException, ParserConfigurationException {
+            TableMalformedException, DatabaseNotFoundException, DataProcessingException,
+            ArbitraryPrimaryKeysException, EntityNotSupportedException {
         final Database database = findDatabase(databaseId);
 
         /* save in metadata db */
-        postgresService.createTable(database, createDto);
+        createTable(database, createDto);
         final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
         mappedTable.setDatabase(database);
         mappedTable.setTdbid(databaseId);
@@ -138,7 +138,7 @@ public class TableService {
 
     @Transactional
     public QueryResultDto insert(Long databaseId, Long tableId, MultipartFile file) throws TableNotFoundException,
-            ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, DataProcessingException {
+            ImageNotSupportedException, DatabaseNotFoundException, FileStorageException {
         Table t = findById(databaseId, tableId);
         Database d = findDatabase(databaseId);
         log.debug(t.toString());
@@ -151,7 +151,8 @@ public class TableService {
             }
             break;
         }
-        return postgresService.insertIntoTable(d, t, processedData, headers);
+//        return postgresService.insertIntoTable(d, t, processedData, headers);
+        return null;
     }
 
     /* helper functions */
@@ -222,13 +223,14 @@ public class TableService {
     // TODO ms what is this for? It does ony print to stdout
     public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
             DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
-        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
-        for (Map<String, Object> m : queryResult.getResult()) {
-            for (Map.Entry<String, Object> entry : m.entrySet()) {
-                log.debug("{}: {}", entry.getKey(), entry.getValue());
-            }
-        }
-        return queryResult;
+//        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
+//        for (Map<String, Object> m : queryResult.getResult()) {
+//            for (Map.Entry<String, Object> entry : m.entrySet()) {
+//                log.debug("{}: {}", entry.getKey(), entry.getValue());
+//            }
+//        }
+//        return queryResult;
+        return null;
     }
 
     public Table create(Long databaseId, MultipartFile file, TableCsvInformationDto tableCSVInformation) {

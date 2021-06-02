@@ -22,3 +22,6 @@ logging:
 eureka:
   instance.hostname: fda-discovery-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
+fda:
+  mapping.path: rest-service/src/main/resources
+  table.path: rest-service/src/main/java/at/tuwien/userdb
