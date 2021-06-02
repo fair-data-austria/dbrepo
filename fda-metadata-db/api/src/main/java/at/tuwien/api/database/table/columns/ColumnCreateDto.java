@@ -19,18 +19,18 @@ public class ColumnCreateDto {
     private String name;
 
     @NotNull
-    @ApiModelProperty(name = "primary key", example = "false")
-    private Boolean primaryKey = true;
+    @ApiModelProperty(name = "primary key", example = "true")
+    private Boolean primaryKey;
 
     @NotNull
     @ApiModelProperty(name = "name", example = "STRING")
     private ColumnTypeDto type;
 
     @NotNull
-    @ApiModelProperty(name = "null values permitted", example = "true")
-    private Boolean nullAllowed = true;
+    @ApiModelProperty(name = "null values permitted", example = "false")
+    private Boolean nullAllowed;
 
-    @ApiModelProperty(name = "check expression", example = "column > 0")
+    @ApiModelProperty(name = "check expression")
     private String checkExpression;
 
     @ApiModelProperty(name = "foreign key")
