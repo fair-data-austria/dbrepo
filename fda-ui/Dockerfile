@@ -28,6 +28,7 @@ COPY ./nuxt.config.js ./
 COPY ./package.json ./
 COPY ./pages ./pages
 COPY ./plugins ./plugins
+COPY ./scripts ./scripts
 COPY ./server-middleware ./server-middleware
 COPY ./static ./static
 COPY ./store ./store
@@ -35,7 +36,7 @@ COPY ./test ./test
 COPY ./yarn.lock ./
 
 # Install npm dependencies
-RUN yarn install --frozen-lockfile #> /dev/null 2>&1
+RUN yarn install --frozen-lockfile > /dev/null 2>&1
 
 RUN yarn build
 
