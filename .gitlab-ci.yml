@@ -30,7 +30,7 @@ test-e2e:
   stage: test-e2e
   script:
     - "docker-compose up -d"
-    - "docker exec fda-ui './scripts/wait.sh http://fda-database-service:9092/api/database/'"
+    - "docker exec fda-ui bash -c './scripts/wait.sh http://fda-database-service:9092/api/database/'"
     - "sleep 30"
     - "docker exec fda-ui yarn test"
 
