@@ -110,8 +110,7 @@ public class TableService extends HibernateConnector {
         final Database database = findDatabase(databaseId);
 
         /* save in metadata db */
-        createTable(database, createDto);
-        final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
+        final Table mappedTable = createTable(database, createDto);
         mappedTable.setDatabase(database);
         mappedTable.setTdbid(databaseId);
         mappedTable.setColumns(List.of());
