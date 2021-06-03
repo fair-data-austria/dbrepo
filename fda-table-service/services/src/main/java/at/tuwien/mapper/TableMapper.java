@@ -152,7 +152,7 @@ public interface TableMapper {
             property.setAttribute("name", nameToCamelCase(columnSpecification.getName()));
             property.setAttribute("column", nameToInternalName(columnSpecification.getName()));
             property.setAttribute("not-null", columnSpecification.getNullAllowed() ? "false" : "true");
-//            property.setAttribute("unique", columnSpecification);
+            property.setAttribute("unique", columnSpecification.getUnique() ? "true": "false");
             property.setAttribute("type", columnSpecification.getType().getRepresentation());
             if (!columnSpecification.getType().equals(ColumnTypeDto.ENUM)) {
                 table.appendChild(property);

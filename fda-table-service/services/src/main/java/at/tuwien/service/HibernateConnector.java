@@ -33,7 +33,6 @@ import java.util.Map;
 public abstract class HibernateConnector {
 
     private final TableMapper tableMapper;
-    private final Environment environment;
 
     @Value("${fda.mapping.path}")
     private String mappingPath;
@@ -42,16 +41,15 @@ public abstract class HibernateConnector {
     private String tablePath;
 
     @Autowired
-    public HibernateConnector(TableMapper tableMapper, Environment environment) {
+    public HibernateConnector(TableMapper tableMapper) {
         this.tableMapper = tableMapper;
-        this.environment = environment;
     }
 
     private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
         final Configuration configuration = new Configuration();
         configuration.setProperty("hibernate.connection.driver_class", database.getContainer().getImage().getDriverClass());
         configuration.setProperty("hibernate.dialect", database.getContainer().getImage().getDialect());
-        configuration.setProperty("hibernate.connection.url", getJdbcConnectionUrl(database));
+        configuration.setProperty("hibernate.connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
         configuration.setProperty("hibernate.connection.username", ContainerDatabaseUtil.getUsername(database));
         configuration.setProperty("hibernate.connection.password", ContainerDatabaseUtil.getPassword(database));
         configuration.setProperty("hibernate.current_session_context_class", "thread");
@@ -95,6 +93,7 @@ public abstract class HibernateConnector {
             table.setMapping(mapping.toByteArray());
             log.debug("Create mapping in {}", mappingPath + "/mapping.xml");
         } catch (TransformerException e) {
+            log.error("could not transform mapping: {}", e.getMessage());
             throw new TableMalformedException("could not transform mapping", e);
         }
         /* debug class */
@@ -105,6 +104,7 @@ public abstract class HibernateConnector {
             table.setDefinition(clazz.getBytes(StandardCharsets.UTF_8));
             log.debug("Create class in {}", tablePath + "/Table.java");
         } catch (IOException e) {
+            log.error("could not transform class: {}", e.getMessage());
             throw new TableMalformedException("could not transform class", e);
         }
         /* hibernate session */
@@ -152,16 +152,5 @@ public abstract class HibernateConnector {
      */
     protected void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException, DataProcessingException {
 
-    }
-
-    /* helper functions */
-
-    private String getJdbcConnectionUrl(Database database) {
-        final boolean isDocker = Arrays.stream(environment.getActiveProfiles())
-                .anyMatch(env -> env.equalsIgnoreCase("docker"));
-        if (isDocker) {
-            return "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
-        }
-        return "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://localhost:" + database.getContainer().getPort() + "/" + database.getInternalName();
     }
 }

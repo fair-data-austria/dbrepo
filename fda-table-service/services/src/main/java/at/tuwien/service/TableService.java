@@ -25,7 +25,6 @@ import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
 import javax.persistence.EntityNotFoundException;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -43,15 +42,13 @@ public class TableService extends HibernateConnector {
 
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
-    private final TableMapper tableMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        TableMapper tableMapper, Environment environment) {
-        super(tableMapper, environment);
+                        TableMapper tableMapper) {
+        super(tableMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
-        this.tableMapper = tableMapper;
     }
 
     @Transactional
@@ -118,6 +115,7 @@ public class TableService extends HibernateConnector {
         try {
             table = tableRepository.save(mappedTable);
         } catch (EntityNotFoundException e) {
+            log.error("failed to create table compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create table compound key", e);
         }
         table.getColumns().forEach(column -> {
@@ -128,6 +126,7 @@ public class TableService extends HibernateConnector {
         try {
             out = tableRepository.save(table);
         } catch (EntityNotFoundException e) {
+            log.error("failed to create column compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create column compound key", e);
         }
         log.debug("saved table: {}", out);
