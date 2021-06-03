@@ -53,14 +53,14 @@ public class Table {
      * Store the hibernate mapping in utf8 encoding as binary
      */
     @ToString.Exclude
-    @Lob
+    @Column(nullable = false)
     private byte[] mapping;
 
     /**
      * Store the Java class definition in utf8 encoding as binary
      */
-    @ToString.Include
-    @Lob
+    @ToString.Exclude
+    @Column(nullable = false)
     private byte[] definition;
 
     @ToString.Exclude
