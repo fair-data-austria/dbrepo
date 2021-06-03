@@ -26,6 +26,9 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository("s0m3th1ng_n0t3x1st1ng")
                 .tag("d3v_h3ll")
+                .dialect(IMAGE_1_DIALECT)
+                .driverClass(IMAGE_1_DRIVER)
+                .jdbcMethod(IMAGE_1_JDBC)
                 .defaultPort(IMAGE_1_PORT)
                 .environment(IMAGE_1_ENV_DTO)
                 .build();
