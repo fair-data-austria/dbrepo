@@ -47,16 +47,27 @@ public abstract class HibernateConnector {
 
     private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
         final Configuration configuration = new Configuration();
-        configuration.setProperty("hibernate.connection.driver_class", database.getContainer().getImage().getDriverClass());
+        configuration.setProperty("connection.driver_class", database.getContainer().getImage().getDriverClass());
+        configuration.setProperty("connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
+        configuration.setProperty("connection.username", ContainerDatabaseUtil.getUsername(database));
+        configuration.setProperty("connection.password", ContainerDatabaseUtil.getPassword(database));
         configuration.setProperty("hibernate.dialect", database.getContainer().getImage().getDialect());
-        configuration.setProperty("hibernate.connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
-        configuration.setProperty("hibernate.connection.username", ContainerDatabaseUtil.getUsername(database));
-        configuration.setProperty("hibernate.connection.password", ContainerDatabaseUtil.getPassword(database));
+        configuration.setProperty("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");
         configuration.setProperty("hibernate.current_session_context_class", "thread");
         configuration.setProperty("hibernate.hbm2ddl.auto", "update");
         configuration.setProperty("hibernate.show_sql", "true");
         configuration.setProperty("hibernate.format_sql", "true");
         configuration.setProperty("hibernate.mapping", "true");
+        configuration.setProperty("connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
+        configuration.setProperty("hibernate.c3p0.acquire_increment", "1");
+        configuration.setProperty("hibernate.c3p0.idle_test_period", "60");
+        configuration.setProperty("hibernate.c3p0.idle_test_period", "60");
+        configuration.setProperty("hibernate.c3p0.min_size", "1");
+        configuration.setProperty("hibernate.c3p0.max_size", "2");
+        configuration.setProperty("hibernate.c3p0.max_statements", "50");
+        configuration.setProperty("hibernate.c3p0.timeout", "0");
+        configuration.setProperty("hibernate.c3p0.acquireRetryAttempts", "1");
+        configuration.setProperty("hibernate.c3p0.acquireRetryDelay", "250");
         return configuration;
     }
 
