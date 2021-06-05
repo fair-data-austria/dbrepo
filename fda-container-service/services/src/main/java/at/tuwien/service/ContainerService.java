@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.ContainerStateDto;
+import at.tuwien.api.container.network.IpAddressDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
@@ -24,7 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +111,7 @@ public class ContainerService {
         return container.get();
     }
 
+    @Transactional
     public void remove(Long containerId) throws ContainerNotFoundException, DockerClientException,
             ContainerStillRunningException {
         final Optional<Container> container = containerRepository.findById(containerId);
@@ -128,6 +131,7 @@ public class ContainerService {
         log.debug("Removed container {}", containerId);
     }
 
+    @Transactional
     public Container getById(Long containerId) throws ContainerNotFoundException {
         final Optional<Container> container = containerRepository.findById(containerId);
         if (container.isEmpty()) {
@@ -137,6 +141,34 @@ public class ContainerService {
         return container.get();
     }
 
+    /**
+     * Packs the container state into a response dto, return less information when the container is not running
+     *
+     * @param container The container
+     * @param out       The response dto
+     * @return Information about the container
+     * @throws DockerClientException Upon failure to communicate with the Docker daemon
+     */
+    public ContainerDto packInspectResponse(Container container, ContainerDto out) throws DockerClientException {
+        final ContainerStateDto stateDto = getContainerState(container.getHash());
+        try {
+            out.setState(stateDto);
+        } catch (NullPointerException e) {
+            throw new DockerClientException("Could not get container state");
+        }
+        try {
+            findIpAddresses(container.getHash())
+                    .forEach((key, value) -> out.setIpAddress(IpAddressDto.builder()
+                            .ipv4(value)
+                            .build()));
+        } catch (ContainerNotRunningException e) {
+            log.warn("could not get container ip: {}", e.getMessage());
+            return out;
+        }
+        return out;
+    }
+
+    @Transactional
     public List<Container> getAll() {
         return containerRepository.findAll();
     }
@@ -147,6 +179,7 @@ public class ContainerService {
      * @param containerId The container ID
      * @return The container
      */
+    @Transactional
     public Container start(Long containerId) throws ContainerNotFoundException, DockerClientException {
         Container container = getById(containerId);
         try {
@@ -169,7 +202,6 @@ public class ContainerService {
         }
         final Map<String, String> networks = new HashMap<>();
         if (!response.getState().getRunning()) {
-            log.warn("cannot get IPv4 of container that is not running");
             throw new ContainerNotRunningException("container is not running");
         }
         response.getNetworkSettings()
@@ -191,7 +223,7 @@ public class ContainerService {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        log.debug("received container state {}", response);
+        log.debug("received container state {}", response.getState());
         final ContainerDto dto = containerMapper.inspectContainerResponseToContainerDto(response);
         return dto.getState();
     }

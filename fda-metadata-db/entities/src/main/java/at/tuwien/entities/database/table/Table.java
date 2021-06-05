@@ -9,7 +9,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
@@ -28,9 +27,9 @@ public class Table {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "table-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "table-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_tables_seq")
     )
@@ -49,7 +48,7 @@ public class Table {
     @Column(nullable = false, unique = true)
     private String internalName;
 
-    @ToString.Include
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;

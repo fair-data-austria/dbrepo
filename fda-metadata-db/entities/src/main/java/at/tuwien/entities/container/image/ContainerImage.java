@@ -25,9 +25,9 @@ public class ContainerImage {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "image-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "image-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_image_seq")
     )
@@ -58,7 +58,7 @@ public class ContainerImage {
     private Integer defaultPort;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ContainerImageEnvironmentItem> environment;
 
     @Column(nullable = false, updatable = false)

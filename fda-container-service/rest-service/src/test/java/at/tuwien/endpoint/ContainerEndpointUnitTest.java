@@ -118,7 +118,6 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
         /* test */
         final ResponseEntity<ContainerDto> response = containerEndpoint.findById(CONTAINER_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(CONTAINER_1_ID, Objects.requireNonNull(response.getBody()).getId());
     }
 
     @Test
