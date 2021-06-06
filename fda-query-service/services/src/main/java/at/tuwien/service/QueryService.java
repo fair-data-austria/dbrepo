@@ -11,22 +11,24 @@ import at.tuwien.exception.QueryMalformedException;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.parser.ParserException;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.StringReader;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -50,20 +52,17 @@ public class QueryService {
 
     public QueryResultDto executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLFeatureNotSupportedException {
         CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
+        Statement stmt;
+        try {
 
-        Statement stmt = parserRealSql.parse(new StringReader(query.getQuery()));
+
+            stmt = parserRealSql.parse(new StringReader(query.getQuery()));
+        } catch (ParserException e) {
+            log.error(e.getMessage());
+            throw new SQLFeatureNotSupportedException();
+        }
+        Query q = parseQuery(stmt);
         Database database = findDatabase(id);
-        if(stmt instanceof Select) {
-            Select selectStatement = (Select) stmt;
-            PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
-
-            List<SelectItem> selectitems = ps.getSelectItems();
-            System.out.println(ps.getFromItem().toString());
-            selectitems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
-        }
-        else {
-            throw new SQLFeatureNotSupportedException("SQL Query is not a SELECT statement - please only use SELECT statements");
-        }
         saveQuery(database, query, null);
 
         return null;
@@ -99,24 +98,48 @@ public class QueryService {
         //TODO in next sprint
         String q = query.getQuery();
         query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
-        query.setQueryNormalized(normalizeQuery(query.getQuery()));
-        query.setQueryHash(query.getQueryNormalized().hashCode() + "");
-        query.setResultHash(query.getQueryHash());
+        //query.setQueryNormalized(normalizeQuery(query.getQuery()));
+        //query.setQueryHash(query.getQueryNormalized().hashCode() + "");
+        //query.setResultHash(query.getQueryHash());
         query.setResultNumber(0);
         postgresService.saveQuery(database, query);
         return null;
     }
 
-    private String normalizeQuery(String query) {
-        return query;
+    private String normalizeQuery(Select select) {
+        return select.getSelectBody().toString();
     }
 
-    private boolean checkValidity(String query) {
-        String queryparts[] = query.toLowerCase().split("from");
-        if (queryparts[0].contains("select")) {
-            //TODO add more checks
-            return true;
+    private List<SelectItem> normalizeSelectItems(List<SelectItem> selectItems) {
+        return selectItems.stream().sorted(Comparator.comparing(Object::toString)).collect(Collectors.toList());
+    }
+
+    private Query parseQuery(Statement statement) throws SQLFeatureNotSupportedException {
+        if(statement instanceof Select) {
+            Select selectStatement = (Select) statement;
+            PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
+
+            List<SelectItem> selectItems = ps.getSelectItems();
+            FromItem fromItem = ps.getFromItem();
+            if(ps.getJoins()!=null) {
+            for(Join j : ps.getJoins()) {
+                if(j.getRightItem() != null) {
+                    System.out.println(j.getRightItem().toString());
+                }
+            }
+            }
+            if(ps.getWhere() != null) {
+                Expression where = ps.getWhere();
+                System.out.println(where.toString());
+
+            }
+            selectItems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
+            System.out.println(fromItem.toString());
+
         }
-        return false;
+        else {
+            throw new SQLFeatureNotSupportedException("SQL Query is not a SELECT statement - please only use SELECT statements");
+        }
+        return new Query();
     }
 }
