@@ -10,6 +10,7 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.EntityNotSupportedException;
+import at.tuwien.exception.TableMalformedException;
 import org.apache.commons.lang.WordUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,9 +18,14 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Locale;
@@ -58,6 +64,11 @@ public interface TableMapper {
         return slug.toLowerCase(Locale.ENGLISH);
     }
 
+    @Named("columnMapping")
+    default String nameToColumnName(String data) {
+        return nameToInternalName("MDB " + data);
+    }
+
     @Named("camelMapping")
     default String nameToCamelCase(String data) {
         if (data == null || data.length() == 0) {
@@ -87,7 +98,7 @@ public interface TableMapper {
             @Mapping(source = "type", target = "columnType"),
             @Mapping(source = "nullAllowed", target = "isNullAllowed"),
             @Mapping(source = "name", target = "name"),
-            @Mapping(target = "internalName", expression = "java(nameToInternalName(data.getName()))"),
+            @Mapping(target = "internalName", expression = "java(nameToColumnName(data.getName()))"),
             @Mapping(source = "checkExpression", target = "checkExpression"),
             @Mapping(source = "foreignKey", target = "foreignKey"),
     })
@@ -152,7 +163,7 @@ public interface TableMapper {
             property.setAttribute("name", nameToCamelCase(columnSpecification.getName()));
             property.setAttribute("column", nameToInternalName(columnSpecification.getName()));
             property.setAttribute("not-null", columnSpecification.getNullAllowed() ? "false" : "true");
-            property.setAttribute("unique", columnSpecification.getUnique() ? "true": "false");
+            property.setAttribute("unique", columnSpecification.getUnique() ? "true" : "false");
             property.setAttribute("type", columnSpecification.getType().getRepresentation());
             if (!columnSpecification.getType().equals(ColumnTypeDto.ENUM)) {
                 table.appendChild(property);
@@ -205,6 +216,12 @@ public interface TableMapper {
         }
 
         return content.append("}").toString();
+    }
+
+    default Document byteArrayToDocument(byte[] data) throws ParserConfigurationException, IOException, SAXException {
+        return DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder()
+                    .parse(new ByteArrayInputStream(data));
     }
 
 }
