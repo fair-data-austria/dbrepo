@@ -38,6 +38,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_1_INTERNAL_NAME = "mdb_date";
     public final static ColumnTypeDto COLUMN_1_TYPE = ColumnTypeDto.DATE;
     public final static Boolean COLUMN_1_NULL = false;
+    public final static Boolean COLUMN_1_UNIQUE = true;
 
     public final static Long COLUMN_2_ID = 2L;
     public final static Boolean COLUMN_2_PRIMARY = false;
@@ -45,6 +46,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_2_INTERNAL_NAME = "mdb_location";
     public final static ColumnTypeDto COLUMN_2_TYPE = ColumnTypeDto.STRING;
     public final static Boolean COLUMN_2_NULL = false;
+    public final static Boolean COLUMN_2_UNIQUE = false;
 
     public final static Long COLUMN_3_ID = 3L;
     public final static Boolean COLUMN_3_PRIMARY = false;
@@ -52,6 +54,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_3_INTERNAL_NAME = "mdb_min_temp";
     public final static ColumnTypeDto COLUMN_3_TYPE = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_3_NULL = false;
+    public final static Boolean COLUMN_3_UNIQUE = false;
 
     public final static Long COLUMN_4_ID = 4L;
     public final static Boolean COLUMN_4_PRIMARY = false;
@@ -59,6 +62,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_4_INTERNAL_NAME = "mdb_max_temp";
     public final static ColumnTypeDto COLUMN_4_TYPE = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_4_NULL = false;
+    public final static Boolean COLUMN_4_UNIQUE = false;
 
     public final static Long COLUMN_5_ID = 5L;
     public final static Boolean COLUMN_5_PRIMARY = false;
@@ -66,11 +70,15 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_5_INTERNAL_NAME = "mdb_rainfall";
     public final static ColumnTypeDto COLUMN_5_TYPE = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_5_NULL = false;
+    public final static Boolean COLUMN_5_UNIQUE = false;
 
     public final static Long IMAGE_1_ID = 1L;
     public final static String IMAGE_1_REPOSITORY = "postgres";
     public final static String IMAGE_1_TAG = "13-alpine";
     public final static String IMAGE_1_HASH = "83b40f2726e5";
+    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.PostgreSQLDialect";
+    public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
+    public final static String IMAGE_1_JDBC = "postgresql";
     public final static Integer IMAGE_1_PORT = 5433;
     public final static Long IMAGE_1_SIZE = 12000L;
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
@@ -93,6 +101,9 @@ public abstract class BaseUnitTest {
             .tag(IMAGE_1_TAG)
             .hash(IMAGE_1_HASH)
             .compiled(IMAGE_1_BUILT)
+            .dialect(IMAGE_1_DIALECT)
+            .jdbcMethod(IMAGE_1_JDBC)
+            .driverClass(IMAGE_1_DRIVER)
             .size(IMAGE_1_SIZE)
             .environment(IMAGE_1_ENV)
             .defaultPort(IMAGE_1_PORT)
@@ -219,30 +230,35 @@ public abstract class BaseUnitTest {
                     .name(COLUMN_1_NAME)
                     .nullAllowed(COLUMN_1_NULL)
                     .primaryKey(COLUMN_1_PRIMARY)
+                    .unique(COLUMN_1_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
                     .type(COLUMN_2_TYPE)
                     .name(COLUMN_2_NAME)
                     .nullAllowed(COLUMN_2_NULL)
                     .primaryKey(COLUMN_2_PRIMARY)
+                    .unique(COLUMN_2_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
                     .type(COLUMN_3_TYPE)
                     .name(COLUMN_3_NAME)
                     .nullAllowed(COLUMN_3_NULL)
                     .primaryKey(COLUMN_3_PRIMARY)
+                    .unique(COLUMN_3_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
                     .type(COLUMN_4_TYPE)
                     .name(COLUMN_4_NAME)
                     .nullAllowed(COLUMN_4_NULL)
                     .primaryKey(COLUMN_4_PRIMARY)
+                    .unique(COLUMN_4_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
                     .type(COLUMN_5_TYPE)
                     .name(COLUMN_5_NAME)
                     .nullAllowed(COLUMN_5_NULL)
                     .primaryKey(COLUMN_5_PRIMARY)
+                    .unique(COLUMN_5_UNIQUE)
                     .build()};
 
     public final static ColumnCreateDto[] COLUMNS4 = new ColumnCreateDto[]{

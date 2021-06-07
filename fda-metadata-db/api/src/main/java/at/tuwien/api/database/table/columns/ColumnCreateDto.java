@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 public class ColumnCreateDto {
 
     @NotBlank
-    @ApiModelProperty(name = "name", example = "Ticker Symbol")
+    @ApiModelProperty(name = "name", example = "Date")
     private String name;
 
     @NotNull
@@ -23,11 +23,11 @@ public class ColumnCreateDto {
     private Boolean primaryKey;
 
     @NotNull
-    @ApiModelProperty(name = "name", example = "STRING")
+    @ApiModelProperty(name = "column type", example = "STRING")
     private ColumnTypeDto type;
 
     @NotNull
-    @ApiModelProperty(name = "null values permitted", example = "false")
+    @ApiModelProperty(name = "null value", example = "false")
     private Boolean nullAllowed;
 
     @NotNull

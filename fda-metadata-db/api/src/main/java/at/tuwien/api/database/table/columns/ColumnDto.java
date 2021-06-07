@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 public class ColumnDto {
 
     @NotBlank
-    @ApiModelProperty(name = "name", example = "Price Limit")
+    @ApiModelProperty(name = "name", example = "Date")
     private String name;
 
     @NotNull
@@ -30,10 +30,10 @@ public class ColumnDto {
     @ApiModelProperty(name = "null allowed", example = "true")
     private Boolean isNullAllowed;
 
-    @ApiModelProperty(name = "check constraint", example = "Price Limit > 0")
+    @ApiModelProperty(name = "check constraint", example = "Price Limit > 0", hidden = true)
     private String checkExpression;
 
-    @ApiModelProperty(name = "foreign key")
+    @ApiModelProperty(name = "foreign key", hidden = true)
     private String foreignKey;
 
 }

@@ -21,15 +21,15 @@ public class TableDto {
     private Long id;
 
     @NotBlank
-    @ApiModelProperty(name = "table name", example = "Fundamentals")
+    @ApiModelProperty(name = "table name", example = "Weather Australia")
     private String name;
 
     @NotBlank
-    @ApiModelProperty(name = "table internal name", example = "fundamentals")
+    @ApiModelProperty(name = "table internal name", example = "weather_australia")
     private String internalName;
 
     @NotBlank
-    @ApiModelProperty(name = "table description", example = "SEC 10K annual fillings (2016-2012) ")
+    @ApiModelProperty(name = "table description", example = "Predict next-day rain in Australia", notes = "https://www.kaggle.com/jsphyg/weather-dataset-rattle-package")
     private String description;
 
     @NotNull
