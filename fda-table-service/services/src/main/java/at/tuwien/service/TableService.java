@@ -97,7 +97,7 @@ public class TableService extends HibernateConnector {
         final Database database = findDatabase(databaseId);
         if (tableRepository.findByDatabaseAndName(database, createDto.getName()).isPresent()) {
             // DEVNOTE note that hibernate actually has no problem with updating the table, but we do not want this behavior for this method
-            log.warn("table with name {} already exists in database {}", createDto.getName(), databaseId);
+            log.warn("table with name '{}' already exists in database {}", createDto.getName(), databaseId);
             throw new EntityNotSupportedException("table names must be unique, there exists already a table");
         }
 

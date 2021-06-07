@@ -15,11 +15,11 @@ import javax.validation.constraints.NotNull;
 public class DatabaseCreateDto {
 
     @NotNull
-    @ApiModelProperty(name = "at.tuwien.container id", example = "1")
+    @ApiModelProperty(name = "container id", example = "1")
     private Long containerId;
 
     @NotBlank
-    @ApiModelProperty(name = "at.tuwien.database name", example = "Exchange Traded Fund")
+    @ApiModelProperty(name = "database name", example = "Weather Australia")
     private String name;
 
 }
