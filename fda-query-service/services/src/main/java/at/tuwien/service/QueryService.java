@@ -12,6 +12,7 @@ import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
@@ -51,17 +52,7 @@ public class QueryService {
     }
 
     public QueryResultDto executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLFeatureNotSupportedException {
-        CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
-        Statement stmt;
-        try {
-
-
-            stmt = parserRealSql.parse(new StringReader(query.getQuery()));
-        } catch (ParserException e) {
-            log.error(e.getMessage());
-            throw new SQLFeatureNotSupportedException();
-        }
-        Query q = parseQuery(stmt);
+        Query q = parseQuery(query);
         Database database = findDatabase(id);
         saveQuery(database, query, null);
 
@@ -69,7 +60,9 @@ public class QueryService {
     }
 
     public void create(Long id) throws DatabaseConnectionException, ImageNotSupportedException, DatabaseNotFoundException {
-        postgresService.createQuerystore(findDatabase(id));
+        Database database = findDatabase(id);
+        System.out.println(database);
+        postgresService.createQuerystore(database);
     }
 
     /* helper functions */
@@ -86,7 +79,7 @@ public class QueryService {
             log.error("no database with this id found in metadata database");
             throw new DatabaseNotFoundException("database not found in metadata database");
         }
-        log.debug("retrieved db {}", database);
+        log.debug("retrieved db {}", database.toString());
         if (!database.get().getContainer().getImage().getRepository().equals("postgres")) {
             log.error("Right now only PostgreSQL is supported!");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
@@ -98,10 +91,11 @@ public class QueryService {
         //TODO in next sprint
         String q = query.getQuery();
         query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
-        //query.setQueryNormalized(normalizeQuery(query.getQuery()));
-        //query.setQueryHash(query.getQueryNormalized().hashCode() + "");
-        //query.setResultHash(query.getQueryHash());
+        query.setQueryHash(query.getQueryNormalized().hashCode() + "");
+        query.setResultHash(query.getQueryHash());
         query.setResultNumber(0);
+        System.out.println(query);
+        System.out.println(database.toString());
         postgresService.saveQuery(database, query);
         return null;
     }
@@ -114,32 +108,47 @@ public class QueryService {
         return selectItems.stream().sorted(Comparator.comparing(Object::toString)).collect(Collectors.toList());
     }
 
-    private Query parseQuery(Statement statement) throws SQLFeatureNotSupportedException {
+    private Expression normalizeWhereItems(Expression where) {
+        //TODO with AndExpression and OrExpression
+        return null;
+    }
+
+    private Query parseQuery(Query query) throws JSQLParserException {
+        CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
+        Statement statement ;
+        try {
+            statement = parserRealSql.parse(new StringReader(query.getQuery()));
+        } catch (JSQLParserException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
         if(statement instanceof Select) {
             Select selectStatement = (Select) statement;
             PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
-
             List<SelectItem> selectItems = ps.getSelectItems();
-            FromItem fromItem = ps.getFromItem();
+
+            //TODO Validate if all columns and tables are in database
+            PlainSelect result = new PlainSelect();
+            result.setSelectItems(normalizeSelectItems(ps.getSelectItems()));
+
+            result.setFromItem(ps.getFromItem());
+            //TODO order join elements?
+            //TODO extract from as a whole?
             if(ps.getJoins()!=null) {
-            for(Join j : ps.getJoins()) {
-                if(j.getRightItem() != null) {
-                    System.out.println(j.getRightItem().toString());
-                }
+                result.setJoins(ps.getJoins());
             }
-            }
+
             if(ps.getWhere() != null) {
                 Expression where = ps.getWhere();
-                System.out.println(where.toString());
+                result.setWhere(where);
 
             }
             selectItems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
-            System.out.println(fromItem.toString());
-
+            query.setQueryNormalized(result.toString());
+            return query;
         }
         else {
-            throw new SQLFeatureNotSupportedException("SQL Query is not a SELECT statement - please only use SELECT statements");
+            throw new JSQLParserException("SQL Query is not a SELECT statement - please only use SELECT statements");
         }
-        return new Query();
     }
 }
