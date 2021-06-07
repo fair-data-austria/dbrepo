@@ -81,39 +81,39 @@ public class TableEndpoint {
                 .body(tableMapper.tableToTableBriefDto(table));
     }
 
-    @Transactional
-    @PostMapping("/table/csv")
-    @ApiOperation(value = "Create a table", notes = "Creates a file, which is given as a multipart file.")
-    @ApiResponses({
-            @ApiResponse(code = 201, message = "The table was created."),
-            @ApiResponse(code = 400, message = "The creation form contains invalid data."),
-            @ApiResponse(code = 401, message = "Not authorized to create a tables."),
-            @ApiResponse(code = 404, message = "The database does not exist."),
-            @ApiResponse(code = 405, message = "The container is not running."),
-            @ApiResponse(code = 409, message = "The container image is not supported."),
-    })
-    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCsvInformationDto headers) {
-        final Table table = tableService.create(databaseId, file, headers);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(tableMapper.tableToTableDto(table));
-    }
+//    @Transactional
+//    @PostMapping("/table/csv")
+//    @ApiOperation(value = "Create a table", notes = "Creates a file, which is given as a multipart file.")
+//    @ApiResponses({
+//            @ApiResponse(code = 201, message = "The table was created."),
+//            @ApiResponse(code = 400, message = "The creation form contains invalid data."),
+//            @ApiResponse(code = 401, message = "Not authorized to create a tables."),
+//            @ApiResponse(code = 404, message = "The database does not exist."),
+//            @ApiResponse(code = 405, message = "The container is not running."),
+//            @ApiResponse(code = 409, message = "The container image is not supported."),
+//    })
+//    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @RequestPart("file") MultipartFile file, @RequestPart TableCsvInformationDto headers) {
+//        final Table table = tableService.create(databaseId, file, headers);
+//        return ResponseEntity.status(HttpStatus.CREATED)
+//                .body(tableMapper.tableToTableDto(table));
+//    }
 
-    @Transactional
-    @PostMapping("/table/csv/local")
-    @ApiOperation(value = "Create a table", notes = "This is done by saving a file on the shared docker filesystem and then sending the link to the file.")
-    @ApiResponses({
-            @ApiResponse(code = 201, message = "The table was created."),
-            @ApiResponse(code = 400, message = "The creation form contains invalid data."),
-            @ApiResponse(code = 401, message = "Not authorized to create a tables."),
-            @ApiResponse(code = 404, message = "The database does not exist."),
-            @ApiResponse(code = 405, message = "The container is not running."),
-            @ApiResponse(code = 409, message = "The container image is not supported."),
-    })
-    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @Valid @RequestBody TableCsvInformationDto tableCSVInformation) throws IOException {
-        final Table table = tableService.create(databaseId, tableCSVInformation);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(tableMapper.tableToTableDto(table));
-    }
+//    @Transactional
+//    @PostMapping("/table/csv/local")
+//    @ApiOperation(value = "Create a table", notes = "This is done by saving a file on the shared docker filesystem and then sending the link to the file.")
+//    @ApiResponses({
+//            @ApiResponse(code = 201, message = "The table was created."),
+//            @ApiResponse(code = 400, message = "The creation form contains invalid data."),
+//            @ApiResponse(code = 401, message = "Not authorized to create a tables."),
+//            @ApiResponse(code = 404, message = "The database does not exist."),
+//            @ApiResponse(code = 405, message = "The container is not running."),
+//            @ApiResponse(code = 409, message = "The container image is not supported."),
+//    })
+//    public ResponseEntity<TableDto> createViaCsv(@PathVariable("id") Long databaseId, @Valid @RequestBody TableCsvInformationDto tableCSVInformation) throws IOException {
+//        final Table table = tableService.create(databaseId, tableCSVInformation);
+//        return ResponseEntity.status(HttpStatus.CREATED)
+//                .body(tableMapper.tableToTableDto(table));
+//    }
 
 
     @Transactional
@@ -168,28 +168,28 @@ public class TableEndpoint {
             @ApiResponse(code = 404, message = "The table is not found in database."),
             @ApiResponse(code = 422, message = "The csv was not processible."),
     })
-    /* FIXME: this should be in a different endpoint */
-    public ResponseEntity<QueryResultDto> insert(@PathVariable("id") Long databaseId,
-                                                 @PathVariable("tableId") Long tableId,
-                                                 @RequestParam("file") MultipartFile file) throws Exception {
-        final QueryResultDto queryResult = tableService.insert(databaseId, tableId, file);
-        return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
+    public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
+                                    @PathVariable("tableId") Long tableId,
+                                    @RequestParam("file") @RequestPart MultipartFile file) throws Exception {
+        tableService.insertFromFile(databaseId, tableId, file, null);
+        return ResponseEntity.accepted()
+                .build();
     }
 
-    @Transactional
-    @GetMapping("/table/{tableId}/data")
-    @ApiOperation(value = "show data", notes = "Show all the data for a table")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "All tables are listed."),
-            @ApiResponse(code = 401, message = "Not authorized to list all tables."),
-    })
-    /* FIXME: this should be a different endpoint */
-    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId,
-                                                   @PathVariable("tableId") Long tableId)
-            throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException,
-            DatabaseConnectionException, DataProcessingException {
-        final QueryResultDto queryResult = tableService.showData(databaseId, tableId);
-        return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
-    }
+//    @Transactional
+//    @GetMapping("/table/{tableId}/data")
+//    @ApiOperation(value = "show data", notes = "Show all the data for a table")
+//    @ApiResponses({
+//            @ApiResponse(code = 200, message = "All tables are listed."),
+//            @ApiResponse(code = 401, message = "Not authorized to list all tables."),
+//    })
+//    /* FIXME: this should be a different endpoint */
+//    public ResponseEntity<QueryResultDto> showData(@PathVariable("id") Long databaseId,
+//                                                   @PathVariable("tableId") Long tableId)
+//            throws DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException,
+//            DatabaseConnectionException, DataProcessingException {
+//        final QueryResultDto queryResult = tableService.showData(databaseId, tableId);
+//        return ResponseEntity.ok(queryResultMapper.queryResultToQueryResultDto(queryResult));
+//    }
 
 }

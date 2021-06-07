@@ -15,16 +15,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -47,10 +48,10 @@ public abstract class HibernateConnector {
 
     private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
         final Configuration configuration = new Configuration();
-        configuration.setProperty("connection.driver_class", database.getContainer().getImage().getDriverClass());
-        configuration.setProperty("connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
-        configuration.setProperty("connection.username", ContainerDatabaseUtil.getUsername(database));
-        configuration.setProperty("connection.password", ContainerDatabaseUtil.getPassword(database));
+        configuration.setProperty("hibernate.connection.driver_class", database.getContainer().getImage().getDriverClass());
+        configuration.setProperty("hibernate.connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
+        configuration.setProperty("hibernate.connection.username", ContainerDatabaseUtil.getUsername(database));
+        configuration.setProperty("hibernate. connection.password", ContainerDatabaseUtil.getPassword(database));
         configuration.setProperty("hibernate.dialect", database.getContainer().getImage().getDialect());
         configuration.setProperty("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");
         configuration.setProperty("hibernate.current_session_context_class", "thread");
@@ -128,16 +129,23 @@ public abstract class HibernateConnector {
     /**
      * Inserts data into an existing table (of a user database running in a Docker container)
      *
-     * @param database The database.
-     * @param table    The table.
-     * @param data     The data.
-     * @param headers  List of headers from the data.
-     * @return The parsed data.
-     * @throws DatabaseConnectionException When the connection could not be established.
-     * @throws DataProcessingException     When the database returned some error.
+     * @param table The table.
+     * @param data  The data.
+     * @throws ImageNotSupportedException When the image is not supported.
+     * @throws DataProcessingException    When the database returned some error.
      */
-    protected QueryResultDto insertIntoTable(Database database, Table table, List<Map<String, Object>> data, List<String> headers) {
-        return null;
+    protected void insertFromCollection(Table table, Map<String, Collection<String>> data)
+            throws ImageNotSupportedException, DataProcessingException {
+        final Document xml;
+        try {
+            xml = tableMapper.byteArrayToDocument(table.getMapping());
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw new DataProcessingException("Not able to parse the mapping definition byte array");
+        }
+        final Configuration configuration = getConfiguration(table.getDatabase());
+        configuration.addDocument(xml);
+        final Session session = getSession(configuration);
+        // reflection stuff
     }
 
     /**
@@ -161,7 +169,9 @@ public abstract class HibernateConnector {
      * @throws TableMalformedException     When the specification was not transformable.
      * @throws DataProcessingException     When the database returned some error.
      */
-    protected void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException, DataProcessingException {
-
+    protected void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException, DataProcessingException, ImageNotSupportedException {
+        final Configuration configuration = getConfiguration(table.getDatabase());
+        final Session session = getSession(configuration);
+        session.delete(table);
     }
 }

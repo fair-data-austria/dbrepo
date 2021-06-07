@@ -30,6 +30,7 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
+        <hibernate.c3p0.version>6.0.0.Alpha8</hibernate.c3p0.version>
     </properties>
 
     <dependencies>
@@ -121,6 +122,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+        <!-- Hibernate -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${hibernate.c3p0.version}</version>
+        </dependency>
         <!-- Docker -->
         <dependency>
             <groupId>com.github.docker-java</groupId>
@@ -156,26 +163,26 @@
             <artifactId>springfox-boot-starter</artifactId>
             <version>${springfox.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-spring-web</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-annotations</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-models</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.springfox</groupId>-->
+<!--            <artifactId>springfox-swagger-ui</artifactId>-->
+<!--            <version>${springfox.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>io.springfox</groupId>-->
+<!--            <artifactId>springfox-spring-web</artifactId>-->
+<!--            <version>${springfox.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>io.swagger.core.v3</groupId>-->
+<!--            <artifactId>swagger-annotations</artifactId>-->
+<!--            <version>${swagger.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>io.swagger.core.v3</groupId>-->
+<!--            <artifactId>swagger-models</artifactId>-->
+<!--            <version>${swagger.version}</version>-->
+<!--        </dependency>-->
         <!-- Gateway -->
         <dependency>
             <groupId>org.projectreactor</groupId>
