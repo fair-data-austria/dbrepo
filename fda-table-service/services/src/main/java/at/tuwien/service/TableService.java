@@ -2,8 +2,6 @@ package at.tuwien.service;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableCsvInformationDto;
-import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
@@ -11,10 +9,9 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
+import com.opencsv.CSVReader;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,19 +19,12 @@ import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
-import org.supercsv.prefs.CsvPreference;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
+
+import static org.supercsv.prefs.CsvPreference.STANDARD_PREFERENCE;
 
 @Log4j2
 @Service
@@ -70,9 +60,10 @@ public class TableService extends HibernateConnector {
     }
 
     @Transactional
-    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, DataProcessingException {
         final Table table = findById(databaseId, tableId);
-//        postgresService.deleteTable(table);
+        deleteTable(table);
         tableRepository.delete(table);
     }
 
@@ -134,32 +125,69 @@ public class TableService extends HibernateConnector {
         return out;
     }
 
+    /**
+     * TODO this needs to be at some different endpoint
+     * Insert data from a file into a table of a database with possible null values (denoted by a null element).
+     *
+     * @param databaseId  The database.
+     * @param tableId     The table.
+     * @param file        The file.
+     * @param nullElement The null element.
+     * @throws TableNotFoundException     The table does not exist in the metadata database.
+     * @throws ImageNotSupportedException The image is not supported.
+     * @throws DatabaseNotFoundException  The database does not exist in the metdata database.
+     * @throws FileStorageException       The CSV could not be parsed.
+     * @throws DataProcessingException    The xml could not be mapped.
+     */
     @Transactional
-    public QueryResultDto insert(Long databaseId, Long tableId, MultipartFile file) throws TableNotFoundException,
-            ImageNotSupportedException, DatabaseNotFoundException, FileStorageException {
-        Table t = findById(databaseId, tableId);
-        Database d = findDatabase(databaseId);
-        log.debug(t.toString());
-        log.info("Reading CSV file {}", file.getName());
-        List<Map<String, Object>> processedData = readCsv(file, t);
-        List<String> headers = new ArrayList<>();
-        for (Map<String, Object> m : processedData) {
-            for (Map.Entry<String, Object> entry : m.entrySet()) {
-                headers.add(entry.getKey());
-            }
-            break;
+    public void insertFromFile(Long databaseId, Long tableId, MultipartFile file, String nullElement) throws TableNotFoundException,
+            ImageNotSupportedException, DatabaseNotFoundException, FileStorageException, DataProcessingException {
+        final Table table = findById(databaseId, tableId);
+        final Map<String, Collection<String>> cells;
+        try {
+            cells = readCsv(file, nullElement);
+        } catch (IOException e) {
+            throw new FileStorageException("failed to parse csv", e);
         }
-//        return postgresService.insertIntoTable(d, t, processedData, headers);
-        return null;
+        /* hibernate inserts one line after another (batch insert not supported), so we can do the same now and take out some complexity of the code */
+        insertFromCollection(table, cells);
+        log.info("Inserted {} records from csv into database {}", cells.size(), databaseId);
     }
 
     /* helper functions */
+
+    private Map<String, Collection<String>> readCsv(MultipartFile file, String nullElement) throws IOException {
+        final Map<String, Collection<String>> records = new HashMap<>();
+        final Reader fileReader = new InputStreamReader(file.getInputStream());
+        final CSVReader csvReader = new CSVReader(fileReader);
+        final List<String> headers = Arrays.asList(new CsvMapReader(fileReader, STANDARD_PREFERENCE).getHeader(true));
+        final List<List<String>> cells = new LinkedList<>();
+        /* read each row into a list */
+        String[] values = null;
+        while ((values = csvReader.readNext()) != null) {
+            cells.add(Arrays.asList(values));
+        }
+        /* init the map-list structure */
+        for (String key : headers) {
+            records.put(key, new HashSet<>());
+        }
+        /* map to the map-list structure */
+        for (List<String> row : cells) {
+            for (int i = 0; i < headers.size(); i++) {
+                if (nullElement != null) {
+                    row.replaceAll(input -> input.equals(nullElement) ? null : input);
+                }
+                records.get(headers.get(i)).add(row.get(i));
+            }
+        }
+        return records;
+    }
 
     private List<Map<String, Object>> readCsv(MultipartFile file, Table table) throws FileStorageException {
         ICsvMapReader mapReader = null;
         try {
             Reader reader = new InputStreamReader(file.getInputStream());
-            mapReader = new CsvMapReader(reader, CsvPreference.STANDARD_PREFERENCE);
+            mapReader = new CsvMapReader(reader, STANDARD_PREFERENCE);
 
             String[] header = mapReader.getHeader(true);
             for (String s : header) {
@@ -202,7 +230,7 @@ public class TableService extends HibernateConnector {
         ICsvMapReader mapReader = null;
         try {
             Reader reader = new InputStreamReader(file.getInputStream());
-            mapReader = new CsvMapReader(reader, CsvPreference.STANDARD_PREFERENCE);
+            mapReader = new CsvMapReader(reader, STANDARD_PREFERENCE);
 
             String[] header = mapReader.getHeader(true);
             return header;
@@ -218,65 +246,18 @@ public class TableService extends HibernateConnector {
         return null;
     }
 
-    // TODO ms what is this for? It does ony print to stdout
-    public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
-            DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
-//        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
-//        for (Map<String, Object> m : queryResult.getResult()) {
-//            for (Map.Entry<String, Object> entry : m.entrySet()) {
-//                log.debug("{}: {}", entry.getKey(), entry.getValue());
-//            }
-//        }
-//        return queryResult;
-        return null;
-    }
-
-    public Table create(Long databaseId, MultipartFile file, TableCsvInformationDto tableCSVInformation) {
-        try {
-            String[] header = readHeader(file);
-            log.debug("table csv info: {}", tableCSVInformation);
-            TableCreateDto tcd = new TableCreateDto();
-            tcd.setName(tableCSVInformation.getName());
-            tcd.setDescription(tableCSVInformation.getDescription());
-            ColumnCreateDto[] cdtos = new ColumnCreateDto[header.length];
-            log.debug("header: {}", header);
-            for (int i = 0; i < header.length; i++) {
-                ColumnCreateDto c = new ColumnCreateDto();
-                c.setName(header[i]);
-                c.setType(tableCSVInformation.getColumns().get(i));
-                c.setNullAllowed(true);
-                //TODO FIX THAT not only id is primary key
-                if (header[i].equals("id")) {
-                    c.setPrimaryKey(true);
-                } else {
-                    c.setPrimaryKey(false);
-                }
-                cdtos[i] = c;
-            }
-            tcd.setColumns(cdtos);
-            Table table = create(databaseId, tcd);
-            QueryResultDto insert = insert(databaseId, table.getId(), file);
-            return table;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-        }
-        return null;
-    }
-
-    public Table create(Long databaseId, TableCsvInformationDto tableCSVInformation) throws IOException {
-        Path path = Paths.get("/tmp/" + tableCSVInformation.getFileLocation());
-        String contentType = "multipart/form-data";
-        byte[] content = null;
-        try {
-            content = Files.readAllBytes(path);
-        } catch (final IOException e) {
-        }
-        MultipartFile multipartFile = new MockMultipartFile(tableCSVInformation.getFileLocation(),
-                tableCSVInformation.getFileLocation(), contentType, content);
-        Files.deleteIfExists(path);
-        return create(databaseId, multipartFile, tableCSVInformation);
-    }
+//    // TODO ms what is this for? It does ony print to stdout
+//    public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
+//            DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
+////        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
+////        for (Map<String, Object> m : queryResult.getResult()) {
+////            for (Map.Entry<String, Object> entry : m.entrySet()) {
+////                log.debug("{}: {}", entry.getKey(), entry.getValue());
+////            }
+////        }
+////        return queryResult;
+//        return null;
+//    }
 
 
 }
