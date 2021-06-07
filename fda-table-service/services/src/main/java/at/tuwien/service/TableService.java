@@ -1,6 +1,5 @@
 package at.tuwien.service;
 
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
@@ -96,6 +95,11 @@ public class TableService extends HibernateConnector {
             TableMalformedException, DatabaseNotFoundException, DataProcessingException,
             ArbitraryPrimaryKeysException, EntityNotSupportedException {
         final Database database = findDatabase(databaseId);
+        if (tableRepository.findByDatabaseAndName(database, createDto.getName()).isPresent()) {
+            // DEVNOTE note that hibernate actually has no problem with updating the table, but we do not want this behavior for this method
+            log.warn("table with name {} already exists in database {}", createDto.getName(), databaseId);
+            throw new EntityNotSupportedException("table names must be unique, there exists already a table");
+        }
 
         /* save in metadata db */
         final Table mappedTable = createTable(database, createDto);
