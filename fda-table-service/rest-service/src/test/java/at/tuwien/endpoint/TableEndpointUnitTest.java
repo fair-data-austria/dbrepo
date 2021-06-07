@@ -58,8 +58,8 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
+    public void create_succeeds() throws TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
+            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, EntityNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -76,8 +76,9 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_databaseNotFound_fails() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
+    public void create_databaseNotFound_fails() throws TableMalformedException, DatabaseNotFoundException,
+            ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException,
+            EntityNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -90,25 +91,6 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableEndpoint.create(DATABASE_1_ID, request);
-        });
-    }
-
-    @Test
-    public void create_tableNotFound_fails() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
-                .build();
-        when(tableService.create(DATABASE_1_ID, request))
-                .thenAnswer(invocation -> {
-                    throw new TableNotFoundException("no table");
-                });
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
             tableEndpoint.create(DATABASE_1_ID, request);
         });
     }
@@ -136,7 +118,8 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Disabled("not throwing")
     @Test
-    public void create_notSql_fails() throws TableNotFoundException, SQLException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void create_notSql_fails() throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -152,7 +135,8 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException {
         when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
                 .thenReturn(TABLE_1);
 
@@ -163,11 +147,14 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         assertEquals(TABLE_1_NAME, Objects.requireNonNull(response.getBody()).getName());
     }
 
-    @Disabled("not throwing")
     @Test
-    public void findById_notFound_fails() throws TableNotFoundException {
+    public void findById_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException {
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.empty());
+        doThrow(TableNotFoundException.class)
+                .when(tableService)
+                .findById(DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
@@ -206,17 +193,5 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         /* test */
         final ResponseEntity<TableBriefDto> response = tableEndpoint.update(DATABASE_1_ID, TABLE_1_ID);
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
-    }
-
-    @Disabled
-    @Test
-    public void insert() {
-
-    }
-
-    @Disabled
-    @Test
-    public void showData() {
-
     }
 }

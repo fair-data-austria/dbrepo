@@ -53,7 +53,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findAll_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
+    public void findAll_succeeds() throws DatabaseNotFoundException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
         when(tableRepository.findByDatabase(DATABASE_1))
@@ -120,7 +120,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_noSql_fails() throws DataProcessingException {
+    public void delete_noSql_fails() {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -158,9 +158,10 @@ public class TableServiceUnitTest extends BaseUnitTest {
         });
     }
 
+    @Disabled("cannot test unit since hibernate session needed")
     @Test
     public void create_succeeds() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, ParserConfigurationException, EntityNotSupportedException {
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, EntityNotSupportedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .columns(COLUMNS5)

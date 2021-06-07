@@ -19,11 +19,11 @@ public class TableBriefDto {
     private Long id;
 
     @NotBlank
-    @ApiModelProperty(name = "table name", example = "Fundamentals")
+    @ApiModelProperty(name = "table name", example = "Weather Australia")
     private String name;
 
     @NotBlank
-    @ApiModelProperty(name = "table internal name", example = "fundamentals")
+    @ApiModelProperty(name = "table internal name", example = "weather_australia")
     private String internalName;
 
 }
