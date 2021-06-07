@@ -51,7 +51,8 @@ public abstract class HibernateConnector {
         configuration.setProperty("hibernate.connection.driver_class", database.getContainer().getImage().getDriverClass());
         configuration.setProperty("hibernate.connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
         configuration.setProperty("hibernate.connection.username", ContainerDatabaseUtil.getUsername(database));
-        configuration.setProperty("hibernate. connection.password", ContainerDatabaseUtil.getPassword(database));
+        configuration.setProperty("hibernate.connection.password", ContainerDatabaseUtil.getPassword(database));
+        configuration.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
         configuration.setProperty("hibernate.dialect", database.getContainer().getImage().getDialect());
         configuration.setProperty("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");
         configuration.setProperty("hibernate.current_session_context_class", "thread");
@@ -59,7 +60,6 @@ public abstract class HibernateConnector {
         configuration.setProperty("hibernate.show_sql", "true");
         configuration.setProperty("hibernate.format_sql", "true");
         configuration.setProperty("hibernate.mapping", "true");
-        configuration.setProperty("connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
         configuration.setProperty("hibernate.c3p0.acquire_increment", "1");
         configuration.setProperty("hibernate.c3p0.idle_test_period", "60");
         configuration.setProperty("hibernate.c3p0.idle_test_period", "60");
