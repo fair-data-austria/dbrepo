@@ -10,7 +10,6 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.EntityNotSupportedException;
-import at.tuwien.exception.TableMalformedException;
 import org.apache.commons.lang.WordUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,33 +21,40 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.Normalizer;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface TableMapper {
 
+    @Mappings({
+            @Mapping(source = "id", target = "id"),
+            @Mapping(target = "name", expression = "java(data.getName())"),
+            @Mapping(target = "internalName", expression = "java(data.getInternalName())")
+    })
     TableBriefDto tableToTableBriefDto(Table data);
 
     TableDto tableToTableDto(Table data);
 
     @Mappings({
-            @Mapping(target = "columns", source = "columns"),
-            @Mapping(source = "name", target = "name", qualifiedByName = "nameMapping"),
+            @Mapping(source = "columns", target = "columns", qualifiedByName = "columnMapping"),
+            @Mapping(target = "name",  expression = "java(data.getName())"),
             @Mapping(source = "name", target = "internalName", qualifiedByName = "internalMapping"),
     })
     Table tableCreateDtoToTable(TableCreateDto data);
 
-    @Named("nameMapping")
-    default String nameToName(String data) {
-        return data;
+    @Named("columnMapping")
+    default List<TableColumn> columnCreateDtoArrayToTableColumnList(ColumnCreateDto[] data) {
+        return Arrays.stream(data)
+                .map(this::columnCreateDtoToTableColumn)
+                .collect(Collectors.toList());
     }
 
     @Named("internalMapping")
@@ -64,9 +70,8 @@ public interface TableMapper {
         return slug.toLowerCase(Locale.ENGLISH);
     }
 
-    @Named("columnMapping")
     default String nameToColumnName(String data) {
-        return nameToInternalName("MDB " + data);
+        return "mdb " + data;
     }
 
     @Named("camelMapping")
@@ -92,7 +97,6 @@ public interface TableMapper {
     })
     ColumnDto columnCreateDtoToColumnDto(ColumnCreateDto data);
 
-    @Named("columnMapping")
     @Mappings({
             @Mapping(source = "primaryKey", target = "isPrimaryKey"),
             @Mapping(source = "type", target = "columnType"),
@@ -144,8 +148,8 @@ public interface TableMapper {
 
         /* id */
         Element id = xml.createElement("id");
-        id.setAttribute("name", nameToCamelCase(primaryKey.get().getName()));
-        id.setAttribute("column", nameToInternalName(primaryKey.get().getName()));
+        id.setAttribute("name", nameToCamelCase(nameToColumnName(primaryKey.get().getName())));
+        id.setAttribute("column", nameToInternalName(nameToColumnName(primaryKey.get().getName())));
         id.setAttribute("type", primaryKey.get().getType().getRepresentation());
         table.appendChild(id);
 
@@ -160,8 +164,8 @@ public interface TableMapper {
             }
 
             Element property = xml.createElement("property");
-            property.setAttribute("name", nameToCamelCase(columnSpecification.getName()));
-            property.setAttribute("column", nameToInternalName(columnSpecification.getName()));
+            property.setAttribute("name", nameToCamelCase(nameToColumnName(columnSpecification.getName())));
+            property.setAttribute("column", nameToInternalName(nameToColumnName(columnSpecification.getName())));
             property.setAttribute("not-null", columnSpecification.getNullAllowed() ? "false" : "true");
             property.setAttribute("unique", columnSpecification.getUnique() ? "true" : "false");
             property.setAttribute("type", columnSpecification.getType().getRepresentation());
@@ -211,7 +215,7 @@ public interface TableMapper {
             content.append("private ")
                     .append(columnSpecification.getType().getRepresentation())
                     .append(" ")
-                    .append(nameToCamelCase(columnSpecification.getName()))
+                    .append(nameToCamelCase(nameToColumnName(columnSpecification.getName())))
                     .append(";\n\n");
         }
 
@@ -220,8 +224,8 @@ public interface TableMapper {
 
     default Document byteArrayToDocument(byte[] data) throws ParserConfigurationException, IOException, SAXException {
         return DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(new ByteArrayInputStream(data));
+                .newDocumentBuilder()
+                .parse(new ByteArrayInputStream(data));
     }
 
 }
