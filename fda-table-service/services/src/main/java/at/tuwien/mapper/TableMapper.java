@@ -205,6 +205,7 @@ public interface TableMapper {
 
         /* document */
         final StringBuilder content = new StringBuilder("package at.tuwien.userdb;\n\n")
+                .append("import at.tuwien.userdb.UserTable;\n")
                 .append("import lombok.Getter;\n")
                 .append("import lombok.Setter;\n")
                 .append("import java.sql.Date;\n")
@@ -213,7 +214,7 @@ public interface TableMapper {
         /* class */
         content.append("@Getter\n")
                 .append("@Setter\n")
-                .append("public class Table {\n\n");
+                .append("public class Table extends UserTable {\n\n");
 
         /* properties */
         for (ColumnCreateDto columnSpecification : tableSpecification.getColumns()) {
@@ -224,7 +225,7 @@ public interface TableMapper {
                     .append(";\n\n");
         }
 
-        return content.append("}").toString();
+        return content.append("}\n").toString();
     }
 
     default Document byteArrayToDocument(byte[] data) throws ParserConfigurationException, IOException, SAXException {

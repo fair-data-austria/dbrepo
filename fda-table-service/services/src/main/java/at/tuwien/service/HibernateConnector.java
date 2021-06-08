@@ -4,36 +4,41 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.userdb.UserTable;
 import at.tuwien.utils.ContainerDatabaseUtil;
+import at.tuwien.utils.HibernateClassLoader;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Log4j2
 @Component
 public abstract class HibernateConnector {
 
     private final TableMapper tableMapper;
+    private final HibernateClassLoader classLoader;
 
     @Value("${fda.mapping.path}")
     private String mappingPath;
@@ -42,8 +47,9 @@ public abstract class HibernateConnector {
     private String tablePath;
 
     @Autowired
-    public HibernateConnector(TableMapper tableMapper) {
+    public HibernateConnector(TableMapper tableMapper, HibernateClassLoader classLoader) {
         this.tableMapper = tableMapper;
+        this.classLoader = classLoader;
     }
 
     private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
@@ -135,7 +141,8 @@ public abstract class HibernateConnector {
      * @throws DataProcessingException    When the database returned some error.
      */
     protected void insertFromCollection(Table table, Map<String, Collection<String>> data)
-            throws ImageNotSupportedException, DataProcessingException {
+            throws ImageNotSupportedException, DataProcessingException,
+            ConstructorNotFoundException, ReflectAccessException {
         final Document xml;
         try {
             xml = tableMapper.byteArrayToDocument(table.getMapping());
@@ -146,6 +153,7 @@ public abstract class HibernateConnector {
         configuration.addDocument(xml);
         final Session session = getSession(configuration);
         // reflection stuff
+        final Object instance = getInstance(table);
     }
 
     /**
@@ -173,5 +181,31 @@ public abstract class HibernateConnector {
         final Configuration configuration = getConfiguration(table.getDatabase());
         final Session session = getSession(configuration);
         session.delete(table);
+    }
+
+    /**
+     * Generates a instance from a Java class definition (inside the {@link Table} element)
+     *
+     * @param table The table element.
+     * @return The instance.
+     */
+    private Object getInstance(Table table) throws ConstructorNotFoundException, ReflectAccessException {
+        final Class<? extends UserTable> clazz = classLoader.defineClass("at.tuwien.userdb.Table", table.getDefinition());
+        // since we define the classes, there must always be a 0-argument constructor
+        final Stream<Constructor<?>> constructors = Arrays.stream(clazz.getDeclaredConstructors()).filter(c -> c.getGenericParameterTypes().length == 0);
+        if (clazz.getDeclaredConstructors().length == 0 || constructors.findFirst().isEmpty()) {
+            throw new ConstructorNotFoundException("no constructor with 0 arguments");
+        }
+        final Constructor<? extends UserTable> constructor = (Constructor<? extends UserTable>) Arrays.stream(clazz.getDeclaredConstructors()).findFirst()
+                .get();
+        constructor.setAccessible(true);
+        final Object object;
+        try {
+            object = constructor.newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new ReflectAccessException("reflect access", e);
+        }
+
+        return null;
     }
 }

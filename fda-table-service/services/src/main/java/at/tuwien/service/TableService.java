@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
@@ -8,6 +9,7 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
+import at.tuwien.utils.HibernateClassLoader;
 import com.opencsv.CSVReader;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +36,8 @@ public class TableService extends HibernateConnector {
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        TableMapper tableMapper) {
-        super(tableMapper);
+                        TableMapper tableMapper, HibernateClassLoader classLoader) {
+        super(tableMapper, classLoader);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
     }
@@ -133,10 +135,10 @@ public class TableService extends HibernateConnector {
      * TODO this needs to be at some different endpoint
      * Insert data from a file into a table of a database with possible null values (denoted by a null element).
      *
-     * @param databaseId  The database.
-     * @param tableId     The table.
-     * @param file        The file.
-     * @param nullElement The null element.
+     * @param databaseId The database.
+     * @param tableId    The table.
+     * @param file       The file.
+     * @param insertDto  The null element.
      * @throws TableNotFoundException     The table does not exist in the metadata database.
      * @throws ImageNotSupportedException The image is not supported.
      * @throws DatabaseNotFoundException  The database does not exist in the metdata database.
@@ -144,23 +146,27 @@ public class TableService extends HibernateConnector {
      * @throws DataProcessingException    The xml could not be mapped.
      */
     @Transactional
-    public void insertFromFile(Long databaseId, Long tableId, MultipartFile file, String nullElement) throws TableNotFoundException,
-            ImageNotSupportedException, DatabaseNotFoundException, FileStorageException, DataProcessingException {
+    public void insertFromFile(Long databaseId, Long tableId, TableInsertDto insertDto, MultipartFile file) throws TableNotFoundException,
+            ImageNotSupportedException, DatabaseNotFoundException, FileStorageException, DataProcessingException, TableMalformedException {
         final Table table = findById(databaseId, tableId);
         final Map<String, Collection<String>> cells;
         try {
-            cells = readCsv(file, nullElement);
+            cells = readCsv(file, insertDto);
         } catch (IOException e) {
             throw new FileStorageException("failed to parse csv", e);
         }
         /* hibernate inserts one line after another (batch insert not supported), so we can do the same now and take out some complexity of the code */
-        insertFromCollection(table, cells);
+        try {
+            insertFromCollection(table, cells);
+        } catch (ConstructorNotFoundException | ReflectAccessException e) {
+            throw new TableMalformedException("could not insert via reflect", e);
+        }
         log.info("Inserted {} records from csv into database {}", cells.size(), databaseId);
     }
 
     /* helper functions */
 
-    private Map<String, Collection<String>> readCsv(MultipartFile file, String nullElement) throws IOException {
+    private Map<String, Collection<String>> readCsv(MultipartFile file, TableInsertDto insertDto) throws IOException {
         final Map<String, Collection<String>> records = new HashMap<>();
         final Reader fileReader = new InputStreamReader(file.getInputStream());
         final CSVReader csvReader = new CSVReader(fileReader);
@@ -178,8 +184,8 @@ public class TableService extends HibernateConnector {
         /* map to the map-list structure */
         for (List<String> row : cells) {
             for (int i = 0; i < headers.size(); i++) {
-                if (nullElement != null) {
-                    row.replaceAll(input -> input.equals(nullElement) ? null : input);
+                if (insertDto.getNullElement() != null) {
+                    row.replaceAll(input -> input.equals(insertDto.getNullElement()) ? null : input);
                 }
                 records.get(headers.get(i)).add(row.get(i));
             }
