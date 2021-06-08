@@ -1,10 +1,7 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.table.TableBriefDto;
-import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableCsvInformationDto;
-import at.tuwien.api.database.table.TableDto;
+import at.tuwien.api.database.table.*;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
@@ -170,8 +167,9 @@ public class TableEndpoint {
     })
     public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
                                     @PathVariable("tableId") Long tableId,
+                                    @Valid TableInsertDto insertDto,
                                     @RequestParam("file") @RequestPart MultipartFile file) throws Exception {
-        tableService.insertFromFile(databaseId, tableId, file, null);
+        tableService.insertFromFile(databaseId, tableId, insertDto, file);
         return ResponseEntity.accepted()
                 .build();
     }
