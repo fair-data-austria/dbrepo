@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.Database;
@@ -9,7 +10,6 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
-import at.tuwien.utils.HibernateClassLoader;
 import com.opencsv.CSVReader;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +36,8 @@ public class TableService extends HibernateConnector {
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        TableMapper tableMapper, HibernateClassLoader classLoader) {
-        super(tableMapper, classLoader);
+                        TableMapper tableMapper) {
+        super(tableMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
     }
@@ -149,7 +149,7 @@ public class TableService extends HibernateConnector {
     public void insertFromFile(Long databaseId, Long tableId, TableInsertDto insertDto, MultipartFile file) throws TableNotFoundException,
             ImageNotSupportedException, DatabaseNotFoundException, FileStorageException, DataProcessingException, TableMalformedException {
         final Table table = findById(databaseId, tableId);
-        final Map<String, Collection<String>> cells;
+        final Map<String, List<String>> cells;
         try {
             cells = readCsv(file, insertDto);
         } catch (IOException e) {
@@ -166,8 +166,8 @@ public class TableService extends HibernateConnector {
 
     /* helper functions */
 
-    private Map<String, Collection<String>> readCsv(MultipartFile file, TableInsertDto insertDto) throws IOException {
-        final Map<String, Collection<String>> records = new HashMap<>();
+    private Map<String, List<String>> readCsv(MultipartFile file, TableInsertDto insertDto) throws IOException {
+        final Map<String, List<String>> records = new HashMap<>();
         final Reader fileReader = new InputStreamReader(file.getInputStream());
         final CSVReader csvReader = new CSVReader(fileReader);
         final List<String> headers = Arrays.asList(new CsvMapReader(fileReader, STANDARD_PREFERENCE).getHeader(true));
@@ -179,7 +179,7 @@ public class TableService extends HibernateConnector {
         }
         /* init the map-list structure */
         for (String key : headers) {
-            records.put(key, new HashSet<>());
+            records.put(key, new LinkedList<>());
         }
         /* map to the map-list structure */
         for (List<String> row : cells) {
@@ -193,6 +193,7 @@ public class TableService extends HibernateConnector {
         return records;
     }
 
+    @Deprecated
     private List<Map<String, Object>> readCsv(MultipartFile file, Table table) throws FileStorageException {
         ICsvMapReader mapReader = null;
         try {
@@ -236,6 +237,7 @@ public class TableService extends HibernateConnector {
         }
     }
 
+    @Deprecated
     private String[] readHeader(MultipartFile file) throws IOException {
         ICsvMapReader mapReader = null;
         try {
@@ -256,18 +258,20 @@ public class TableService extends HibernateConnector {
         return null;
     }
 
-//    // TODO ms what is this for? It does ony print to stdout
-//    public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
-//            DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
-////        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
-////        for (Map<String, Object> m : queryResult.getResult()) {
-////            for (Map.Entry<String, Object> entry : m.entrySet()) {
-////                log.debug("{}: {}", entry.getKey(), entry.getValue());
-////            }
-////        }
-////        return queryResult;
-//        return null;
-//    }
+
+    // TODO ms what is this for? It does ony print to stdout
+    @Deprecated
+    public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
+            DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
+//        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
+//        for (Map<String, Object> m : queryResult.getResult()) {
+//            for (Map.Entry<String, Object> entry : m.entrySet()) {
+//                log.debug("{}: {}", entry.getKey(), entry.getValue());
+//            }
+//        }
+//        return queryResult;
+        return null;
+    }
 
 
 }

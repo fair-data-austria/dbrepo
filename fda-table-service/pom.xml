@@ -31,6 +31,7 @@
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
         <hibernate.c3p0.version>6.0.0.Alpha8</hibernate.c3p0.version>
+        <joor.version>0.9.14</joor.version>
     </properties>
 
     <dependencies>
@@ -128,6 +129,12 @@
             <artifactId>hibernate-c3p0</artifactId>
             <version>${hibernate.c3p0.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>joor</artifactId>
+            <version>${joor.version}</version>
+        </dependency>
+
         <!-- Docker -->
         <dependency>
             <groupId>com.github.docker-java</groupId>
