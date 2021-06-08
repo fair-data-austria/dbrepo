@@ -205,20 +205,15 @@ public interface TableMapper {
 
         /* document */
         final StringBuilder content = new StringBuilder("package at.tuwien.userdb;\n\n")
-                .append("import at.tuwien.userdb.UserTable;\n")
-                .append("import lombok.Getter;\n")
-                .append("import lombok.Setter;\n")
                 .append("import java.sql.Date;\n")
                 .append("import java.sql.Blob;\n\n");
 
         /* class */
-        content.append("@Getter\n")
-                .append("@Setter\n")
-                .append("public class Table extends UserTable {\n\n");
+        content.append("public class Table {\n\n");
 
         /* properties */
         for (ColumnCreateDto columnSpecification : tableSpecification.getColumns()) {
-            content.append("private ")
+            content.append("public ")
                     .append(columnSpecification.getType().getRepresentation())
                     .append(" ")
                     .append(nameToCamelCase(nameToColumnName(columnSpecification.getName())))

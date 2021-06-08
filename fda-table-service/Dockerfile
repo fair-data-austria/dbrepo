@@ -18,7 +18,8 @@ COPY ./report ./report
 RUN mvn -q clean package -DskipTests
 
 ###### THIRD STAGE ######
-FROM openjdk:11-jre-slim as runtime
+# We need JDK and not JRE, since we compile classes at runtime
+FROM openjdk:11-jdk-slim as runtime
 
 COPY --from=build ./rest-service/target/rest-service-*.jar ./rest.jar
 
