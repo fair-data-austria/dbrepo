@@ -4,15 +4,13 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.userdb.UserTable;
 import at.tuwien.utils.ContainerDatabaseUtil;
-import at.tuwien.utils.HibernateClassLoader;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
+import org.joor.Reflect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,17 +26,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Log4j2
 @Component
-public abstract class HibernateConnector {
+public abstract class HibernateConnector<T> {
 
     private final TableMapper tableMapper;
-    private final HibernateClassLoader classLoader;
 
     @Value("${fda.mapping.path}")
     private String mappingPath;
@@ -47,9 +42,8 @@ public abstract class HibernateConnector {
     private String tablePath;
 
     @Autowired
-    public HibernateConnector(TableMapper tableMapper, HibernateClassLoader classLoader) {
+    public HibernateConnector(TableMapper tableMapper) {
         this.tableMapper = tableMapper;
-        this.classLoader = classLoader;
     }
 
     private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
@@ -97,34 +91,17 @@ public abstract class HibernateConnector {
             ImageNotSupportedException, TableMalformedException, EntityNotSupportedException {
         final Table table = tableMapper.tableCreateDtoToTable(tableSpecification);
         final Document xml = tableMapper.tableCreateDtoToDocument(tableSpecification);
-        final String clazz = tableMapper.tableCreateDtoToString(tableSpecification);
-        /* debug mapping */
+        final String javaClass = tableMapper.tableCreateDtoToString(tableSpecification);
+        final T clazz = compileDefinition(javaClass);
         try {
-            final Transformer transformer = TransformerFactory.newInstance()
-                    .newTransformer();
-            final Source input = new DOMSource(xml);
-            final Result output = new StreamResult(new File(mappingPath + "/mapping.xml"));
-
-            final ByteArrayOutputStream mapping = new ByteArrayOutputStream();
-            transformer.transform(input, output);
-            transformer.transform(input, new StreamResult(mapping));
-            table.setMapping(mapping.toByteArray());
-            log.debug("Create mapping in {}", mappingPath + "/mapping.xml");
-        } catch (TransformerException e) {
-            log.error("could not transform mapping: {}", e.getMessage());
-            throw new TableMalformedException("could not transform mapping", e);
+            Class.forName("at.tuwien.userdb.Table");
+        } catch (ClassNotFoundException e) {
+            log.error("could not load user class {}", clazz);
+            throw new EntityNotSupportedException("failed to load class", e);
         }
-        /* debug class */
-        try {
-            final FileWriter fileWriter = new FileWriter(tablePath + "/Table.java");
-            fileWriter.append(clazz);
-            fileWriter.close();
-            table.setDefinition(clazz.getBytes(StandardCharsets.UTF_8));
-            log.debug("Create class in {}", tablePath + "/Table.java");
-        } catch (IOException e) {
-            log.error("could not transform class: {}", e.getMessage());
-            throw new TableMalformedException("could not transform class", e);
-        }
+        /* debug */
+        saveMapping(table, xml);
+        saveTable(table, javaClass);
         /* hibernate session */
         final Configuration configuration = getConfiguration(database);
         configuration.addDocument(xml);
@@ -140,7 +117,7 @@ public abstract class HibernateConnector {
      * @throws ImageNotSupportedException When the image is not supported.
      * @throws DataProcessingException    When the database returned some error.
      */
-    protected void insertFromCollection(Table table, Map<String, Collection<String>> data)
+    protected void insertFromCollection(Table table, Map<String, List<String>> data)
             throws ImageNotSupportedException, DataProcessingException,
             ConstructorNotFoundException, ReflectAccessException {
         final Document xml;
@@ -152,8 +129,19 @@ public abstract class HibernateConnector {
         final Configuration configuration = getConfiguration(table.getDatabase());
         configuration.addDocument(xml);
         final Session session = getSession(configuration);
-        // reflection stuff
-        final Object instance = getInstance(table);
+        /* create objects */
+        final Collection<Object> instances;
+        try {
+            instances = getInstances(table, data);
+        } catch (NoSuchFieldException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            throw new ReflectAccessException("instantiation failed", e);
+        }
+        /* save */
+        for (Object instance : instances) {
+            session.save(instance);
+        }
+        session.getTransaction().commit();
+        session.close();
     }
 
     /**
@@ -177,7 +165,7 @@ public abstract class HibernateConnector {
      * @throws TableMalformedException     When the specification was not transformable.
      * @throws DataProcessingException     When the database returned some error.
      */
-    protected void deleteTable(Table table) throws DatabaseConnectionException, TableMalformedException, DataProcessingException, ImageNotSupportedException {
+    protected void deleteTable(Table table) throws ImageNotSupportedException {
         final Configuration configuration = getConfiguration(table.getDatabase());
         final Session session = getSession(configuration);
         session.delete(table);
@@ -189,23 +177,81 @@ public abstract class HibernateConnector {
      * @param table The table element.
      * @return The instance.
      */
-    private Object getInstance(Table table) throws ConstructorNotFoundException, ReflectAccessException {
-        final Class<? extends UserTable> clazz = classLoader.defineClass("at.tuwien.userdb.Table", table.getDefinition());
-        // since we define the classes, there must always be a 0-argument constructor
-        final Stream<Constructor<?>> constructors = Arrays.stream(clazz.getDeclaredConstructors()).filter(c -> c.getGenericParameterTypes().length == 0);
-        if (clazz.getDeclaredConstructors().length == 0 || constructors.findFirst().isEmpty()) {
-            throw new ConstructorNotFoundException("no constructor with 0 arguments");
-        }
-        final Constructor<? extends UserTable> constructor = (Constructor<? extends UserTable>) Arrays.stream(clazz.getDeclaredConstructors()).findFirst()
-                .get();
-        constructor.setAccessible(true);
-        final Object object;
-        try {
-            object = constructor.newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new ReflectAccessException("reflect access", e);
-        }
+    private T newInstance(Table table) {
+        return compileDefinition(Arrays.toString(table.getDefinition()));
+    }
 
-        return null;
+    private T compileDefinition(String definition) {
+        return Reflect.compile("at.tuwien.userdb.Table", definition)
+                .create()
+                .get();
+    }
+
+    /**
+     * Fills new instances with the table contents
+     *
+     * @param table The table.
+     * @param data  The contents.
+     * @return List of instances.
+     * @throws NoSuchFieldException         Reflection could not find the interface
+     * @throws ConstructorNotFoundException Our no-arg constructor was not found
+     * @throws IllegalAccessException       Reflection error.
+     * @throws InvocationTargetException    Reflection error.
+     * @throws InstantiationException       Reflection error.
+     */
+    private Collection<Object> getInstances(Table table, Map<String, List<String>> data)
+            throws NoSuchFieldException, ConstructorNotFoundException, IllegalAccessException,
+            InvocationTargetException, InstantiationException {
+        if (data.size() == 0) {
+            return Collections.emptyList();
+        }
+        final List<Object> instances = new LinkedList<>();
+        /* initialize */
+        for (int i = 0; i < data.size(); i++) {
+            instances.add(newInstance(table));
+        }
+        /* fill */
+        for (String column : data.keySet()) {
+            for (int i = 0; i < data.get(column).size(); i++) {
+                final Field field = instances.get(i)
+                        .getClass()
+                        .getField(column);
+                field.setAccessible(true);
+                field.set(instances.get(i), data.get(column).get(i));
+            }
+        }
+        log.debug("filled {} elements with reflection", data.size());
+        return instances;
+    }
+
+    private void saveMapping(Table table, Document xml) throws TableMalformedException {
+        try {
+            final Transformer transformer = TransformerFactory.newInstance()
+                    .newTransformer();
+            final Source input = new DOMSource(xml);
+            final Result output = new StreamResult(new File(mappingPath + "/mapping.xml"));
+
+            final ByteArrayOutputStream mapping = new ByteArrayOutputStream();
+            transformer.transform(input, output);
+            transformer.transform(input, new StreamResult(mapping));
+            table.setMapping(mapping.toByteArray());
+            log.debug("Create mapping in {}", mappingPath + "/mapping.xml");
+        } catch (TransformerException e) {
+            log.error("could not transform mapping: {}", e.getMessage());
+            throw new TableMalformedException("could not transform mapping", e);
+        }
+    }
+
+    private void saveTable(Table table, String definition) throws TableMalformedException {
+        try {
+            final FileWriter fileWriter = new FileWriter(tablePath + "/Table.java");
+            fileWriter.append(definition);
+            fileWriter.close();
+            table.setDefinition(definition.getBytes(StandardCharsets.UTF_8));
+            log.debug("Create class in {}", tablePath + "/Table.java");
+        } catch (IOException e) {
+            log.error("could not transform class: {}", e.getMessage());
+            throw new TableMalformedException("could not transform class", e);
+        }
     }
 }
