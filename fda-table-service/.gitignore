@@ -6,7 +6,7 @@ target/
 
 ### Generated ###
 mapping.xml
-rest-service/src/main/java/at/tuwien/userdb/*.java
+rest-service/src/main/java/at/tuwien/userdb/Table.java
 
 ### STS ###
 .apt_generated
