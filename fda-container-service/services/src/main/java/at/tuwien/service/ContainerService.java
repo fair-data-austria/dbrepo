@@ -90,8 +90,8 @@ public class ContainerService {
         }
         container.setHash(response.getId());
         container = containerRepository.save(container);
-        log.info("Created container with hash {}", container.getHash());
-        log.debug("container created {}", container);
+        log.info("Created container {}", container.getId());
+        log.debug("created container {}", container);
         return container;
     }
 
@@ -103,10 +103,14 @@ public class ContainerService {
         }
         try {
             dockerClient.stopContainerCmd(container.get().getHash()).exec();
-        } catch (NotFoundException | NotModifiedException e) {
+        } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
+        } catch (NotModifiedException e) {
+            log.warn("container already stopped {}", e.getMessage());
+            throw new DockerClientException("container already stopped", e);
         }
+        log.info("Stopped container {}", containerId);
         log.debug("Stopped container {}", container.get());
         return container.get();
     }
@@ -120,15 +124,19 @@ public class ContainerService {
         }
         try {
             dockerClient.removeContainerCmd(container.get().getHash()).exec();
-        } catch (NotFoundException | NotModifiedException e) {
+        } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
+        } catch(NotModifiedException e) {
+            log.warn("container already removed {}", e.getMessage());
+            throw new DockerClientException("container already removed", e);
         } catch (ConflictException e) {
             log.error("Could not remove container: {}", e.getMessage());
             throw new ContainerStillRunningException("docker client failed", e);
         }
         containerRepository.deleteById(containerId);
-        log.debug("Removed container {}", containerId);
+        log.info("Removed container {}", containerId);
+        log.debug("Removed container {}", container.get());
     }
 
     @Transactional
@@ -181,14 +189,23 @@ public class ContainerService {
      */
     @Transactional
     public Container start(Long containerId) throws ContainerNotFoundException, DockerClientException {
-        Container container = getById(containerId);
+        final Optional<Container> container = containerRepository.findById(containerId);
+        if (container.isEmpty()) {
+            log.error("failed to get container with id {}", containerId);
+            throw new ContainerNotFoundException("no container with this id in metadata database");
+        }
         try {
-            dockerClient.startContainerCmd(container.getHash()).exec();
-        } catch (NotFoundException | NotModifiedException e) {
+            dockerClient.startContainerCmd(container.get().getHash()).exec();
+        } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
+        } catch (NotModifiedException e) {
+            log.warn("container already started {}", e.getMessage());
+            throw new DockerClientException("container already started", e);
         }
-        return container;
+        log.info("Started container {}", containerId);
+        log.debug("Started container {}", container);
+        return container.get();
     }
 
     public Map<String, String> findIpAddresses(String containerHash) throws ContainerNotFoundException, ContainerNotRunningException {
