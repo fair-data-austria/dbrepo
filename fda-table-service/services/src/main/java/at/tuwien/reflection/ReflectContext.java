@@ -17,7 +17,7 @@ public class ReflectContext {
 
     public static void register(ApplicationContext context, String beanName, String code) throws ClassNotFoundException,
             FileStorageException {
-        final Class<?> clazz = ReflectClassLoader.load(code);
+        final Class<?> clazz = ReflectClassLoader.load("at.tuwien.userdb.Table", code);
         if (beanName == null) {
             beanName = clazz.getName();
         }
