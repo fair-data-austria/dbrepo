@@ -13,6 +13,7 @@ import at.tuwien.repository.TableRepository;
 import com.opencsv.CSVReader;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,8 +37,8 @@ public class TableService extends HibernateConnector {
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        TableMapper tableMapper) {
-        super(tableMapper);
+                        TableMapper tableMapper, ApplicationContext context) {
+        super(tableMapper, context);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
     }
@@ -55,21 +56,22 @@ public class TableService extends HibernateConnector {
             log.error("Unable to find database {}", databaseId);
             throw new DatabaseNotFoundException("Unable to find database.");
         }
-        final List<Table> tables = tableRepository.findByDatabase(database.get());
-        log.debug("found tables {} in database: {}", tables, database.get());
-        return tables;
+        return tableRepository.findByDatabase(database.get());
     }
 
     @Transactional
     public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, DataProcessingException {
+            ImageNotSupportedException {
         final Table table = findById(databaseId, tableId);
         deleteTable(table);
         tableRepository.delete(table);
+        log.info("Deleted table {}", table.getId());
+        log.debug("Deleted table {}", table);
     }
 
     @Transactional
-    public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
+    public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException {
         final Optional<Table> table = tableRepository.findByDatabaseAndId(findDatabase(databaseId), tableId);
         if (table.isEmpty()) {
             log.error("table {} not found in database {}", tableId, databaseId);
@@ -88,7 +90,6 @@ public class TableService extends HibernateConnector {
             log.error("Right now only PostgreSQL is supported!");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
         }
-        log.debug("found database: {}", database.get());
         return database.get();
     }
 
@@ -126,8 +127,8 @@ public class TableService extends HibernateConnector {
             log.error("failed to create column compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create column compound key", e);
         }
-        log.debug("saved table: {}", out);
-        log.info("Created table {} in database {}", out.getName(), out.getDatabase().getId());
+        log.info("Created table {}", out.getId());
+        log.debug("created table: {}", out);
         return out;
     }
 
@@ -146,8 +147,9 @@ public class TableService extends HibernateConnector {
      * @throws DataProcessingException    The xml could not be mapped.
      */
     @Transactional
-    public void insertFromFile(Long databaseId, Long tableId, TableInsertDto insertDto, MultipartFile file) throws TableNotFoundException,
-            ImageNotSupportedException, DatabaseNotFoundException, FileStorageException, DataProcessingException, TableMalformedException {
+    public void insertFromFile(Long databaseId, Long tableId, TableInsertDto insertDto, MultipartFile file)
+            throws TableNotFoundException, ImageNotSupportedException, DatabaseNotFoundException, FileStorageException,
+            DataProcessingException, TableMalformedException {
         final Table table = findById(databaseId, tableId);
         final Map<String, List<String>> cells;
         try {
@@ -161,7 +163,8 @@ public class TableService extends HibernateConnector {
         } catch (ConstructorNotFoundException | ReflectAccessException e) {
             throw new TableMalformedException("could not insert via reflect", e);
         }
-        log.info("Inserted {} records from csv into database {}", cells.size(), databaseId);
+        log.info("Inserted .csv to table {}", tableId);
+        log.debug("Inserted .csv ({} rows) into table {}", cells.size(), tableId);
     }
 
     /* helper functions */
