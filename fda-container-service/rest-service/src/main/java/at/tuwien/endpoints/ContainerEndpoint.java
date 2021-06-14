@@ -96,17 +96,15 @@ public class ContainerEndpoint {
     })
     public ResponseEntity<ContainerBriefDto> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
             throws ContainerNotFoundException, DockerClientException {
-        ContainerBriefDto container;
         if (changeDto.getAction().equals(ContainerActionTypeDto.START)) {
-            container = containerMapper.containerToDatabaseContainerBriefDto(containerService.start(id));
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(containerMapper.containerToDatabaseContainerBriefDto(containerService.start(id)));
         } else if (changeDto.getAction().equals(ContainerActionTypeDto.STOP)) {
-            container = containerMapper.containerToDatabaseContainerBriefDto(containerService.stop(id));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .build();
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(containerMapper.containerToDatabaseContainerBriefDto(containerService.stop(id)));
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(container);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .build();
     }
 
     @DeleteMapping("/{id}")

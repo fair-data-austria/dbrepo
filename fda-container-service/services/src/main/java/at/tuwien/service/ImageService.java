@@ -69,7 +69,6 @@ public class ImageService {
         image.setDialect(createDto.getDialect());
         image.setDriverClass(createDto.getDriverClass());
         image.setJdbcMethod(createDto.getJdbcMethod());
-        log.debug("Create image {}", createDto);
         final ContainerImage out;
         try {
             out = imageRepository.save(image);
@@ -77,6 +76,7 @@ public class ImageService {
             log.error("image already exists: {}", createDto);
             throw new ImageAlreadyExistsException("image already exists");
         }
+        log.info("Created image {}", out.getId());
         log.debug("created image {}", out);
         return out;
     }
@@ -102,19 +102,21 @@ public class ImageService {
         image.setDialect(changeDto.getDialect());
         image.setDriverClass(changeDto.getDriverClass());
         image.setJdbcMethod(changeDto.getJdbcMethod());
-        log.debug("update image {}", image);
         /* update metadata db */
-        return imageRepository.save(image);
+        final ContainerImage out = imageRepository.save(image);
+        log.info("Updated image {}", out.getId());
+        log.debug("updated image {}", out);
+        return out;
     }
 
     public void delete(Long id) throws ImageNotFoundException {
         try {
             imageRepository.deleteById(id);
         } catch (EntityNotFoundException | EmptyResultDataAccessException e) {
-            log.error("image id {} not found in metadata database", id);
+            log.warn("image id {} not found in metadata database", id);
             throw new ImageNotFoundException("no image with this id found in metadata database.");
         }
-        log.info("deleted image with id {}", id);
+        log.info("Deleted image {}", id);
     }
 
     /** HELPER FUNCTIONS */
