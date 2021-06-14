@@ -44,9 +44,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
-    @MockBean
-    private PostgresService postgresService;
-
     @BeforeAll
     public static void beforeAll() {
         TABLE_1.setDatabase(DATABASE_1);
@@ -76,23 +73,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
         });
     }
 
-    @Disabled("invalid mock")
-    @Test
-    public void delete_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        doNothing()
-                .when(postgresService)
-                .deleteTable(TABLE_1);
-        doNothing()
-                .when(tableRepository)
-                .deleteById(TABLE_1_ID);
-
-        /* test */
-        tableService.delete(DATABASE_1_ID, TABLE_1_ID);
-    }
-
     @Test
     public void delete_notFound_fails() {
         when(databaseRepository.findById(DATABASE_1_ID))
@@ -100,21 +80,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.delete(DATABASE_1_ID, TABLE_1_ID);
-        });
-    }
-
-    @Test
-    public void delete_noConnection_fails() throws DatabaseConnectionException, TableMalformedException,
-            DataProcessingException {
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        doAnswer(invocation -> new TableMalformedException("no connection"))
-                .when(postgresService)
-                .deleteTable(TABLE_1);
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
             tableService.delete(DATABASE_1_ID, TABLE_1_ID);
         });
     }
@@ -158,29 +123,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
         });
     }
 
-    @Disabled("cannot test unit since hibernate session needed")
-    @Test
-    public void create_succeeds() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException, EntityNotSupportedException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .columns(COLUMNS5)
-                .description(TABLE_1_DESCRIPTION)
-                .build();
-        when(tableRepository.save(any()))
-                .thenReturn(TABLE_1);
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        doNothing()
-                .when(postgresService)
-                .createTable(DATABASE_1, request);
-
-        /* test */
-        final Table response = tableService.create(DATABASE_1_ID, request);
-        assertEquals(TABLE_1_ID, response.getId());
-        assertEquals(TABLE_1_NAME, response.getName());
-    }
-
     @Disabled("cannot yet test private method")
     @Test
     public void create_noPostgres_fails() {
@@ -191,27 +133,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
     @Test
     public void create_noConnection_fails() {
 
-    }
-
-    @Disabled("invalid mock")
-    @Test
-    public void create_noSql_fails() throws DataProcessingException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .columns(COLUMNS5)
-                .description(TABLE_1_DESCRIPTION)
-                .build();
-        when(tableRepository.save(any()))
-                .thenReturn(TABLE_1);
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        doAnswer(invocation -> new TableMalformedException("no sql"))
-                .when(postgresService.getCreateTableStatement(any(), request));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableService.create(DATABASE_1_ID, request);
-        });
     }
 
 }

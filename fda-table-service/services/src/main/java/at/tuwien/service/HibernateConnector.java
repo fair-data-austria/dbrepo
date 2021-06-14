@@ -6,13 +6,14 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.reflection.ReflectContext;
 import at.tuwien.utils.ContainerDatabaseUtil;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
-import org.joor.Reflect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -22,18 +23,17 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Log4j2
 @Component
-public abstract class HibernateConnector<T> {
+public abstract class HibernateConnector {
 
     private final TableMapper tableMapper;
+    private final ApplicationContext context;
 
     @Value("${fda.mapping.path}")
     private String mappingPath;
@@ -42,8 +42,9 @@ public abstract class HibernateConnector<T> {
     private String tablePath;
 
     @Autowired
-    public HibernateConnector(TableMapper tableMapper) {
+    public HibernateConnector(TableMapper tableMapper, ApplicationContext context) {
         this.tableMapper = tableMapper;
+        this.context = context;
     }
 
     private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
@@ -92,12 +93,15 @@ public abstract class HibernateConnector<T> {
         final Table table = tableMapper.tableCreateDtoToTable(tableSpecification);
         final Document xml = tableMapper.tableCreateDtoToDocument(tableSpecification);
         final String javaClass = tableMapper.tableCreateDtoToString(tableSpecification);
-        final T clazz = compileDefinition(javaClass);
+        /* load class */
         try {
-            Class.forName("at.tuwien.userdb.Table");
+            ReflectContext.register(context, "userTable", javaClass);
         } catch (ClassNotFoundException e) {
-            log.error("could not load user class {}", clazz);
-            throw new EntityNotSupportedException("failed to load class", e);
+            log.error("cannot load the class: {}", e.getMessage());
+            throw new TableMalformedException("could not load class", e);
+        } catch (FileStorageException e) {
+            log.error("cannot register the class: {}", e.getMessage());
+            throw new TableMalformedException("could not register class", e);
         }
         /* debug */
         saveMapping(table, xml);
@@ -132,7 +136,7 @@ public abstract class HibernateConnector<T> {
         /* create objects */
         final Collection<Object> instances;
         try {
-            instances = getInstances(table, data);
+            instances = getInstances(data);
         } catch (NoSuchFieldException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
             throw new ReflectAccessException("instantiation failed", e);
         }
@@ -172,25 +176,8 @@ public abstract class HibernateConnector<T> {
     }
 
     /**
-     * Generates a instance from a Java class definition (inside the {@link Table} element)
-     *
-     * @param table The table element.
-     * @return The instance.
-     */
-    private T newInstance(Table table) {
-        return compileDefinition(Arrays.toString(table.getDefinition()));
-    }
-
-    private T compileDefinition(String definition) {
-        return Reflect.compile("at.tuwien.userdb.Table", definition)
-                .create()
-                .get();
-    }
-
-    /**
      * Fills new instances with the table contents
      *
-     * @param table The table.
      * @param data  The contents.
      * @return List of instances.
      * @throws NoSuchFieldException         Reflection could not find the interface
@@ -199,8 +186,8 @@ public abstract class HibernateConnector<T> {
      * @throws InvocationTargetException    Reflection error.
      * @throws InstantiationException       Reflection error.
      */
-    private Collection<Object> getInstances(Table table, Map<String, List<String>> data)
-            throws NoSuchFieldException, ConstructorNotFoundException, IllegalAccessException,
+    private Collection<Object> getInstances(Map<String, List<String>> data)
+            throws NoSuchFieldException, IllegalAccessException,
             InvocationTargetException, InstantiationException {
         if (data.size() == 0) {
             return Collections.emptyList();
@@ -208,7 +195,7 @@ public abstract class HibernateConnector<T> {
         final List<Object> instances = new LinkedList<>();
         /* initialize */
         for (int i = 0; i < data.size(); i++) {
-            instances.add(newInstance(table));
+            instances.add(ReflectContext.getBean(context, "userTable"));
         }
         /* fill */
         for (String column : data.keySet()) {

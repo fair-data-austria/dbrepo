@@ -55,7 +55,7 @@ public class DatabaseService {
     public Database findById(Long databaseId) throws DatabaseNotFoundException {
         final Optional<Database> opt = databaseRepository.findById(databaseId);
         if (opt.isEmpty()) {
-            log.error("could not find database with id {}", databaseId);
+            log.warn("could not find database with id {}", databaseId);
             throw new DatabaseNotFoundException("could not find database with this id");
         }
         return opt.get();
@@ -64,39 +64,35 @@ public class DatabaseService {
     @Transactional
     public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseConnectionException, DatabaseMalformedException {
-        log.debug("get database id {}", databaseId);
         final Optional<Database> databaseResponse = databaseRepository.findById(databaseId);
         if (databaseResponse.isEmpty()) {
-            log.error("Database with id {} does not exist", databaseId);
+            log.warn("Database with id {} does not exist", databaseId);
             throw new DatabaseNotFoundException("Database does not exist.");
         }
         final Database database = databaseResponse.get();
-        log.debug("retrieved database {}", database);
         // check if postgres
         if (!database.getContainer().getImage().getRepository().equals("postgres")) {
-            log.error("No support for {}:{}", database.getContainer().getImage().getRepository(), database.getContainer().getImage().getTag());
+            log.warn("No support for {}:{}", database.getContainer().getImage().getRepository(), database.getContainer().getImage().getTag());
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
         }
-        // call container to create database
         postgresService.delete(database);
-        // delete in metadata database
         databaseRepository.deleteById(databaseId);
+        log.info("Deleted database {}", databaseId);
+        log.debug("deleted database {}", database);
     }
 
     @Transactional
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, DatabaseConnectionException,
             DatabaseMalformedException, ContainerNotFoundException {
-        log.debug("get container {}", createDto.getContainerId());
         final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
         if (containerResponse.isEmpty()) {
-            log.error("Container with id {} does not exist", createDto.getContainerId());
+            log.warn("Container with id {} does not exist", createDto.getContainerId());
             throw new ContainerNotFoundException("Container does not exist.");
         }
         final Container container = containerResponse.get();
-        log.debug("retrieved container {}", container);
         // check if postgres
         if (!container.getImage().getRepository().equals("postgres")) {
-            log.error("only postgres is supported currently");
+            log.warn("only postgres is supported currently");
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
         }
         // call container to create database
@@ -108,8 +104,8 @@ public class DatabaseService {
         postgresService.create(database);
         // save in metadata database
         final Database out = databaseRepository.save(database);
-        log.debug("save db: {}", out);
-        log.info("Created a new database '{}' in container {}", createDto.getName(), createDto.getContainerId());
+        log.info("Created database {}", out.getId());
+        log.debug("created database {}", out);
         return out;
     }
 
