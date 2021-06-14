@@ -28,7 +28,8 @@ public class ReflectCompiler {
         final JavaCompiler.CompilationTask task = compiler.getTask(null, memoryManager, diagnostics, null, null, compilationUnits);
 
         if (task.call()) {
-            log.debug("compiled class {} successfully", name);
+            log.debug("compiled class {} successfully, keys {}", name, memoryManager.getClassBytes().keySet());
+            log.trace("class {} with code {}", name, code);
             return memoryManager.getClassBytes().get(name);
         }
         log.warn("compiler task ended unsuccessful: {}", diagnostics.getDiagnostics());

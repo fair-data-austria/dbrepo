@@ -11,6 +11,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.PullResponseItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,10 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @Slf4j
 @Service
@@ -72,7 +75,7 @@ public class ImageService {
         final ContainerImage out;
         try {
             out = imageRepository.save(image);
-        } catch(ConstraintViolationException | DataIntegrityViolationException e) {
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             log.error("image already exists: {}", createDto);
             throw new ImageAlreadyExistsException("image already exists");
         }
@@ -119,7 +122,9 @@ public class ImageService {
         log.info("Deleted image {}", id);
     }
 
-    /** HELPER FUNCTIONS */
+    /**
+     * HELPER FUNCTIONS
+     */
     private ContainerImage inspect(String repository, String tag) throws ImageNotFoundException {
         final InspectImageResponse response;
         try {
@@ -133,7 +138,6 @@ public class ImageService {
     }
 
     private void pull(String repository, String tag) throws ImageNotFoundException {
-        log.debug("pulling image {}:{}", repository, tag);
         final ResultCallback.Adapter<PullResponseItem> response;
         try {
             response = dockerClient.pullImageCmd(repository)
@@ -141,9 +145,9 @@ public class ImageService {
                     .start();
             final Instant now = Instant.now();
             response.awaitCompletion();
-            log.debug("waited {}s for pull of {}:{}", Duration.between(Instant.now(), now).getSeconds(), repository, tag);
+            log.debug("pulled image in {} seconds", Duration.between(now, Instant.now()).getSeconds());
         } catch (NotFoundException | InterruptedException e) {
-            log.error("image {}:{} not found in library", repository, tag);
+            log.warn("image {}:{} not found in library", repository, tag);
             throw new ImageNotFoundException("image not found in library", e);
         }
     }
