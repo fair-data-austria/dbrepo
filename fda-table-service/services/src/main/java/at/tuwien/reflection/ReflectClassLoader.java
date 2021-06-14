@@ -14,18 +14,17 @@ import java.net.URLClassLoader;
 public class ReflectClassLoader extends URLClassLoader {
 
     private final byte[] bytecode;
-    private static final String className = "Table";
-    private static final String classNameFull = "at.tuwien.userdb." + className;
 
     public ReflectClassLoader(byte[] bytecode) {
         super(new URL[0], ReflectClassLoader.class.getClassLoader());
         this.bytecode = bytecode;
     }
 
-    public static Class<?> load(String code) throws ClassNotFoundException, FileStorageException {
-        final byte[] bytecode = ReflectCompiler.compile(className, code);
+    public static Class<?> load(String name, String code) throws ClassNotFoundException, FileStorageException {
+        final byte[] bytecode = ReflectCompiler.compile(name, code);
         final ReflectClassLoader loader = new ReflectClassLoader(bytecode);
-        return loader.loadClass(classNameFull);
+        loader.find(name);
+        return loader.loadClass(name);
     }
 
     public Class<?> find(String name) throws ClassNotFoundException {
