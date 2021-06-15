@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.openjdk.btrace.compiler.MemoryJavaFileManager;
 
 import javax.tools.*;
+import java.io.File;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -23,9 +24,10 @@ public class ReflectCompiler {
         final JavaFileObject file = new JavaSourceFromString(name, code);
         final StandardJavaFileManager manager = compiler.getStandardFileManager(diagnostics, Locale.ENGLISH, Charset.defaultCharset());
         final MemoryJavaFileManager memoryManager = new MemoryJavaFileManager(manager, List.of());
+        final List<String> compilerOptions = List.of("-classpath", System.getProperty("java.class.path") + File.pathSeparator + "dist" + File.pathSeparator + "lombok-1.18.20.jar");
 
         final Iterable<? extends JavaFileObject> compilationUnits = Collections.singletonList(file);
-        final JavaCompiler.CompilationTask task = compiler.getTask(null, memoryManager, diagnostics, null, null, compilationUnits);
+        final JavaCompiler.CompilationTask task = compiler.getTask(null, memoryManager, diagnostics, compilerOptions, null, compilationUnits);
 
         if (task.call()) {
             log.debug("compiled class {} successfully, keys {}", name, memoryManager.getClassBytes().keySet());
