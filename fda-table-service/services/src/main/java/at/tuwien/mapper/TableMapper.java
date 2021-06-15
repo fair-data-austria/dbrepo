@@ -142,7 +142,7 @@ public interface TableMapper {
 
         /* hibernate-mapping */
         Element root = xml.createElement("hibernate-mapping");
-        root.setAttribute("package", "at.tuwien.userdb");
+        root.setAttribute("package", "at.tuwien");
         xml.appendChild(root);
 
         /* class */
@@ -204,7 +204,7 @@ public interface TableMapper {
                 .findFirst();
 
         /* document */
-        final StringBuilder content = new StringBuilder("package at.tuwien.userdb;\n\n")
+        final StringBuilder content = new StringBuilder("package at.tuwien;\n\n")
                 .append("import lombok.Getter;\n")
                 .append("import lombok.Setter;\n")
                 .append("import java.sql.Date;\n")

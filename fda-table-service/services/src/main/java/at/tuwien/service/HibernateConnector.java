@@ -6,6 +6,7 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.reflect.BeanLoader;
 import at.tuwien.reflect.ClassLoader;
 import at.tuwien.utils.ContainerDatabaseUtil;
 import lombok.extern.log4j.Log4j2;
@@ -35,6 +36,7 @@ public abstract class HibernateConnector {
 
     private final TableMapper tableMapper;
     private final ClassLoader<?> classLoader;
+    private final BeanLoader<?> beanLoader;
 
     @Value("${fda.mapping.path}")
     private String mappingPath;
@@ -43,9 +45,10 @@ public abstract class HibernateConnector {
     private String tablePath;
 
     @Autowired
-    public HibernateConnector(TableMapper tableMapper, ClassLoader classLoader) {
+    public HibernateConnector(TableMapper tableMapper, BeanLoader beanLoader) {
         this.tableMapper = tableMapper;
-        this.classLoader = classLoader;
+        this.classLoader = new ClassLoader<>();
+        this.beanLoader = beanLoader;
     }
 
     private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
@@ -77,7 +80,7 @@ public abstract class HibernateConnector {
 
     private static Session getSession(Configuration configuration) {
         return configuration.buildSessionFactory()
-                .getCurrentSession();
+                .openSession();
     }
 
     /**
@@ -94,15 +97,16 @@ public abstract class HibernateConnector {
             ImageNotSupportedException, TableMalformedException, EntityNotSupportedException {
         final Table table = tableMapper.tableCreateDtoToTable(tableSpecification);
         final Document xml = tableMapper.tableCreateDtoToDocument(tableSpecification);
-        final String javaClass = tableMapper.tableCreateDtoToString(tableSpecification);
-        /* load class */
-        classLoader.compile("at.tuwien.userdb.Table", javaClass);
+        final String entityClass = tableMapper.tableCreateDtoToString(tableSpecification);
         /* debug */
-        saveMapping(table, xml);
-        saveTable(table, javaClass);
+//        saveMapping(table, xml);
+//        saveTable(table, javaClass);
         /* hibernate session */
+        final Object instance = classLoader.compile("at.tuwien.Table", entityClass);
+        beanLoader.registerBean("at.tuwien.Table", instance);
         final Configuration configuration = getConfiguration(database);
         configuration.addDocument(xml);
+        configuration.addAnnotatedClass(instance.getClass());
         final Session session = getSession(configuration);
         return table;
     }
