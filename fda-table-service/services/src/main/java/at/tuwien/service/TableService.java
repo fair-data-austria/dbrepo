@@ -7,15 +7,14 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.reflect.BeanLoader;
-import at.tuwien.reflect.ClassLoader;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import com.opencsv.CSVReader;
 import lombok.extern.log4j.Log4j2;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,23 +25,28 @@ import org.supercsv.io.ICsvMapReader;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
+import java.sql.SQLException;
 import java.util.*;
 
 import static org.supercsv.prefs.CsvPreference.STANDARD_PREFERENCE;
 
 @Log4j2
 @Service
-public class TableService extends HibernateConnector {
+public class TableService extends JdbcConnector {
 
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
+    private final ImageMapper imageMapper;
+    private final TableMapper tableMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        TableMapper tableMapper, BeanLoader beanLoader) {
-        super(tableMapper, beanLoader);
+                        ImageMapper imageMapper, TableMapper tableMapper) {
+        super(imageMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
+        this.imageMapper = imageMapper;
+        this.tableMapper = tableMapper;
     }
 
     @Transactional
@@ -63,9 +67,11 @@ public class TableService extends HibernateConnector {
 
     @Transactional
     public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
+            ImageNotSupportedException, SQLException {
         final Table table = findById(databaseId, tableId);
-        deleteTable(table);
+        final Database database = findDatabase(databaseId);
+        final DSLContext context = open(database);
+        context.dropTable(table.getName());
         tableRepository.delete(table);
         log.info("Deleted table {}", table.getId());
         log.debug("Deleted table {}", table);
@@ -97,34 +103,36 @@ public class TableService extends HibernateConnector {
 
     @Transactional
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            TableMalformedException, DatabaseNotFoundException, DataProcessingException,
-            ArbitraryPrimaryKeysException, EntityNotSupportedException {
+            DatabaseNotFoundException, DataProcessingException, EntityNotSupportedException, SQLException,
+            ArbitraryPrimaryKeysException {
         final Database database = findDatabase(databaseId);
         if (tableRepository.findByDatabaseAndName(database, createDto.getName()).isPresent()) {
             // DEVNOTE note that hibernate actually has no problem with updating the table, but we do not want this behavior for this method
             log.warn("table with name '{}' already exists in database {}", createDto.getName(), databaseId);
             throw new EntityNotSupportedException("table names must be unique, there exists already a table");
         }
-
+        final DSLContext context = open(database);
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto)
+                .execute();
         /* save in metadata db */
-        final Table mappedTable = createTable(database, createDto);
+        Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
         mappedTable.setDatabase(database);
         mappedTable.setTdbid(databaseId);
         mappedTable.setColumns(List.of());
-        final Table table;
         try {
-            table = tableRepository.save(mappedTable);
+            mappedTable = tableRepository.save(mappedTable);
         } catch (EntityNotFoundException e) {
             log.error("failed to create table compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create table compound key", e);
         }
-        table.getColumns().forEach(column -> {
+        Table finalMappedTable = mappedTable;
+        mappedTable.getColumns().forEach(column -> {
             column.setCdbid(databaseId);
-            column.setTid(table.getId());
+            column.setTid(finalMappedTable.getId());
         });
         final Table out;
         try {
-            out = tableRepository.save(table);
+            out = tableRepository.save(mappedTable);
         } catch (EntityNotFoundException e) {
             log.error("failed to create column compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create column compound key", e);
@@ -150,8 +158,7 @@ public class TableService extends HibernateConnector {
      */
     @Transactional
     public void insertFromFile(Long databaseId, Long tableId, TableInsertDto insertDto, MultipartFile file)
-            throws TableNotFoundException, ImageNotSupportedException, DatabaseNotFoundException, FileStorageException,
-            DataProcessingException, TableMalformedException {
+            throws TableNotFoundException, ImageNotSupportedException, DatabaseNotFoundException, FileStorageException {
         final Table table = findById(databaseId, tableId);
         final Map<String, List<String>> cells;
         try {
@@ -160,11 +167,11 @@ public class TableService extends HibernateConnector {
             throw new FileStorageException("failed to parse csv", e);
         }
         /* hibernate inserts one line after another (batch insert not supported), so we can do the same now and take out some complexity of the code */
-        try {
-            insertFromCollection(table, cells);
-        } catch (ConstructorNotFoundException | ReflectAccessException e) {
-            throw new TableMalformedException("could not insert via reflect", e);
-        }
+//        try {
+//            insertFromCollection(table, cells);
+//        } catch (ConstructorNotFoundException | ReflectAccessException e) {
+//            throw new TableMalformedException("could not insert via reflect", e);
+//        }
         log.info("Inserted .csv to table {}", tableId);
         log.debug("Inserted .csv ({} rows) into table {}", cells.size(), tableId);
     }
