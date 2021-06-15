@@ -6,11 +6,12 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.reflection.ReflectContext;
+import at.tuwien.reflect.ClassLoader;
 import at.tuwien.utils.ContainerDatabaseUtil;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
+import org.joor.Reflect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -33,7 +34,7 @@ import java.util.*;
 public abstract class HibernateConnector {
 
     private final TableMapper tableMapper;
-    private final ApplicationContext context;
+    private final ClassLoader<?> classLoader;
 
     @Value("${fda.mapping.path}")
     private String mappingPath;
@@ -42,15 +43,16 @@ public abstract class HibernateConnector {
     private String tablePath;
 
     @Autowired
-    public HibernateConnector(TableMapper tableMapper, ApplicationContext context) {
+    public HibernateConnector(TableMapper tableMapper, ClassLoader classLoader) {
         this.tableMapper = tableMapper;
-        this.context = context;
+        this.classLoader = classLoader;
     }
 
     private Configuration getConfiguration(Database database) throws ImageNotSupportedException {
         final Configuration configuration = new Configuration();
         configuration.setProperty("hibernate.connection.driver_class", database.getContainer().getImage().getDriverClass());
-        configuration.setProperty("hibernate.connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
+//        configuration.setProperty("hibernate.connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName());
+        configuration.setProperty("hibernate.connection.url", "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://localhost:58268/" + database.getInternalName());
         configuration.setProperty("hibernate.connection.username", ContainerDatabaseUtil.getUsername(database));
         configuration.setProperty("hibernate.connection.password", ContainerDatabaseUtil.getPassword(database));
         configuration.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
@@ -94,15 +96,7 @@ public abstract class HibernateConnector {
         final Document xml = tableMapper.tableCreateDtoToDocument(tableSpecification);
         final String javaClass = tableMapper.tableCreateDtoToString(tableSpecification);
         /* load class */
-        try {
-            ReflectContext.register(context, "userTable", javaClass);
-        } catch (ClassNotFoundException e) {
-            log.error("cannot load the class: {}", e.getMessage());
-            throw new TableMalformedException("could not load class", e);
-        } catch (FileStorageException e) {
-            log.error("cannot register the class: {}", e.getMessage());
-            throw new TableMalformedException("could not register class", e);
-        }
+        classLoader.compile("at.tuwien.userdb.Table", javaClass);
         /* debug */
         saveMapping(table, xml);
         saveTable(table, javaClass);
@@ -178,7 +172,7 @@ public abstract class HibernateConnector {
     /**
      * Fills new instances with the table contents
      *
-     * @param data  The contents.
+     * @param data The contents.
      * @return List of instances.
      * @throws NoSuchFieldException         Reflection could not find the interface
      * @throws ConstructorNotFoundException Our no-arg constructor was not found
@@ -195,7 +189,7 @@ public abstract class HibernateConnector {
         final List<Object> instances = new LinkedList<>();
         /* initialize */
         for (int i = 0; i < data.size(); i++) {
-            instances.add(ReflectContext.getBean(context, "userTable"));
+            instances.add(classLoader.getInstance());
         }
         /* fill */
         for (String column : data.keySet()) {
