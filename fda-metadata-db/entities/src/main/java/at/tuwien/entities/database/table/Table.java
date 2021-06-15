@@ -48,27 +48,13 @@ public class Table {
     @Column(nullable = false, unique = true)
     private String internalName;
 
-    /**
-     * Store the hibernate mapping in utf8 encoding as binary
-     */
-    @ToString.Exclude
-    @Column(nullable = false)
-    private byte[] mapping;
-
-    /**
-     * Store the Java class definition in utf8 encoding as binary
-     */
-    @ToString.Exclude
-    @Column(nullable = false)
-    private byte[] definition;
-
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;
 
     @ToString.Include
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumns({
             @JoinColumn(name = "id", insertable = false, updatable = false),
             @JoinColumn(name = "tid", insertable = false, updatable = false),

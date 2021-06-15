@@ -175,8 +175,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		internal_name character varying(255) NOT NULL, 
 		last_modified timestamp without time zone, 
 		tName VARCHAR(50),
-		mapping BYTEA NOT NULL,
-		definition BYTEA NOT NULL,
 		NumCols INTEGER,
 		NumRows INTEGER, 
 		Version TEXT,
