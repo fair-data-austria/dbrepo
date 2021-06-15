@@ -1,9 +1,7 @@
 package at.tuwien.reflect;
 
 import org.joor.Reflect;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ClassLoader<T> {
 
     private Reflect reflect;

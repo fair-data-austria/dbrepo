@@ -8,6 +8,7 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.reflect.BeanLoader;
 import at.tuwien.reflect.ClassLoader;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
@@ -38,8 +39,8 @@ public class TableService extends HibernateConnector {
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        TableMapper tableMapper, ClassLoader classLoader) {
-        super(tableMapper, classLoader);
+                        TableMapper tableMapper, BeanLoader beanLoader) {
+        super(tableMapper, beanLoader);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
     }
