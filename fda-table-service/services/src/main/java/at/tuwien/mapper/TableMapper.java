@@ -205,6 +205,8 @@ public interface TableMapper {
 
         /* document */
         final StringBuilder content = new StringBuilder("package at.tuwien.userdb;\n\n")
+                .append("import lombok.Getter;\n")
+                .append("import lombok.Setter;\n")
                 .append("import java.sql.Date;\n")
                 .append("import java.sql.Blob;\n\n");
 
@@ -213,7 +215,9 @@ public interface TableMapper {
 
         /* properties */
         for (ColumnCreateDto columnSpecification : tableSpecification.getColumns()) {
-            content.append("public ")
+            content.append("@Getter\n")
+                    .append("@Setter\n")
+                    .append("private ")
                     .append(columnSpecification.getType().getRepresentation())
                     .append(" ")
                     .append(nameToCamelCase(nameToColumnName(columnSpecification.getName())))
