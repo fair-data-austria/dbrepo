@@ -8,6 +8,7 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.reflect.ClassLoader;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import com.opencsv.CSVReader;
@@ -37,8 +38,8 @@ public class TableService extends HibernateConnector {
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        TableMapper tableMapper, ApplicationContext context) {
-        super(tableMapper, context);
+                        TableMapper tableMapper, ClassLoader classLoader) {
+        super(tableMapper, classLoader);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
     }

@@ -130,9 +130,9 @@
             <version>${hibernate.c3p0.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mdkt.compiler</groupId>
-            <artifactId>InMemoryJavaCompiler</artifactId>
-            <version>1.3.0</version>
+            <groupId>org.jooq</groupId>
+            <artifactId>joor</artifactId>
+            <version>${joor.version}</version>
         </dependency>
         <!-- Docker -->
         <dependency>
