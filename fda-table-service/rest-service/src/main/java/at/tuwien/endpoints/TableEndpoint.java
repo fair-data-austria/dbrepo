@@ -1,6 +1,5 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.*;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
@@ -12,15 +11,14 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,12 +31,15 @@ public class TableEndpoint {
     private final TableService tableService;
     private final TableMapper tableMapper;
     private final QueryMapper queryResultMapper;
+    private final ApplicationContext applicationContext;
 
     @Autowired
-    public TableEndpoint(TableService tableService, TableMapper tableMapper, QueryMapper queryResultMapper) {
+    public TableEndpoint(TableService tableService, TableMapper tableMapper, QueryMapper queryResultMapper,
+                         ApplicationContext applicationContext) {
         this.tableService = tableService;
         this.tableMapper = tableMapper;
         this.queryResultMapper = queryResultMapper;
+        this.applicationContext = applicationContext;
     }
 
     @Transactional
@@ -172,6 +173,14 @@ public class TableEndpoint {
         tableService.insertFromFile(databaseId, tableId, insertDto, file);
         return ResponseEntity.accepted()
                 .build();
+    }
+
+    @RequestMapping("/hello")
+    public void hello() {
+        String[] beanNames = applicationContext.getBeanDefinitionNames();
+        for (String beanName : beanNames) {
+            log.info("bean name: {}\tclass name: {}", beanName, applicationContext.getBean(beanName).getClass().toString());
+        }
     }
 
 //    @Transactional
