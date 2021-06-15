@@ -59,7 +59,8 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, EntityNotSupportedException {
+            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, EntityNotSupportedException,
+            SQLException, ClassNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -78,7 +79,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     @Test
     public void create_databaseNotFound_fails() throws TableMalformedException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException, ArbitraryPrimaryKeysException,
-            EntityNotSupportedException {
+            EntityNotSupportedException, SQLException, ClassNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -169,8 +170,8 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_notFound_fails() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void delete_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException, SQLException, ClassNotFoundException {
         doThrow(TableNotFoundException.class)
                 .when(tableService)
                 .delete(DATABASE_1_ID, TABLE_1_ID);
@@ -182,8 +183,8 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
+            SQLException, ClassNotFoundException {
         /* test */
         tableEndpoint.delete(DATABASE_1_ID, TABLE_1_ID);
     }

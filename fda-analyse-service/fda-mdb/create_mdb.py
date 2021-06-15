@@ -184,9 +184,7 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 		internal_name character varying(255) NOT NULL, 
 		last_modified timestamp without time zone, 
 		tName VARCHAR(50),
-		mapping BYTEA NOT NULL,
-		definition BYTEA NOT NULL,
-		NumCols INTEGER, 
+		NumCols INTEGER,
 		NumRows INTEGER, 
 		Version TEXT,
 		PRIMARY KEY(tDBID,ID)
