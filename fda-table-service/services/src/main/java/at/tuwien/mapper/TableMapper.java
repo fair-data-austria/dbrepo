@@ -9,27 +9,22 @@ import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
-import at.tuwien.exception.EntityNotSupportedException;
 import org.apache.commons.lang.WordUtils;
+import org.jooq.CreateTableColumnStep;
+import org.jooq.DSLContext;
+import org.jooq.DataType;
+import org.jooq.impl.SQLDataType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.text.Normalizer;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.jooq.impl.SQLDataType.*;
 
 @Mapper(componentModel = "spring")
 public interface TableMapper {
@@ -50,7 +45,7 @@ public interface TableMapper {
 
     @Mappings({
             @Mapping(source = "columns", target = "columns", qualifiedByName = "columnMapping"),
-            @Mapping(target = "name",  expression = "java(data.getName())"),
+            @Mapping(target = "name", expression = "java(data.getName())"),
             @Mapping(source = "name", target = "internalName", qualifiedByName = "internalMapping"),
     })
     Table tableCreateDtoToTable(TableCreateDto data);
@@ -113,124 +108,41 @@ public interface TableMapper {
     })
     TableColumn columnCreateDtoToTableColumn(ColumnCreateDto data);
 
-    default Document tableCreateDtoToDocument(TableCreateDto tableSpecification) throws EntityNotSupportedException, ArbitraryPrimaryKeysException {
-        final long primaryKeys = Arrays.stream(tableSpecification.getColumns())
-                .filter(ColumnCreateDto::getPrimaryKey)
-                .filter(c -> !c.getNullAllowed())
-                .count();
-        if (primaryKeys != 1) {
-            System.err.println("Currently only exactly 1 primary key column is supported that does not allow null values");
-            throw new ArbitraryPrimaryKeysException("Currently only exactly 1 primary key column is supported that does not allow null values");
+    default CreateTableColumnStep tableCreateDtoToCreateTableColumnStep(DSLContext context, TableCreateDto data)
+            throws ArbitraryPrimaryKeysException {
+        final CreateTableColumnStep step = context.createTableIfNotExists(data.getName());
+        for (ColumnCreateDto column : data.getColumns()) {
+            final DataType<?> dataType = columnTypeDtoToDataType(column)
+                    .nullable(column.getNullAllowed())
+                    .identity(column.getPrimaryKey());
+            step.column(column.getName(), dataType);
         }
-        final Optional<ColumnCreateDto> primaryKey = Arrays.stream(tableSpecification.getColumns())
-                .filter(ColumnCreateDto::getPrimaryKey)
-                .findFirst();
-        if (primaryKey.isEmpty()) {
-            System.err.println("Primary key is empty.");
-            throw new ArbitraryPrimaryKeysException("Primary key is empty.");
-        }
-
-        /* document */
-        final Document xml;
-        try {
-            xml = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .newDocument();
-        } catch (ParserConfigurationException e) {
-            throw new EntityNotSupportedException("could not instantiate the root element", e);
-        }
-
-        /* hibernate-mapping */
-        Element root = xml.createElement("hibernate-mapping");
-        root.setAttribute("package", "at.tuwien");
-        xml.appendChild(root);
-
-        /* class */
-        Element table = xml.createElement("class");
-        table.setAttribute("name", "Table");
-        table.setAttribute("table", nameToInternalName(tableSpecification.getName()));
-        root.appendChild(table);
-
-        /* id */
-        Element id = xml.createElement("id");
-        id.setAttribute("name", nameToCamelCase(nameToColumnName(primaryKey.get().getName())));
-        id.setAttribute("column", nameToInternalName(nameToColumnName(primaryKey.get().getName())));
-        id.setAttribute("type", primaryKey.get().getType().getRepresentation());
-        table.appendChild(id);
-
-        Element generator = xml.createElement("generator");
-        generator.setAttribute("class", "assigned");
-        id.appendChild(generator);
-
-        /* properties */
-        for (ColumnCreateDto columnSpecification : tableSpecification.getColumns()) {
-            if (columnSpecification.getPrimaryKey()) {
-                continue;
-            }
-
-            Element property = xml.createElement("property");
-            property.setAttribute("name", nameToCamelCase(nameToColumnName(columnSpecification.getName())));
-            property.setAttribute("column", nameToInternalName(nameToColumnName(columnSpecification.getName())));
-            property.setAttribute("not-null", columnSpecification.getNullAllowed() ? "false" : "true");
-            property.setAttribute("unique", columnSpecification.getUnique() ? "true" : "false");
-            property.setAttribute("type", columnSpecification.getType().getRepresentation());
-            if (!columnSpecification.getType().equals(ColumnTypeDto.ENUM)) {
-                table.appendChild(property);
-            } else {
-                System.err.println("Enums are currently not supported");
-                throw new EntityNotSupportedException("Enums are currently not supported");
-            }
-            if (columnSpecification.getCheckExpression() == null) {
-                table.appendChild(property);
-            } else {
-                System.err.println("Check expressions are not supported");
-                throw new EntityNotSupportedException("Check expressions are not supported");
-            }
-        }
-
-        return xml;
+        /* constraints */
+        return step;
     }
 
-    /**
-     * Contract: {@link #tableCreateDtoToDocument(TableCreateDto)} must be executed first as here no sanity checks are
-     * performed, maps a table specification to a Java class represented as String
-     *
-     * @param tableSpecification The table specification
-     * @return The String
-     */
-    default String tableCreateDtoToString(TableCreateDto tableSpecification) {
-        final Optional<ColumnCreateDto> primaryKey = Arrays.stream(tableSpecification.getColumns())
-                .filter(ColumnCreateDto::getPrimaryKey)
-                .findFirst();
-
-        /* document */
-        final StringBuilder content = new StringBuilder("package at.tuwien;\n\n")
-                .append("import lombok.Getter;\n")
-                .append("import lombok.Setter;\n")
-                .append("import java.sql.Date;\n")
-                .append("import java.sql.Blob;\n\n");
-
-        /* class */
-        content.append("public class Table {\n\n");
-
-        /* properties */
-        for (ColumnCreateDto columnSpecification : tableSpecification.getColumns()) {
-            content.append("@Getter\n")
-                    .append("@Setter\n")
-                    .append("private ")
-                    .append(columnSpecification.getType().getRepresentation())
-                    .append(" ")
-                    .append(nameToCamelCase(nameToColumnName(columnSpecification.getName())))
-                    .append(";\n\n");
+    default DataType<?> columnTypeDtoToDataType(ColumnCreateDto data) throws ArbitraryPrimaryKeysException {
+        if (data.getPrimaryKey()) {
+            if (!data.getType().equals(ColumnTypeDto.NUMBER)) {
+                throw new ArbitraryPrimaryKeysException("Primary key must be number");
+            }
+            return BIGINT;
         }
-
-        return content.append("}\n").toString();
-    }
-
-    default Document byteArrayToDocument(byte[] data) throws ParserConfigurationException, IOException, SAXException {
-        return DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(new ByteArrayInputStream(data));
+        switch (data.getType()) {
+            case BLOB:
+                return BLOB(2000);
+            case DATE:
+                return DATE;
+            case TEXT:
+            case STRING:
+                return LONGVARCHAR;
+            case NUMBER:
+                return DOUBLE;
+            case BOOLEAN:
+                return BOOLEAN;
+            default:
+                return OTHER;
+        }
     }
 
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,7 +74,8 @@ public class TableEndpoint {
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId,
                                                 @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, TableMalformedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, EntityNotSupportedException {
+            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException,
+            EntityNotSupportedException, SQLException, ClassNotFoundException {
         final Table table = tableService.create(databaseId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
@@ -151,8 +153,8 @@ public class TableEndpoint {
     })
     @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId)
-            throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
+            throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
+            SQLException, ClassNotFoundException {
         tableService.delete(databaseId, tableId);
     }
 
@@ -173,14 +175,6 @@ public class TableEndpoint {
         tableService.insertFromFile(databaseId, tableId, insertDto, file);
         return ResponseEntity.accepted()
                 .build();
-    }
-
-    @RequestMapping("/hello")
-    public void hello() {
-        String[] beanNames = applicationContext.getBeanDefinitionNames();
-        for (String beanName : beanNames) {
-            log.info("bean name: {}\tclass name: {}", beanName, applicationContext.getBean(beanName).getClass().toString());
-        }
     }
 
 //    @Transactional

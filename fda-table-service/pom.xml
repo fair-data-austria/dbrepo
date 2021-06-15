@@ -31,7 +31,7 @@
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
         <hibernate.c3p0.version>6.0.0.Alpha8</hibernate.c3p0.version>
-        <joor.version>0.9.14</joor.version>
+        <jooq.version>3.14.11</jooq.version>
     </properties>
 
     <dependencies>
@@ -131,8 +131,18 @@
         </dependency>
         <dependency>
             <groupId>org.jooq</groupId>
-            <artifactId>joor</artifactId>
-            <version>${joor.version}</version>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen</artifactId>
+            <version>${jooq.version}</version>
         </dependency>
         <!-- Docker -->
         <dependency>
