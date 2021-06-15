@@ -48,6 +48,8 @@ try:
     )
 except Exception as e: 
     print("Something went wrong on creating an image.",e)
+
+time.sleep(3)
     
 r = None
 # Create docker container 
