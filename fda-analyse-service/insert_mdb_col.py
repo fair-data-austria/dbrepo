@@ -27,7 +27,7 @@ def insert_mdb_col(dbid, tid):
     try: 
         engine = create_engine('postgresql+psycopg2://postgres:postgres@fda-userdb-'+s[0]['internalName'].replace('_', '-')+'/'+s[0]['internalName'])
         
-        sql = text("SELECT column_name, columns.data_type, columns.ordinal_position, is_nullable from information_schema.columns where columns.table_name= :tblname")
+        sql = text("SELECT column_name, column_name, columns.data_type, columns.ordinal_position, is_nullable from information_schema.columns where columns.table_name= :tblname")
         
         with engine.begin() as conn: 
             res = conn.execute(sql, {"tblname": tbl_name}).fetchall()
@@ -50,7 +50,7 @@ def insert_mdb_col(dbid, tid):
         
         i = 0
         for item in tuplelist: 
-            cursor.execute("insert into mdb_columns (cDBID,tID,cName,datatype,ordinal_position,check_expression) values (%s,%s,%s,%s,%s,%s) returning id",item)
+            cursor.execute("insert into mdb_columns (cDBID,tID,internal_name,cname,datatype,ordinal_position,check_expression,created,last_modified) values (%s,%s,%s,%s,%s,%s,current_timestamp,current_timestamp) returning id",item)
             cid = cursor.fetchone()[0]
             tuplelist[i] = tuple([cid]+list(tuplelist[i]))
             i = i+1
@@ -61,7 +61,7 @@ def insert_mdb_col(dbid, tid):
         
         nomdtlist = ['text','character varying','varchar','char']
         numdtlist = ['bigint','integer','smallint','decimal','numeric','real','double precision']
-#       catdtlist = ['boolean','enum','USER-DEFINED']
+        catdtlist = ['boolean','enum','USER-DEFINED']
         
         if 'INSERT' in ret: 
             for item in tuplelist: 
@@ -69,8 +69,8 @@ def insert_mdb_col(dbid, tid):
                     insert_mdb_nomcol(tuplelist[0][1],tuplelist[0][2],tuplelist[0][0])
                 if item[4] in numdtlist: 
                     insert_mdb_numcol(tuplelist[0][1],tuplelist[0][2],tuplelist[0][0])
-#                if item[4] in catdtlist: 
-#                    insert_mdb_catcol(tuplelist[0][1],tuplelist[0][2],tuplelist[0][0])
+                if item[4] in catdtlist: 
+                    insert_mdb_catcol(tuplelist[0][1],tuplelist[0][2],tuplelist[0][0])
                     
         conn.close()
     except Exception as e: 
@@ -223,43 +223,74 @@ def insert_mdb_numcol(dbid,tid,cid):
         print("Error while inserting into metadatabase",e)
     return json.dumps(ret)
 
-#def insert_mdb_catcol(dbid,tid,cid): 
-#    # Connecting to metadatabase to obtain columnname
-#    try: 
-#        conn=connect(
-#        dbname="fda", 
-#        user = "postgres",
-#        host = "fda-metadata-db", 
-#        password = "postgres"
-#        )
-#        
-#        cursor = conn.cursor() 
-#        cursor.execute("select cDBID,tID,ID,cName from mdb_columns where cdbid = %s and tid = %s and cid =%s",(dbid,tid,cid))
-#        res = cursor.fetchall()
-#        cname = res[0][3]
-#    except Exception as e: 
-#        print("Error while connecting to metadatabase.",e)
-#    try: 
-#        s = requests.get(
-#        "http://fda-database-service:9092/api/database/",
-#        params = {"id":dbid}
-#        ).json()
-#    except Exception as e: 
-#        print("Error while trying to get database info",e)
-#    try: 
-#        tbl_info = requests.get(
-#        "http://fda-table-service:9094/api/database/{0}/table/{1}/".format(dbid,tid)).json()
-#        tbl_name = tbl_info['internalName']
-#    except Exception as e: 
-#        print("Error:", e)    
-#    # Determine number of categories, categories array 
-#    try: 
-#        engine = create_engine('postgresql+psycopg2://postgres:postgres@fda-userdb-'+s[0]['internalName'].replace('_', '-')+'/'+s[0]['internalName'])
-#        
-#        # num_categories
-#        # TO-DO 
-#    except Exception as e: 
-#        print("Error:",e)
+def insert_mdb_catcol(dbid,tid,cid): 
+    # Connecting to metadatabase to obtain columnname
+    try: 
+        conn=connect(
+        dbname="fda", 
+        user = "postgres",
+        host = "fda-metadata-db", 
+        password = "postgres"
+        )
+        
+        cursor = conn.cursor() 
+        cursor.execute("select cDBID,tID,ID,cname from mdb_columns where cdbid = %s and tid = %s and id =%s",(dbid,tid,cid))
+        res = cursor.fetchall()
+        cname = res[0][3]
+    except Exception as e: 
+        print("Error while connecting to metadatabase.",e)
+    try: 
+        s = requests.get(
+        "http://fda-database-service:9092/api/database/",
+        params = {"id":dbid}
+        ).json()
+    except Exception as e: 
+        print("Error while trying to get database info",e)
+    try: 
+        tbl_info = requests.get(
+        "http://fda-table-service:9094/api/database/{0}/table/{1}/".format(dbid,tid)).json()
+        tbl_name = tbl_info['internalName']
+    except Exception as e: 
+        print("Error:", e)    
+    # Determine number of categories, categories array 
+    try: 
+        engine = create_engine('postgresql+psycopg2://postgres:postgres@fda-userdb-'+s[0]['internalName'].replace('_', '-')+'/'+s[0]['internalName'])
+        
+        # num_categories
+        sql = text("select count( distinct " + cname + ") from " + tbl_name )
+        with engine.begin() as conn: 
+            res = conn.execute(sql).fetchone()
+        num_cat = int(res[0])
+        
+        # cat_array 
+        sql = text("select distinct " + cname + " from " + tbl_name)
+        with engine.begin() as conn: 
+            res = conn.execute(sql).fetchall() 
+        cat_arr = lst2pgarr(lstflat(res))
+        
+    except Exception as e: 
+        print("Error:",e)
+        
+    try: 
+        conn=connect(
+        dbname="fda", 
+        user = "postgres",
+        host = "fda-metadata-db", 
+        password = "postgres"
+        )
+        
+        cursor = conn.cursor() 
+        cursor.execute("""Insert into mdb_columns_cat (cdbid,tid,cid,num_cat,cat_array,last_modified) 
+            values (%s,%s,%s,%s,%s,current_timestamp)
+            ON CONFLICT (cdbid,tid,cid) do update set 
+            (num_cat,cat_array,last_modified) = (%s,%s,current_timestamp)""",
+            (dbid,tid,cid,num_cat,cat_arr,num_cat,cat_arr))
+
+        ret = cursor.statusmessage 
+        conn.commit()  
+    except Exception as e: 
+        print("Error while inserting into metadatabase",e)
+    return json.dumps(ret)
         
 def update_mdb_siunit(dbid,tid,cid,siunit): 
     # Insert / update values in metadata-db 
@@ -368,3 +399,8 @@ def update_mdb_col(dbid, tid, cid):
     except Exception as e: 
         print("Error while connecting to metadatabase.",e)
     return json.dumps(ret)
+
+# Useful helper functions 
+    
+lstflat = lambda x: [item for sublst in x for item in sublst]
+lst2pgarr = lambda lst: '{' + ','.join(lst) + '}'
