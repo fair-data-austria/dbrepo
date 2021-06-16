@@ -50,7 +50,7 @@ public class ContainerImage {
     private String dialect;
 
     @ToString.Include
-    @Column(nullable = false)
+    @Column
     private String jdbcMethod;
 
     @ToString.Include
