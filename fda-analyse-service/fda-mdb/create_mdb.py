@@ -50,7 +50,7 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 		hash character varying(255) NOT NULL,
 		dialect character varying(255),
 		driver_class character varying(255),
-		jdbc_method character varying(255) NOT NULL,
+		jdbc_method character varying(255),
 		repository character varying(255) NOT NULL,
 		size bigint NOT NULL,
 		tag character varying(255) NOT NULL,
