@@ -51,7 +51,7 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
     })
     public ResponseEntity<List<TableBriefDto>> findAll(@PathVariable("id") Long databaseId)
-            throws DatabaseNotFoundException, TableNotFoundException {
+            throws DatabaseNotFoundException {
         final List<Table> tables = tableService.findAll(databaseId);
         log.debug("received tables {}", tables);
         return ResponseEntity.ok(tables.stream()
@@ -73,10 +73,9 @@ public class TableEndpoint {
     })
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId,
                                                 @Valid @RequestBody TableCreateDto createDto)
-            throws ImageNotSupportedException, TableMalformedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException,
-            EntityNotSupportedException, SQLException, ClassNotFoundException {
-        final Table table = tableService.create(databaseId, createDto);
+            throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException,
+            ArbitraryPrimaryKeysException, EntityNotSupportedException {
+        final Table table = tableService.createTable(databaseId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
     }
@@ -118,13 +117,14 @@ public class TableEndpoint {
 
     @Transactional
     @GetMapping("/table/{tableId}")
-    @ApiOperation(value = "List all tables", notes = "Lists the tables in the metadata database for this database.")
+    @ApiOperation(value = "Get information about table", notes = "Lists the information of a table from the metadata database for this database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All tables are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all tables."),
             @ApiResponse(code = 404, message = "Table not found in metadata database."),
     })
-    public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId)
+    public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId,
+                                             @PathVariable("tableId") Long tableId)
             throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
         final Table table = tableService.findById(databaseId, tableId);
         return ResponseEntity.ok(tableMapper.tableToTableDto(table));
@@ -152,10 +152,11 @@ public class TableEndpoint {
             @ApiResponse(code = 404, message = "The table is not found in database."),
     })
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable("id") Long databaseId, @PathVariable("tableId") Long tableId)
+    public void delete(@PathVariable("id") Long databaseId,
+                       @PathVariable("tableId") Long tableId)
             throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            SQLException, ClassNotFoundException {
-        tableService.delete(databaseId, tableId);
+            DataProcessingException {
+        tableService.deleteTable(databaseId, tableId);
     }
 
     @Transactional
@@ -166,13 +167,13 @@ public class TableEndpoint {
             @ApiResponse(code = 400, message = "The form contains invalid data."),
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
+            @ApiResponse(code = 415, message = "The file provided is not in csv format"),
             @ApiResponse(code = 422, message = "The csv was not processible."),
     })
     public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
                                     @PathVariable("tableId") Long tableId,
-                                    @Valid TableInsertDto insertDto,
-                                    @RequestParam("file") @RequestPart MultipartFile file) throws Exception {
-        tableService.insertFromFile(databaseId, tableId, insertDto, file);
+                                    @Valid @ModelAttribute TableInsertDto data) throws Exception {
+        tableService.insertFromFile(databaseId, tableId, data);
         return ResponseEntity.accepted()
                 .build();
     }

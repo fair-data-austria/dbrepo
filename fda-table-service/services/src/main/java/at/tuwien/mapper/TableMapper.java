@@ -2,6 +2,7 @@ package at.tuwien.mapper;
 
 import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnDto;
@@ -13,7 +14,8 @@ import org.apache.commons.lang.WordUtils;
 import org.jooq.CreateTableColumnStep;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
-import org.jooq.impl.SQLDataType;
+import org.jooq.Field;
+import org.jooq.impl.DSL;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -21,10 +23,12 @@ import org.mapstruct.Named;
 
 import java.text.Normalizer;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.SQLDataType.*;
+import static org.jooq.impl.DSL.*;
 
 @Mapper(componentModel = "spring")
 public interface TableMapper {
@@ -45,13 +49,16 @@ public interface TableMapper {
 
     @Mappings({
             @Mapping(source = "columns", target = "columns", qualifiedByName = "columnMapping"),
-            @Mapping(target = "name", expression = "java(data.getName())"),
+            @Mapping(source = "name", target = "name", qualifiedByName = "identityMapping"),
             @Mapping(source = "name", target = "internalName", qualifiedByName = "internalMapping"),
     })
     Table tableCreateDtoToTable(TableCreateDto data);
 
     @Named("columnMapping")
     default List<TableColumn> columnCreateDtoArrayToTableColumnList(ColumnCreateDto[] data) {
+        if (data.length == 0) {
+            return new LinkedList<>();
+        }
         return Arrays.stream(data)
                 .map(this::columnCreateDtoToTableColumn)
                 .collect(Collectors.toList());
@@ -115,15 +122,29 @@ public interface TableMapper {
 
     default CreateTableColumnStep tableCreateDtoToCreateTableColumnStep(DSLContext context, TableCreateDto data)
             throws ArbitraryPrimaryKeysException {
-        final CreateTableColumnStep step = context.createTableIfNotExists(data.getName());
+        final CreateTableColumnStep step = context.createTableIfNotExists(nameToInternalName(data.getName()));
         for (ColumnCreateDto column : data.getColumns()) {
             final DataType<?> dataType = columnTypeDtoToDataType(column)
                     .nullable(column.getNullAllowed())
                     .identity(column.getPrimaryKey());
-            step.column(column.getName(), dataType);
+            step.column(nameToInternalName(nameToColumnName(column.getName())), dataType);
         }
         /* constraints */
         return step;
+    }
+
+    default List<Field<?>> tableToFieldList(Table data) {
+        return data.getColumns()
+                .stream()
+                .map(c -> field(c.getInternalName()))
+                .collect(Collectors.toList());
+    }
+
+    default List<List<Object>> tableCsvDtoToObjectListList(TableCsvDto data) {
+        return data.getData()
+                .stream()
+                .map((Function<Map<String, Object>, List<Object>>) stringObjectMap -> new ArrayList<>(stringObjectMap.values()))
+                .collect(Collectors.toList());
     }
 
     default DataType<?> columnTypeDtoToDataType(ColumnCreateDto data) throws ArbitraryPrimaryKeysException {

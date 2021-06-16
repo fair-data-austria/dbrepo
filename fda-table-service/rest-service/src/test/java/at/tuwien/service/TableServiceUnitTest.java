@@ -1,11 +1,6 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.table.TableBriefDto;
-import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableDto;
-import at.tuwien.endpoints.TableEndpoint;
-import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.DatabaseRepository;
@@ -17,14 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -80,7 +70,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.delete(DATABASE_1_ID, TABLE_1_ID);
+            tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
@@ -93,7 +83,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            tableService.delete(DATABASE_1_ID, TABLE_1_ID);
+            tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
         });
     }
 

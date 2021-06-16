@@ -54,11 +54,7 @@ public class Table {
     private Database database;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumns({
-            @JoinColumn(name = "id", insertable = false, updatable = false),
-            @JoinColumn(name = "tid", insertable = false, updatable = false),
-    })
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
     private List<TableColumn> columns;
 
     @Column(nullable = false, updatable = false)
