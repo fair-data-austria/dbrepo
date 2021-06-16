@@ -42,11 +42,11 @@ public class ContainerImage {
     private String tag;
 
     @ToString.Include
-    @Column(nullable = false)
+    @Column
     private String driverClass;
 
     @ToString.Include
-    @Column(nullable = false)
+    @Column
     private String dialect;
 
     @ToString.Include
