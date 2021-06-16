@@ -19,6 +19,7 @@ stages:
 build-docker:
   stage: build
   script:
+    - "docker image pull postgres:13-alpine"
     - "docker-compose build"
 
 build-metadata-db:

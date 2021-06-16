@@ -84,6 +84,8 @@ public class ImageServiceUnitTest extends BaseUnitTest {
                 .defaultPort(IMAGE_1_PORT)
                 .environment(IMAGE_1_ENV_DTO)
                 .build();
+        when(imageRepository.save(any()))
+                .thenReturn(IMAGE_1);
         when(imageService.create(request))
                 .thenThrow(ImageAlreadyExistsException.class);
 
