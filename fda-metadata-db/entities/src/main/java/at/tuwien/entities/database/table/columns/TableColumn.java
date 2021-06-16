@@ -46,10 +46,10 @@ public class TableColumn {
     private Long cdbid;
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumns({
-            @JoinColumn(name = "id", insertable = false, updatable = false),
-            @JoinColumn(name = "cdbid", insertable = false, updatable = false)
+            @JoinColumn(name = "tid", insertable = false, updatable = false, nullable = false),
+            @JoinColumn(name = "cdbid", insertable = false, updatable = false, nullable = false)
     })
     private Table table;
 
