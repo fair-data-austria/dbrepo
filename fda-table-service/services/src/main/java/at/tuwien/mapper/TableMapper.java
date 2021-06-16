@@ -97,14 +97,19 @@ public interface TableMapper {
     })
     ColumnDto columnCreateDtoToColumnDto(ColumnCreateDto data);
 
+    @Named("identityMapping")
+    default String identity(String data) {
+        return data;
+    }
+
     @Mappings({
             @Mapping(source = "primaryKey", target = "isPrimaryKey"),
             @Mapping(source = "type", target = "columnType"),
             @Mapping(source = "nullAllowed", target = "isNullAllowed"),
-            @Mapping(source = "name", target = "name"),
-            @Mapping(target = "internalName", expression = "java(nameToColumnName(data.getName()))"),
-            @Mapping(source = "checkExpression", target = "checkExpression"),
-            @Mapping(source = "foreignKey", target = "foreignKey"),
+            @Mapping(source = "name", target = "name", qualifiedByName = "identityMapping"),
+            @Mapping(target = "internalName", expression = "java(nameToInternalName(nameToColumnName(data.getName())))"),
+            @Mapping(source = "checkExpression", target = "checkExpression", qualifiedByName = "identityMapping"),
+            @Mapping(source = "foreignKey", target = "foreignKey", qualifiedByName = "identityMapping"),
     })
     TableColumn columnCreateDtoToTableColumn(ColumnCreateDto data);
 
