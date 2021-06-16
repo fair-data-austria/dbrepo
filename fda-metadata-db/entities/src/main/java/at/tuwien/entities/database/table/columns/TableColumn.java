@@ -79,6 +79,10 @@ public class TableColumn {
 
     @ToString.Include
     @Column
+    private Integer ordinalPosition;
+
+    @ToString.Include
+    @Column
     private String foreignKey;
 
     @Column(nullable = false, updatable = false)
