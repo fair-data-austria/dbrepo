@@ -136,6 +136,7 @@ test-frontend:
 deploy-all:
   stage: deploy
   script:
+    - "docker-compose down"
     - "docker-compose up -d"
     - "docker-compose down"
 
