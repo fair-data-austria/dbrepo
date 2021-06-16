@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
@@ -125,11 +126,16 @@ public class TableService extends JdbcConnector {
             log.error("failed to create table compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create table compound key", e);
         }
-        Table finalMappedTable = mappedTable;
-        mappedTable.getColumns().forEach(column -> {
+        /* we cannot insert columns at the same time since they depend on the table id */
+        for (int i = 0; i < createDto.getColumns().length; i++) {
+            final TableColumn column = tableMapper.columnCreateDtoToTableColumn(createDto.getColumns()[i]);
+            column.setOrdinalPosition(i);
             column.setCdbid(databaseId);
-            column.setTid(finalMappedTable.getId());
-        });
+            column.setTid(mappedTable.getId());
+            mappedTable.getColumns()
+                    .add(column);
+        }
+        /* update table in metadata db */
         final Table out;
         try {
             out = tableRepository.save(mappedTable);
