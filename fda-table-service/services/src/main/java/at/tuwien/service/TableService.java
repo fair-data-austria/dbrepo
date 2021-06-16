@@ -2,8 +2,8 @@ package at.tuwien.service;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
-import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
@@ -12,13 +12,17 @@ import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvException;
 import lombok.extern.log4j.Log4j2;
-import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.supercsv.cellprocessor.constraint.Equals;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
@@ -37,16 +41,14 @@ public class TableService extends JdbcConnector {
 
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
-    private final ImageMapper imageMapper;
     private final TableMapper tableMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
                         ImageMapper imageMapper, TableMapper tableMapper) {
-        super(imageMapper);
+        super(imageMapper, tableMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
-        this.imageMapper = imageMapper;
         this.tableMapper = tableMapper;
     }
 
@@ -67,12 +69,14 @@ public class TableService extends JdbcConnector {
     }
 
     @Transactional
-    public void delete(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, SQLException {
+    public void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException, DataProcessingException {
         final Table table = findById(databaseId, tableId);
-        final Database database = findDatabase(databaseId);
-        final DSLContext context = open(database);
-        context.dropTable(table.getName());
+        try {
+            delete(table);
+        } catch (SQLException e) {
+            throw new DataProcessingException("could not delete table", e);
+        }
         tableRepository.delete(table);
         log.info("Deleted table {}", table.getId());
         log.debug("Deleted table {}", table);
@@ -89,6 +93,92 @@ public class TableService extends JdbcConnector {
         return table.get();
     }
 
+    @Transactional
+    public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
+            DatabaseNotFoundException, DataProcessingException, EntityNotSupportedException,
+            ArbitraryPrimaryKeysException {
+        final Database database = findDatabase(databaseId);
+        if (tableRepository.findByDatabaseAndName(database, createDto.getName()).isPresent()) {
+            // DEVNOTE note that hibernate actually has no problem with updating the table, but we do not want this behavior for this method
+            log.warn("table with name '{}' already exists in database {}", createDto.getName(), databaseId);
+            throw new EntityNotSupportedException("table names must be unique, there exists already a table");
+        }
+        /* create database in container */
+        try {
+            create(database, createDto);
+        } catch (SQLException e) {
+            throw new DataProcessingException("could not create table", e);
+        }
+        /* save in metadata db */
+        final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
+        mappedTable.setDatabase(database);
+        mappedTable.setTdbid(databaseId);
+        mappedTable.setColumns(List.of()); // TODO: our metadata db model (primary keys x3) does not allow this currently
+        final Table table;
+        try {
+            table = tableRepository.save(mappedTable);
+        } catch (EntityNotFoundException e) {
+            log.error("failed to create table compound key: {}", e.getMessage());
+            throw new DataProcessingException("failed to create table compound key", e);
+        }
+        /* we cannot insert columns at the same time since they depend on the table id */
+        for (int i = 0; i < createDto.getColumns().length; i++) {
+            final TableColumn column = tableMapper.columnCreateDtoToTableColumn(createDto.getColumns()[i]);
+            column.setOrdinalPosition(i);
+            column.setCdbid(databaseId);
+            column.setTid(table.getId());
+            table.getColumns()
+                    .add(column);
+        }
+        /* update table in metadata db */
+        try {
+            tableRepository.save(table);
+        } catch (EntityNotFoundException e) {
+            log.error("failed to create column compound key: {}", e.getMessage());
+            throw new DataProcessingException("failed to create column compound key", e);
+        }
+        log.info("Created table {}", table.getId());
+        log.debug("created table: {}", table);
+        return table;
+    }
+
+    /**
+     * TODO this needs to be at some different endpoint
+     * Insert data from a file into a table of a database with possible null values (denoted by a null element).
+     *
+     * @param databaseId The database.
+     * @param tableId    The table.
+     * @param data       The null element and delimiter.
+     * @throws TableNotFoundException     The table does not exist in the metadata database.
+     * @throws ImageNotSupportedException The image is not supported.
+     * @throws DatabaseNotFoundException  The database does not exist in the metdata database.
+     * @throws FileStorageException       The CSV could not be parsed.
+     * @throws DataProcessingException    The xml could not be mapped.
+     */
+    @Transactional
+    public void insertFromFile(Long databaseId, Long tableId, TableInsertDto data)
+            throws TableNotFoundException, ImageNotSupportedException, DatabaseNotFoundException, FileStorageException,
+            TableMalformedException {
+        final Table table = findById(databaseId, tableId);
+        final TableCsvDto values;
+        try {
+            values = readCsv(data, table);
+        } catch (IOException | CsvException e) {
+            log.error("failed to parse csv {}", e.getMessage());
+            throw new FileStorageException("failed to parse csv", e);
+        }
+        /* hibernate inserts one line after another (batch insert not supported), so we can do the same now and take out some complexity of the code */
+        try {
+            insert(table, values);
+        } catch (SQLException e) {
+            log.error("could not insert data {}", e.getMessage());
+            throw new TableMalformedException("could not insert data", e);
+        }
+        log.info("Inserted {} csv records into table id {}", values.getData().size(), tableId);
+    }
+
+    /* helper functions */
+
     private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
@@ -102,113 +192,35 @@ public class TableService extends JdbcConnector {
         return database.get();
     }
 
-    @Transactional
-    public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, DataProcessingException, EntityNotSupportedException, SQLException,
-            ArbitraryPrimaryKeysException {
-        final Database database = findDatabase(databaseId);
-        if (tableRepository.findByDatabaseAndName(database, createDto.getName()).isPresent()) {
-            // DEVNOTE note that hibernate actually has no problem with updating the table, but we do not want this behavior for this method
-            log.warn("table with name '{}' already exists in database {}", createDto.getName(), databaseId);
-            throw new EntityNotSupportedException("table names must be unique, there exists already a table");
-        }
-        final DSLContext context = open(database);
-        tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto)
-                .execute();
-        /* save in metadata db */
-        Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
-        mappedTable.setDatabase(database);
-        mappedTable.setTdbid(databaseId);
-        mappedTable.setColumns(List.of());
-        try {
-            mappedTable = tableRepository.save(mappedTable);
-        } catch (EntityNotFoundException e) {
-            log.error("failed to create table compound key: {}", e.getMessage());
-            throw new DataProcessingException("failed to create table compound key", e);
-        }
-        /* we cannot insert columns at the same time since they depend on the table id */
-        for (int i = 0; i < createDto.getColumns().length; i++) {
-            final TableColumn column = tableMapper.columnCreateDtoToTableColumn(createDto.getColumns()[i]);
-            column.setOrdinalPosition(i);
-            column.setCdbid(databaseId);
-            column.setTid(mappedTable.getId());
-            mappedTable.getColumns()
-                    .add(column);
-        }
-        /* update table in metadata db */
-        final Table out;
-        try {
-            out = tableRepository.save(mappedTable);
-        } catch (EntityNotFoundException e) {
-            log.error("failed to create column compound key: {}", e.getMessage());
-            throw new DataProcessingException("failed to create column compound key", e);
-        }
-        log.info("Created table {}", out.getId());
-        log.debug("created table: {}", out);
-        return out;
-    }
-
-    /**
-     * TODO this needs to be at some different endpoint
-     * Insert data from a file into a table of a database with possible null values (denoted by a null element).
-     *
-     * @param databaseId The database.
-     * @param tableId    The table.
-     * @param file       The file.
-     * @param insertDto  The null element.
-     * @throws TableNotFoundException     The table does not exist in the metadata database.
-     * @throws ImageNotSupportedException The image is not supported.
-     * @throws DatabaseNotFoundException  The database does not exist in the metdata database.
-     * @throws FileStorageException       The CSV could not be parsed.
-     * @throws DataProcessingException    The xml could not be mapped.
-     */
-    @Transactional
-    public void insertFromFile(Long databaseId, Long tableId, TableInsertDto insertDto, MultipartFile file)
-            throws TableNotFoundException, ImageNotSupportedException, DatabaseNotFoundException, FileStorageException {
-        final Table table = findById(databaseId, tableId);
-        final Map<String, List<String>> cells;
-        try {
-            cells = readCsv(file, insertDto);
-        } catch (IOException e) {
-            throw new FileStorageException("failed to parse csv", e);
-        }
-        /* hibernate inserts one line after another (batch insert not supported), so we can do the same now and take out some complexity of the code */
-//        try {
-//            insertFromCollection(table, cells);
-//        } catch (ConstructorNotFoundException | ReflectAccessException e) {
-//            throw new TableMalformedException("could not insert via reflect", e);
-//        }
-        log.info("Inserted .csv to table {}", tableId);
-        log.debug("Inserted .csv ({} rows) into table {}", cells.size(), tableId);
-    }
-
-    /* helper functions */
-
-    private Map<String, List<String>> readCsv(MultipartFile file, TableInsertDto insertDto) throws IOException {
-        final Map<String, List<String>> records = new HashMap<>();
-        final Reader fileReader = new InputStreamReader(file.getInputStream());
-        final CSVReader csvReader = new CSVReader(fileReader);
-        final List<String> headers = Arrays.asList(new CsvMapReader(fileReader, STANDARD_PREFERENCE).getHeader(true));
+    private TableCsvDto readCsv(TableInsertDto data, Table table) throws IOException, CsvException {
+        final CSVParser csvParser = new CSVParserBuilder()
+                .withSeparator(data.getDelimiter())
+                .build();
+        final Reader fileReader = new InputStreamReader(data.getCsv().getInputStream());
         final List<List<String>> cells = new LinkedList<>();
-        /* read each row into a list */
-        String[] values = null;
-        while ((values = csvReader.readNext()) != null) {
-            cells.add(Arrays.asList(values));
-        }
-        /* init the map-list structure */
-        for (String key : headers) {
-            records.put(key, new LinkedList<>());
-        }
+        final CSVReader reader = new CSVReaderBuilder(fileReader)
+                .withCSVParser(csvParser)
+                .withSkipLines(data.getSkipHeader() ? 1 : 0)
+                .build();
+        final List<Map<String, Object>> records = new LinkedList<>();
+        reader.readAll()
+                .forEach(x -> cells.add(Arrays.asList(x)));
         /* map to the map-list structure */
         for (List<String> row : cells) {
-            for (int i = 0; i < headers.size(); i++) {
-                if (insertDto.getNullElement() != null) {
-                    row.replaceAll(input -> input.equals(insertDto.getNullElement()) ? null : input);
-                }
-                records.get(headers.get(i)).add(row.get(i));
+            final Map<String, Object> record = new HashMap<>();
+            for (int i = 0; i < table.getColumns().size(); i++) {
+                record.put(table.getColumns().get(i).getInternalName(), row.get(i));
             }
+            /* when the nullElement itself is null, nothing to do */
+            if (data.getNullElement() != null) {
+                record.replaceAll((key, value) -> value.equals(data.getNullElement()) ? null : value);
+            }
+            log.trace("processed {}", row);
+            records.add(record);
         }
-        return records;
+        return TableCsvDto.builder()
+                .data(records)
+                .build();
     }
 
     @Deprecated
@@ -289,6 +301,18 @@ public class TableService extends JdbcConnector {
 //        }
 //        return queryResult;
         return null;
+    }
+
+    private CellProcessor[] getProcessors(Integer size, TableInsertDto data) {
+        final CellProcessor[] processors = new CellProcessor[size];
+        for (int i = 0; i < processors.length; i++) {
+            if (data.getNullElement() == null) {
+                processors[i] = new NotNull();
+            } else {
+                processors[i] = new Equals(data.getNullElement());
+            }
+        }
+        return processors;
     }
 
 

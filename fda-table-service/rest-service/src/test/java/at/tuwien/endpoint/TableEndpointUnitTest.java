@@ -20,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
@@ -85,7 +84,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
                 .description(TABLE_1_DESCRIPTION)
                 .columns(COLUMNS5)
                 .build();
-        when(tableService.create(DATABASE_1_ID, request))
+        when(tableService.createTable(DATABASE_1_ID, request))
                 .thenAnswer(invocation -> {
                     throw new DatabaseNotFoundException("no db");
                 });
@@ -171,10 +170,10 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, SQLException, ClassNotFoundException {
+            ImageNotSupportedException, DataProcessingException {
         doThrow(TableNotFoundException.class)
                 .when(tableService)
-                .delete(DATABASE_1_ID, TABLE_1_ID);
+                .deleteTable(DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
@@ -184,7 +183,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            SQLException, ClassNotFoundException {
+            DataProcessingException {
         /* test */
         tableEndpoint.delete(DATABASE_1_ID, TABLE_1_ID);
     }
