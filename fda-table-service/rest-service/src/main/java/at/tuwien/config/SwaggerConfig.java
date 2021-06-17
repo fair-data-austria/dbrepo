@@ -18,13 +18,11 @@ public class SwaggerConfig {
     @Bean
     public Docket tableApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("table-api")
                 .apiInfo(apiInfo())
                 .select()
                 .paths(PathSelectors.ant("/api/**"))
                 .build();
     }
-
 
     private ApiInfo apiInfo() {
         return new ApiInfo("FDA-Table-Service API",
