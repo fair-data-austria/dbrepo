@@ -7,6 +7,13 @@ target/
 # IDE
 fda-analyse-service/venv
 
+# Docs
+swagger.json
+container.md
+database.md
+query.md
+table.md
+
 ### STS ###
 .apt_generated
 .classpath
