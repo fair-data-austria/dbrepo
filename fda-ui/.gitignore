@@ -87,5 +87,5 @@ sw.*
 # Vim swap files
 *.swp
 
-# CI videos
+# CI records some videos for the e2e tests
 videos
