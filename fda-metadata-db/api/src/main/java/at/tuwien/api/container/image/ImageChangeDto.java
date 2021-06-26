@@ -27,7 +27,7 @@ public class ImageChangeDto {
     private String driverClass;
 
     @NotBlank
-    @ApiModelProperty(required = true, example = "org.hibernate.dialect.PostgreSQLDialect\n")
+    @ApiModelProperty(required = true, example = "Postgres")
     private String dialect;
 
     @NotBlank

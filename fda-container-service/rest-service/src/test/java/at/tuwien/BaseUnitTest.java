@@ -3,14 +3,12 @@ package at.tuwien;
 import at.tuwien.api.container.ContainerBriefDto;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerDto;
-import at.tuwien.api.container.image.ImageBriefDto;
-import at.tuwien.api.container.image.ImageCreateDto;
-import at.tuwien.api.container.image.ImageDto;
-import at.tuwien.api.container.image.ImageEnvItemDto;
+import at.tuwien.api.container.image.*;
 import at.tuwien.api.container.network.IpAddressDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
+import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.core.command.CreateContainerCmdImpl;
@@ -40,18 +38,22 @@ public abstract class BaseUnitTest {
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .build());
     public final static ImageEnvItemDto[] IMAGE_1_ENV_DTO = List.of(ImageEnvItemDto.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ImageEnvItemTypeDto.USERNAME)
                     .build(),
             ImageEnvItemDto.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ImageEnvItemTypeDto.PASSWORD)
                     .build())
             .toArray(new ImageEnvItemDto[0]);
     public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",

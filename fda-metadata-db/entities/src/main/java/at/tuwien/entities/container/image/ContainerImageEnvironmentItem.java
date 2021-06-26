@@ -39,6 +39,10 @@ public class ContainerImageEnvironmentItem {
     @Column(nullable = false)
     private String value;
 
+    @ToString.Include
+    @Column(nullable = false)
+    private ContainerImageEnvironmentItemType type;
+
     @Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant created;

@@ -77,7 +77,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_duplicate_fails() throws ImageNotFoundException {
+    public void create_duplicate_fails() throws ImageNotFoundException, DockerClientException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -96,7 +96,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_succeeds() throws ImageNotFoundException {
+    public void update_succeeds() throws ImageNotFoundException, DockerClientException {
         final ImageChangeDto request = ImageChangeDto.builder()
                 .environment(IMAGE_1_ENV_DTO)
                 .defaultPort(IMAGE_1_PORT)
