@@ -31,6 +31,8 @@ public interface ImageMapper {
     })
     ContainerImage inspectImageResponseToContainerImage(InspectImageResponse data);
 
+    ContainerImageEnvironmentItem imageEnvItemDtoToEnvironmentItem(ImageEnvItemDto data);
+
     default Instant dateToInstant(String date) {
         return Instant.parse(date);
     }
@@ -39,13 +41,6 @@ public interface ImageMapper {
         return data.stream()
                 .map(i -> i.getKey() + "=" + i.getValue())
                 .toArray(String[]::new);
-    }
-
-    default ContainerImageEnvironmentItem imageEnvItemDtoToEnvironmentItem(ImageEnvItemDto data) {
-        final ContainerImageEnvironmentItem item = new ContainerImageEnvironmentItem();
-        item.setKey(data.getKey());
-        item.setValue(data.getValue());
-        return item;
     }
 
     default List<ContainerImageEnvironmentItem> imageEnvironmentItemDtoToEnvironmentItemList(ImageEnvItemDto[] data) {
