@@ -5,6 +5,7 @@ import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
 import at.tuwien.api.container.image.ImageDto;
 import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.ImageMapper;
@@ -65,7 +66,7 @@ public class ImageEndpoint {
             @ApiResponse(code = 406, message = "Image already exists in metadata database."),
             @ApiResponse(code = 404, message = "The image does not exist in the repository."),
     })
-    public ResponseEntity<ImageDto> create(@Valid @RequestBody ImageCreateDto data) throws ImageNotFoundException, ImageAlreadyExistsException {
+    public ResponseEntity<ImageDto> create(@Valid @RequestBody ImageCreateDto data) throws ImageNotFoundException, ImageAlreadyExistsException, DockerClientException {
         final ContainerImage image = imageService.create(data);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(imageMapper.containerImageToImageDto(image));
@@ -94,7 +95,7 @@ public class ImageEndpoint {
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
     public ResponseEntity<ImageDto> update(@NotNull @PathVariable Long id, @RequestBody @Valid ImageChangeDto changeDto)
-            throws ImageNotFoundException {
+            throws ImageNotFoundException, DockerClientException {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(imageMapper.containerImageToImageDto(imageService.update(id, changeDto)));
     }

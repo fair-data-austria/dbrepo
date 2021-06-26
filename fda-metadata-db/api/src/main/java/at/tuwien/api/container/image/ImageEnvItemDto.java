@@ -21,4 +21,8 @@ public class ImageEnvItemDto {
     @ApiModelProperty(required = true, example = "postgres")
     private String value;
 
+    @NonNull
+    @ApiModelProperty(required = true, example = "USERNAME")
+    private ImageEnvItemTypeDto type;
+
 }

@@ -9,7 +9,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   BEGIN;
 	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 	CREATE TYPE accesstype AS ENUM ('R', 'W');
-		
+	CREATE TYPE envitemtype AS ENUM ('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER');
+
 	CREATE SEQUENCE public.mdb_environment_item_seq
 	    START WITH 1
 	    INCREMENT BY 1
@@ -22,7 +23,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	    created timestamp without time zone NOT NULL,
 	    last_modified timestamp without time zone,
 	    key character varying(255) NOT NULL,
-	    value character varying(255) NOT NULL
+	    value character varying(255) NOT NULL,
+	    'type' envitemtype NOT NULL
 	);
 	
 	CREATE SEQUENCE public.mdb_image_seq

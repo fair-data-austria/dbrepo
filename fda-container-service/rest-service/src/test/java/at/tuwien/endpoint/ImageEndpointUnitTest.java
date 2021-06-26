@@ -63,7 +63,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws ImageNotFoundException {
+    public void create_succeeds() throws ImageNotFoundException, DockerClientException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -81,7 +81,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_duplicate_fails() throws ImageNotFoundException {
+    public void create_duplicate_fails() throws ImageNotFoundException, DockerClientException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -100,7 +100,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_notExists_fails() throws ImageNotFoundException {
+    public void create_notExists_fails() throws ImageNotFoundException, DockerClientException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -155,7 +155,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_succeeds() throws ImageNotFoundException {
+    public void update_succeeds() throws ImageNotFoundException, DockerClientException {
         final ImageChangeDto request = ImageChangeDto.builder()
                 .defaultPort(1111)
                 .build();
@@ -166,7 +166,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_notFound_fails() throws ImageNotFoundException {
+    public void update_notFound_fails() throws ImageNotFoundException, DockerClientException {
         final ImageChangeDto request = ImageChangeDto.builder()
                 .defaultPort(1111)
                 .environment(IMAGE_1_ENV_DTO)
