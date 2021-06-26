@@ -28,7 +28,7 @@ public class ImageCreateDto {
     private String driverClass;
 
     @NotBlank
-    @ApiModelProperty(required = true, example = "org.hibernate.dialect.PostgreSQLDialect\n")
+    @ApiModelProperty(required = true, example = "Postgres")
     private String dialect;
 
     @NotBlank
@@ -43,7 +43,7 @@ public class ImageCreateDto {
     @ApiModelProperty(required = true, example = "5432")
     private Integer defaultPort;
 
-    @ApiModelProperty(required = true, example = "[{\"key\":\"POSTGRES_USER\",\"value\":\"postgres\"},{\"key\":\"POSTGRES_PASSWORD\",\"value\":\"postgres\"}]")
+    @ApiModelProperty(required = true, example = "[{\"key\":\"POSTGRES_USER\",\"value\":\"postgres\",\"type\":USERNAME},{\"key\":\"POSTGRES_PASSWORD\",\"value\":\"postgres\",\"type\":PASSWORD}]")
     private ImageEnvItemDto[] environment;
 
 }

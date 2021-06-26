@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
 import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.mapper.ImageMapper;
@@ -10,6 +11,7 @@ import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.exception.InternalServerErrorException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.PullResponseItem;
@@ -60,7 +62,7 @@ public class ImageService {
     }
 
     @Transactional
-    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException {
+    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException, DockerClientException {
         pull(createDto.getRepository(), createDto.getTag());
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
         if (imageRepository.findByRepositoryAndTag(createDto.getRepository(), createDto.getTag()).isPresent()) {
@@ -85,7 +87,7 @@ public class ImageService {
     }
 
     @Transactional
-    public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException {
+    public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException, DockerClientException {
         final ContainerImage image = getById(imageId);
         /* pull changes */
         pull(image.getRepository(), image.getTag());
@@ -137,7 +139,7 @@ public class ImageService {
         return imageMapper.inspectImageResponseToContainerImage(response);
     }
 
-    private void pull(String repository, String tag) throws ImageNotFoundException {
+    private void pull(String repository, String tag) throws ImageNotFoundException, DockerClientException {
         final ResultCallback.Adapter<PullResponseItem> response;
         try {
             response = dockerClient.pullImageCmd(repository)
@@ -149,6 +151,8 @@ public class ImageService {
         } catch (NotFoundException | InterruptedException e) {
             log.warn("image {}:{} not found in library", repository, tag);
             throw new ImageNotFoundException("image not found in library", e);
+        } catch(InternalServerErrorException e) {
+            throw new DockerClientException("failed to pull from docker registry", e);
         }
     }
 

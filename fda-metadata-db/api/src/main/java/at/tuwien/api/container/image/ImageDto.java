@@ -29,7 +29,7 @@ public class ImageDto {
     private String driverClass;
 
     @NotBlank
-    @ApiModelProperty(required = true, example = "org.hibernate.dialect.PostgreSQL10Dialect")
+    @ApiModelProperty(required = true, example = "Postgres")
     private String dialect;
     @NotBlank
     @ApiModelProperty(required = true, example = "postgres")

@@ -64,7 +64,7 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void test_duplicate_fails() throws ImageNotFoundException {
+    public void test_duplicate_fails() throws ImageNotFoundException, DockerClientException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
