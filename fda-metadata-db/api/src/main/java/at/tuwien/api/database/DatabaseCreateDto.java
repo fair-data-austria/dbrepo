@@ -23,7 +23,7 @@ public class DatabaseCreateDto {
     @ApiModelProperty(name = "database name", example = "Weather Australia")
     private String name;
 
-    @NotBlank
+    @NotNull
     @Parameter(name = "database publicity", example = "true")
     private Boolean isPublic;
 
