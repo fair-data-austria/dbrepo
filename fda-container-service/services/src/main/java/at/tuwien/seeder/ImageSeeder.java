@@ -24,14 +24,14 @@ public class ImageSeeder implements Seeder {
     private final static String IMAGE_1_REPOSITORY = "postgres";
     private final static String IMAGE_1_TAG = "latest";
     private final static Integer IMAGE_1_PORT = 5432;
-    private final static String IMAGE_1_DIALECT = "Postgres";
+    private final static String IMAGE_1_DIALECT = "POSTGRES";
     private final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
     private final static String IMAGE_1_JDBC = "postgresql";
 
     private final static String IMAGE_2_REPOSITORY = "mariadb";
     private final static String IMAGE_2_TAG = "latest";
     private final static Integer IMAGE_2_PORT = 3306;
-    private final static String IMAGE_2_DIALECT = "MariaDB";
+    private final static String IMAGE_2_DIALECT = "MARIADB";
     private final static String IMAGE_2_DRIVER = "org.mariadb.jdbc.Driver";
     private final static String IMAGE_2_JDBC = "mariadb";
 
@@ -89,6 +89,9 @@ public class ImageSeeder implements Seeder {
     @Override
     @PostConstruct
     public void seed() throws DockerClientException, ImageNotFoundException {
+        if (imageService.getAll().size() > 0) {
+            return;
+        }
         log.debug("seeded image {}", imageService.create(IMAGE_1_CREATE_DTO));
         log.debug("seeded image {}", imageService.create(IMAGE_2_CREATE_DTO));
     }
