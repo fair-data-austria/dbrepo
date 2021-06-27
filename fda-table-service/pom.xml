@@ -30,7 +30,6 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <hibernate.c3p0.version>6.0.0.Alpha8</hibernate.c3p0.version>
         <jooq.version>3.14.11</jooq.version>
         <opencsv.version>5.4</opencsv.version>
     </properties>
@@ -119,12 +118,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-        <!-- Hibernate -->
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-c3p0</artifactId>
-            <version>${hibernate.c3p0.version}</version>
-        </dependency>
+        <!-- DSL -->
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq</artifactId>
@@ -133,11 +127,6 @@
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq-meta</artifactId>
-            <version>${jooq.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq-codegen</artifactId>
             <version>${jooq.version}</version>
         </dependency>
         <!-- Docker -->
