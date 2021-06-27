@@ -75,6 +75,7 @@ public class TableEndpoint {
                                                 @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException,
             ArbitraryPrimaryKeysException, EntityNotSupportedException {
+        log.debug("received create table request {}", createDto);
         final Table table = tableService.createTable(databaseId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
