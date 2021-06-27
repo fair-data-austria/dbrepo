@@ -10,6 +10,7 @@ import org.jooq.impl.DSL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public abstract class JdbcConnector {
 
@@ -22,14 +23,20 @@ public abstract class JdbcConnector {
     }
 
     protected DSLContext open(Database database) throws SQLException, ImageNotSupportedException {
-        final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName();
-        final Connection connection = DriverManager.getConnection(url, imageMapper.containerImageToProperties(database.getContainer().getImage()));
+        final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/";
+        final Properties properties = imageMapper.containerImageToProperties(database.getContainer().getImage());
+        final Connection connection = DriverManager.getConnection(url, properties);
         return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
     }
 
     protected void create(Database database) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(database);
         context.createDatabase(databaseMapper.databaseToInternalDatabaseName(database));
+    }
+
+    protected void modify(Database database) throws SQLException, ImageNotSupportedException {
+        final DSLContext context = open(database);
+        context.alterDatabase(databaseMapper.databaseToInternalDatabaseName(database));
     }
 
     protected void delete(Database database) throws SQLException, ImageNotSupportedException {

@@ -71,18 +71,22 @@ public abstract class BaseUnitTest {
     public final static List<ContainerImageEnvironmentItem> IMAGE_2_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .build());
     public final static ImageEnvItemDto[] IMAGE_2_ENV_DTO = List.of(ImageEnvItemDto.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ImageEnvItemTypeDto.USERNAME)
                     .build(),
             ImageEnvItemDto.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ImageEnvItemTypeDto.PASSWORD)
                     .build())
             .toArray(new ImageEnvItemDto[0]);
 
