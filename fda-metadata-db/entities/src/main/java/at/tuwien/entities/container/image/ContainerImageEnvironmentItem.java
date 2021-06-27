@@ -40,7 +40,8 @@ public class ContainerImageEnvironmentItem {
     private String value;
 
     @ToString.Include
-    @Column(nullable = false, name = "etype")
+    @Column(nullable = false, name = "etype", columnDefinition = "enum('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER')")
+    @Enumerated(EnumType.STRING)
     private ContainerImageEnvironmentItemType type;
 
     @Column(nullable = false, updatable = false)

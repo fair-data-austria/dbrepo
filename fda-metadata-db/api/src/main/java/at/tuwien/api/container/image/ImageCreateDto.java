@@ -28,7 +28,7 @@ public class ImageCreateDto {
     private String driverClass;
 
     @NotBlank
-    @ApiModelProperty(required = true, example = "Postgres")
+    @ApiModelProperty(required = true, example = "POSTGRES")
     private String dialect;
 
     @NotBlank
