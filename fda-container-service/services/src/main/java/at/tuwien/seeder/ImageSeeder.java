@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
-@Component
-@Profile("seeder")
 @Log4j2
+@Component
+@Profile("seed")
 public class ImageSeeder implements Seeder {
 
     private final static String IMAGE_1_REPOSITORY = "postgres";
-    private final static String IMAGE_1_TAG = "13-alpine";
+    private final static String IMAGE_1_TAG = "latest";
     private final static Integer IMAGE_1_PORT = 5432;
     private final static String IMAGE_1_DIALECT = "Postgres";
     private final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
