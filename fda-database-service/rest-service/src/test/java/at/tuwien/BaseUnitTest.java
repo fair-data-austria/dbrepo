@@ -6,7 +6,6 @@ import at.tuwien.entities.database.Database;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -15,7 +14,7 @@ import static java.time.temporal.ChronoUnit.HOURS;
 public abstract class BaseUnitTest {
 
     public final static Long IMAGE_1_ID = 1L;
-    public final static String IMAGE_1_REPO = "postgres";
+    public final static String IMAGE_1_REPOSITORY = "postgres";
     public final static String IMAGE_1_TAG = "latest";
     public final static Integer IMAGE_1_PORT = 5432;
     public final static Instant IMAGE_1_CREATED = Instant.now();
@@ -46,16 +45,18 @@ public abstract class BaseUnitTest {
     public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-fundamentals";
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(2, HOURS);
     public final static Instant CONTAINER_1_UPDATED = Instant.now();
+    public final static String CONTAINER_1_IP = "172.28.0.5";
 
     public final static Long CONTAINER_2_ID = 2L;
     public final static String CONTAINER_2_NAME = "BOKU";
     public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-boku";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(2, HOURS);
     public final static Instant CONTAINER_2_UPDATED = Instant.now();
+    public final static String CONTAINER_2_IP = "172.28.0.6";
 
     public final static ContainerImage IMAGE_1 = ContainerImage.builder()
             .id(IMAGE_1_ID)
-            .repository(IMAGE_1_REPO)
+            .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
             .created(IMAGE_1_CREATED)
             .defaultPort(IMAGE_1_PORT)

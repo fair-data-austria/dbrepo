@@ -5,6 +5,7 @@ import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
+import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
@@ -12,25 +13,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 
 @Log4j2
 @Service
-public class DatabaseService {
+public class DatabaseService extends JdbcConnector {
 
     private final ContainerRepository containerRepository;
     private final DatabaseRepository databaseRepository;
-    private final PostgresService postgresService;
     private final DatabaseMapper databaseMapper;
 
     @Autowired
     public DatabaseService(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
-                           PostgresService postgresService, DatabaseMapper databaseMapper) {
+                           ImageMapper imageMapper, DatabaseMapper databaseMapper) {
+        super(imageMapper, databaseMapper);
         this.containerRepository = containerRepository;
         this.databaseRepository = databaseRepository;
-        this.postgresService = postgresService;
         this.databaseMapper = databaseMapper;
     }
 
@@ -62,8 +64,7 @@ public class DatabaseService {
     }
 
     @Transactional
-    public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseConnectionException, DatabaseMalformedException {
+    public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException, SQLException {
         final Optional<Database> databaseResponse = databaseRepository.findById(databaseId);
         if (databaseResponse.isEmpty()) {
             log.warn("Database with id {} does not exist", databaseId);
@@ -75,15 +76,15 @@ public class DatabaseService {
             log.warn("No support for {}:{}", database.getContainer().getImage().getRepository(), database.getContainer().getImage().getTag());
             throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
         }
-        postgresService.delete(database);
+        delete(database);
         databaseRepository.deleteById(databaseId);
         log.info("Deleted database {}", databaseId);
         log.debug("deleted database {}", database);
     }
 
     @Transactional
-    public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, DatabaseConnectionException,
-            DatabaseMalformedException, ContainerNotFoundException {
+    public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
+            SQLException {
         final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
         if (containerResponse.isEmpty()) {
             log.warn("Container with id {} does not exist", createDto.getContainerId());
@@ -101,7 +102,7 @@ public class DatabaseService {
         database.setContainer(container);
         database.setIsPublic(false);
         database.setInternalName(databaseMapper.databaseToInternalDatabaseName(database));
-        postgresService.create(database);
+        create(database);
         // save in metadata database
         final Database out = databaseRepository.save(database);
         log.info("Created database {}", out.getId());

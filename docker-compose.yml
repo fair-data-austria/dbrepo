@@ -107,7 +107,7 @@ services:
     networks:
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,seed
     ports:
       - 9091:9091
     volumes:

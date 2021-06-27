@@ -1,59 +1,40 @@
 package at.tuwien.service;
 
 import at.tuwien.entities.database.Database;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseMalformedException;
+import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.mapper.DatabaseMapper;
+import at.tuwien.mapper.ImageMapper;
+import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public abstract class JdbcConnector {
 
-    protected Connection open(String url, Properties properties) throws SQLException {
-        return DriverManager.getConnection(url, properties);
+    private final ImageMapper imageMapper;
+    private final DatabaseMapper databaseMapper;
+
+    protected JdbcConnector(ImageMapper imageMapper, DatabaseMapper databaseMapper) {
+        this.imageMapper = imageMapper;
+        this.databaseMapper = databaseMapper;
     }
 
-    /**
-     * Creates a new database in the Docker container.
-     *
-     * @param database The database
-     * @throws DatabaseConnectionException In case the container is not reachable by JDBC
-     * @throws DatabaseMalformedException In case the database e.g. exists already
-     */
-    abstract void create(Database database) throws DatabaseConnectionException, DatabaseMalformedException;
+    protected DSLContext open(Database database) throws SQLException, ImageNotSupportedException {
+        final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName();
+        final Connection connection = DriverManager.getConnection(url, imageMapper.containerImageToProperties(database.getContainer().getImage()));
+        return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
+    }
 
-    /**
-     * Deletes a database from the Docker container.
-     *
-     * @param database The database
-     * @throws DatabaseConnectionException In case the container is not reachable by JDBC
-     * @throws DatabaseMalformedException In case the database could not be deleted
-     */
-    abstract void delete(Database database) throws DatabaseConnectionException, DatabaseMalformedException;
+    protected void create(Database database) throws SQLException, ImageNotSupportedException {
+        final DSLContext context = open(database);
+        context.createDatabase(databaseMapper.databaseToInternalDatabaseName(database));
+    }
 
-    /**
-     * Helper function that compiles a creation statement
-     *
-     * @param connection The JDBC connection
-     * @param database The database name
-     * @return A prepared statement
-     * @throws SQLException In case the compiled query is invalid
-     */
-    abstract PreparedStatement getCreateDatabaseStatement(Connection connection, Database database)
-            throws SQLException;
-
-    /**
-     * Helper function that compiles a delete statement
-     *
-     * @param connection The JDBC connection
-     * @param database The database name
-     * @return A prepared statement
-     * @throws SQLException In case the compiled query is invalid
-     */
-    abstract PreparedStatement getDeleteDatabaseStatement(Connection connection, Database database)
-            throws SQLException;
+    protected void delete(Database database) throws SQLException, ImageNotSupportedException {
+        final DSLContext context = open(database);
+        context.dropDatabase(databaseMapper.databaseToInternalDatabaseName(database));
+    }
 
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,7 +64,7 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
-            throws ImageNotSupportedException, DatabaseConnectionException, DatabaseMalformedException, ContainerNotFoundException {
+            throws ImageNotSupportedException, ContainerNotFoundException, SQLException {
         final Database database = databaseService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));
@@ -105,7 +106,7 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<?> delete(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException,
-            DatabaseMalformedException, ImageNotSupportedException, DatabaseConnectionException {
+            ImageNotSupportedException, SQLException {
         databaseService.delete(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
