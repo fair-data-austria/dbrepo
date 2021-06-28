@@ -2,18 +2,20 @@ package at.tuwien.service;
 
 import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.exception.PersistenceException;
 import at.tuwien.mapper.ImageMapper;
+import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.exception.InternalServerErrorException;
 import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.PullResponseItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.Persistence;
 import javax.validation.ConstraintViolationException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 @Slf4j
 @Service
@@ -37,12 +38,15 @@ public class ImageService {
 
     private final DockerClient dockerClient;
     private final ImageRepository imageRepository;
+    private final ContainerRepository containerRepository;
     private final ImageMapper imageMapper;
 
     @Autowired
-    public ImageService(DockerClient dockerClient, ImageRepository imageRepository, ImageMapper imageMapper) {
+    public ImageService(DockerClient dockerClient, ImageRepository imageRepository,
+                        ContainerRepository containerRepository, ImageMapper imageMapper) {
         this.dockerClient = dockerClient;
         this.imageRepository = imageRepository;
+        this.containerRepository = containerRepository;
         this.imageMapper = imageMapper;
     }
 
@@ -114,12 +118,16 @@ public class ImageService {
         return out;
     }
 
-    public void delete(Long id) throws ImageNotFoundException {
+    @Transactional
+    public void delete(Long id) throws ImageNotFoundException, PersistenceException {
         try {
+            containerRepository.detachImage(id);
             imageRepository.deleteById(id);
         } catch (EntityNotFoundException | EmptyResultDataAccessException e) {
             log.warn("image id {} not found in metadata database", id);
             throw new ImageNotFoundException("no image with this id found in metadata database.");
+        } catch (ConstraintViolationException e) {
+            throw new PersistenceException(e);
         }
         log.info("Deleted image {}", id);
     }
