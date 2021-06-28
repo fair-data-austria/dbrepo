@@ -8,6 +8,7 @@ import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.exception.PersistenceException;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.service.ImageService;
 import io.swagger.annotations.ApiOperation;
@@ -108,7 +109,8 @@ public class ImageEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to delete a image."),
             @ApiResponse(code = 404, message = "No image found with this id in metadata database."),
     })
-    public ResponseEntity<?> delete(@NotNull @PathVariable Long id) throws ImageNotFoundException {
+    public ResponseEntity<?> delete(@NotNull @PathVariable Long id) throws ImageNotFoundException,
+            PersistenceException {
         imageService.delete(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();

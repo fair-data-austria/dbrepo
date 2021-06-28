@@ -2,6 +2,7 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.image.ImageCreateDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
@@ -18,6 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 import static at.tuwien.BaseUnitTest.IMAGE_1_ENV_DTO;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Persistence Layer Tests
+ */
+@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class ImageServiceIntegrationTest extends BaseUnitTest {
@@ -31,22 +36,8 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private ContainerRepository containerRepository;
 
-    @BeforeEach
-    @Transactional
-    public void beforeEach() {
-        containerRepository.deleteAll();
-        imageRepository.deleteAll();
-    }
-
-    @AfterEach
-    @Transactional
-    public void afterEach() {
-        containerRepository.deleteAll();
-        imageRepository.deleteAll();
-    }
-
     @Test
-    public void test_notFound_fails() {
+    public void create_notFound_fails() {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository("s0m3th1ng_n0t3x1st1ng")
                 .tag("d3v_h3ll")
@@ -64,7 +55,7 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void test_duplicate_fails() throws ImageNotFoundException, DockerClientException {
+    public void create_duplicate_fails() throws ImageNotFoundException, DockerClientException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -80,6 +71,18 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
         assertThrows(ImageAlreadyExistsException.class, () -> {
             imageService.create(request);
         });
+    }
+
+    @Test
+    public void delete_hasContainer_succeeds() throws ImageNotFoundException, PersistenceException {
+        imageRepository.save(IMAGE_1);
+        containerRepository.save(CONTAINER_1);
+
+        /* test */
+        imageService.delete(IMAGE_1_ID);
+        assertTrue(imageRepository.findById(IMAGE_1_ID).isEmpty());
+        assertTrue(containerRepository.findById(CONTAINER_1_ID).isPresent());
+        assertNull(containerRepository.findById(CONTAINER_1_ID).get().getImage());
     }
 
 }
