@@ -35,7 +35,7 @@ public class Database {
     private Long id;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private Container container;
 
     @ToString.Include
