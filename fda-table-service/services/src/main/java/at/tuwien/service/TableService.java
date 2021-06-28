@@ -23,12 +23,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.constraint.Equals;
-import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
@@ -186,7 +186,7 @@ public class TableService extends JdbcConnector {
         return database.get();
     }
 
-    private TableCsvDto readCsv(TableInsertDto data, Table table) throws IOException, CsvException {
+    protected TableCsvDto readCsv(TableInsertDto data, Table table) throws IOException, CsvException {
         final CSVParser csvParser = new CSVParserBuilder()
                 .withSeparator(data.getDelimiter())
                 .build();
