@@ -64,7 +64,7 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
-            throws ImageNotSupportedException, ContainerNotFoundException, SQLException {
+            throws ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
         final Database database = databaseService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));
@@ -91,7 +91,9 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to change a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseBriefDto> modify(@NotBlank @PathVariable Long id, @Valid @RequestBody DatabaseModifyDto modifyDto) throws SQLException, DatabaseNotFoundException, ImageNotSupportedException {
+    public ResponseEntity<DatabaseBriefDto> modify(@NotBlank @PathVariable Long id,
+                                                   @Valid @RequestBody DatabaseModifyDto modifyDto)
+            throws DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
         final DatabaseBriefDto database = databaseMapper.databaseToDatabaseBriefDto(databaseService.modify(modifyDto));
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(database);
@@ -107,7 +109,7 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<?> delete(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException,
-            ImageNotSupportedException, SQLException {
+            ImageNotSupportedException, DatabaseMalformedException {
         databaseService.delete(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
