@@ -26,12 +26,14 @@ echo -e "\e[96m2\e[39m) Maven"
 
 for service in $SERVICES; do
   echo "Testing ./fda-${service}-service"
+  sudo "./fda-${service}-service/rest-service/src/test/resources/integration-test.before"
   RESULT=$(mvn -f "./fda-${service}-service/pom.xml" clean test verify | grep -o "FAILURE")
   if [[ $RESULT ]]; then
     echo -e "... \e[91mNOT OK\e[39m"
   else
     echo -e "... \e[92mOK\e[39m"
   fi
+  sudo "./fda-${service}-service/rest-service/src/test/resources/integration-test.after"
 done
 
 # 3) Runtime

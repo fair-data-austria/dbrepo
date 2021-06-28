@@ -45,6 +45,10 @@ public class Table {
     private String name;
 
     @ToString.Include
+    @Column(name = "tdescription")
+    private String description;
+
+    @ToString.Include
     @Column(nullable = false, unique = true)
     private String internalName;
 
