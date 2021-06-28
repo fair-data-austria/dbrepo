@@ -33,11 +33,15 @@ public abstract class BaseUnitTest {
     public final static String TABLE_1_NAME = "Weather AUS";
     public final static String TABLE_1_INTERNALNAME = "weather_aus";
 
+    public final static Long TABLE_2_ID = 2L;
+    public final static String TABLE_2_NAME = "Weather AT";
+    public final static String TABLE_2_INTERNALNAME = "weather_at";
+
     public final static Long COLUMN_1_ID = 1L;
     public final static Boolean COLUMN_1_PRIMARY = true;
-    public final static String COLUMN_1_NAME = "Date";
-    public final static String COLUMN_1_INTERNAL_NAME = "mdb_date";
-    public final static ColumnTypeDto COLUMN_1_TYPE = ColumnTypeDto.DATE;
+    public final static String COLUMN_1_NAME = "id";
+    public final static String COLUMN_1_INTERNAL_NAME = "mdb_id";
+    public final static ColumnTypeDto COLUMN_1_TYPE = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_1_NULL = false;
     public final static Boolean COLUMN_1_UNIQUE = true;
 
@@ -77,7 +81,7 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_REPOSITORY = "postgres";
     public final static String IMAGE_1_TAG = "13-alpine";
     public final static String IMAGE_1_HASH = "83b40f2726e5";
-    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.PostgreSQLDialect";
+    public final static String IMAGE_1_DIALECT = "POSTGRES";
     public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
     public final static String IMAGE_1_JDBC = "postgresql";
     public final static Integer IMAGE_1_PORT = 5433;
@@ -121,8 +125,8 @@ public abstract class BaseUnitTest {
     public static String CONTAINER_1_HASH = "deadbeef";
     public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
     public final static String CONTAINER_1_NAME = "u01";
-    public final static String CONTAINER_1_INTERNALNAME = "u01";
-    public final static String CONTAINER_1_IP = "172.27.50.5";
+    public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
+    public final static String CONTAINER_1_IP = "172.28.0.5";
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Long CONTAINER_2_ID = 2L;
@@ -200,6 +204,8 @@ public abstract class BaseUnitTest {
                     .isPrimaryKey(COLUMN_5_PRIMARY)
                     .build());
 
+    public final static List<TableColumn> TABLE_2_COLUMNS = TABLE_1_COLUMNS;
+
     public final static Table TABLE_1 = Table.builder()
             .id(TABLE_1_ID)
             .created(Instant.now())
@@ -207,6 +213,16 @@ public abstract class BaseUnitTest {
             .name(TABLE_1_NAME)
             .lastModified(Instant.now())
             .columns(TABLE_1_COLUMNS)
+            .tdbid(DATABASE_1_ID)
+            .build();
+
+    public final static Table TABLE_2 = Table.builder()
+            .id(TABLE_2_ID)
+            .created(Instant.now())
+            .internalName(TABLE_2_INTERNALNAME)
+            .name(TABLE_2_NAME)
+            .lastModified(Instant.now())
+            .columns(TABLE_2_COLUMNS)
             .tdbid(DATABASE_1_ID)
             .build();
 
