@@ -5,6 +5,7 @@ import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
+import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
@@ -86,10 +87,17 @@ public abstract class BaseUnitTest {
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .key("POSTGRES_DB")
+                    .value(DATABASE_1_INTERNALNAME)
+                    .type(ContainerImageEnvironmentItemType.DATABASE)
                     .build());
 
     public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
@@ -113,7 +121,8 @@ public abstract class BaseUnitTest {
     public static String CONTAINER_1_HASH = "deadbeef";
     public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
     public final static String CONTAINER_1_NAME = "u01";
-    public final static String CONTAINER_1_INTERNALNAME = "localhost";
+    public final static String CONTAINER_1_INTERNALNAME = "u01";
+    public final static String CONTAINER_1_IP = "172.27.50.5";
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Long CONTAINER_2_ID = 2L;
