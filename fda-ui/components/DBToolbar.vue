@@ -10,7 +10,7 @@
         <v-tab :to="`/db/${$route.params.db_id}/tables`">
           Tables
         </v-tab>
-        <v-tab :to="`/db/${$route.params.db_id}/query`">
+        <v-tab v-if="false" :to="`/db/${$route.params.db_id}/query`">
           Query
         </v-tab>
         <v-tab :to="`/db/${$route.params.db_id}/admin`">
