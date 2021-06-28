@@ -51,6 +51,7 @@ public interface TableMapper {
             @Mapping(source = "columns", target = "columns", qualifiedByName = "columnMapping"),
             @Mapping(source = "name", target = "name", qualifiedByName = "identityMapping"),
             @Mapping(source = "name", target = "internalName", qualifiedByName = "internalMapping"),
+            @Mapping(source = "description", target = "description", qualifiedByName = "identityMapping"),
     })
     Table tableCreateDtoToTable(TableCreateDto data);
 

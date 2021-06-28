@@ -111,9 +111,9 @@ test-backend-table:
   stage: test
   script:
     - docker system prune -f --volumes
-    - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
+    - "sudo ./fda-table-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-table-service/pom.xml clean test verify"
-    - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
+    - "sudo ./fda-table-service/rest-service/src/test/resources/integration-test.after"
     - cat ./fda-table-service/report/target/site/jacoco-aggregate/index.html
   needs:
     - build-metadata-db
