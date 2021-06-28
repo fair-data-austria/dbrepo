@@ -65,13 +65,18 @@ public class DatabaseService extends JdbcConnector {
     }
 
     @Transactional
-    public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException, SQLException {
+    public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
+            DatabaseMalformedException {
         final Optional<Database> databaseResponse = databaseRepository.findById(databaseId);
         if (databaseResponse.isEmpty()) {
             log.warn("Database with id {} does not exist", databaseId);
             throw new DatabaseNotFoundException("Database does not exist.");
         }
-        delete(databaseResponse.get());
+        try {
+            delete(databaseResponse.get());
+        } catch (SQLException e) {
+            throw new DatabaseMalformedException(e);
+        }
         databaseRepository.deleteById(databaseId);
         log.info("Deleted database {}", databaseId);
         log.debug("deleted database {}", databaseResponse.get());
@@ -79,7 +84,7 @@ public class DatabaseService extends JdbcConnector {
 
     @Transactional
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
-            SQLException {
+            DatabaseMalformedException {
         final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
         if (containerResponse.isEmpty()) {
             log.warn("Container with id {} does not exist", createDto.getContainerId());
@@ -91,7 +96,11 @@ public class DatabaseService extends JdbcConnector {
         database.setInternalName(databaseMapper.databaseToInternalDatabaseName(database));
         database.setContainer(containerResponse.get());
         database.setIsPublic(createDto.getIsPublic());
-        create(database);
+        try {
+            create(database);
+        } catch (SQLException e) {
+            throw new DatabaseMalformedException(e);
+        }
         // save in metadata database
         final Database out = databaseRepository.save(database);
         log.info("Created database {}", out.getId());
@@ -100,19 +109,20 @@ public class DatabaseService extends JdbcConnector {
     }
 
     @Transactional
-    public Database modify(DatabaseModifyDto modifyDto) throws ImageNotSupportedException, SQLException,
-            DatabaseNotFoundException {
+    public Database modify(DatabaseModifyDto modifyDto) throws ImageNotSupportedException, DatabaseNotFoundException,
+            DatabaseMalformedException {
         final Optional<Database> databaseResponse = databaseRepository.findById(modifyDto.getDatabaseId());
         if (databaseResponse.isEmpty()) {
             log.warn("Database with id {} does not exist", modifyDto.getDatabaseId());
             throw new DatabaseNotFoundException("Database does not exist.");
         }
         // call container to create database
-        final Database database = new Database();
-        database.setName(modifyDto.getName());
-        database.setInternalName(databaseMapper.databaseToInternalDatabaseName(database));
-        database.setIsPublic(modifyDto.getIsPublic());
-        modify(database);
+        final Database database = databaseMapper.modifyDatabaseByDatabaseModifyDto(databaseResponse.get(), modifyDto);
+        try {
+            modify(database);
+        } catch (SQLException e) {
+            throw new DatabaseMalformedException(e);
+        }
         // save in metadata database
         final Database out = databaseRepository.save(database);
         log.info("Updated database {}", out.getId());

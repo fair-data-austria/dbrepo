@@ -1,6 +1,7 @@
 package at.tuwien.mapper;
 
 import at.tuwien.api.database.DatabaseBriefDto;
+import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.database.Database;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,6 +27,16 @@ public interface DatabaseMapper {
         String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
         String slug = NONLATIN.matcher(normalized).replaceAll("");
         return slug.toLowerCase(Locale.ENGLISH);
+    }
+
+    default Database modifyDatabaseByDatabaseModifyDto(Database database, DatabaseModifyDto data) {
+        if (data.getName() != null && !database.getName().equals(data.getName())) {
+            database.setName(data.getName());
+        }
+        if (data.getIsPublic() != null && !database.getIsPublic().equals(data.getIsPublic())) {
+            database.setIsPublic(data.getIsPublic());
+        }
+        return database;
     }
 
 }
