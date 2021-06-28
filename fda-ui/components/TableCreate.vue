@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card>
+    <v-card class="pb-2">
       <v-card-title class="pb-0">
         Create Table
       </v-card-title>
@@ -17,7 +17,7 @@
           Add Column
         </v-btn>
       </v-card-text>
-      <v-card-text v-for="(c, idx) in columns" :key="idx" class="pa-3">
+      <v-card-text v-for="(c, idx) in columns" :key="idx" class="pa-3 mb-2">
         <v-row class="column pa-2 ml-1 mr-1">
           <v-col cols="4">
             <v-text-field v-model="c.name" required label="Name" />
@@ -43,11 +43,18 @@
               @change="(x) => onChange(idx, x, 'nullAllowed')" />
           </v-col>
           <v-spacer />
-          <v-btn :disabled="!canCreateTable()" @click="createTable">
-            Create Table
+          <v-btn title="Remove column" outlined icon @click="removeColumn(idx)">
+            <v-icon>mdi-minus</v-icon>
           </v-btn>
-          </v-card-actions>
         </v-row>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn :disabled="!canCreateTable()" @click="createTable">
+          Create Table
+        </v-btn>
+      </v-card-actions>
+      </v-row>
       </v-card-text>
     </v-card>
   </div>
@@ -103,6 +110,7 @@ export default {
     },
     canCreateTable () {
       if (this.name === '') { return false }
+      if (this.description === '') { return false }
       if (!this.columns.length) { return false }
       for (let i = 0; i < this.columns.length; i++) {
         const col = this.columns[i]

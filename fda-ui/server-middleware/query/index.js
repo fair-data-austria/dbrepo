@@ -1,4 +1,4 @@
-const { format } = require('sql-formatter');
+const { format } = require('sql-formatter')
 const knex = require('knex')({ client: 'pg' })
 
 export function buildQuery ({ table, select, clauses }) {
