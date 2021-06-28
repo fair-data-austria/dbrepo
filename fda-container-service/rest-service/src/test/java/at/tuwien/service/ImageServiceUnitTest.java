@@ -128,7 +128,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_succeeds() throws ImageNotFoundException {
+    public void delete_succeeds() throws ImageNotFoundException, PersistenceException {
         doNothing()
                 .when(imageRepository)
                 .deleteById(IMAGE_1_ID);

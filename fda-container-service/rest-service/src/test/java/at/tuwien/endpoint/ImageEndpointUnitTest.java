@@ -143,7 +143,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_fails() throws ImageNotFoundException {
+    public void delete_fails() throws ImageNotFoundException, PersistenceException {
         doThrow(new ImageNotFoundException("not found"))
                 .when(imageService)
                 .delete(IMAGE_1_ID);
