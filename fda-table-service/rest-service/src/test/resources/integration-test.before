@@ -1,1 +1,4 @@
 #!/bin/bash
+if ! grep -q fda-userdb-01 /etc/hosts; then
+  echo "172.28.0.6 fda-userdb-01" >> /etc/hosts
+fi
