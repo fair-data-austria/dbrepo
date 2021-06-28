@@ -1,10 +1,13 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
+import com.opencsv.exceptions.CsvException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -12,8 +15,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,16 +122,46 @@ public class TableServiceUnitTest extends BaseUnitTest {
         });
     }
 
-    @Disabled("cannot yet test private method")
     @Test
-    public void create_noPostgres_fails() {
+    public void readCsv_succeeds() throws IOException, CsvException {
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(true)
+                .nullElement("NA")
+                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath())))
+                .build();
 
+        /* test */
+        final TableCsvDto response = tableService.readCsv(request, TABLE_1);
+        assertEquals(1000, response.getData().size());
     }
 
-    @Disabled("cannot yet test private method")
     @Test
-    public void create_noConnection_fails() {
+    public void readCsv_nullElement_succeeds() throws IOException, CsvException {
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(true)
+                .nullElement(null)
+                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath())))
+                .build();
 
+        /* test */
+        final TableCsvDto response = tableService.readCsv(request, TABLE_1);
+        assertEquals(1000, response.getData().size());
+    }
+
+    @Test
+    public void readCsv_skipheader_succeeds() throws IOException, CsvException {
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(false)
+                .nullElement(null)
+                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath())))
+                .build();
+
+        /* test */
+        final TableCsvDto response = tableService.readCsv(request, TABLE_1);
+        assertEquals(1001, response.getData().size());
     }
 
 }
