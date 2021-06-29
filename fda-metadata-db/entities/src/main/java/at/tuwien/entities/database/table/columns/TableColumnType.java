@@ -1,11 +1,11 @@
-package at.tuwien.api.database.table.columns;
+package at.tuwien.entities.database.table.columns;
 
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
-public enum ColumnTypeDto {
+public enum TableColumnType {
     ENUM,
     NUMBER,
     STRING,
