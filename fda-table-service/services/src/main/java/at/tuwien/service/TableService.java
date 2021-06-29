@@ -225,7 +225,9 @@ public class TableService {
     // TODO ms what is this for? It does ony print to stdout
     public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
             DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
-        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
+        final Table tmpTable = findById(databaseId, tableId);
+        log.debug("=================> {}", tmpTable);
+        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), tmpTable);
         for (Map<String, Object> m : queryResult.getResult()) {
             for (Map.Entry<String, Object> entry : m.entrySet()) {
                 log.debug("{}: {}", entry.getKey(), entry.getValue());
