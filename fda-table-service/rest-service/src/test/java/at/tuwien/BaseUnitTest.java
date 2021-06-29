@@ -36,35 +36,35 @@ public abstract class BaseUnitTest {
     public final static Boolean COLUMN_1_PRIMARY = true;
     public final static String COLUMN_1_NAME = "Min";
     public final static String COLUMN_1_INTERNAL_NAME = "min";
-    public final static ColumnTypeDto COLUMN_1_TYPE = ColumnTypeDto.NUMBER;
+    public final static ColumnTypeDto COLUMN_1_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_1_NULL = false;
 
     public final static Long COLUMN_2_ID = 2L;
     public final static Boolean COLUMN_2_PRIMARY = false;
     public final static String COLUMN_2_NAME = "Max";
     public final static String COLUMN_2_INTERNAL_NAME = "max";
-    public final static ColumnTypeDto COLUMN_2_TYPE = ColumnTypeDto.NUMBER;
+    public final static ColumnTypeDto COLUMN_2_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_2_NULL = true;
 
     public final static Long COLUMN_3_ID = 3L;
     public final static Boolean COLUMN_3_PRIMARY = false;
     public final static String COLUMN_3_NAME = "Buy";
     public final static String COLUMN_3_INTERNAL_NAME = "buy";
-    public final static ColumnTypeDto COLUMN_3_TYPE = ColumnTypeDto.NUMBER;
+    public final static ColumnTypeDto COLUMN_3_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_3_NULL = true;
 
     public final static Long COLUMN_4_ID = 4L;
     public final static Boolean COLUMN_4_PRIMARY = false;
     public final static String COLUMN_4_NAME = "Sell";
     public final static String COLUMN_4_INTERNAL_NAME = "sell";
-    public final static ColumnTypeDto COLUMN_4_TYPE = ColumnTypeDto.NUMBER;
+    public final static ColumnTypeDto COLUMN_4_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_4_NULL = true;
 
     public final static Long COLUMN_5_ID = 5L;
     public final static Boolean COLUMN_5_PRIMARY = false;
     public final static String COLUMN_5_NAME = "Description";
     public final static String COLUMN_5_INTERNAL_NAME = "description";
-    public final static ColumnTypeDto COLUMN_5_TYPE = ColumnTypeDto.TEXT;
+    public final static ColumnTypeDto COLUMN_5_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_5_NULL = true;
 
     public final static Long IMAGE_1_ID = 1L;
@@ -135,7 +135,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_1_NAME)
                     .internalName(COLUMN_1_INTERNAL_NAME)
-                    .columnType(COLUMN_1_TYPE.name())
+                    .columnType(COLUMN_1_TYPE_DTO.name())
                     .isNullAllowed(COLUMN_1_NULL)
                     .isPrimaryKey(COLUMN_1_PRIMARY)
                     .build(),
@@ -145,7 +145,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_2_NAME)
                     .internalName(COLUMN_2_INTERNAL_NAME)
-                    .columnType(COLUMN_2_TYPE.name())
+                    .columnType(COLUMN_2_TYPE_DTO.name())
                     .isNullAllowed(COLUMN_2_NULL)
                     .isPrimaryKey(COLUMN_2_PRIMARY)
                     .build(),
@@ -155,7 +155,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_3_NAME)
                     .internalName(COLUMN_3_INTERNAL_NAME)
-                    .columnType(COLUMN_3_TYPE.name())
+                    .columnType(COLUMN_3_TYPE_DTO.name())
                     .isNullAllowed(COLUMN_3_NULL)
                     .isPrimaryKey(COLUMN_3_PRIMARY)
                     .build(),
@@ -165,7 +165,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_4_NAME)
                     .internalName(COLUMN_4_INTERNAL_NAME)
-                    .columnType(COLUMN_4_TYPE.name())
+                    .columnType(COLUMN_4_TYPE_DTO.name())
                     .isNullAllowed(COLUMN_4_NULL)
                     .isPrimaryKey(COLUMN_4_PRIMARY)
                     .build(),
@@ -175,7 +175,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_5_NAME)
                     .internalName(COLUMN_5_INTERNAL_NAME)
-                    .columnType(COLUMN_5_TYPE.name())
+                    .columnType(COLUMN_5_TYPE_DTO.name())
                     .isNullAllowed(COLUMN_5_NULL)
                     .isPrimaryKey(COLUMN_5_PRIMARY)
                     .build());
@@ -215,31 +215,31 @@ public abstract class BaseUnitTest {
 
     public final static ColumnCreateDto[] COLUMNS5 = new ColumnCreateDto[]{
             ColumnCreateDto.builder()
-                    .type(COLUMN_1_TYPE)
+                    .type(COLUMN_1_TYPE_DTO)
                     .name(COLUMN_1_NAME)
                     .nullAllowed(COLUMN_1_NULL)
                     .primaryKey(COLUMN_1_PRIMARY)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_2_TYPE)
+                    .type(COLUMN_2_TYPE_DTO)
                     .name(COLUMN_2_NAME)
                     .nullAllowed(COLUMN_2_NULL)
                     .primaryKey(COLUMN_2_PRIMARY)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_3_TYPE)
+                    .type(COLUMN_3_TYPE_DTO)
                     .name(COLUMN_3_NAME)
                     .nullAllowed(COLUMN_3_NULL)
                     .primaryKey(COLUMN_3_PRIMARY)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_4_TYPE)
+                    .type(COLUMN_4_TYPE_DTO)
                     .name(COLUMN_4_NAME)
                     .nullAllowed(COLUMN_4_NULL)
                     .primaryKey(COLUMN_4_PRIMARY)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_5_TYPE)
+                    .type(COLUMN_5_TYPE_DTO)
                     .name(COLUMN_5_NAME)
                     .nullAllowed(COLUMN_5_NULL)
                     .primaryKey(COLUMN_5_PRIMARY)

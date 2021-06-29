@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Setter
@@ -22,7 +23,7 @@ public class TableCsvInformationDto {
     @ApiModelProperty(name = "table description", required = true, example = "SEC 10K annual fillings (2016-2012) ")
     private String description;
 
-    @NotBlank
+    @NotNull
     private List<ColumnTypeDto> columns;
 
     @NotBlank
