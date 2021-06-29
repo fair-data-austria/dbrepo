@@ -13,8 +13,4 @@ public interface ContainerRepository extends JpaRepository<Container, Long> {
 
     Container findByHash(String id);
 
-    @Modifying
-    @Query(value = "update Container set image = null where image.id = :image_id")
-    void detachImage(@Param("image_id") Long imageId);
-
 }

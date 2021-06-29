@@ -59,6 +59,7 @@ public abstract class BaseUnitTest {
     public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
             "POSTGRES_PASSWORD=postgres");
 
+    public final static Long IMAGE_2_ID = 2L;
     public final static String IMAGE_2_REPOSITORY = "redis";
     public final static String IMAGE_2_TAG = "latest";
     public final static String IMAGE_2_HASH = "f877e80bb9ef";
@@ -91,7 +92,7 @@ public abstract class BaseUnitTest {
             .toArray(new ImageEnvItemDto[0]);
 
     public final static ContainerImage IMAGE_1 = ContainerImage.builder()
-            .id(1L)
+            .id(IMAGE_1_ID)
             .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
             .hash(IMAGE_1_HASH)
@@ -118,6 +119,7 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static ContainerImage IMAGE_2 = ContainerImage.builder()
+            .id(IMAGE_2_ID)
             .repository(IMAGE_2_REPOSITORY)
             .tag(IMAGE_2_TAG)
             .hash(IMAGE_2_HASH)

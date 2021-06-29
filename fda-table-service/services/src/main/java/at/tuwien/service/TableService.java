@@ -83,8 +83,7 @@ public class TableService extends JdbcConnector {
     }
 
     @Transactional
-    public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
+    public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException {
         final Optional<Table> table = tableRepository.findByDatabaseAndId(findDatabase(databaseId), tableId);
         if (table.isEmpty()) {
             log.error("table {} not found in database {}", tableId, databaseId);
@@ -157,14 +156,13 @@ public class TableService extends JdbcConnector {
         final TableCsvDto values;
         try {
             values = readCsv(data, table);
-        } catch (IOException | CsvException e) {
+        } catch (IOException | CsvException | ArrayIndexOutOfBoundsException e) {
             log.error("failed to parse csv {}", e.getMessage());
             throw new FileStorageException("failed to parse csv", e);
         }
-        /* hibernate inserts one line after another (batch insert not supported), so we can do the same now and take out some complexity of the code */
         try {
             insert(table, values);
-        } catch (SQLException e) {
+        } catch (SQLException | EntityNotSupportedException e) {
             log.error("could not insert data {}", e.getMessage());
             throw new TableMalformedException("could not insert data", e);
         }
@@ -173,20 +171,17 @@ public class TableService extends JdbcConnector {
 
     /* helper functions */
 
-    private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
+    public Database findDatabase(Long id) throws DatabaseNotFoundException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
             log.error("no database with this id found in metadata database");
             throw new DatabaseNotFoundException("database not found in metadata database");
         }
-        if (!database.get().getContainer().getImage().getRepository().equals("postgres")) {
-            log.error("Right now only PostgreSQL is supported!");
-            throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
-        }
         return database.get();
     }
 
-    protected TableCsvDto readCsv(TableInsertDto data, Table table) throws IOException, CsvException {
+    public TableCsvDto readCsv(TableInsertDto data, Table table) throws IOException, CsvException,
+            ArrayIndexOutOfBoundsException {
         final CSVParser csvParser = new CSVParserBuilder()
                 .withSeparator(data.getDelimiter())
                 .build();

@@ -46,12 +46,9 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private DockerClient dockerClient;
 
-    private Long CONTAINER_1_ID, CONTAINER_2_ID;
-    private String CONTAINER_1_HASH;
-
     @Transactional
     @BeforeEach
-    public void beforeEach() {
+    public void beforeEach() throws InterruptedException {
         afterEach();
         /* create network */
         dockerClient.createNetworkCmd()
@@ -62,8 +59,6 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
-        imageRepository.save(IMAGE_1);
-        imageRepository.save(IMAGE_2);
         /* create container */
         final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
                 .withEnv(IMAGE_1_ENVIRONMENT)
@@ -75,10 +70,10 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
                 .exec();
         /* start container */
         dockerClient.startContainerCmd(request.getId()).exec();
-        CONTAINER_1_HASH = request.getId();
-        CONTAINER_1.setHash(CONTAINER_1_HASH);
-        CONTAINER_1_ID = containerRepository.save(CONTAINER_1).getId();
-        CONTAINER_2_ID = containerRepository.save(CONTAINER_2).getId();
+        Thread.sleep(3000L);
+        CONTAINER_1.setHash(request.getId());
+        containerRepository.save(CONTAINER_1).getId();
+        containerRepository.save(CONTAINER_2).getId();
     }
 
     @Transactional
