@@ -30,6 +30,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,32 +105,39 @@ public class TableService {
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, DataProcessingException {
         final Database database = findDatabase(databaseId);
-
-        /* save in metadata db */
+        /* create database in container */
         postgresService.createTable(database, createDto);
+        /* save in metadata db */
         final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
         mappedTable.setDatabase(database);
         mappedTable.setTdbid(databaseId);
-        mappedTable.setColumns(List.of());
+        mappedTable.setColumns(List.of()); // TODO: our metadata db model (primary keys x3) does not allow this currently
         final Table table;
         try {
             table = tableRepository.save(mappedTable);
         } catch (EntityNotFoundException e) {
+            log.error("failed to create table compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create table compound key", e);
         }
-        table.getColumns().forEach(column -> {
+        /* we cannot insert columns at the same time since they depend on the table id */
+        for (int i = 0; i < createDto.getColumns().length; i++) {
+            final TableColumn column = tableMapper.columnCreateDtoToTableColumn(createDto.getColumns()[i]);
+//            column.setOrdinalPosition(i);
             column.setCdbid(databaseId);
             column.setTid(table.getId());
-        });
-        final Table out;
+            table.getColumns()
+                    .add(column);
+        }
+        /* update table in metadata db */
         try {
-            out = tableRepository.save(table);
+            tableRepository.save(table);
         } catch (EntityNotFoundException e) {
+            log.error("failed to create column compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create column compound key", e);
         }
-        log.debug("saved table: {}", out);
-        log.info("Created table {} in database {}", out.getName(), out.getDatabase().getId());
-        return out;
+        log.info("Created table {}", table.getId());
+        log.debug("created table: {}", table);
+        return table;
     }
 
     @Transactional
