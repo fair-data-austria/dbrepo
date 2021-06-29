@@ -15,6 +15,7 @@ const colTypeMap = {
   Integer: 'NUMBER',
   Numeric: 'NUMBER',
   String: 'STRING',
+  Text: 'STRING',
   Timestamp: 'DATE'
 }
 
@@ -25,8 +26,13 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
   // send path to analyse service
   let analysis
   try {
-    analysis = await fetch(`${process.env.API_ANALYSE}/datatypesbypath?filepath=${path}`)
+    analysis = await fetch(`${process.env.API_ANALYSE}/determinedt`, {
+      method: 'post',
+      body: JSON.stringify({ filepath: path }),
+      headers: { 'Content-Type': 'application/json' }
+    })
     analysis = await analysis.json()
+    analysis = JSON.parse(analysis)
   } catch (error) {
     return res.json({ success: false, error })
   }
