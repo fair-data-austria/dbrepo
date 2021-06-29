@@ -1,6 +1,9 @@
 package at.tuwien;
 
+import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.TableDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
+import at.tuwien.api.database.table.columns.ColumnDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
@@ -9,6 +12,7 @@ import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
+import at.tuwien.entities.database.table.columns.TableColumnType;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
@@ -41,41 +45,56 @@ public abstract class BaseUnitTest {
     public final static Boolean COLUMN_1_PRIMARY = true;
     public final static String COLUMN_1_NAME = "id";
     public final static String COLUMN_1_INTERNAL_NAME = "mdb_id";
-    public final static ColumnTypeDto COLUMN_1_TYPE = ColumnTypeDto.NUMBER;
+    public final static TableColumnType COLUMN_1_TYPE = TableColumnType.NUMBER;
+    public final static ColumnTypeDto COLUMN_1_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_1_NULL = false;
     public final static Boolean COLUMN_1_UNIQUE = true;
+    public final static String COLUMN_1_FOREIGN_KEY = null;
+    public final static String COLUMN_1_CHECK = null;
 
     public final static Long COLUMN_2_ID = 2L;
     public final static Boolean COLUMN_2_PRIMARY = false;
-    public final static String COLUMN_2_NAME = "Location";
-    public final static String COLUMN_2_INTERNAL_NAME = "mdb_location";
-    public final static ColumnTypeDto COLUMN_2_TYPE = ColumnTypeDto.STRING;
-    public final static Boolean COLUMN_2_NULL = false;
+    public final static String COLUMN_2_NAME = "Date";
+    public final static String COLUMN_2_INTERNAL_NAME = "mdb_date";
+    public final static TableColumnType COLUMN_2_TYPE = TableColumnType.DATE;
+    public final static ColumnTypeDto COLUMN_2_TYPE_DTO = ColumnTypeDto.DATE;
+    public final static Boolean COLUMN_2_NULL = true;
     public final static Boolean COLUMN_2_UNIQUE = false;
+    public final static String COLUMN_2_FOREIGN_KEY = null;
+    public final static String COLUMN_2_CHECK = null;
 
     public final static Long COLUMN_3_ID = 3L;
     public final static Boolean COLUMN_3_PRIMARY = false;
     public final static String COLUMN_3_NAME = "MinTemp";
     public final static String COLUMN_3_INTERNAL_NAME = "mdb_min_temp";
-    public final static ColumnTypeDto COLUMN_3_TYPE = ColumnTypeDto.NUMBER;
-    public final static Boolean COLUMN_3_NULL = false;
+    public final static TableColumnType COLUMN_3_TYPE = TableColumnType.NUMBER;
+    public final static ColumnTypeDto COLUMN_3_TYPE_DTO = ColumnTypeDto.NUMBER;
+    public final static Boolean COLUMN_3_NULL = true;
     public final static Boolean COLUMN_3_UNIQUE = false;
+    public final static String COLUMN_3_FOREIGN_KEY = null;
+    public final static String COLUMN_3_CHECK = null;
 
     public final static Long COLUMN_4_ID = 4L;
     public final static Boolean COLUMN_4_PRIMARY = false;
-    public final static String COLUMN_4_NAME = "MaxTemp";
-    public final static String COLUMN_4_INTERNAL_NAME = "mdb_max_temp";
-    public final static ColumnTypeDto COLUMN_4_TYPE = ColumnTypeDto.NUMBER;
-    public final static Boolean COLUMN_4_NULL = false;
+    public final static String COLUMN_4_NAME = "Location";
+    public final static String COLUMN_4_INTERNAL_NAME = "mdb_location";
+    public final static TableColumnType COLUMN_4_TYPE = TableColumnType.STRING;
+    public final static ColumnTypeDto COLUMN_4_TYPE_DTO = ColumnTypeDto.STRING;
+    public final static Boolean COLUMN_4_NULL = true;
     public final static Boolean COLUMN_4_UNIQUE = false;
+    public final static String COLUMN_4_FOREIGN_KEY = null;
+    public final static String COLUMN_4_CHECK = null;
 
     public final static Long COLUMN_5_ID = 5L;
     public final static Boolean COLUMN_5_PRIMARY = false;
     public final static String COLUMN_5_NAME = "Rainfall";
     public final static String COLUMN_5_INTERNAL_NAME = "mdb_rainfall";
-    public final static ColumnTypeDto COLUMN_5_TYPE = ColumnTypeDto.NUMBER;
-    public final static Boolean COLUMN_5_NULL = false;
+    public final static TableColumnType COLUMN_5_TYPE = TableColumnType.NUMBER;
+    public final static ColumnTypeDto COLUMN_5_TYPE_DTO = ColumnTypeDto.NUMBER;
+    public final static Boolean COLUMN_5_NULL = true;
     public final static Boolean COLUMN_5_UNIQUE = false;
+    public final static String COLUMN_5_FOREIGN_KEY = null;
+    public final static String COLUMN_5_CHECK = null;
 
     public final static Long IMAGE_1_ID = 1L;
     public final static String IMAGE_1_REPOSITORY = "postgres";
@@ -159,7 +178,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_1_NAME)
                     .internalName(COLUMN_1_INTERNAL_NAME)
-                    .columnType(COLUMN_1_TYPE.name())
+                    .columnType(COLUMN_1_TYPE)
                     .isNullAllowed(COLUMN_1_NULL)
                     .isPrimaryKey(COLUMN_1_PRIMARY)
                     .build(),
@@ -169,7 +188,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_2_NAME)
                     .internalName(COLUMN_2_INTERNAL_NAME)
-                    .columnType(COLUMN_2_TYPE.name())
+                    .columnType(COLUMN_2_TYPE)
                     .isNullAllowed(COLUMN_2_NULL)
                     .isPrimaryKey(COLUMN_2_PRIMARY)
                     .build(),
@@ -179,7 +198,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_3_NAME)
                     .internalName(COLUMN_3_INTERNAL_NAME)
-                    .columnType(COLUMN_3_TYPE.name())
+                    .columnType(COLUMN_3_TYPE)
                     .isNullAllowed(COLUMN_3_NULL)
                     .isPrimaryKey(COLUMN_3_PRIMARY)
                     .build(),
@@ -189,7 +208,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_4_NAME)
                     .internalName(COLUMN_4_INTERNAL_NAME)
-                    .columnType(COLUMN_4_TYPE.name())
+                    .columnType(COLUMN_4_TYPE)
                     .isNullAllowed(COLUMN_4_NULL)
                     .isPrimaryKey(COLUMN_4_PRIMARY)
                     .build(),
@@ -199,7 +218,7 @@ public abstract class BaseUnitTest {
                     .tid(TABLE_1_ID)
                     .name(COLUMN_5_NAME)
                     .internalName(COLUMN_5_INTERNAL_NAME)
-                    .columnType(COLUMN_5_TYPE.name())
+                    .columnType(COLUMN_5_TYPE)
                     .isNullAllowed(COLUMN_5_NULL)
                     .isPrimaryKey(COLUMN_5_PRIMARY)
                     .build());
@@ -251,49 +270,96 @@ public abstract class BaseUnitTest {
 
     public final static ColumnCreateDto[] COLUMNS5 = new ColumnCreateDto[]{
             ColumnCreateDto.builder()
-                    .type(COLUMN_1_TYPE)
+                    .type(COLUMN_1_TYPE_DTO)
                     .name(COLUMN_1_NAME)
                     .nullAllowed(COLUMN_1_NULL)
                     .primaryKey(COLUMN_1_PRIMARY)
                     .unique(COLUMN_1_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_2_TYPE)
+                    .type(COLUMN_2_TYPE_DTO)
                     .name(COLUMN_2_NAME)
                     .nullAllowed(COLUMN_2_NULL)
                     .primaryKey(COLUMN_2_PRIMARY)
                     .unique(COLUMN_2_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_3_TYPE)
+                    .type(COLUMN_3_TYPE_DTO)
                     .name(COLUMN_3_NAME)
                     .nullAllowed(COLUMN_3_NULL)
                     .primaryKey(COLUMN_3_PRIMARY)
                     .unique(COLUMN_3_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_4_TYPE)
+                    .type(COLUMN_4_TYPE_DTO)
                     .name(COLUMN_4_NAME)
                     .nullAllowed(COLUMN_4_NULL)
                     .primaryKey(COLUMN_4_PRIMARY)
                     .unique(COLUMN_4_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_5_TYPE)
+                    .type(COLUMN_5_TYPE_DTO)
                     .name(COLUMN_5_NAME)
                     .nullAllowed(COLUMN_5_NULL)
                     .primaryKey(COLUMN_5_PRIMARY)
                     .unique(COLUMN_5_UNIQUE)
                     .build()};
 
-    public final static ColumnCreateDto[] COLUMNS4 = new ColumnCreateDto[]{
-            ColumnCreateDto.builder()
-                    .type(COLUMN_1_TYPE)
+    public final static ColumnDto[] COLUMNS5_DTO = new ColumnDto[]{
+            ColumnDto.builder()
                     .name(COLUMN_1_NAME)
-                    .nullAllowed(COLUMN_1_NULL)
-                    .primaryKey(COLUMN_1_PRIMARY)
+                    .columnType(COLUMN_1_TYPE_DTO)
+                    .isNullAllowed(COLUMN_1_NULL)
+                    .isPrimaryKey(COLUMN_1_PRIMARY)
+                    .foreignKey(COLUMN_1_FOREIGN_KEY)
+                    .checkExpression(COLUMN_1_CHECK)
+                    .build(),
+            ColumnDto.builder()
+                    .name(COLUMN_2_NAME)
+                    .columnType(COLUMN_2_TYPE_DTO)
+                    .isNullAllowed(COLUMN_2_NULL)
+                    .isPrimaryKey(COLUMN_2_PRIMARY)
+                    .foreignKey(COLUMN_2_FOREIGN_KEY)
+                    .checkExpression(COLUMN_2_CHECK)
+                    .build(),
+            ColumnDto.builder()
+                    .name(COLUMN_3_NAME)
+                    .columnType(COLUMN_3_TYPE_DTO)
+                    .isNullAllowed(COLUMN_3_NULL)
+                    .isPrimaryKey(COLUMN_3_PRIMARY)
+                    .foreignKey(COLUMN_3_FOREIGN_KEY)
+                    .checkExpression(COLUMN_3_CHECK)
+                    .build(),
+            ColumnDto.builder()
+                    .name(COLUMN_4_NAME)
+                    .columnType(COLUMN_4_TYPE_DTO)
+                    .isNullAllowed(COLUMN_4_NULL)
+                    .isPrimaryKey(COLUMN_4_PRIMARY)
+                    .foreignKey(COLUMN_4_FOREIGN_KEY)
+                    .checkExpression(COLUMN_4_CHECK)
+                    .build(),
+            ColumnDto.builder()
+                    .name(COLUMN_5_NAME)
+                    .columnType(COLUMN_5_TYPE_DTO)
+                    .isNullAllowed(COLUMN_5_NULL)
+                    .isPrimaryKey(COLUMN_5_PRIMARY)
+                    .foreignKey(COLUMN_5_FOREIGN_KEY)
+                    .checkExpression(COLUMN_5_CHECK)
                     .build()};
 
-    public final static String COLUMNS5_CREATE = "CREATE TABLE " + TABLE_1_INTERNALNAME + "(Min INTEGER NOT NULL PRIMARY KEY,Max INTEGER NULL,Buy INTEGER NULL,Sell INTEGER NULL,Description TEXT NULL);";
+
+    public final static TableDto TABLE_1_DTO = TableDto.builder()
+            .id(TABLE_1_ID)
+            .name(TABLE_1_NAME)
+            .description(TABLE_1_DESCRIPTION)
+            .internalName(TABLE_1_INTERNALNAME)
+            .columns(COLUMNS5_DTO)
+            .build();
+
+    public final static TableCreateDto TABLE_2_CREATE_DTO = TableCreateDto.builder()
+            .name(TABLE_2_NAME)
+            .description(TABLE_2_DESCRIPTION)
+            .columns(COLUMNS5)
+            .build();
 
 }

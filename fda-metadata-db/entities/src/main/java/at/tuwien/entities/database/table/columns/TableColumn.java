@@ -67,7 +67,8 @@ public class TableColumn {
 
     @ToString.Include
     @Column(nullable = false, name = "datatype")
-    private String columnType;
+    @Enumerated(EnumType.STRING)
+    private TableColumnType columnType;
 
     @ToString.Include
     @Column(nullable = false)
