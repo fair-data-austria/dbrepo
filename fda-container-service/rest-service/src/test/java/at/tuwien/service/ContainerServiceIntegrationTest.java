@@ -107,29 +107,29 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     public void findIpAddress_succeeds() throws ContainerNotRunningException {
 
         /* test */
-        final Map<String, String> response = containerService.findIpAddresses(CONTAINER_1_HASH);
+        final Map<String, String> response = containerService.findIpAddresses(CONTAINER_1.getHash());
         assertTrue(response.containsKey("fda-userdb"));
         assertEquals(CONTAINER_1_IP, response.get("fda-userdb"));
     }
 
     @Test
     public void findIpAddress_notRunning_fails() {
-        dockerClient.stopContainerCmd(CONTAINER_1_HASH).exec();
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
 
         /* test */
         assertThrows(ContainerNotRunningException.class, () -> {
-            containerService.findIpAddresses(CONTAINER_1_HASH);
+            containerService.findIpAddresses(CONTAINER_1.getHash());
         });
     }
 
     @Test
     public void findIpAddress_notFound_fails() {
-        dockerClient.stopContainerCmd(CONTAINER_1_HASH).exec();
-        dockerClient.removeContainerCmd(CONTAINER_1_HASH).exec();
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
+        dockerClient.removeContainerCmd(CONTAINER_1.getHash()).exec();
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            containerService.findIpAddresses(CONTAINER_1_HASH);
+            containerService.findIpAddresses(CONTAINER_1.getHash());
         });
     }
 
@@ -137,18 +137,18 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     public void getContainerState_succeeds() throws DockerClientException {
 
         /* test */
-        final ContainerStateDto response = containerService.getContainerState(CONTAINER_1_HASH);
+        final ContainerStateDto response = containerService.getContainerState(CONTAINER_1.getHash());
         assertEquals(ContainerStateDto.RUNNING, response);
     }
 
     @Test
     public void getContainerState_notFound_fails() {
-        dockerClient.stopContainerCmd(CONTAINER_1_HASH).exec();
-        dockerClient.removeContainerCmd(CONTAINER_1_HASH).exec();
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
+        dockerClient.removeContainerCmd(CONTAINER_1.getHash()).exec();
 
         /* test */
         assertThrows(DockerClientException.class, () -> {
-            containerService.getContainerState(CONTAINER_1_HASH);
+            containerService.getContainerState(CONTAINER_1.getHash());
         });
     }
 
@@ -177,7 +177,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void change_start_succeeds() throws DockerClientException {
-        dockerClient.stopContainerCmd(CONTAINER_1_HASH).exec();
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
 
         /* test */
         containerService.start(CONTAINER_1_ID);
@@ -201,7 +201,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void remove_succeeds() throws DockerClientException {
-        dockerClient.stopContainerCmd(CONTAINER_1_HASH).exec();
+        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
 
         /* test */
         containerService.remove(CONTAINER_1_ID);
