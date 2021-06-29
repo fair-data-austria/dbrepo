@@ -7,6 +7,7 @@ import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
+import at.tuwien.exception.EntityNotSupportedException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.TableMapper;
@@ -49,7 +50,8 @@ public abstract class JdbcConnector {
                 .execute();
     }
 
-    protected void insert(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException {
+    protected void insert(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException,
+            EntityNotSupportedException {
         if (data.getData().size() == 0) {
             return;
         }
@@ -57,6 +59,7 @@ public abstract class JdbcConnector {
         final DSLContext context = open(table.getDatabase());
         final List<InsertValuesStepN<Record>> statements = new LinkedList<>();
         for (List<Object> row : tableMapper.tableCsvDtoToObjectListList(data)) {
+            log.trace("insert row {}", row);
             statements.add(context.insertInto(table(table.getInternalName()), headers)
                     .values(row));
         }

@@ -49,11 +49,11 @@ public class Table {
     private String description;
 
     @ToString.Include
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String internalName;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;
 

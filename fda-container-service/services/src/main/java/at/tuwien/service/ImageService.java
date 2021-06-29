@@ -121,7 +121,6 @@ public class ImageService {
     @Transactional
     public void delete(Long id) throws ImageNotFoundException, PersistenceException {
         try {
-            containerRepository.detachImage(id);
             imageRepository.deleteById(id);
         } catch (EntityNotFoundException | EmptyResultDataAccessException e) {
             log.warn("image id {} not found in metadata database", id);

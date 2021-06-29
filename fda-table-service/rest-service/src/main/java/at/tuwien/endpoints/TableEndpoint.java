@@ -74,7 +74,7 @@ public class TableEndpoint {
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId,
                                                 @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException,
-            ArbitraryPrimaryKeysException, EntityNotSupportedException {
+            ArbitraryPrimaryKeysException {
         final Table table = tableService.createTable(databaseId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
@@ -125,7 +125,7 @@ public class TableEndpoint {
     })
     public ResponseEntity<TableDto> findById(@PathVariable("id") Long databaseId,
                                              @PathVariable("tableId") Long tableId)
-            throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
+            throws TableNotFoundException, DatabaseNotFoundException {
         final Table table = tableService.findById(databaseId, tableId);
         return ResponseEntity.ok(tableMapper.tableToTableDto(table));
     }
@@ -172,7 +172,8 @@ public class TableEndpoint {
     })
     public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
                                     @PathVariable("tableId") Long tableId,
-                                    @Valid @ModelAttribute TableInsertDto data) throws Exception {
+                                    @Valid @ModelAttribute TableInsertDto data) throws TableNotFoundException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException {
         tableService.insertFromFile(databaseId, tableId, data);
         return ResponseEntity.accepted()
                 .build();
