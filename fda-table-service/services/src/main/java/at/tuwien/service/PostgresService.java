@@ -106,7 +106,7 @@ public class PostgresService extends JdbcConnector {
                 }
                 res.add(r);
             }
-            log.debug("assembled result: {}", res);
+            log.debug("retrieved rows: {}", res);
             qr.setResult(res);
             return qr;
         } catch (SQLException e) {
