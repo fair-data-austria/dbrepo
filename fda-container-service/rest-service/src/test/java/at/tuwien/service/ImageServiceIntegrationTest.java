@@ -65,7 +65,6 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
                 .dialect(IMAGE_1_DIALECT)
                 .environment(IMAGE_1_ENV_DTO)
                 .build();
-        imageService.create(request);
 
         /* test */
         assertThrows(ImageAlreadyExistsException.class, () -> {
@@ -81,8 +80,7 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
         /* test */
         imageService.delete(IMAGE_1_ID);
         assertTrue(imageRepository.findById(IMAGE_1_ID).isEmpty());
-        assertTrue(containerRepository.findById(CONTAINER_1_ID).isPresent());
-        assertNull(containerRepository.findById(CONTAINER_1_ID).get().getImage());
+        assertFalse(containerRepository.findById(CONTAINER_1_ID).isPresent());
     }
 
 }

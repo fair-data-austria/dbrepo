@@ -103,6 +103,7 @@ export default {
   },
   methods: {
     async refresh () {
+      // XXX same as in QueryBuilder
       let res
       try {
         res = await this.$axios.get(

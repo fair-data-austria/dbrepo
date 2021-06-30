@@ -45,11 +45,15 @@ public class TableColumn {
     @ToString.Include
     private Long cdbid;
 
+    /**
+     * ManyToOne means {@link JoinColumn#name()} is remote attribute,
+     * {@link JoinColumn#referencedColumnName()} is local attribute
+     */
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumns({
-            @JoinColumn(name = "tid", insertable = false, updatable = false, nullable = false),
-            @JoinColumn(name = "cdbid", insertable = false, updatable = false, nullable = false)
+            @JoinColumn(name = "tid", referencedColumnName = "id", insertable = false, updatable = false),
+            @JoinColumn(name = "cdbid", referencedColumnName = "tdbid", insertable = false, updatable = false)
     })
     private Table table;
 
@@ -79,7 +83,7 @@ public class TableColumn {
     private String checkExpression;
 
     @ToString.Include
-    @Column
+    @Column(nullable = false)
     private Integer ordinalPosition;
 
     @ToString.Include
