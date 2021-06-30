@@ -72,6 +72,7 @@ export default {
       //
       // create a container
       let containerId
+      const isPublic = false
       try {
         res = await this.$axios.post('/api/container/', {
           name: this.database,
@@ -105,7 +106,8 @@ export default {
       try {
         res = await this.$axios.post('/api/database/', {
           name: this.database,
-          containerId
+          containerId,
+          isPublic
         })
         console.log(res)
       } catch (err) {
