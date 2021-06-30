@@ -28,7 +28,6 @@ services:
       - fda-public
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
-      - ./fda-analyse-service/fda-mdb:/docker-entrypoint-initdb.d/
     ports:
       - 5432:5432
     environment:
