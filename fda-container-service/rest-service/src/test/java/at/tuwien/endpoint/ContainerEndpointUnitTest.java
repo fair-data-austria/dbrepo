@@ -3,10 +3,7 @@ package at.tuwien.endpoint;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.*;
 import at.tuwien.endpoints.ContainerEndpoint;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.ContainerStillRunningException;
-import at.tuwien.exception.DockerClientException;
-import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.repository.ImageRepository;
 import at.tuwien.service.ContainerService;
 import com.github.dockerjava.api.DockerClient;
@@ -228,6 +225,17 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
         assertThrows(ContainerNotFoundException.class, () -> {
             containerEndpoint.delete(CONTAINER_1_ID);
         });
+    }
+
+    @Test
+    public void delete_success() throws DockerClientException {
+        doNothing()
+                .when(containerService)
+                .remove(CONTAINER_1_ID);
+
+        /* test */
+        final ResponseEntity<?> response = containerEndpoint.delete(CONTAINER_1_ID);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
