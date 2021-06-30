@@ -46,7 +46,7 @@ public class TableColumn {
     private Long cdbid;
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumns({
             @JoinColumn(name = "id", insertable = false, updatable = false),
             @JoinColumn(name = "cdbid", insertable = false, updatable = false)
