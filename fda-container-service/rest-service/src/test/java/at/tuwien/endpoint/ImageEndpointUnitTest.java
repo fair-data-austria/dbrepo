@@ -42,12 +42,6 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     @MockBean
     private ImageService imageService;
 
-    @MockBean
-    private ImageRepository imageRepository;
-
-    @MockBean
-    private DockerClient dockerClient;
-
     @Autowired
     private ImageEndpoint imageEndpoint;
 
@@ -140,6 +134,17 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
         assertThrows(ImageNotFoundException.class, () -> {
             imageEndpoint.findById(IMAGE_1_ID);
         });
+    }
+
+    @Test
+    public void delete_success() throws ImageNotFoundException, PersistenceException {
+        doNothing()
+                .when(imageService)
+                .delete(IMAGE_1_ID);
+
+        /* test */
+        final ResponseEntity<?> response = imageEndpoint.delete(IMAGE_1_ID);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
