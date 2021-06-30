@@ -57,8 +57,8 @@ public class Table {
     @ToString.Include
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumns({
-            @JoinColumn(name = "cdbid", insertable = false, updatable = false),
-            @JoinColumn(name = "tid", insertable = false, updatable = false),
+            @JoinColumn(name = "tid", referencedColumnName = "id", insertable = false, updatable = false),
+            @JoinColumn(name = "cdbid", referencedColumnName = "tdbid", insertable = false, updatable = false),
     })
     private List<TableColumn> columns;
 
