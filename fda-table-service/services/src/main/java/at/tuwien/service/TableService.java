@@ -226,11 +226,11 @@ public class TableService {
             DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
         final Table tmpTable = findById(databaseId, tableId);
         QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), tmpTable);
-        for (Map<String, Object> m : queryResult.getResult()) {
-            for (Map.Entry<String, Object> entry : m.entrySet()) {
-                log.debug("{}: {}", entry.getKey(), entry.getValue());
-            }
-        }
+//        for (Map<String, Object> m : queryResult.getResult()) {
+//            for (Map.Entry<String, Object> entry : m.entrySet()) {
+//                log.debug("{}: {}", entry.getKey(), entry.getValue());
+//            }
+//        }
         return queryResult;
     }
 
