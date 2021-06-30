@@ -21,5 +21,5 @@ def insert_mdb_db_pub(dbid, ispublic):
         conn.commit()
         conn.close()
     except Exception as e: 
-        print("Error while connecting to mdb",e)
+        print("Error while connecting to mdbase",e)
         
