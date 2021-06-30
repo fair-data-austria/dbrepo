@@ -31,10 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Log4j2
 @Service
@@ -87,7 +84,8 @@ public class TableService {
         return table.get();
     }
 
-    private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
+    @Transactional
+    protected Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
             log.error("no database with this id found in metadata database");
@@ -111,7 +109,7 @@ public class TableService {
         final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
         mappedTable.setDatabase(database);
         mappedTable.setTdbid(databaseId);
-        mappedTable.setColumns(List.of()); // TODO: our metadata db model (primary keys x3) does not allow this currently
+        mappedTable.setColumns(new LinkedList<>()); // TODO: our metadata db model (primary keys x3) does not allow this currently
         final Table table;
         try {
             table = tableRepository.save(mappedTable);
@@ -129,15 +127,16 @@ public class TableService {
                     .add(column);
         }
         /* update table in metadata db */
+        final Table out;
         try {
-            tableRepository.save(table);
+            out = tableRepository.save(table);
         } catch (EntityNotFoundException e) {
             log.error("failed to create column compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create column compound key", e);
         }
-        log.info("Created table {}", table.getId());
-        log.debug("created table: {}", table);
-        return table;
+        log.info("Created table {}", out.getId());
+        log.debug("created table: {}", out);
+        return out;
     }
 
     @Transactional
@@ -222,11 +221,10 @@ public class TableService {
         return null;
     }
 
-    // TODO ms what is this for? It does ony print to stdout
+    @Transactional
     public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
             DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
         final Table tmpTable = findById(databaseId, tableId);
-        log.debug("=================> {}", tmpTable);
         QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), tmpTable);
         for (Map<String, Object> m : queryResult.getResult()) {
             for (Map.Entry<String, Object> entry : m.entrySet()) {
