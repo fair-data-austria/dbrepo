@@ -120,7 +120,7 @@ public class TableService {
         /* we cannot insert columns at the same time since they depend on the table id */
         for (int i = 0; i < createDto.getColumns().length; i++) {
             final TableColumn column = tableMapper.columnCreateDtoToTableColumn(createDto.getColumns()[i]);
-            column.setOrdinalPosition(i);
+//            column.setOrdinalPosition(i);
             column.setCdbid(databaseId);
             column.setTid(table.getId());
             table.getColumns()
