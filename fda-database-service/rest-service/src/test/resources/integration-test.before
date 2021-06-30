@@ -1,9 +1,5 @@
 #!/bin/bash
 docker pull mariadb:latest
 docker pull postgres:13-alpine
-if ! grep -q fda-userdb-u01 /etc/hosts; then
-  echo "172.28.0.5 fda-userdb-u01" >> /etc/hosts
-fi
-if ! grep -q fda-userdb-u02 /etc/hosts; then
-  echo "172.28.0.6 fda-userdb-u02" >> /etc/hosts
-fi
+echo '172.28.0.5 fda-userdb-u01' > ~/hosts
+echo '172.28.0.6 fda-userdb-u02' >> ~/hosts
