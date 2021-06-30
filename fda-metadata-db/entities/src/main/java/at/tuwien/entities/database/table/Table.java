@@ -55,7 +55,7 @@ public class Table {
     private Database database;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumns({
             @JoinColumn(name = "cdbid", insertable = false, updatable = false),
             @JoinColumn(name = "tid", insertable = false, updatable = false),
