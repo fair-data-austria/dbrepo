@@ -3,6 +3,10 @@ before_script:
   - "docker-compose version"
   - "mvn --version"
 
+variables:
+  HOSTALIASES: ~/hosts
+  DOCKER_TLS_CERTDIR: /certs
+
 cache: 
   paths: 
     - /root/.m2/repository/
@@ -126,9 +130,9 @@ test-backend-table:
   stage: test-backend
   script:
     - docker system prune -f --volumes
-    - "sudo ./fda-table-service/rest-service/src/test/resources/integration-test.before"
+    - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-table-service/pom.xml clean test verify"
-    - "sudo ./fda-table-service/rest-service/src/test/resources/integration-test.after"
+    - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
     - cat ./fda-table-service/report/target/site/jacoco-aggregate/index.html
   needs:
     - build-metadata-db
@@ -149,6 +153,3 @@ deploy-all:
     - "docker-compose down"
     - "docker-compose up -d"
     - "docker-compose down"
-
-variables: 
-  DOCKER_TLS_CERTDIR: /certs
