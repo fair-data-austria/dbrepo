@@ -73,6 +73,10 @@ public class ContainerImage {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ContainerImageEnvironmentItem> environment;
 
+    @ToString.Include
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "image")
+    private List<Container> containers;
+
     @Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant created;
@@ -80,5 +84,12 @@ public class ContainerImage {
     @Column
     @LastModifiedDate
     private Instant lastModified;
+
+    @PreRemove
+    public void preRemove() {
+        this.containers.forEach(container -> {
+            container.setImage(null);
+        });
+    }
 
 }

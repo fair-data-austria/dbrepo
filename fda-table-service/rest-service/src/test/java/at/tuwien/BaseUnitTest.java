@@ -42,6 +42,7 @@ public abstract class BaseUnitTest {
     public final static String TABLE_2_INTERNALNAME = "weather_at";
 
     public final static Long COLUMN_1_ID = 1L;
+    public final static Integer COLUMN_1_ORDINALPOS = 0;
     public final static Boolean COLUMN_1_PRIMARY = true;
     public final static String COLUMN_1_NAME = "id";
     public final static String COLUMN_1_INTERNAL_NAME = "mdb_id";
@@ -53,6 +54,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_1_CHECK = null;
 
     public final static Long COLUMN_2_ID = 2L;
+    public final static Integer COLUMN_2_ORDINALPOS = 1;
     public final static Boolean COLUMN_2_PRIMARY = false;
     public final static String COLUMN_2_NAME = "Date";
     public final static String COLUMN_2_INTERNAL_NAME = "mdb_date";
@@ -64,6 +66,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_2_CHECK = null;
 
     public final static Long COLUMN_3_ID = 3L;
+    public final static Integer COLUMN_3_ORDINALPOS = 2;
     public final static Boolean COLUMN_3_PRIMARY = false;
     public final static String COLUMN_3_NAME = "MinTemp";
     public final static String COLUMN_3_INTERNAL_NAME = "mdb_min_temp";
@@ -75,6 +78,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_3_CHECK = null;
 
     public final static Long COLUMN_4_ID = 4L;
+    public final static Integer COLUMN_4_ORDINALPOS = 3;
     public final static Boolean COLUMN_4_PRIMARY = false;
     public final static String COLUMN_4_NAME = "Location";
     public final static String COLUMN_4_INTERNAL_NAME = "mdb_location";
@@ -86,6 +90,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_4_CHECK = null;
 
     public final static Long COLUMN_5_ID = 5L;
+    public final static Integer COLUMN_5_ORDINALPOS = 4;
     public final static Boolean COLUMN_5_PRIMARY = false;
     public final static String COLUMN_5_NAME = "Rainfall";
     public final static String COLUMN_5_INTERNAL_NAME = "mdb_rainfall";
@@ -174,6 +179,7 @@ public abstract class BaseUnitTest {
 
     public final static List<TableColumn> TABLE_1_COLUMNS = List.of(TableColumn.builder()
                     .id(COLUMN_1_ID)
+                    .ordinalPosition(COLUMN_1_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
                     .name(COLUMN_1_NAME)
@@ -184,6 +190,7 @@ public abstract class BaseUnitTest {
                     .build(),
             TableColumn.builder()
                     .id(COLUMN_2_ID)
+                    .ordinalPosition(COLUMN_2_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
                     .name(COLUMN_2_NAME)
@@ -194,6 +201,7 @@ public abstract class BaseUnitTest {
                     .build(),
             TableColumn.builder()
                     .id(COLUMN_3_ID)
+                    .ordinalPosition(COLUMN_3_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
                     .name(COLUMN_3_NAME)
@@ -204,6 +212,7 @@ public abstract class BaseUnitTest {
                     .build(),
             TableColumn.builder()
                     .id(COLUMN_4_ID)
+                    .ordinalPosition(COLUMN_4_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
                     .name(COLUMN_4_NAME)
@@ -214,6 +223,7 @@ public abstract class BaseUnitTest {
                     .build(),
             TableColumn.builder()
                     .id(COLUMN_5_ID)
+                    .ordinalPosition(COLUMN_5_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
                     .name(COLUMN_5_NAME)

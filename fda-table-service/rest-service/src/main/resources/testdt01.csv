@@ -1,4 +1,4 @@
-int;float;boolean;date;text
+id;float;boolean;date;text
 1;0.82415839;0;02.12.1954;randomtext 1
 2;0.788147281;1;06.01.1960;randomtext 2
 3;0.068557598;0;04.09.1993;randomtext 3
