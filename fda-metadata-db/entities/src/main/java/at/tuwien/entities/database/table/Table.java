@@ -58,7 +58,7 @@ public class Table {
     private Database database;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "table")
     private List<TableColumn> columns;
 
     @Column(nullable = false, updatable = false)
@@ -68,6 +68,11 @@ public class Table {
     @Column
     @LastModifiedDate
     private Instant lastModified;
+
+    @PreRemove
+    public void preRemove() {
+        this.database = null;
+    }
 
 }
 

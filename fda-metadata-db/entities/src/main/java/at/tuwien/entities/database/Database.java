@@ -46,8 +46,11 @@ public class Database {
     @Column(nullable = false)
     private String internalName;
 
-    @ToString.Include
-    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "tdbid", referencedColumnName = "id", insertable = false, updatable = false)
+    })
     private List<Table> tables;
 
     @ToString.Include

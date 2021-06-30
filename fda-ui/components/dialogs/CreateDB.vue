@@ -6,6 +6,7 @@
     <v-card-text>
       <v-form v-model="formValid">
         <v-text-field
+          id="dbname"
           v-model="database"
           label="Name"
           :rules="[v => !!v || $t('Required')]"
@@ -26,6 +27,7 @@
         Cancel
       </v-btn>
       <v-btn
+        id="createDB"
         :disabled="!formValid"
         :loading="loading"
         color="primary"
@@ -58,8 +60,17 @@ export default {
     async createDB () {
       this.loading = true
 
-      // create a container
       let res
+      // TODO list images and create image if needed
+      // try {
+      //   res = await this.$axios.get('/api/container/api/image/')
+      //   console.log(res.data)
+      //   return
+      // } catch (e) {
+      //   console.log(e)
+      // }
+      //
+      // create a container
       let containerId
       try {
         res = await this.$axios.post('/api/container/', {
