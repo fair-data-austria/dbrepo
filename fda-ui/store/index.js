@@ -1,9 +1,9 @@
 export const state = () => ({
-  // container: null
+  db: null
 })
 
 export const mutations = {
-  // SET_CONTAINER (state, container) {
-  //   state.container = container
-  // }
+  SET_DATABASE (state, db) {
+    state.db = db
+  }
 }

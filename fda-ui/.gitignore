@@ -1,5 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Node template
 # Logs
 /logs
 *.log
@@ -88,3 +86,6 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# CI records some videos for the e2e tests
+videos

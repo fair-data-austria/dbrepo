@@ -28,7 +28,6 @@ services:
       - fda-public
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
-      - ./fda-analyse-service/fda-mdb:/docker-entrypoint-initdb.d/
     ports:
       - 5432:5432
     environment:
@@ -181,7 +180,7 @@ services:
     command: sh -c "/wait && flask run"
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka
-      WAIT_HOSTS: fda-discovery-service:9090
+      WAIT_HOSTS: fda-database-service:9092
       WAIT_HOSTS_TIMEOUT: 600
       WAIT_SLEEP_INTERVAL: 30
       WAIT_HOST_CONNECT_TIMEOUT: 30
