@@ -48,8 +48,8 @@ public class TableColumn {
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumns({
-            @JoinColumn(name = "id", insertable = false, updatable = false),
-            @JoinColumn(name = "cdbid", insertable = false, updatable = false)
+            @JoinColumn(name = "tid", referencedColumnName = "id", insertable = false, updatable = false),
+            @JoinColumn(name = "cdbid", referencedColumnName = "tdbid", insertable = false, updatable = false)
     })
     private Table table;
 
