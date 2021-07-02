@@ -31,17 +31,22 @@ public abstract class JdbcConnector {
 
     protected void create(Database database) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(database);
-        context.createDatabase(databaseMapper.databaseToInternalDatabaseName(database));
+        context.createDatabase(databaseMapper.databaseToInternalDatabaseName(database))
+                .execute();
     }
 
     protected void modify(Database database) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(database);
-        context.alterDatabase(databaseMapper.databaseToInternalDatabaseName(database));
+        final AlterDatabaseStep step = context.alterDatabase(databaseMapper.databaseToInternalDatabaseName(database));
+        // todo: check name diff
+        step.renameTo(database.getName())
+                .execute();
     }
 
     protected void delete(Database database) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(database);
-        context.dropDatabase(databaseMapper.databaseToInternalDatabaseName(database));
+        context.dropDatabase(databaseMapper.databaseToInternalDatabaseName(database))
+        .execute();
     }
 
 }

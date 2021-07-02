@@ -48,7 +48,6 @@ public class TableEndpoint {
     public ResponseEntity<List<TableBriefDto>> findAll(@PathVariable("id") Long databaseId)
             throws DatabaseNotFoundException {
         final List<Table> tables = tableService.findAll(databaseId);
-        log.debug("received tables {}", tables);
         return ResponseEntity.ok(tables.stream()
                 .map(tableMapper::tableToTableBriefDto)
                 .collect(Collectors.toList()));
