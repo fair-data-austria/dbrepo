@@ -86,6 +86,9 @@
             <v-col cols="auto" class="pl-10">
               <v-checkbox v-model="c.nullAllowed" label="Null Allowed" />
             </v-col>
+            <v-col cols="auto" class="pl-10">
+              <v-checkbox v-model="c.unique" label="Unique" />
+            </v-col>
           </v-row>
         </div>
 
@@ -140,7 +143,7 @@ export default {
         { value: 'NUMBER', text: 'Number' },
         { value: 'BLOB', text: 'Binary Large Object' },
         { value: 'DATE', text: 'Date' },
-        { value: 'STRING', text: 'Varchar' },
+        { value: 'STRING', text: 'Character Varying' },
         { value: 'TEXT', text: 'Text' }
       ],
       newTableId: 42
@@ -179,7 +182,7 @@ export default {
       this.loading = false
     },
     async createTable () {
-      const url = `/api/database/${this.$route.params.db_id}/table`
+      const url = `/api/tables/api/database/${this.$route.params.db_id}/table`
       let res
       try {
         res = await this.$axios.post(url, this.tableCreate)

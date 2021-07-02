@@ -67,6 +67,7 @@ public class DatabaseService extends JdbcConnector {
     @Transactional
     public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseMalformedException {
+        log.trace("Delete database {}", databaseId);
         final Optional<Database> databaseResponse = databaseRepository.findById(databaseId);
         if (databaseResponse.isEmpty()) {
             log.warn("Database with id {} does not exist", databaseId);
@@ -75,6 +76,7 @@ public class DatabaseService extends JdbcConnector {
         try {
             delete(databaseResponse.get());
         } catch (SQLException e) {
+            log.error("Could not delete the database: {}", e.getMessage());
             throw new DatabaseMalformedException(e);
         }
         databaseRepository.deleteById(databaseId);
@@ -85,6 +87,7 @@ public class DatabaseService extends JdbcConnector {
     @Transactional
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException {
+        log.trace("Create database {}", createDto);
         final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
         if (containerResponse.isEmpty()) {
             log.warn("Container with id {} does not exist", createDto.getContainerId());
@@ -99,6 +102,7 @@ public class DatabaseService extends JdbcConnector {
         try {
             create(database);
         } catch (SQLException e) {
+            log.error("Could not create the database: {}", e.getMessage());
             throw new DatabaseMalformedException(e);
         }
         // save in metadata database
@@ -111,6 +115,7 @@ public class DatabaseService extends JdbcConnector {
     @Transactional
     public Database modify(DatabaseModifyDto modifyDto) throws ImageNotSupportedException, DatabaseNotFoundException,
             DatabaseMalformedException {
+        log.trace("Modify database {}", modifyDto);
         final Optional<Database> databaseResponse = databaseRepository.findById(modifyDto.getDatabaseId());
         if (databaseResponse.isEmpty()) {
             log.warn("Database with id {} does not exist", modifyDto.getDatabaseId());
@@ -121,6 +126,7 @@ public class DatabaseService extends JdbcConnector {
         try {
             modify(database);
         } catch (SQLException e) {
+            log.error("Could not modify the database: {}", e.getMessage());
             throw new DatabaseMalformedException(e);
         }
         // save in metadata database

@@ -21,6 +21,7 @@ import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.github.dockerjava.api.model.PortBinding;
+import org.checkerframework.checker.units.qual.A;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -63,16 +64,13 @@ public class ServiceIntegrationTest extends BaseUnitTest {
     private ImageRepository imageRepository;
 
     @Autowired
-    private ContainerRepository containerRepository;
-
-    @Autowired
     private DatabaseRepository databaseRepository;
 
     @Autowired
     private DatabaseService databaseService;
 
     @Autowired
-    private ImageMapper imageMapper;
+    private JdbcConnector jdbcConnector;
 
     private static CreateContainerResponse request1, request2;
 
@@ -151,7 +149,7 @@ public class ServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void create_postgres_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException {
+            DatabaseMalformedException, SQLException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(DATABASE_1_NAME)
@@ -163,6 +161,8 @@ public class ServiceIntegrationTest extends BaseUnitTest {
         assertEquals(DATABASE_1_NAME, response.getName());
         assertEquals(DATABASE_1_PUBLIC, response.getIsPublic());
         assertEquals(CONTAINER_1_ID, response.getContainer().getId());
+        final DSLContext context = jdbcConnector.open(response);
+        assertTrue(context.meta().getSchemas().size() > 0);
     }
 
     @Test

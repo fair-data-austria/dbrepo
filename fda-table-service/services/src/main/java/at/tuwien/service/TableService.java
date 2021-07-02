@@ -54,6 +54,7 @@ public class TableService extends JdbcConnector {
 
     @Transactional
     public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
+        log.trace("list for db {}", databaseId);
         final Optional<Database> database;
         try {
             database = databaseRepository.findById(databaseId);
@@ -71,10 +72,12 @@ public class TableService extends JdbcConnector {
     @Transactional
     public void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException {
+        log.trace("delete db {} table {}", databaseId, tableId);
         final Table table = findById(databaseId, tableId);
         try {
             delete(table);
         } catch (SQLException e) {
+            log.error("Could not delete database: {}", e.getMessage());
             throw new DataProcessingException("could not delete table", e);
         }
         tableRepository.delete(table);
@@ -84,9 +87,10 @@ public class TableService extends JdbcConnector {
 
     @Transactional
     public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException {
+        log.trace("get info for db {} table {}", databaseId, tableId);
         final Optional<Table> table = tableRepository.findByDatabaseAndId(findDatabase(databaseId), tableId);
         if (table.isEmpty()) {
-            log.error("table {} not found in database {}", tableId, databaseId);
+            log.error("Table {} not found in database {}", tableId, databaseId);
             throw new TableNotFoundException("table not found in database");
         }
         return table.get();
@@ -95,11 +99,13 @@ public class TableService extends JdbcConnector {
     @Transactional
     public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException {
+        log.trace("create table in db {} with request {}", databaseId, createDto);
         final Database database = findDatabase(databaseId);
         /* create database in container */
         try {
             create(database, createDto);
         } catch (SQLException e) {
+            log.error("Could not create table via JDBC: {}", e.getMessage());
             throw new DataProcessingException("could not create table", e);
         }
         /* save in metadata db */
@@ -111,7 +117,7 @@ public class TableService extends JdbcConnector {
         try {
             table = tableRepository.save(mappedTable);
         } catch (EntityNotFoundException e) {
-            log.error("failed to create table compound key: {}", e.getMessage());
+            log.error("Could not create table compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create table compound key", e);
         }
         /* we cannot insert columns at the same time since they depend on the table id */
@@ -127,7 +133,7 @@ public class TableService extends JdbcConnector {
         try {
             tableRepository.save(table);
         } catch (EntityNotFoundException e) {
-            log.error("failed to create column compound key: {}", e.getMessage());
+            log.error("Could not create column compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create column compound key", e);
         }
         log.info("Created table {}", table.getId());
@@ -135,46 +141,12 @@ public class TableService extends JdbcConnector {
         return table;
     }
 
-    /**
-     * TODO this needs to be at some different endpoint
-     * Insert data from a file into a table of a database with possible null values (denoted by a null element).
-     *
-     * @param databaseId The database.
-     * @param tableId    The table.
-     * @param data       The null element and delimiter.
-     * @throws TableNotFoundException     The table does not exist in the metadata database.
-     * @throws ImageNotSupportedException The image is not supported.
-     * @throws DatabaseNotFoundException  The database does not exist in the metdata database.
-     * @throws FileStorageException       The CSV could not be parsed.
-     * @throws DataProcessingException    The xml could not be mapped.
-     */
-    @Transactional
-    public void insertFromFile(Long databaseId, Long tableId, TableInsertDto data)
-            throws TableNotFoundException, ImageNotSupportedException, DatabaseNotFoundException, FileStorageException,
-            TableMalformedException {
-        final Table table = findById(databaseId, tableId);
-        final TableCsvDto values;
-        try {
-            values = readCsv(data, table);
-        } catch (IOException | CsvException | ArrayIndexOutOfBoundsException e) {
-            log.error("failed to parse csv {}", e.getMessage());
-            throw new FileStorageException("failed to parse csv", e);
-        }
-        try {
-            insert(table, values);
-        } catch (SQLException | EntityNotSupportedException e) {
-            log.error("could not insert data {}", e.getMessage());
-            throw new TableMalformedException("could not insert data", e);
-        }
-        log.info("Inserted {} csv records into table id {}", values.getData().size(), tableId);
-    }
-
     /* helper functions */
 
     public Database findDatabase(Long id) throws DatabaseNotFoundException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
-            log.error("no database with this id found in metadata database");
+            log.error("Could not find database with id {} in metadata database", id);
             throw new DatabaseNotFoundException("database not found in metadata database");
         }
         return database.get();
