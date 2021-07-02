@@ -19,6 +19,10 @@ public class ImageBriefDto {
     private Long id;
 
     @NotBlank
+    @ApiModelProperty(required = true, example = "postgres:latest")
+    private String label;
+
+    @NotBlank
     @ApiModelProperty(required = true, example = "postgres")
     private String repository;
 

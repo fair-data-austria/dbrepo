@@ -14,9 +14,11 @@
         <v-select
           v-model="engine"
           label="Engine"
-          :items="[engine]"
+          :items="engines"
+          :loading="loading"
           item-text="label"
           :rules="[v => !!v || $t('Required')]"
+          return-object
           required />
       </v-form>
     </v-card-text>
@@ -44,18 +46,30 @@ export default {
     return {
       formValid: false,
       loading: false,
-      database: '',
-      engine: {
-        label: 'PostgreSQL, latest',
-        repo: 'postgres',
-        tag: 'latest'
-      },
-      container: ''
+      database: null,
+      engine: null,
+      engines: [],
+      container: null
     }
+  },
+  beforeMount () {
+    this.getImages()
   },
   methods: {
     cancel () {
       this.$parent.$parent.$parent.createDbDialog = false
+    },
+    async getImages () {
+      this.loading = true
+      let res
+      try {
+        res = await this.$axios.get('/api/image/')
+        this.engines = res.data
+        console.debug('engines', this.engines)
+      } catch (err) {
+        this.$toast.error('Failed to fetch supported engines. Try reload the page.')
+      }
+      this.loading = false
     },
     async createDB () {
       this.loading = true
@@ -73,10 +87,11 @@ export default {
       // create a container
       let containerId
       const isPublic = false
+      console.debug('model', this.engine)
       try {
         res = await this.$axios.post('/api/container/', {
           name: this.database,
-          repository: this.engine.repo,
+          repository: this.engine.repository,
           tag: this.engine.tag
         })
         containerId = res.data.id
@@ -122,5 +137,4 @@ export default {
     }
   }
 }
-
 </script>
