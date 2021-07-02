@@ -7,8 +7,13 @@
       </v-stepper-step>
 
       <v-stepper-content class="pt-0 pb-1" step="1">
-        <v-text-field v-model="tableName" required label="Name" />
-        <v-text-field v-model="tableDesc" label="Description" />
+        <v-text-field
+          v-model="tableCreate.name"
+          required
+          label="Name" />
+        <v-text-field
+          v-model="tableCreate.description"
+          label="Description" />
         <v-btn :disabled="!step1Valid" color="primary" @click="step = 2">
           Continue
         </v-btn>
@@ -21,14 +26,39 @@
       <v-stepper-content step="2">
         <v-row dense>
           <v-col cols="8">
+            <v-checkbox
+              v-model="tableInsert.skipFirstRow"
+              label="Skip first row" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="tableInsert.nullElement"
+              placeholder="e.g. NA or leave empty"
+              label="NULL Element" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="tableInsert.delimiter"
+              label="Delimiter"
+              placeholder="e.g. ;" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
             <v-file-input
               v-model="file"
               accept="text/csv"
               show-size
               label="CSV File" />
           </v-col>
-          <v-col cols="4" class="mt-3">
-            <v-btn :disabled="!file" :loading="loading" @click="upload">Upload</v-btn>
+        </v-row>
+        <v-row dense>
+          <v-col cols="6">
+            <v-btn :disabled="!file" :loading="loading" color="primary" @click="upload">Next</v-btn>
           </v-col>
         </v-row>
       </v-stepper-content>
@@ -37,7 +67,7 @@
         Choose data type of columns
       </v-stepper-step>
       <v-stepper-content step="3">
-        <div v-for="(c, idx) in columns" :key="idx">
+        <div v-for="(c, idx) in tableCreate.columns" :key="idx">
           <v-row dense class="column pa-2 ml-1 mr-1 mb-2">
             <v-col cols="4">
               <v-text-field v-model="c.name" disabled required label="Name" />
@@ -90,27 +120,35 @@ export default {
   data () {
     return {
       step: 1,
-      tableName: '',
-      tableDesc: '',
+      tableInsert: {
+        skipFirstRow: false,
+        nullElement: null,
+        delimiter: null
+      },
+      tableCreate: {
+        name: null,
+        description: null,
+        columns: []
+      },
       loading: false,
       file: null,
       fileLocation: null,
       columns: [],
       columnTypes: [
-        { value: 'ENUM', text: 'ENUM' },
-        { value: 'BOOLEAN', text: 'BOOLEAN' },
-        { value: 'NUMBER', text: 'NUMBER' },
-        { value: 'BLOB', text: 'BLOB' },
-        { value: 'DATE', text: 'DATE' },
-        { value: 'STRING', text: 'STRING' },
-        { value: 'TEXT', text: 'TEXT' }
+        { value: 'ENUM', text: 'Enumeration' },
+        { value: 'BOOLEAN', text: 'Boolean' },
+        { value: 'NUMBER', text: 'Number' },
+        { value: 'BLOB', text: 'Binary Large Object' },
+        { value: 'DATE', text: 'Date' },
+        { value: 'STRING', text: 'Varchar' },
+        { value: 'TEXT', text: 'Text' }
       ],
       newTableId: 42
     }
   },
   computed: {
     step1Valid () {
-      return this.tableName.length
+      return this.tableName !== null
     }
   },
   mounted () {
@@ -126,37 +164,33 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         if (res.data.success) {
-          this.columns = res.data.columns
+          this.tableCreate.columns = res.data.columns
           this.fileLocation = res.data.file.filename
           this.step = 3
+          console.debug('upload csv', res.data)
         } else {
           this.$toast.error('Could not upload CSV data')
+          return
         }
       } catch (err) {
         this.$toast.error('Could not upload data.')
+        return
       }
       this.loading = false
     },
     async createTable () {
-      const url = `/api/tables/api/database/${this.$route.params.db_id}/table/csv/local`
-      const data = {
-        columns: this.columns.map(c => c.type),
-        description: this.tableDesc,
-        name: this.tableName,
-        fileLocation: this.fileLocation
-      }
+      const url = `/api/database/${this.$route.params.db_id}/table`
       let res
       try {
-        res = await this.$axios.post(url, data)
+        res = await this.$axios.post(url, this.tableCreate)
         this.newTableId = res.data.id
+        console.debug('created table', res.data)
       } catch (err) {
         console.log(err)
+        return
       }
-      if (res && res.data && res.data.id) {
-        this.step = 4
-      } else {
-        this.$toast.error('Could not create table.')
-      }
+      // insert table
+      this.step = 4
     }
   }
 }

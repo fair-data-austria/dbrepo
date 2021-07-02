@@ -14,7 +14,10 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class TableServiceIntegrationTest extends BaseUnitTest {
+public class ImportServiceIntegrationTest extends BaseUnitTest {
 
     @Autowired
     private HostConfig hostConfig;
@@ -55,7 +58,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     private TableRepository tableRepository;
 
     @Autowired
-    private TableService tableService;
+    private ImportService dataService;
 
     private CreateContainerResponse request;
 
@@ -115,40 +118,69 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
                 });
     }
 
-    @Test
-    public void create_table_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException {
-        final TableCreateDto request = TableCreateDto.builder()
+    private void create_table() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
+        final Table response = dataService.createTable(DATABASE_1_ID, TableCreateDto.builder()
                 .name(TABLE_2_NAME)
                 .description(TABLE_2_DESCRIPTION)
                 .columns(COLUMNS5)
+                .build());
+    }
+
+    @Test
+    public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, IOException,
+            ArbitraryPrimaryKeysException, DataProcessingException {
+        create_table();
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(true)
+                .nullElement("NA")
+                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath())))
                 .build();
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
-        assertEquals(TABLE_2_NAME, response.getName());
-        assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
-        assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
-        assertEquals(DATABASE_1_ID, response.getTdbid());
-        assertEquals(COLUMNS5.length, response.getColumns().size());
+        dataService.insertFromFile(DATABASE_1_ID, TABLE_2_ID, request);
+        final Optional<Table> response = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_2_ID);
+        assertTrue(response.isPresent());
+        assertEquals(TABLE_2_ID, response.get().getId());
+        assertEquals(TABLE_2_NAME, response.get().getName());
+        assertEquals(TABLE_2_DESCRIPTION, response.get().getDescription());
     }
 
     @Test
     @Disabled
-    public void findAll_notFound_fails() {
+    public void insertFromFile_columnNumberDiffers_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
+            IOException, ArbitraryPrimaryKeysException, DataProcessingException {
+        create_table();
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(true)
+                .nullElement("NA")
+                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:namen.csv").toPath())))
+                .build();
 
         /* test */
-        assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.findAll(9999L);
+        assertThrows(FileStorageException.class, () -> {
+            dataService.insertFromFile(DATABASE_1_ID, TABLE_2_ID, request);
         });
     }
 
     @Test
-    public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException {
+    public void insertFromFile_notRunning_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
+            IOException, ArbitraryPrimaryKeysException, DataProcessingException {
+        create_table();
+        dockerClient.stopContainerCmd(request.getId()).exec();
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(true)
+                .nullElement("NA")
+                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath())))
+                .build();
 
         /* test */
-        tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+        assertThrows(TableMalformedException.class, () -> {
+            dataService.insertFromFile(DATABASE_1_ID, TABLE_2_ID, request);
+        });
     }
 
 }
