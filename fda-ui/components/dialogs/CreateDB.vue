@@ -73,17 +73,7 @@ export default {
     },
     async createDB () {
       this.loading = true
-
       let res
-      // TODO list images and create image if needed
-      // try {
-      //   res = await this.$axios.get('/api/container/api/image/')
-      //   console.log(res.data)
-      //   return
-      // } catch (e) {
-      //   console.log(e)
-      // }
-      //
       // create a container
       let containerId
       const isPublic = false
@@ -95,7 +85,7 @@ export default {
           tag: this.engine.tag
         })
         containerId = res.data.id
-        console.log(containerId)
+        console.debug('created container', res.data)
       } catch (err) {
         this.$toast.error('Could not create container. Try another name.')
         this.loading = false
@@ -107,6 +97,7 @@ export default {
         res = await this.$axios.put(`/api/container/${containerId}`, {
           action: 'START'
         })
+        console.debug('started container', res.data)
       } catch (err) {
         this.loading = false
         this.$toast.error('Could not start container.')

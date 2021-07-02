@@ -54,8 +54,6 @@
           Create Table
         </v-btn>
       </v-card-actions>
-      </v-row>
-      </v-card-text>
     </v-card>
   </div>
 </template>
