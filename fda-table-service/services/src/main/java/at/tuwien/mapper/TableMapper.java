@@ -12,20 +12,19 @@ import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
 import org.apache.commons.lang.WordUtils;
-import org.jooq.CreateTableColumnStep;
-import org.jooq.DSLContext;
-import org.jooq.DataType;
-import org.jooq.Field;
+import org.jooq.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
+import javax.sound.sampled.Line;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.jooq.impl.SQLDataType.*;
 import static org.jooq.impl.DSL.*;
@@ -137,6 +136,7 @@ public interface TableMapper {
         if (Arrays.stream(data.getColumns()).anyMatch(dto -> dto.getCheckExpression() != null)) {
             throw new ImageNotSupportedException("Currently no check operations are supported");
         }
+        final List<Constraint> constraints = new LinkedList<>();
         final CreateTableColumnStep step = context.createTableIfNotExists(nameToInternalName(data.getName()));
         for (ColumnCreateDto column : data.getColumns()) {
             final DataType<?> dataType = columnTypeDtoToDataType(column)
@@ -144,7 +144,20 @@ public interface TableMapper {
                     .identity(column.getPrimaryKey());
             step.column(nameToInternalName(nameToColumnName(column.getName())), dataType);
         }
-        /* constraints */
+        /* primary keys */
+        constraints.add(constraint("PK_FDA")
+                .primaryKey(Arrays.stream(data.getColumns())
+                        .filter(ColumnCreateDto::getPrimaryKey)
+                        .map(c -> field(nameToInternalName(nameToColumnName(c.getName()))))
+                        .toArray(Field[]::new)));
+        /* unique constraints */
+        final Stream<ColumnCreateDto> uniqueConstraints = Arrays.stream(data.getColumns())
+                .filter(ColumnCreateDto::getUnique);
+        if (uniqueConstraints.count() > 0) {
+            uniqueConstraints.forEach(c -> constraints.add(constraint("UQ_" + nameToInternalName(nameToColumnName(c.getName())))
+                    .unique(nameToInternalName(nameToColumnName(c.getName())))));
+        }
+        step.constraints(constraints);
         return step;
     }
 

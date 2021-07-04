@@ -1,19 +1,21 @@
 <template>
-  <v-toolbar v-if="db" dense flat>
-    <v-toolbar-title>{{ db.name }}</v-toolbar-title>
+  <v-toolbar v-if="db" flat>
+    <v-toolbar-title>
+      {{ db.name }}
+    </v-toolbar-title>
     <template v-slot:extension>
       <v-tabs v-model="tab" color="primary" class="mb-1">
         <v-tabs-slider color="primary" />
-        <v-tab :to="`/db/${$route.params.db_id}`">
+        <v-tab :to="`/db/${$route.params.db_id}/`">
           Info
         </v-tab>
-        <v-tab :to="`/db/${$route.params.db_id}/tables`">
+        <v-tab :to="`/db/${$route.params.db_id}/tables/`">
           Tables
         </v-tab>
-        <v-tab v-if="false" :to="`/db/${$route.params.db_id}/query`">
+        <v-tab v-if="false" :to="`/db/${$route.params.db_id}/query/`">
           Query
         </v-tab>
-        <v-tab :to="`/db/${$route.params.db_id}/admin`">
+        <v-tab :to="`/db/${$route.params.db_id}/admin/`">
           Admin
         </v-tab>
       </v-tabs>

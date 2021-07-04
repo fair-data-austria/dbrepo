@@ -201,6 +201,7 @@ export default {
         console.debug('inserted table', insertResult.data)
       } catch (err) {
         console.log(err)
+        this.$toast.error('Could not insert csv into table.')
         return
       }
       this.step = 4

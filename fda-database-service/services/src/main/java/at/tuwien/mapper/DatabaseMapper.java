@@ -1,6 +1,7 @@
 package at.tuwien.mapper;
 
 import at.tuwien.api.database.DatabaseBriefDto;
+import at.tuwien.api.database.DatabaseDto;
 import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.database.Database;
 import org.mapstruct.Mapper;
@@ -18,6 +19,11 @@ public interface DatabaseMapper {
             @Mapping(target = "id", source = "id")
     })
     DatabaseBriefDto databaseToDatabaseBriefDto(Database data);
+
+    @Mappings({
+            @Mapping(target = "id", source = "id")
+    })
+    DatabaseDto databaseToDatabaseDto(Database data);
 
     // https://stackoverflow.com/questions/1657193/java-code-library-for-generating-slugs-for-use-in-pretty-urls#answer-1657250
     default String databaseToInternalDatabaseName(Database data) {

@@ -2,6 +2,7 @@ package at.tuwien.endpoints;
 
 import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.api.database.DatabaseDto;
 import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
@@ -78,9 +79,8 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 400, message = "The payload contains invalid data."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseBriefDto> findById(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException {
-        final DatabaseBriefDto database = databaseMapper.databaseToDatabaseBriefDto(databaseService.findById(id));
-        return ResponseEntity.ok(database);
+    public ResponseEntity<DatabaseDto> findById(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException {
+        return ResponseEntity.ok(databaseMapper.databaseToDatabaseDto(databaseService.findById(id)));
     }
 
     @PutMapping("/{id}")

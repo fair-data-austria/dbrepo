@@ -3,6 +3,7 @@ package at.tuwien.endpoint;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.api.database.DatabaseDto;
 import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.endpoints.DatabaseEndpoint;
 import at.tuwien.exception.*;
@@ -104,7 +105,7 @@ public class EndpointUnitTest extends BaseUnitTest {
         when(databaseService.findById(DATABASE_1_ID))
                 .thenReturn(DATABASE_1);
 
-        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.findById(DATABASE_1_ID);
+        final ResponseEntity<DatabaseDto> response = databaseEndpoint.findById(DATABASE_1_ID);
 
         /* test */
         assertEquals(HttpStatus.OK, response.getStatusCode());
