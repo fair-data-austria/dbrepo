@@ -1,16 +1,18 @@
 <template>
-  <div>
-    <h3>
-      {{ tableName }}
-    </h3>
+  <v-card>
+    <v-card-title v-if="!loading">
+      {{ table.name }}
+    </v-card-title>
+    <v-card-subtitle v-if="!loading">
+      {{ table.description }}
+    </v-card-subtitle>
     <v-data-table
       :headers="headers"
       :items="rows"
       :loading="loading"
-      :items-per-page="10"
-      class="elevation-1">
-    </v-data-table>
-  </div>
+      :items-per-page="30"
+      class="elevation-1" />
+  </v-card>
 </template>
 <script>
 export default {
@@ -20,7 +22,7 @@ export default {
   data () {
     return {
       loading: true,
-      tableName: '',
+      table: null,
       headers: [],
       rows: []
     }
@@ -33,12 +35,12 @@ export default {
     async loadProperties () {
       try {
         const res = await this.$axios.get(`/api/tables/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}`)
-        this.tableName = res.data.name
+        this.table = res.data
         console.debug('headers', res.data.columns)
         this.headers = res.data.columns.map((c) => {
           return {
             value: c.internalName,
-            text: c.name
+            text: this.columnAddition(c) + c.name
           }
         })
       } catch (err) {
@@ -55,6 +57,15 @@ export default {
         this.$toast.error('Could not load table data.')
       }
       this.loading = false
+    },
+    columnAddition (column) {
+      if (column.isPrimaryKey) {
+        return '‡ '
+      }
+      if (column.unique) {
+        return '† '
+      }
+      return ''
     }
   }
 }

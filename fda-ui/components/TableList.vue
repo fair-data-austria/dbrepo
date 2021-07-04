@@ -33,14 +33,26 @@
                 <th>Column Name</th>
                 <th>Type</th>
                 <th>Primary Key</th>
-                <th>Null Allowed</th>
+                <th>Unique</th>
+                <th>NULL Allowed</th>
               </thead>
               <tbody>
                 <tr v-for="(col, idx) in tableDetails.columns" :key="idx">
-                  <td class="pl-0">{{ col.name }}</td>
-                  <td class="pl-0">{{ col.columnType }}</td>
-                  <td class="pl-0"><v-simple-checkbox v-model="col.isPrimaryKey" disabled /></td>
-                  <td class="pl-0"><v-simple-checkbox v-model="col.isNullAllowed" disabled /></td>
+                  <td>
+                    {{ col.name }}
+                  </td>
+                  <td>
+                    {{ col.columnType }}
+                  </td>
+                  <td>
+                    <v-simple-checkbox v-model="col.isPrimaryKey" disabled aria-readonly="true" />
+                  </td>
+                  <td>
+                    <v-simple-checkbox v-model="col.unique" disabled aria-readonly="true" />
+                  </td>
+                  <td>
+                    <v-simple-checkbox v-model="col.isNullAllowed" disabled aria-readonly="true" />
+                  </td>
                 </tr>
               </tbody>
             </v-simple-table>

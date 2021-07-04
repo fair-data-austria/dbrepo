@@ -19,7 +19,7 @@
       </v-card-text>
       <v-card-text v-for="(c, idx) in columns" :key="idx" class="pa-3 mb-2">
         <v-row class="column pa-2 ml-1 mr-1">
-          <v-col cols="4">
+          <v-col cols="3">
             <v-text-field v-model="c.name" required label="Name" />
           </v-col>
           <v-col cols="3">
@@ -36,10 +36,16 @@
               label="Primary Key"
               @change="(x) => onChange(idx, x, 'primaryKey')" />
           </v-col>
+          <v-col cols="1">
+            <v-checkbox
+              v-model="c.unique"
+              label="Unique"
+              @change="(x) => onChange(idx, x, 'unique')" />
+          </v-col>
           <v-col cols="2">
             <v-checkbox
               v-model="c.nullAllowed"
-              label="Null Allowed"
+              label="NULL Allowed"
               @change="(x) => onChange(idx, x, 'nullAllowed')" />
           </v-col>
           <v-spacer />
