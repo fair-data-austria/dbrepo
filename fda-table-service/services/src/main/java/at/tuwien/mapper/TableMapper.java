@@ -9,23 +9,18 @@ import at.tuwien.api.database.table.columns.ColumnDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
-import at.tuwien.entities.database.table.columns.TableColumnType;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
-import at.tuwien.exception.EntityNotSupportedException;
+import at.tuwien.exception.ImageNotSupportedException;
 import org.apache.commons.lang.WordUtils;
-import org.hibernate.engine.jdbc.BlobProxy;
 import org.jooq.CreateTableColumnStep;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
-import org.jooq.impl.DSL;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.function.Function;
@@ -51,6 +46,14 @@ public interface TableMapper {
             @Mapping(target = "internalName", expression = "java(data.getInternalName())")
     })
     TableDto tableToTableDto(Table data);
+
+    @Mappings({
+            @Mapping(target = "name", expression = "java(data.getName())"),
+            @Mapping(target = "internalName", expression = "java(data.getInternalName())"),
+            @Mapping(target = "checkExpression", expression = "java(data.getCheckExpression())"),
+            @Mapping(target = "foreignKey", expression = "java(data.getForeignKey())")
+    })
+    ColumnDto tableColumnToColumnDto(TableColumn data);
 
     @Mappings({
             @Mapping(source = "columns", target = "columns", qualifiedByName = "columnMapping"),
@@ -127,7 +130,13 @@ public interface TableMapper {
     TableColumn columnCreateDtoToTableColumn(ColumnCreateDto data);
 
     default CreateTableColumnStep tableCreateDtoToCreateTableColumnStep(DSLContext context, TableCreateDto data)
-            throws ArbitraryPrimaryKeysException {
+            throws ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        if (Arrays.stream(data.getColumns()).noneMatch(ColumnCreateDto::getPrimaryKey)) {
+            throw new ArbitraryPrimaryKeysException("There must be at least one primary key column");
+        }
+        if (Arrays.stream(data.getColumns()).anyMatch(dto -> dto.getCheckExpression() != null)) {
+            throw new ImageNotSupportedException("Currently no check operations are supported");
+        }
         final CreateTableColumnStep step = context.createTableIfNotExists(nameToInternalName(data.getName()));
         for (ColumnCreateDto column : data.getColumns()) {
             final DataType<?> dataType = columnTypeDtoToDataType(column)

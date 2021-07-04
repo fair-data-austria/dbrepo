@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -17,16 +18,14 @@ public class TableInsertDto {
     @ApiModelProperty(name = "null element", example = "NA")
     private String nullElement;
 
-    @NotNull
     @ApiModelProperty(name = "delimiting character", example = ";")
     private Character delimiter = ',';
 
-    @NotNull
     @ApiModelProperty(name = "skip the first line", example = "false")
     private Boolean skipHeader = false;
 
-    @NotNull
-    @ApiModelProperty(name = "csv file")
-    private MultipartFile csv;
+    @NotBlank
+    @ApiModelProperty(name = "csv file location")
+    private String csvLocation;
 
 }

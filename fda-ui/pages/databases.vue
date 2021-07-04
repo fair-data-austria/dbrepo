@@ -68,6 +68,7 @@ export default {
       this.createDbDialog = false
       const res = await this.$axios.get('/api/database/')
       this.databases = res.data
+      console.debug('databases', res.data)
     },
     trim (s) {
       return s.slice(0, 12)

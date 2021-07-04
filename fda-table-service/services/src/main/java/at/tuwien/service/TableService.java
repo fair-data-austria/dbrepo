@@ -1,6 +1,5 @@
 package at.tuwien.service;
 
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
@@ -9,6 +8,7 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
@@ -22,18 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.supercsv.cellprocessor.constraint.Equals;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvMapReader;
-import org.supercsv.io.ICsvMapReader;
+import org.synchronoss.cloud.nio.multipart.Multipart;
 
 import javax.persistence.EntityNotFoundException;
-import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
-
-import static org.supercsv.prefs.CsvPreference.STANDARD_PREFERENCE;
 
 @Log4j2
 @Service
@@ -45,8 +39,8 @@ public class TableService extends JdbcConnector {
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        ImageMapper imageMapper, TableMapper tableMapper) {
-        super(imageMapper, tableMapper);
+                        ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
+        super(imageMapper, tableMapper, queryMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
         this.tableMapper = tableMapper;
@@ -152,12 +146,12 @@ public class TableService extends JdbcConnector {
         return database.get();
     }
 
-    public TableCsvDto readCsv(TableInsertDto data, Table table) throws IOException, CsvException,
+    public TableCsvDto readCsv(Table table, TableInsertDto data, MultipartFile file) throws IOException, CsvException,
             ArrayIndexOutOfBoundsException {
         final CSVParser csvParser = new CSVParserBuilder()
                 .withSeparator(data.getDelimiter())
                 .build();
-        final Reader fileReader = new InputStreamReader(data.getCsv().getInputStream());
+        final Reader fileReader = new InputStreamReader(file.getInputStream());
         final List<List<String>> cells = new LinkedList<>();
         final CSVReader reader = new CSVReaderBuilder(fileReader)
                 .withCSVParser(csvParser)

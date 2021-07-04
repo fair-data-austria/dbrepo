@@ -1,15 +1,15 @@
 package at.tuwien.service;
 
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
-import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.EntityNotSupportedException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.mapper.ImageMapper;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.*;
@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static org.jooq.impl.DSL.*;
 
@@ -29,11 +30,13 @@ public abstract class JdbcConnector {
 
     private final ImageMapper imageMapper;
     private final TableMapper tableMapper;
+    private final QueryMapper queryMapper;
 
     @Autowired
-    protected JdbcConnector(ImageMapper imageMapper, TableMapper tableMapper) {
+    protected JdbcConnector(ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
         this.imageMapper = imageMapper;
         this.tableMapper = tableMapper;
+        this.queryMapper = queryMapper;
     }
 
     protected DSLContext open(Database database) throws SQLException, ImageNotSupportedException {
@@ -70,6 +73,17 @@ public abstract class JdbcConnector {
     protected void delete(Table table) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(table.getDatabase());
         context.dropTable(table.getName());
+    }
+
+    protected QueryResultDto selectAll(Table table) throws SQLException, ImageNotSupportedException {
+        if (table == null || table.getInternalName() == null) {
+            log.error("Could not obtain the table internal name");
+            throw new SQLException("Could not obtain the table internal name");
+        }
+        final DSLContext context = open(table.getDatabase());
+        return queryMapper.recordListToQueryResultDto(context
+                .selectFrom(table.getInternalName())
+                .fetch());
     }
 
 }
