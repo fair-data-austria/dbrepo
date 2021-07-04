@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
@@ -8,6 +9,7 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
@@ -17,29 +19,36 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import lombok.extern.log4j.Log4j2;
+import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
 
 @Log4j2
 @Service
-public class ImportService extends JdbcConnector {
+public class DataService extends JdbcConnector {
 
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
     private final TableMapper tableMapper;
 
     @Autowired
-    public ImportService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                         ImageMapper imageMapper, TableMapper tableMapper) {
-        super(imageMapper, tableMapper);
+    public DataService(TableRepository tableRepository, DatabaseRepository databaseRepository,
+                       ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
+        super(imageMapper, tableMapper, queryMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
         this.tableMapper = tableMapper;
@@ -109,7 +118,6 @@ public class ImportService extends JdbcConnector {
      * @throws ImageNotSupportedException The image is not supported.
      * @throws DatabaseNotFoundException  The database does not exist in the metdata database.
      * @throws FileStorageException       The CSV could not be parsed.
-     * @throws DataProcessingException    The xml could not be mapped.
      */
     @Transactional
     public void insertFromFile(Long databaseId, Long tableId, TableInsertDto data)
@@ -118,14 +126,14 @@ public class ImportService extends JdbcConnector {
         final Table table = findById(databaseId, tableId);
         final TableCsvDto values;
         try {
-            values = readCsv(data, table);
+            values = readCsv(table, data);
         } catch (IOException | CsvException | ArrayIndexOutOfBoundsException e) {
             log.error("failed to parse csv {}", e.getMessage());
             throw new FileStorageException("failed to parse csv", e);
         }
         try {
             insert(table, values);
-        } catch (SQLException | EntityNotSupportedException e) {
+        } catch (SQLException | EntityNotSupportedException | DataAccessException e) {
             log.error("could not insert data {}", e.getMessage());
             throw new TableMalformedException("could not insert data", e);
         }
@@ -134,6 +142,7 @@ public class ImportService extends JdbcConnector {
 
     /* helper functions */
 
+    @Transactional
     public Database findDatabase(Long id) throws DatabaseNotFoundException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
@@ -143,25 +152,30 @@ public class ImportService extends JdbcConnector {
         return database.get();
     }
 
-    public TableCsvDto readCsv(TableInsertDto data, Table table) throws IOException, CsvException,
+    public TableCsvDto readCsv(Table table, TableInsertDto data) throws IOException, CsvException,
             ArrayIndexOutOfBoundsException {
+        log.debug("insert into table {} with params {}", table, data);
+        if (data.getDelimiter() == null) {
+            data.setDelimiter(',');
+        }
         final CSVParser csvParser = new CSVParserBuilder()
                 .withSeparator(data.getDelimiter())
                 .build();
-        final Reader fileReader = new InputStreamReader(data.getCsv().getInputStream());
+        final MultipartFile multipartFile = new MockMultipartFile(data.getCsvLocation(), Files.readAllBytes(Paths.get("/tmp/" + data.getCsvLocation())));
+        final Reader fileReader = new InputStreamReader(multipartFile.getInputStream());
         final List<List<String>> cells = new LinkedList<>();
         final CSVReader reader = new CSVReaderBuilder(fileReader)
                 .withCSVParser(csvParser)
-                .withSkipLines(data.getSkipHeader() ? 1 : 0)
                 .build();
         final List<Map<String, Object>> records = new LinkedList<>();
         reader.readAll()
                 .forEach(x -> cells.add(Arrays.asList(x)));
         /* map to the map-list structure */
-        for (List<String> row : cells) {
+        for (int i = (data.getSkipHeader() ? 1 : 0); i < cells.size(); i++) {
             final Map<String, Object> record = new HashMap<>();
-            for (int i = 0; i < table.getColumns().size(); i++) {
-                record.put(table.getColumns().get(i).getInternalName(), row.get(i));
+            final List<String> row = cells.get(i);
+            for (int j = 0; j < table.getColumns().size(); j++) {
+                record.put(table.getColumns().get(j).getInternalName(), row.get(j));
             }
             /* when the nullElement itself is null, nothing to do */
             if (data.getNullElement() != null) {
@@ -173,6 +187,20 @@ public class ImportService extends JdbcConnector {
         return TableCsvDto.builder()
                 .data(records)
                 .build();
+    }
+
+    @Transactional
+    public QueryResultDto selectAll(Long databaseId, Long tableId) throws TableNotFoundException,
+            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException {
+        final QueryResultDto queryResult;
+        try {
+            queryResult = selectAll(findById(databaseId, tableId));
+        } catch (SQLException e) {
+            log.error("Could not find data: {}", e.getMessage());
+            throw new DatabaseConnectionException(e);
+        }
+        log.trace("found data {}", queryResult);
+        return queryResult;
     }
 
 

@@ -18,6 +18,10 @@ public class ColumnDto {
     @ApiModelProperty(name = "name", example = "Date")
     private String name;
 
+    @NotBlank
+    @ApiModelProperty(name = "internal name", example = "mdb_date")
+    private String internalName;
+
     @NotNull
     @ApiModelProperty(name = "primary key", example = "true")
     private Boolean isPrimaryKey;

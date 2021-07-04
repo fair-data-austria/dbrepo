@@ -27,7 +27,7 @@
         <v-row dense>
           <v-col cols="8">
             <v-checkbox
-              v-model="tableInsert.skipFirstRow"
+              v-model="tableInsert.skipHeader"
               label="Skip first row" />
           </v-col>
         </v-row>
@@ -84,10 +84,10 @@
               <v-checkbox v-model="c.primaryKey" label="Primary Key" />
             </v-col>
             <v-col cols="auto" class="pl-10">
-              <v-checkbox v-model="c.nullAllowed" label="Null Allowed" />
+              <v-checkbox v-model="c.nullAllowed" :disabled="c.primaryKey" label="Null Allowed" />
             </v-col>
             <v-col cols="auto" class="pl-10">
-              <v-checkbox v-model="c.unique" label="Unique" />
+              <v-checkbox v-model="c.unique" :disabled="c.primaryKey" label="Unique" />
             </v-col>
           </v-row>
         </div>
@@ -124,9 +124,10 @@ export default {
     return {
       step: 1,
       tableInsert: {
-        skipFirstRow: false,
+        skipHeader: false,
         nullElement: null,
-        delimiter: null
+        delimiter: null,
+        csvLocation: null
       },
       tableCreate: {
         name: null,
@@ -169,6 +170,7 @@ export default {
         if (res.data.success) {
           this.tableCreate.columns = res.data.columns
           this.fileLocation = res.data.file.filename
+          this.tableInsert.csvLocation = this.fileLocation
           this.step = 3
           console.debug('upload csv', res.data)
         } else {
@@ -182,17 +184,25 @@ export default {
       this.loading = false
     },
     async createTable () {
-      const url = `/api/tables/api/database/${this.$route.params.db_id}/table`
-      let res
+      const createUrl = `/api/tables/api/database/${this.$route.params.db_id}/table`
+      let createResult
       try {
-        res = await this.$axios.post(url, this.tableCreate)
-        this.newTableId = res.data.id
-        console.debug('created table', res.data)
+        createResult = await this.$axios.post(createUrl, this.tableCreate)
+        this.newTableId = createResult.data.id
+        console.debug('created table', createResult.data)
       } catch (err) {
         console.log(err)
         return
       }
-      // insert table
+      const insertUrl = `/api/tables/api/database/${this.$route.params.db_id}/table/${createResult.data.id}/data`
+      let insertResult
+      try {
+        insertResult = await this.$axios.post(insertUrl, this.tableInsert)
+        console.debug('inserted table', insertResult.data)
+      } catch (err) {
+        console.log(err)
+        return
+      }
       this.step = 4
     }
   }

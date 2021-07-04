@@ -8,7 +8,8 @@
       :items="rows"
       :loading="loading"
       :items-per-page="10"
-      class="elevation-1" />
+      class="elevation-1">
+    </v-data-table>
   </div>
 </template>
 <script>
@@ -24,8 +25,8 @@ export default {
       rows: []
     }
   },
-  async mounted () {
-    await this.loadProperties()
+  mounted () {
+    this.loadProperties()
     this.loadData()
   },
   methods: {
@@ -33,9 +34,10 @@ export default {
       try {
         const res = await this.$axios.get(`/api/tables/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}`)
         this.tableName = res.data.name
+        console.debug('headers', res.data.columns)
         this.headers = res.data.columns.map((c) => {
           return {
-            value: c.name,
+            value: c.internalName,
             text: c.name
           }
         })
@@ -47,7 +49,8 @@ export default {
     async loadData () {
       try {
         const res = await this.$axios.get(`/api/tables/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}/data`)
-        this.rows = res.data.Result
+        this.rows = res.data.result
+        console.debug('table data', res.data)
       } catch (err) {
         this.$toast.error('Could not load table data.')
       }

@@ -26,6 +26,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.synchronoss.cloud.nio.multipart.Multipart;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,7 +60,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
     private TableRepository tableRepository;
 
     @Autowired
-    private ImportService dataService;
+    private DataService dataService;
 
     private CreateContainerResponse request;
 
@@ -128,14 +130,14 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, IOException,
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
             ArbitraryPrimaryKeysException, DataProcessingException {
         create_table();
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath())))
+                .csvLocation("classpath:weather-small.csv")
                 .build();
 
         /* test */
@@ -150,13 +152,13 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
     @Test
     @Disabled
     public void insertFromFile_columnNumberDiffers_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            IOException, ArbitraryPrimaryKeysException, DataProcessingException {
+            ArbitraryPrimaryKeysException, DataProcessingException {
         create_table();
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:namen.csv").toPath())))
+                .csvLocation("classpath:namen.csv")
                 .build();
 
         /* test */
@@ -167,14 +169,14 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insertFromFile_notRunning_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            IOException, ArbitraryPrimaryKeysException, DataProcessingException {
+            ArbitraryPrimaryKeysException, DataProcessingException {
         create_table();
         dockerClient.stopContainerCmd(request.getId()).exec();
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csv(new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath())))
+                .csvLocation("classpath:weather-small.csv")
                 .build();
 
         /* test */
