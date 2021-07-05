@@ -18,13 +18,11 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
-import javax.sound.sampled.Line;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.jooq.impl.SQLDataType.*;
 import static org.jooq.impl.DSL.*;
@@ -139,9 +137,16 @@ public interface TableMapper {
         final List<Constraint> constraints = new LinkedList<>();
         final CreateTableColumnStep step = context.createTableIfNotExists(nameToInternalName(data.getName()));
         for (ColumnCreateDto column : data.getColumns()) {
+            if (column.getPrimaryKey()) {
+                if (column.getNullAllowed()) {
+                    throw new ArbitraryPrimaryKeysException("Primary key cannot be nullable");
+                }
+                if (column.getType().equals(ColumnTypeDto.ENUM)) {
+                    throw new ArbitraryPrimaryKeysException("Primary key cannot be of type enum");
+                }
+            }
             final DataType<?> dataType = columnTypeDtoToDataType(column)
-                    .nullable(column.getNullAllowed())
-                    .identity(column.getPrimaryKey());
+                    .nullable(column.getNullAllowed());
             step.column(nameToInternalName(nameToColumnName(column.getName())), dataType);
         }
         /* primary keys */
@@ -151,11 +156,14 @@ public interface TableMapper {
                         .map(c -> field(nameToInternalName(nameToColumnName(c.getName()))))
                         .toArray(Field[]::new)));
         /* unique constraints */
-        final Stream<ColumnCreateDto> uniqueConstraints = Arrays.stream(data.getColumns())
-                .filter(ColumnCreateDto::getUnique);
-        if (uniqueConstraints.count() > 0) {
-            uniqueConstraints.forEach(c -> constraints.add(constraint("UQ_" + nameToInternalName(nameToColumnName(c.getName())))
-                    .unique(nameToInternalName(nameToColumnName(c.getName())))));
+        final long count = Arrays.stream(data.getColumns())
+                .filter(ColumnCreateDto::getUnique)
+                .count();
+        if (count > 0) {
+            Arrays.stream(data.getColumns())
+                    .filter(ColumnCreateDto::getUnique)
+                    .forEach(c -> constraints.add(constraint("UQ_" + nameToInternalName(nameToColumnName(c.getName())))
+                            .unique(nameToInternalName(nameToColumnName(c.getName())))));
         }
         step.constraints(constraints);
         return step;
@@ -175,12 +183,11 @@ public interface TableMapper {
                 .collect(Collectors.toList());
     }
 
-    default DataType<?> columnTypeDtoToDataType(ColumnCreateDto data) throws ArbitraryPrimaryKeysException {
+    default DataType<?> columnTypeDtoToDataType(ColumnCreateDto data) {
         if (data.getPrimaryKey()) {
-            if (!data.getType().equals(ColumnTypeDto.NUMBER)) {
-                throw new ArbitraryPrimaryKeysException("Primary key must be number");
+            if (data.getType().equals(ColumnTypeDto.NUMBER)) {
+                return BIGINT;
             }
-            return BIGINT;
         }
         switch (data.getType()) {
             case BLOB:

@@ -93,7 +93,6 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
         databaseRepository.save(DATABASE_2);
     }
 
-    @Transactional
     @AfterEach
     public void afterEach() {
         /* stop containers and remove them */
