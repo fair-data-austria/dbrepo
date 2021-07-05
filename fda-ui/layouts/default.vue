@@ -96,6 +96,9 @@ export default {
     }
   },
   computed: {
+    themeLabel () {
+      return this.dark ? 'Dark' : 'Light'
+    },
     availableLocales () {
       return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale)
     },

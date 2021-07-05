@@ -1,14 +1,18 @@
 <template>
-  <div>
-    <h3>
+  <v-card>
+    <v-card-title>
       Databases
-    </h3>
+    </v-card-title>
+    <v-card-subtitle>
+      All public databases found in the metadata database.
+    </v-card-subtitle>
     <v-simple-table>
       <template v-slot:default>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Internal Name</th>
+            <th>Description</th>
+            <th>Created</th>
           </tr>
         </thead>
         <tbody>
@@ -16,7 +20,9 @@
             v-for="item in databases"
             :key="item.id">
             <td>
-              <v-btn :to="`/db/${item.id}`" icon><v-icon>{{ iconSelect }}</v-icon></v-btn>
+              <v-btn :to="`/db/${item.id}`" icon>
+                <v-icon>{{ iconSelect }}</v-icon>
+              </v-btn>
               {{ item.name }}
             </td>
             <!-- <td>
@@ -25,7 +31,11 @@
                  ({{ relativeDate(item.Created) }})
                  </span>
                  </td> -->
-            <td>{{ item.internalName }}</td>
+            <td>{{ item.description }}</td>
+            <td>{{ item.created }}</td>
+          </tr>
+          <tr v-if="databases.length === 0" aria-readonly="true">
+            <td colspan="3">(no databases)</td>
           </tr>
         </tbody>
       </template>
@@ -41,7 +51,7 @@
       max-width="640">
       <CreateDB @refresh="refresh" />
     </v-dialog>
-  </div>
+  </v-card>
 </template>
 <script>
 import { mdiDatabaseArrowRightOutline } from '@mdi/js'
