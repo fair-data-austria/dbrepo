@@ -13,9 +13,9 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.SerializationUtils;
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,12 +31,15 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest
+@Log4j2
 @ExtendWith(SpringExtension.class)
 public class TableMapperIntegrationTest extends BaseUnitTest {
 
@@ -152,15 +155,30 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
     @Test
     public void tableCreateDtoToCreateTableColumnStep_success() throws SQLException, ArbitraryPrimaryKeysException,
             ImageNotSupportedException {
+        final DSLContext context = open();
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
 
         /* test */
-        tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
-                .execute();
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .count());
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getPrimaryKey)
+                .filter(Objects::nonNull)
+                .map(Key::getFields)
+                .count());
     }
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_twoColumnPrimaryKey_succeeds() throws SQLException,
             ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[1]
                 .setNullAllowed(false);
@@ -168,95 +186,187 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .setPrimaryKey(true);
         TABLE_2_CREATE_DTO.getColumns()[1]
                 .setType(ColumnTypeDto.NUMBER);
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
 
         /* test */
-        tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
-                .execute();
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .count());
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getPrimaryKey)
+                .filter(Objects::nonNull)
+                .map(Key::getFields)
+                .map(k -> k.get(0))
+                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .count());
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getPrimaryKey)
+                .filter(Objects::nonNull)
+                .map(Key::getFields)
+                .map(k -> k.get(0))
+                .map(f -> f.getName().matches(COLUMN_2_INTERNAL_NAME))
+                .count());
     }
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_primaryKeyBlob_succeeds() throws SQLException,
             ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
                 .setType(ColumnTypeDto.BLOB);
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
 
         /* test */
-        tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
-                .execute();
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .count());
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getPrimaryKey)
+                .filter(Objects::nonNull)
+                .map(Key::getFields)
+                .map(k -> k.get(0))
+                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .count());
     }
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_primaryKeyDate_succeeds() throws SQLException,
             ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
                 .setType(ColumnTypeDto.DATE);
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
 
         /* test */
-        tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
-                .execute();
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .count());
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getPrimaryKey)
+                .filter(Objects::nonNull)
+                .map(Key::getFields)
+                .map(k -> k.get(0))
+                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .count());
     }
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_primaryKeyText_succeeds() throws SQLException,
             ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
                 .setType(ColumnTypeDto.TEXT);
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
 
         /* test */
-        tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
-                .execute();
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .count());
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getPrimaryKey)
+                .filter(Objects::nonNull)
+                .map(Key::getFields)
+                .map(k -> k.get(0))
+                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .count());
     }
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_primaryKeyString_succeeds() throws SQLException,
             ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
                 .setType(ColumnTypeDto.STRING);
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
 
         /* test */
-        tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
-                .execute();
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .count());
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getPrimaryKey)
+                .filter(Objects::nonNull)
+                .map(Key::getFields)
+                .map(k -> k.get(0))
+                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .count());
     }
 
     @Test
-    public void tableCreateDtoToCreateTableColumnStep_primaryKeyEnum_fails() {
+    public void tableCreateDtoToCreateTableColumnStep_primaryKeyEnum_fails() throws SQLException {
+        final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
                 .setType(ColumnTypeDto.ENUM);
 
         /* test */
         assertThrows(ArbitraryPrimaryKeysException.class, () -> {
-            tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
+            tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
                     .execute();
         });
     }
 
     @Test
-    public void tableCreateDtoToCreateTableColumnStep_noPrimaryKey_fails() {
+    public void tableCreateDtoToCreateTableColumnStep_noPrimaryKey_fails() throws SQLException {
+        final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
                 .setPrimaryKey(false);
 
         /* test */
         assertThrows(ArbitraryPrimaryKeysException.class, () -> {
-            tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
+            tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
                     .execute();
         });
     }
 
     @Test
-    public void tableCreateDtoToCreateTableColumnStep_primaryKeyNull_fails() {
+    public void tableCreateDtoToCreateTableColumnStep_primaryKeyNull_fails() throws SQLException {
+        final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
                 .setNullAllowed(true);
 
         /* test */
         assertThrows(ArbitraryPrimaryKeysException.class, () -> {
-            tableMapper.tableCreateDtoToCreateTableColumnStep(open(), TABLE_2_CREATE_DTO)
+            tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
                     .execute();
         });
     }
