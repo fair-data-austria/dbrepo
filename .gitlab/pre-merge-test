@@ -13,7 +13,8 @@ SERVICES="container
 # 1) Docker
 echo -e "\e[96m1\e[39m) Docker"
 echo "Building all"
-docker-compose build >/dev/null 2>&1
+docker-compose build fda-metadata-db > /dev/null 2>&1
+docker-compose build --parallel > /dev/null 2>&1
 
 if [[ $? -ne 0 ]]; then
   echo -e "... \e[91mNOT OK\e[39m"
