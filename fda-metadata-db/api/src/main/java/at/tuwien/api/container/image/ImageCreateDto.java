@@ -32,6 +32,10 @@ public class ImageCreateDto {
     private String dialect;
 
     @NotBlank
+    @ApiModelProperty(required = true, example = "base64:aaaa")
+    private String logo;
+
+    @NotBlank
     @ApiModelProperty(required = true, example = "postgresql")
     private String jdbcMethod;
 

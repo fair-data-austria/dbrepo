@@ -37,6 +37,10 @@ public class ContainerImage {
     @Column(nullable = false)
     private String repository;
 
+    @ToString.Exclude
+    @Column(nullable = false)
+    private String logo;
+
     @ToString.Include
     @Column(nullable = false)
     private String tag;

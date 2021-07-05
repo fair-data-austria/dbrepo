@@ -93,6 +93,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
         databaseRepository.save(DATABASE_2);
     }
 
+    @Transactional
     @AfterEach
     public void afterEach() {
         /* stop containers and remove them */
@@ -136,7 +137,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("classpath:weather-small.csv")
+                .csvLocation("test:src/test/resources/weather-small.csv")
                 .build();
 
         /* test */
@@ -157,7 +158,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("classpath:namen.csv")
+                .csvLocation("test:src/test/resources/namen.csv")
                 .build();
 
         /* test */
@@ -175,7 +176,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("classpath:weather-small.csv")
+                .csvLocation("test:src/test/resources/weather-small.csv")
                 .build();
 
         /* test */

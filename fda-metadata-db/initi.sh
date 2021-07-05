@@ -42,6 +42,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		last_modified timestamp without time zone,
 		compiled timestamp without time zone NOT NULL,
 		default_port integer NOT NULL,
+		logo TEXT NOT NULL,
 		hash character varying(255) NOT NULL,
 		dialect character varying(255) NOT NULL,
 		driver_class character varying(255) NOT NULL,
@@ -142,6 +143,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MAXVALUE
 		CACHE 1;
 
+  CREATE SEQUENCE public.mdb_columns_enum_seq
+		START WITH 1
+		INCREMENT BY 1
+		NO MINVALUE
+		NO MAXVALUE
+		CACHE 1;
+
 	CREATE TABLE IF NOT EXISTS mdb_queries (
     ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
     execution_timestamp timestamp without time zone NOT NULL,
@@ -196,12 +204,25 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		ordinal_position INTEGER,
 		is_primary_key BOOLEAN,
 		is_null_allowed BOOLEAN,
-		foreign_key VARCHAR(50),
+		foreign_key VARCHAR(255),
+		reference_table VARCHAR(255),
 		check_expression character varying(255),
 		created timestamp without time zone NOT NULL,
 		last_modified timestamp without time zone,
 		FOREIGN KEY (cDBID,tID) REFERENCES mdb_TABLES(tDBID,ID), 
 		PRIMARY KEY(cDBID, tID, ID)
+	);
+
+	CREATE TABLE IF NOT EXISTS mdb_COLUMNS_ENUMS (
+		ID bigint DEFAULT nextval('mdb_columns_enum_seq'),
+		eDBID bigint,
+		tID bigint,
+		cID bigint,
+		enum_values CHARACTER VARYING(255) NOT NULL,
+		created timestamp without time zone NOT NULL,
+		last_modified timestamp without time zone,
+		FOREIGN KEY (eDBID, tID, cID) REFERENCES mdb_COLUMNS(cDBID, tID, ID),
+		PRIMARY KEY (ID)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS_nom ( 

@@ -12,6 +12,7 @@
           <tr>
             <th>Name</th>
             <th>Description</th>
+            <th>Engine</th>
             <th>Created</th>
           </tr>
         </thead>
@@ -32,15 +33,16 @@
                  </span>
                  </td> -->
             <td>{{ item.description }}</td>
+            <td>{{ item.engine }}</td>
             <td>{{ item.created }}</td>
           </tr>
           <tr v-if="databases.length === 0" aria-readonly="true">
-            <td colspan="3">(no databases)</td>
+            <td colspan="4">(no databases)</td>
           </tr>
         </tbody>
       </template>
     </v-simple-table>
-    <v-btn class="float-right mt-1" color="primary" @click.stop="createDbDialog = true">
+    <v-btn class="float-right mt-3" color="primary" @click.stop="createDbDialog = true">
       <v-icon class="mr-1">
         mdi-plus
       </v-icon>
@@ -48,6 +50,7 @@
     </v-btn>
     <v-dialog
       v-model="createDbDialog"
+      persistent
       max-width="640">
       <CreateDB @refresh="refresh" />
     </v-dialog>

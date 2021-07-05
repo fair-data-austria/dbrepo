@@ -1,21 +1,25 @@
 <template>
   <v-card>
-    <v-card-title class="headline">
-      Database
+    <v-card-title>
+      Create Database
     </v-card-title>
     <v-card-text>
+      <v-alert
+        border="left"
+        color="amber lighten-4">
+        Choose an expressive database name and select a database engine.
+      </v-alert>
       <v-form v-model="formValid">
         <v-text-field
           id="dbname"
           v-model="database"
-          label="Name"
+          label="Database Name"
           :rules="[v => !!v || $t('Required')]"
           required />
         <v-select
           v-model="engine"
-          label="Engine"
+          label="Database Engine"
           :items="engines"
-          :loading="loading"
           item-text="label"
           :rules="[v => !!v || $t('Required')]"
           return-object
@@ -57,7 +61,7 @@ export default {
   },
   methods: {
     cancel () {
-      this.$parent.$parent.$parent.createDbDialog = false
+      this.$parent.$parent.$parent.$parent.createDbDialog = false
     },
     async getImages () {
       this.loading = true

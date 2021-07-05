@@ -27,6 +27,9 @@ import org.springframework.util.SocketUtils;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -127,7 +130,7 @@ public class ContainerService {
         } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
-        } catch(NotModifiedException e) {
+        } catch (NotModifiedException e) {
             log.warn("container already removed {}", e.getMessage());
             throw new DockerClientException("container already removed", e);
         } catch (ConflictException e) {
@@ -195,13 +198,19 @@ public class ContainerService {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         try {
-            dockerClient.startContainerCmd(container.get().getHash()).exec();
+            dockerClient.startContainerCmd(container.get().getHash())
+                    .exec();
         } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         } catch (NotModifiedException e) {
             log.warn("container already started {}", e.getMessage());
             throw new DockerClientException("container already started", e);
+        }
+        try {
+            Thread.sleep(20 * 1000);
+        } catch (InterruptedException e) {
+            throw new DockerClientException("Interrupted", e);
         }
         log.info("Started container {}", containerId);
         log.debug("Started container {}", container);

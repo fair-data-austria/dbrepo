@@ -1,5 +1,6 @@
 package at.tuwien.api.database;
 
+import at.tuwien.api.container.image.ImageDto;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
 
@@ -31,6 +32,10 @@ public class DatabaseDto {
     @NotBlank
     @Parameter(name = "database description", example = "Weather Australia 2009-2021")
     private String description;
+
+    @NotBlank
+    @Parameter(name = "database container image")
+    private ImageDto image;
 
     @NotBlank
     @Parameter(name = "database publisher", example = "National Office")

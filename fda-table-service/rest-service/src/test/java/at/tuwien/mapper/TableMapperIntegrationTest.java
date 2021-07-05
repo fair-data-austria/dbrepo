@@ -19,6 +19,7 @@ import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.jooq.impl.DSL.table;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -369,6 +370,94 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
             tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
                     .execute();
         });
+    }
+
+    @Test
+    public void tableCreateDtoToCreateTableColumnStep_uniqueConstraint_success() throws SQLException,
+            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        final DSLContext context = open();
+        final TableCreateDto TABLE_2_CREATE_DTO = instance();
+
+        /* test */
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getKeys)
+                .map(uniqueKeys -> uniqueKeys.get(0))
+                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_1_INTERNAL_NAME))
+                .count());
+    }
+
+    @Test
+    public void tableCreateDtoToCreateTableColumnStep_uniqueConstraint2_success() throws SQLException,
+            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        final DSLContext context = open();
+        final TableCreateDto TABLE_2_CREATE_DTO = instance();
+        TABLE_2_CREATE_DTO.getColumns()[1]
+                .setUnique(true);
+
+        /* test */
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getKeys)
+                .map(uniqueKeys -> uniqueKeys.get(0))
+                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_1_INTERNAL_NAME))
+                .count());
+        assertEquals(1, context.meta()
+                .getTables()
+                .stream()
+                .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
+                .map(Table::getKeys)
+                .map(uniqueKeys -> uniqueKeys.get(0))
+                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_2_INTERNAL_NAME))
+                .count());
+    }
+
+    @Test
+    public void tableCreateDtoToCreateTableColumnStep_enum_success() throws SQLException,
+            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+        final DSLContext context = open();
+        final TableCreateDto TABLE_2_CREATE_DTO = instance();
+        final ColumnCreateDto[] columns = new ColumnCreateDto[]{COLUMNS5[0], COLUMNS5[1], COLUMNS5[2],
+                COLUMNS5[3], COLUMNS5[4], ColumnCreateDto.builder()
+                .name("Gender")
+                .nullAllowed(false)
+                .primaryKey(false)
+                .unique(false)
+                .foreignKey(null)
+                .type(ColumnTypeDto.ENUM)
+                .enumValues(new String[]{"MALE", "FEMALE", "OTHER"})
+                .build()};
+        TABLE_2_CREATE_DTO.setColumns(columns);
+
+        /* test */
+        tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
+                .execute();
+    }
+
+    @Test
+    @Disabled
+    public void tableCreateDtoToCreateTableColumnStep_checkConstraint_success() throws SQLException {
+        final DSLContext context = open();
+        final TableCreateDto TABLE_2_CREATE_DTO = instance();
+
+        /* test */
+    }
+
+    @Test
+    @Disabled
+    public void tableCreateDtoToCreateTableColumnStep_foreignKey_success() throws SQLException {
+        final DSLContext context = open();
+        final TableCreateDto TABLE_2_CREATE_DTO = instance();
+
+        /* test */
     }
 
 }

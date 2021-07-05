@@ -27,6 +27,10 @@ public class ContainerBriefDto {
     private String name;
 
     @NotBlank
+    @ApiModelProperty(name = "container database engine", example = "mariadb:latest")
+    private String engine;
+
+    @NotBlank
     @ApiModelProperty(name = "container internal name", example = "weather-world")
     private String internalName;
 }

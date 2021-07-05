@@ -40,4 +40,10 @@ public class ColumnDto {
     @ApiModelProperty(name = "foreign key", hidden = true)
     private String foreignKey;
 
+    @ApiModelProperty(name = "foreign key reference, only considered when foreignKey != null", example = "null")
+    private String references;
+
+    @ApiModelProperty(name = "enum values, only considered when type = ENUM", example = "[\"male\",\"female\",\"other\"]")
+    private String[] enumValues;
+
 }

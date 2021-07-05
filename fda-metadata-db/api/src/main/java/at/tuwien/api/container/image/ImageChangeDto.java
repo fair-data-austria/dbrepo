@@ -27,6 +27,10 @@ public class ImageChangeDto {
     private String driverClass;
 
     @NotBlank
+    @ApiModelProperty(required = true, example = "base64:aaaa")
+    private String logo;
+
+    @NotBlank
     @ApiModelProperty(required = true, example = "Postgres")
     private String dialect;
 
