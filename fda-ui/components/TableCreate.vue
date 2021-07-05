@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <form id="create_table" action="/" method="post" @submit="checkForm">
     <v-card class="pb-2">
       <v-card-title class="pb-0">
         Create Table
@@ -13,9 +13,6 @@
         <v-text-field
           v-model="description"
           label="Description" />
-        <v-btn @click="addColumn">
-          Add Column
-        </v-btn>
       </v-card-text>
       <v-card-text v-for="(c, idx) in columns" :key="idx" class="pa-3 mb-2">
         <v-row class="column pa-2 ml-1 mr-1">
@@ -56,12 +53,15 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn :disabled="!canCreateTable()" @click="createTable">
+        <v-btn @click="addColumn">
+          Add Column
+        </v-btn>
+        <v-btn :disabled="!canCreateTable" color="primary" @click="createTable">
           Create Table
         </v-btn>
       </v-card-actions>
     </v-card>
-  </div>
+  </form>
 </template>
 
 <script>
@@ -69,8 +69,8 @@ export default {
   data () {
     return {
       columns: [],
-      name: '',
-      description: '',
+      name: null,
+      description: null,
       columnTypes: [
         { value: 'ENUM', text: 'ENUM' },
         { value: 'BOOLEAN', text: 'BOOLEAN' },
@@ -86,6 +86,9 @@ export default {
     this.addColumn()
   },
   methods: {
+    checkForm (e) {
+      e.preventDefault()
+    },
     onChange (idx, val, name) {
       const c = this.columns[idx]
       if (name === 'nullAllowed' && val === true) {
@@ -113,7 +116,7 @@ export default {
       this.columns.splice(idx, 1)
     },
     canCreateTable () {
-      if (this.name === '') { return false }
+      if (this.name === null) { return false }
       if (this.description === '') { return false }
       if (!this.columns.length) { return false }
       for (let i = 0; i < this.columns.length; i++) {

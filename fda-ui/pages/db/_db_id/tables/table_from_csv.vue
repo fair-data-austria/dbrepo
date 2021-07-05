@@ -69,16 +69,19 @@
       <v-stepper-content step="3">
         <div v-for="(c, idx) in tableCreate.columns" :key="idx">
           <v-row dense class="column pa-2 ml-1 mr-1 mb-2">
-            <v-col cols="4">
+            <v-col cols="2">
               <v-text-field v-model="c.name" disabled required label="Name" />
             </v-col>
-            <v-col cols="3">
+            <v-col cols="2">
               <v-select
                 v-model="c.type"
                 :items="columnTypes"
                 item-value="value"
                 required
                 label="Data Type" />
+            </v-col>
+            <v-col cols="2">
+              <v-text-field v-model="c.enumValues" :disabled="c.type !== 'ENUM'" required label="Enumeration Values" hint="Separate with ," />
             </v-col>
             <v-col cols="auto" class="pl-2">
               <v-checkbox v-model="c.primaryKey" label="Primary Key" />
@@ -184,6 +187,14 @@ export default {
       this.loading = false
     },
     async createTable () {
+      /* make enum values to array */
+      this.tableCreate.columns.forEach((column) => {
+        if (column.enumValues.length > 0) {
+          column.enumValues = column.enumValues.split(',')
+        } else {
+          column.enumValues = null
+        }
+      })
       const createUrl = `/api/tables/api/database/${this.$route.params.db_id}/table`
       let createResult
       try {
