@@ -85,10 +85,8 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         Thread.sleep(3000);
         CONTAINER_1_HASH = request.getId();
         databaseRepository.save(DATABASE_1);
-        databaseRepository.save(DATABASE_2);
     }
 
-    @Transactional
     @AfterEach
     public void afterEach() {
         /* stop containers and remove them */
@@ -131,16 +129,6 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
         assertEquals(DATABASE_1_ID, response.getTdbid());
         assertEquals(COLUMNS5.length, response.getColumns().size());
-    }
-
-    @Test
-    @Disabled
-    public void findAll_notFound_fails() {
-
-        /* test */
-        assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.findAll(9999L);
-        });
     }
 
     @Test

@@ -158,10 +158,15 @@ public class DataService extends JdbcConnector {
         if (data.getDelimiter() == null) {
             data.setDelimiter(',');
         }
+        if (!data.getCsvLocation().startsWith("test:")) {
+            data.setCsvLocation("/tmp/" + data.getCsvLocation());
+        } else {
+            data.setCsvLocation(data.getCsvLocation().substring(5));
+        }
         final CSVParser csvParser = new CSVParserBuilder()
                 .withSeparator(data.getDelimiter())
                 .build();
-        final MultipartFile multipartFile = new MockMultipartFile(data.getCsvLocation(), Files.readAllBytes(Paths.get("/tmp/" + data.getCsvLocation())));
+        final MultipartFile multipartFile = new MockMultipartFile(data.getCsvLocation(), Files.readAllBytes(Paths.get(data.getCsvLocation())));
         final Reader fileReader = new InputStreamReader(multipartFile.getInputStream());
         final List<List<String>> cells = new LinkedList<>();
         final CSVReader reader = new CSVReaderBuilder(fileReader)

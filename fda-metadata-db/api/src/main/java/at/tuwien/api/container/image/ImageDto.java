@@ -29,8 +29,13 @@ public class ImageDto {
     private String driverClass;
 
     @NotBlank
+    @ApiModelProperty(required = true, example = "base64:aaaa")
+    private String logo;
+
+    @NotBlank
     @ApiModelProperty(required = true, example = "Postgres")
     private String dialect;
+
     @NotBlank
     @ApiModelProperty(required = true, example = "postgres")
     private String jdbcMethod;

@@ -41,6 +41,8 @@ public abstract class BaseUnitTest {
     public final static String TABLE_2_NAME = "Weather AT";
     public final static String TABLE_2_INTERNALNAME = "weather_at";
 
+    public final static String TABLE_2_ENUM = "__weather_at";
+
     public final static Long COLUMN_1_ID = 1L;
     public final static Integer COLUMN_1_ORDINALPOS = 0;
     public final static Boolean COLUMN_1_PRIMARY = true;
@@ -52,6 +54,7 @@ public abstract class BaseUnitTest {
     public final static Boolean COLUMN_1_UNIQUE = true;
     public final static String COLUMN_1_FOREIGN_KEY = null;
     public final static String COLUMN_1_CHECK = null;
+    public final static List<String> COLUMN_1_ENUM_VALUES = null;
 
     public final static Long COLUMN_2_ID = 2L;
     public final static Integer COLUMN_2_ORDINALPOS = 1;
@@ -64,6 +67,7 @@ public abstract class BaseUnitTest {
     public final static Boolean COLUMN_2_UNIQUE = false;
     public final static String COLUMN_2_FOREIGN_KEY = null;
     public final static String COLUMN_2_CHECK = null;
+    public final static List<String> COLUMN_2_ENUM_VALUES = null;
 
     public final static Long COLUMN_3_ID = 3L;
     public final static Integer COLUMN_3_ORDINALPOS = 2;
@@ -76,6 +80,7 @@ public abstract class BaseUnitTest {
     public final static Boolean COLUMN_3_UNIQUE = false;
     public final static String COLUMN_3_FOREIGN_KEY = null;
     public final static String COLUMN_3_CHECK = null;
+    public final static List<String> COLUMN_3_ENUM_VALUES = null;
 
     public final static Long COLUMN_4_ID = 4L;
     public final static Integer COLUMN_4_ORDINALPOS = 3;
@@ -88,6 +93,7 @@ public abstract class BaseUnitTest {
     public final static Boolean COLUMN_4_UNIQUE = false;
     public final static String COLUMN_4_FOREIGN_KEY = null;
     public final static String COLUMN_4_CHECK = null;
+    public final static List<String> COLUMN_4_ENUM_VALUES = null;
 
     public final static Long COLUMN_5_ID = 5L;
     public final static Integer COLUMN_5_ORDINALPOS = 4;
@@ -100,6 +106,7 @@ public abstract class BaseUnitTest {
     public final static Boolean COLUMN_5_UNIQUE = false;
     public final static String COLUMN_5_FOREIGN_KEY = null;
     public final static String COLUMN_5_CHECK = null;
+    public final static List<String> COLUMN_5_ENUM_VALUES = null;
 
     public final static Long IMAGE_1_ID = 1L;
     public final static String IMAGE_1_REPOSITORY = "postgres";
@@ -187,6 +194,7 @@ public abstract class BaseUnitTest {
                     .columnType(COLUMN_1_TYPE)
                     .isNullAllowed(COLUMN_1_NULL)
                     .isPrimaryKey(COLUMN_1_PRIMARY)
+                    .enumValues(COLUMN_1_ENUM_VALUES)
                     .build(),
             TableColumn.builder()
                     .id(COLUMN_2_ID)
@@ -198,6 +206,7 @@ public abstract class BaseUnitTest {
                     .columnType(COLUMN_2_TYPE)
                     .isNullAllowed(COLUMN_2_NULL)
                     .isPrimaryKey(COLUMN_2_PRIMARY)
+                    .enumValues(COLUMN_2_ENUM_VALUES)
                     .build(),
             TableColumn.builder()
                     .id(COLUMN_3_ID)
@@ -209,6 +218,7 @@ public abstract class BaseUnitTest {
                     .columnType(COLUMN_3_TYPE)
                     .isNullAllowed(COLUMN_3_NULL)
                     .isPrimaryKey(COLUMN_3_PRIMARY)
+                    .enumValues(COLUMN_3_ENUM_VALUES)
                     .build(),
             TableColumn.builder()
                     .id(COLUMN_4_ID)
@@ -220,6 +230,7 @@ public abstract class BaseUnitTest {
                     .columnType(COLUMN_4_TYPE)
                     .isNullAllowed(COLUMN_4_NULL)
                     .isPrimaryKey(COLUMN_4_PRIMARY)
+                    .enumValues(COLUMN_4_ENUM_VALUES)
                     .build(),
             TableColumn.builder()
                     .id(COLUMN_5_ID)
@@ -231,9 +242,8 @@ public abstract class BaseUnitTest {
                     .columnType(COLUMN_5_TYPE)
                     .isNullAllowed(COLUMN_5_NULL)
                     .isPrimaryKey(COLUMN_5_PRIMARY)
+                    .enumValues(COLUMN_5_ENUM_VALUES)
                     .build());
-
-    public final static List<TableColumn> TABLE_2_COLUMNS = TABLE_1_COLUMNS;
 
     public final static Table TABLE_1 = Table.builder()
             .id(TABLE_1_ID)
@@ -242,16 +252,6 @@ public abstract class BaseUnitTest {
             .name(TABLE_1_NAME)
             .lastModified(Instant.now())
             .columns(TABLE_1_COLUMNS)
-            .tdbid(DATABASE_1_ID)
-            .build();
-
-    public final static Table TABLE_2 = Table.builder()
-            .id(TABLE_2_ID)
-            .created(Instant.now())
-            .internalName(TABLE_2_INTERNALNAME)
-            .name(TABLE_2_NAME)
-            .lastModified(Instant.now())
-            .columns(TABLE_2_COLUMNS)
             .tdbid(DATABASE_1_ID)
             .build();
 
@@ -356,15 +356,6 @@ public abstract class BaseUnitTest {
                     .foreignKey(COLUMN_5_FOREIGN_KEY)
                     .checkExpression(COLUMN_5_CHECK)
                     .build()};
-
-
-    public final static TableDto TABLE_1_DTO = TableDto.builder()
-            .id(TABLE_1_ID)
-            .name(TABLE_1_NAME)
-            .description(TABLE_1_DESCRIPTION)
-            .internalName(TABLE_1_INTERNALNAME)
-            .columns(COLUMNS5_DTO)
-            .build();
 
     public final static TableCreateDto TABLE_2_CREATE_DTO = TableCreateDto.builder()
             .name(TABLE_2_NAME)

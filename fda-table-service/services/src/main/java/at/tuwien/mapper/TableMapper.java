@@ -13,6 +13,9 @@ import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
 import org.apache.commons.lang.WordUtils;
 import org.jooq.*;
+import org.jooq.impl.DefaultDataType;
+import org.jooq.meta.jaxb.CustomType;
+import org.jooq.meta.jaxb.ForcedType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -110,6 +113,10 @@ public interface TableMapper {
     })
     ColumnDto columnCreateDtoToColumnDto(ColumnCreateDto data);
 
+    default String columnCreateDtoToEnumTypeName(TableCreateDto table, ColumnCreateDto data) {
+        return "__" + nameToInternalName(nameToColumnName(table.getName())) + "_" + nameToInternalName(nameToColumnName(data.getName()));
+    }
+
     @Named("identityMapping")
     default String identity(String data) {
         return data;
@@ -135,7 +142,17 @@ public interface TableMapper {
             throw new ImageNotSupportedException("Currently no check operations are supported");
         }
         final List<Constraint> constraints = new LinkedList<>();
-        final CreateTableColumnStep step = context.createTableIfNotExists(nameToInternalName(data.getName()));
+        final CreateTableColumnStep columnStep = context.createTableIfNotExists(nameToInternalName(data.getName()));
+        /* types for enum */
+        for (ColumnCreateDto column : data.getColumns()) {
+            if (!column.getType().equals(ColumnTypeDto.ENUM)) {
+                continue;
+            }
+            context.createType(columnCreateDtoToEnumTypeName(data, column))
+                    .asEnum(column.getEnumValues())
+                    .execute();
+        }
+        /* columns */
         for (ColumnCreateDto column : data.getColumns()) {
             if (column.getPrimaryKey()) {
                 if (column.getNullAllowed()) {
@@ -145,9 +162,9 @@ public interface TableMapper {
                     throw new ArbitraryPrimaryKeysException("Primary key cannot be of type enum");
                 }
             }
-            final DataType<?> dataType = columnTypeDtoToDataType(column)
+            final DataType<?> dataType = columnTypeDtoToDataType(data, column)
                     .nullable(column.getNullAllowed());
-            step.column(nameToInternalName(nameToColumnName(column.getName())), dataType);
+            columnStep.column(nameToInternalName(nameToColumnName(column.getName())), dataType);
         }
         /* primary keys */
         constraints.add(constraint("PK_FDA")
@@ -155,18 +172,31 @@ public interface TableMapper {
                         .filter(ColumnCreateDto::getPrimaryKey)
                         .map(c -> field(nameToInternalName(nameToColumnName(c.getName()))))
                         .toArray(Field[]::new)));
-        /* unique constraints */
+        /* constraints */
         final long count = Arrays.stream(data.getColumns())
                 .filter(ColumnCreateDto::getUnique)
                 .count();
         if (count > 0) {
+            /* primary key constraints */
             Arrays.stream(data.getColumns())
                     .filter(ColumnCreateDto::getUnique)
-                    .forEach(c -> constraints.add(constraint("UQ_" + nameToInternalName(nameToColumnName(c.getName())))
+                    .forEach(c -> constraints.add(constraint("UK_" + nameToInternalName(nameToColumnName(c.getName())))
                             .unique(nameToInternalName(nameToColumnName(c.getName())))));
+            /* check constraints */
+            if (Arrays.stream(data.getColumns()).anyMatch(c -> Objects.nonNull(c.getCheckExpression()))) {
+                throw new ArbitraryPrimaryKeysException("Check constraints currently not supported");
+            }
+//                    .forEach(c -> constraints.add(constraint("CK_" + nameToInternalName(nameToColumnName(c.getName())))
+//                            .check(null)));
+            /* foreign key constraints */
+            Arrays.stream(data.getColumns())
+                    .filter(c -> Objects.nonNull(c.getForeignKey()))
+                    .forEach(c -> constraints.add(constraint("FK_" + nameToInternalName(nameToColumnName(c.getName())))
+                            .foreignKey(c.getForeignKey())
+                            .references(c.getReferences())));
         }
-        step.constraints(constraints);
-        return step;
+        columnStep.constraints(constraints);
+        return columnStep;
     }
 
     default List<Field<?>> tableToFieldList(Table data) {
@@ -183,7 +213,7 @@ public interface TableMapper {
                 .collect(Collectors.toList());
     }
 
-    default DataType<?> columnTypeDtoToDataType(ColumnCreateDto data) {
+    default DataType<?> columnTypeDtoToDataType(TableCreateDto table, ColumnCreateDto data) {
         if (data.getPrimaryKey()) {
             if (data.getType().equals(ColumnTypeDto.NUMBER)) {
                 return BIGINT;
@@ -201,6 +231,8 @@ public interface TableMapper {
                 return DOUBLE;
             case BOOLEAN:
                 return BOOLEAN;
+            case ENUM:
+                return DefaultDataType.getDefaultDataType(columnCreateDtoToEnumTypeName(table, data));
             default:
                 return OTHER;
         }

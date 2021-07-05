@@ -76,6 +76,7 @@ public class ImageService {
         image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(createDto.getEnvironment()));
         image.setDefaultPort(createDto.getDefaultPort());
         image.setDialect(createDto.getDialect());
+        image.setLogo(createDto.getLogo());
         image.setDriverClass(createDto.getDriverClass());
         image.setJdbcMethod(createDto.getJdbcMethod());
         final ContainerImage out;

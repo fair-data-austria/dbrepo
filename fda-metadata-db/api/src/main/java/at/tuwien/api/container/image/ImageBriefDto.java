@@ -27,6 +27,10 @@ public class ImageBriefDto {
     private String repository;
 
     @NotBlank
+    @ApiModelProperty(required = true, example = "base64:aaaa")
+    private String logo;
+
+    @NotBlank
     @ApiModelProperty(required = true, example = "latest")
     private String tag;
 
