@@ -42,9 +42,13 @@ public class Database {
     @Column(nullable = false)
     private String name;
 
-    @ToString.Exclude
+    @ToString.Include
     @Column(nullable = false)
     private String internalName;
+
+    @ToString.Include
+    @Column
+    private String description;
 
     @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

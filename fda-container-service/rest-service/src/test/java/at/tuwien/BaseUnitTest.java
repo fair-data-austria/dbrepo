@@ -9,10 +9,6 @@ import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
-import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.core.command.CreateContainerCmdImpl;
-import com.github.dockerjava.core.exec.CreateContainerCmdExec;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigInteger;

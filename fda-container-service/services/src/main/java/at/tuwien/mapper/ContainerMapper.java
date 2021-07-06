@@ -30,7 +30,7 @@ public interface ContainerMapper {
     ContainerDto containerToContainerDto(Container data);
 
     @Mappings({
-            @Mapping(target = "engine", expression = "java(data.getImage().getRepository()+\":\"+data.getImage().getTag())")
+            @Mapping(target = "id", source = "id")
     })
     ContainerBriefDto containerToDatabaseContainerBriefDto(Container data);
 

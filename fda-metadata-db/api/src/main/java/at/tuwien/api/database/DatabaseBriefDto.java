@@ -30,6 +30,10 @@ public class DatabaseBriefDto {
     private String description;
 
     @NotBlank
+    @Parameter(name = "database engine", example = "mariadb:latest")
+    private String engine;
+
+    @NotBlank
     @Parameter(name = "database creation time", example = "2020-08-04 11:12:00")
     private Instant created;
 

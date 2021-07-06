@@ -9,11 +9,17 @@
         color="amber lighten-4">
         Choose an expressive database name and select a database engine.
       </v-alert>
-      <v-form v-model="formValid">
+      <v-form v-model="formValid" autocomplete="off">
         <v-text-field
           id="dbname"
           v-model="database"
           label="Database Name"
+          :rules="[v => !!v || $t('Required')]"
+          required />
+        <v-textarea
+          v-model="description"
+          rows="2"
+          label="Database Description"
           :rules="[v => !!v || $t('Required')]"
           required />
         <v-select
@@ -24,6 +30,10 @@
           :rules="[v => !!v || $t('Required')]"
           return-object
           required />
+        <v-checkbox
+          v-model="isPublic"
+          disabled
+          label="Public" />
       </v-form>
     </v-card-text>
     <v-card-actions>
@@ -51,6 +61,8 @@ export default {
       formValid: false,
       loading: false,
       database: null,
+      description: null,
+      isPublic: true,
       engine: null,
       engines: [],
       container: null
@@ -80,11 +92,11 @@ export default {
       let res
       // create a container
       let containerId
-      const isPublic = false
       console.debug('model', this.engine)
       try {
         res = await this.$axios.post('/api/container/', {
           name: this.database,
+          description: this.description,
           repository: this.engine.repository,
           tag: this.engine.tag
         })
@@ -117,7 +129,8 @@ export default {
         res = await this.$axios.post('/api/database/', {
           name: this.database,
           containerId,
-          isPublic
+          description: this.description,
+          isPublic: this.isPublic
         })
         console.log(res)
       } catch (err) {

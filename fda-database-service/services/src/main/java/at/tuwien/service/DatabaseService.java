@@ -98,6 +98,7 @@ public class DatabaseService extends JdbcConnector {
         database.setName(createDto.getName());
         database.setInternalName(databaseMapper.databaseToInternalDatabaseName(database));
         database.setContainer(containerResponse.get());
+        database.setDescription(createDto.getDescription());
         database.setIsPublic(createDto.getIsPublic());
         try {
             create(database);

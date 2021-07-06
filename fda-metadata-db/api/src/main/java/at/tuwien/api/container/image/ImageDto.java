@@ -29,7 +29,7 @@ public class ImageDto {
     private String driverClass;
 
     @NotBlank
-    @ApiModelProperty(required = true, example = "base64:aaaa")
+    @ApiModelProperty(required = true)
     private String logo;
 
     @NotBlank
@@ -56,6 +56,8 @@ public class ImageDto {
     @ApiModelProperty(required = true, example = "5432")
     private Integer defaultPort;
 
+    @NotNull
+    @ApiModelProperty(required = true)
     private ImageEnvItemDto[] environment;
 
 }

@@ -5,11 +5,28 @@
       <v-tab-item>
         <v-card flat>
           <v-card-title>
-            {{ publisher }}
+            {{ db.internalName }}
           </v-card-title>
           <v-card-subtitle>
-            {{ description }}
+            {{ publisher }}
           </v-card-subtitle>
+          <v-card-text>
+            {{ description }}
+          </v-card-text>
+          <v-card-text>
+            <v-chip class="ma-2" label>
+              <v-icon left>
+                mdi-label
+              </v-icon>
+              {{ db.image.repository }}
+            </v-chip>
+            <v-chip class="ma-2" label>
+              <v-icon left>
+                mdi-label
+              </v-icon>
+              {{ db.image.tag }}
+            </v-chip>
+          </v-card-text>
         </v-card>
       </v-tab-item>
     </v-tabs-items>
@@ -33,10 +50,10 @@ export default {
       return this.$store.state.db
     },
     description () {
-      return this.db.description === null ? '(no description)' : ''
+      return this.db.description === null ? '(no description)' : this.db.description
     },
     publisher () {
-      return this.db.publisher === null ? '(no publisher)' : ''
+      return this.db.publisher === null ? '(no publisher)' : this.db.publisher
     }
   },
   async mounted () {
