@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.io.IOException;
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
-public class DatabaseNotFoundException extends IOException {
+public class DatabaseNotFoundException extends Exception {
 
     public DatabaseNotFoundException(String msg) {
         super(msg);
