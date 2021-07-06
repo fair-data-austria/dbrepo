@@ -81,7 +81,13 @@
                 label="Data Type" />
             </v-col>
             <v-col cols="2">
-              <v-text-field v-model="c.enumValues" :disabled="c.type !== 'ENUM'" required label="Enumeration Values" hint="Separate with ," />
+              <v-select
+                v-model="c.enumValues"
+                :disabled="c.type !== 'ENUM'"
+                :items="c.suggestions"
+                :menu-props="{ maxHeight: '400' }"
+                label="Enumeration"
+                multiple></v-select>
             </v-col>
             <v-col cols="auto" class="pl-2">
               <v-checkbox v-model="c.primaryKey" label="Primary Key" />

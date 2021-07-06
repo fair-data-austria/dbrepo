@@ -23,6 +23,9 @@ public interface ImageMapper {
     })
     ImageBriefDto containerImageToImageBriefDto(ContainerImage data);
 
+    @Mappings({
+            @Mapping(target = "environment", ignore = true), // cannot map since front-end would know credentials
+    })
     ImageDto containerImageToImageDto(ContainerImage data);
 
     @Mappings({

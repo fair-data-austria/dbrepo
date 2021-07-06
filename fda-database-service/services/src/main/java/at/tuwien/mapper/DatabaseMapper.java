@@ -16,12 +16,15 @@ import java.util.regex.Pattern;
 public interface DatabaseMapper {
 
     @Mappings({
-            @Mapping(target = "id", source = "id")
+            @Mapping(target = "id", source = "id"),
+            @Mapping(target = "engine", expression = "java(data.getContainer().getImage().getRepository()+\":\"+data.getContainer().getImage().getTag())"),
+            @Mapping(target="created", source = "created", dateFormat = "dd-MM-yyyy HH:mm")
     })
     DatabaseBriefDto databaseToDatabaseBriefDto(Database data);
 
     @Mappings({
-            @Mapping(target = "id", source = "id")
+            @Mapping(target = "id", source = "id"),
+            @Mapping(target = "image", source = "container.image"),
     })
     DatabaseDto databaseToDatabaseDto(Database data);
 

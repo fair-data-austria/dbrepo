@@ -127,13 +127,14 @@ public class DataService extends JdbcConnector {
         final TableCsvDto values;
         try {
             values = readCsv(table, data);
+            log.trace("read {} rows from csv", values.getData().size());
         } catch (IOException | CsvException | ArrayIndexOutOfBoundsException e) {
             log.error("failed to parse csv {}", e.getMessage());
             throw new FileStorageException("failed to parse csv", e);
         }
         try {
             insert(table, values);
-        } catch (SQLException | EntityNotSupportedException | DataAccessException e) {
+        } catch (SQLException | DataAccessException e) {
             log.error("could not insert data {}", e.getMessage());
             throw new TableMalformedException("could not insert data", e);
         }
