@@ -30,10 +30,8 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.sql.SQLException;
+import java.util.*;
 
 @Log4j2
 @Service
@@ -86,7 +84,8 @@ public class TableService {
         return table.get();
     }
 
-    private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
+    @Transactional
+    protected Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
             log.error("no database with this id found in metadata database");
@@ -104,31 +103,39 @@ public class TableService {
     public Table create(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, DataProcessingException {
         final Database database = findDatabase(databaseId);
-
-        /* save in metadata db */
+        /* create database in container */
         postgresService.createTable(database, createDto);
+        /* save in metadata db */
         final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
         mappedTable.setDatabase(database);
         mappedTable.setTdbid(databaseId);
-        mappedTable.setColumns(List.of());
+        mappedTable.setColumns(new LinkedList<>()); // TODO: our metadata db model (primary keys x3) does not allow this currently
         final Table table;
         try {
             table = tableRepository.save(mappedTable);
         } catch (EntityNotFoundException e) {
+            log.error("failed to create table compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create table compound key", e);
         }
-        table.getColumns().forEach(column -> {
+        /* we cannot insert columns at the same time since they depend on the table id */
+        for (int i = 0; i < createDto.getColumns().length; i++) {
+            final TableColumn column = tableMapper.columnCreateDtoToTableColumn(createDto.getColumns()[i]);
+//            column.setOrdinalPosition(i);
             column.setCdbid(databaseId);
             column.setTid(table.getId());
-        });
+            table.getColumns()
+                    .add(column);
+        }
+        /* update table in metadata db */
         final Table out;
         try {
             out = tableRepository.save(table);
         } catch (EntityNotFoundException e) {
+            log.error("failed to create column compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create column compound key", e);
         }
-        log.debug("saved table: {}", out);
-        log.info("Created table {} in database {}", out.getName(), out.getDatabase().getId());
+        log.info("Created table {}", out.getId());
+        log.debug("created table: {}", out);
         return out;
     }
 
@@ -214,15 +221,16 @@ public class TableService {
         return null;
     }
 
-    // TODO ms what is this for? It does ony print to stdout
+    @Transactional
     public QueryResultDto showData(Long databaseId, Long tableId) throws ImageNotSupportedException,
             DatabaseNotFoundException, TableNotFoundException, DatabaseConnectionException, DataProcessingException {
-        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), findById(databaseId, tableId));
-        for (Map<String, Object> m : queryResult.getResult()) {
-            for (Map.Entry<String, Object> entry : m.entrySet()) {
-                log.debug("{}: {}", entry.getKey(), entry.getValue());
-            }
-        }
+        final Table tmpTable = findById(databaseId, tableId);
+        QueryResultDto queryResult = postgresService.getAllRows(findDatabase(databaseId), tmpTable);
+//        for (Map<String, Object> m : queryResult.getResult()) {
+//            for (Map.Entry<String, Object> entry : m.entrySet()) {
+//                log.debug("{}: {}", entry.getKey(), entry.getValue());
+//            }
+//        }
         return queryResult;
     }
 
