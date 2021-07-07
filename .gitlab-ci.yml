@@ -12,7 +12,7 @@ image: "docker/compose:latest"
 
 stages: 
   - build
-  - test-e2e
+  # - test-e2e
   - test-backend
   - deploy
 
