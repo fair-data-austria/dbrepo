@@ -22,6 +22,7 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_DIALECT = "POSTGRES";
     public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
     public final static String IMAGE_1_JDBC = "postgresql";
+    public final static String IMAGE_1_LOGO = "AAAA";
     public final static Integer IMAGE_1_PORT = 5432;
     public final static Long IMAGE_1_SIZE = 12000L;
     public final static Instant IMAGE_1_CREATED = Instant.now();
@@ -44,22 +45,28 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_2_DIALECT = "MARIADB";
     public final static String IMAGE_2_DRIVER = "org.mariadb.jdbc.Driver";
     public final static String IMAGE_2_JDBC = "mariadb";
+    public final static String IMAGE_2_LOGO = "BBBB";
     public final static Integer IMAGE_2_PORT = 5432;
     public final static Long IMAGE_2_SIZE = 14000L;
     public final static Instant IMAGE_2_CREATED = Instant.now();
     public final static Instant IMAGE_2_UPDATED = Instant.now();
     public final static List<ContainerImageEnvironmentItem> IMAGE_2_ENVIRONMENT = List.of(ContainerImageEnvironmentItem.builder()
-                    .type(ContainerImageEnvironmentItemType.USERNAME)
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .key("MARIADB_ROOT_PASSWORD")
                     .value("mariadb")
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .type(ContainerImageEnvironmentItemType.USERNAME)
+                    .key("UZERNAME")
+                    .value("root")
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .type(ContainerImageEnvironmentItemType.OTHER)
                     .key("MARIADB_USER")
                     .value("mariadb")
                     .build(),
             ContainerImageEnvironmentItem.builder()
-                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .type(ContainerImageEnvironmentItemType.OTHER)
                     .key("MARIADB_PASSWORD")
                     .value("mariadb")
                     .build());
@@ -107,6 +114,7 @@ public abstract class BaseUnitTest {
             .created(IMAGE_1_CREATED)
             .defaultPort(IMAGE_1_PORT)
             .compiled(IMAGE_1_UPDATED)
+            .logo(IMAGE_1_LOGO)
             .build();
 
     public final static ContainerImage IMAGE_2 = ContainerImage.builder()
@@ -122,6 +130,7 @@ public abstract class BaseUnitTest {
             .created(IMAGE_2_CREATED)
             .defaultPort(IMAGE_2_PORT)
             .compiled(IMAGE_2_UPDATED)
+            .logo(IMAGE_2_LOGO)
             .build();
 
     public final static Container CONTAINER_1 = Container.builder()

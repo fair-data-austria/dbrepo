@@ -90,7 +90,7 @@
                 multiple></v-select>
             </v-col>
             <v-col cols="auto" class="pl-2">
-              <v-checkbox v-model="c.primaryKey" label="Primary Key" />
+              <v-checkbox v-model="c.primaryKey" @click="setOthers(c)" label="Primary Key" />
             </v-col>
             <v-col cols="auto" class="pl-10">
               <v-checkbox v-model="c.nullAllowed" :disabled="c.primaryKey" label="Null Allowed" />
@@ -192,13 +192,18 @@ export default {
       }
       this.loading = false
     },
+    setOthers (column) {
+      column.nullAllowed = false
+      column.unique = true
+    },
     async createTable () {
       /* make enum values to array */
       this.tableCreate.columns.forEach((column) => {
+        if (column.enumValues == null) {
+          return
+        }
         if (column.enumValues.length > 0) {
           column.enumValues = column.enumValues.split(',')
-        } else {
-          column.enumValues = null
         }
       })
       const createUrl = `/api/tables/api/database/${this.$route.params.db_id}/table`

@@ -174,6 +174,7 @@ public interface TableMapper {
                         .toArray(Field[]::new)));
         /* constraints */
         final long count = Arrays.stream(data.getColumns())
+                .filter(Objects::nonNull)
                 .filter(ColumnCreateDto::getUnique)
                 .count();
         if (count > 0) {
