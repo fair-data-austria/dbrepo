@@ -133,7 +133,7 @@ export default {
         columns: this.columns
       }
       try {
-        const res = await this.$axios.post(`/api/tables/api/database/${this.$route.params.db_id}/table`, data)
+        const res = await this.$axios.post(`/api/table/api/database/${this.$route.params.db_id}/table`, data)
         if (res.status === 201) {
           this.$toast.success('Table created.')
           this.$root.$emit('table-create', res.data)

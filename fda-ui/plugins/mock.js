@@ -9,7 +9,7 @@ const mock = new MockAdapter(axios)
 
 // Mock any GET request
 // arguments for reply are (status, data, headers)
-mock.onGet('/database/database').reply(200, [
+mock.onGet('/gffff/gffff').reply(200, [
   {
     DbName: 'myDB',
     ContainerID: 'container1',

@@ -58,7 +58,7 @@ export default {
   },
   async mounted () {
     try {
-      const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
+      const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
       console.debug('database', res.data)
       this.$store.commit('SET_DATABASE', res.data)
     } catch (err) {

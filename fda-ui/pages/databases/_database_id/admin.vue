@@ -48,7 +48,7 @@ export default {
         this.$router.push({ path: '/databases' })
         this.$toast.success(`Database "${this.db.name}" deleted.`)
       } catch (err) {
-        this.$toast.error('Could not delete database.')
+        this.$toast.error('Could not delete gffff.')
       }
       this.dialogDelete = false
     }

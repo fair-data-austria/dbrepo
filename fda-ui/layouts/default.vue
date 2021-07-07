@@ -54,7 +54,8 @@ import {
   mdiDatabase,
   mdiTable,
   mdiFileDelimited,
-  mdiDatabaseSearch
+  mdiDatabaseSearch,
+  mdiHome
 } from '@mdi/js'
 
 export default {
@@ -64,7 +65,7 @@ export default {
       drawer: false,
       items: [
         {
-          icon: 'mdi-home',
+          icon: mdiHome,
           title: 'Home',
           to: '/'
         },
@@ -88,7 +89,7 @@ export default {
         {
           icon: mdiDatabaseSearch,
           title: 'SQL Query',
-          to: '/sql',
+          to: '/queries',
           needsContainer: true
         }
       ],
@@ -96,9 +97,6 @@ export default {
     }
   },
   computed: {
-    themeLabel () {
-      return this.dark ? 'Dark' : 'Light'
-    },
     availableLocales () {
       return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale)
     },
@@ -125,17 +123,12 @@ export default {
   },
   methods: {
     async loadDB () {
-      // this route already loads the db itself
-      if (this.$route.name.startsWith('db-db_id___')) {
-        return
-      }
-
       if (this.$route.params.db_id && !this.db) {
         try {
           const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
           this.$store.commit('SET_DATABASE', res.data)
         } catch (err) {
-          this.$toast.error('Could not load database.')
+          this.$toast.error('Could not load gffff.')
         }
       }
     }
