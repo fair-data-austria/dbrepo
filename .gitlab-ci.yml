@@ -26,20 +26,20 @@ build-metadata-db:
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
 
-test-e2e:
-  stage: test-e2e
-  script:
-    - "docker-compose up -d"
-    - "docker exec fda-ui bash -c './scripts/wait.sh http://fda-database-service:9092/api/database/'"
-    - "sleep 30"
-    - "docker exec fda-ui yarn test"
-  artifacts:
-    when: always
-    paths:
-      - "fda-ui/videos/*"
-    expire_in: 1 week
-  variables:
-    CI_DEBUG_TRACE: "true"
+# test-e2e:
+#   stage: test-e2e
+#   script:
+#     - "docker-compose up -d"
+#     - "docker exec fda-ui bash -c './scripts/wait.sh http://fda-database-service:9092/api/database/'"
+#     - "sleep 30"
+#     - "docker exec fda-ui yarn test"
+#   artifacts:
+#     when: always
+#     paths:
+#       - "fda-ui/videos/*"
+#     expire_in: 1 week
+#   variables:
+#     CI_DEBUG_TRACE: "true"
 
 test-backend-container:
   stage: test-backend
