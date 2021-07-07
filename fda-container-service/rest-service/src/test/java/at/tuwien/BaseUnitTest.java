@@ -30,6 +30,7 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
     public final static String IMAGE_1_JDBC = "postgresql";
     public final static Long IMAGE_1_SIZE = 12000L;
+    public final static String IMAGE_1_LOGO = "AAAA";
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
@@ -64,6 +65,7 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_2_DRIVER = "redis.clients.Jedis";
     public final static String IMAGE_2_JDBC = "redis";
     public final static Long IMAGE_2_SIZE = 24000L;
+    public final static String IMAGE_2_LOGO = "BBBB";
     public final static Instant IMAGE_2_BUILT = Instant.now().minus(9, DAYS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_2_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
@@ -99,6 +101,7 @@ public abstract class BaseUnitTest {
             .size(IMAGE_1_SIZE)
             .environment(IMAGE_1_ENV)
             .defaultPort(IMAGE_1_PORT)
+            .logo(IMAGE_1_LOGO)
             .build();
 
     public final static ImageDto IMAGE_1_DTO = ImageDto.builder()
@@ -112,6 +115,7 @@ public abstract class BaseUnitTest {
             .size(BigInteger.valueOf(IMAGE_1_SIZE))
             .environment(IMAGE_1_ENV_DTO)
             .defaultPort(IMAGE_1_PORT)
+            .logo(IMAGE_2_LOGO)
             .build();
 
     public final static ContainerImage IMAGE_2 = ContainerImage.builder()
@@ -126,6 +130,7 @@ public abstract class BaseUnitTest {
             .size(IMAGE_2_SIZE)
             .environment(IMAGE_2_ENV)
             .defaultPort(IMAGE_2_PORT)
+            .logo(IMAGE_2_LOGO)
             .build();
 
     public final static ImageDto IMAGE_2_DTO = ImageDto.builder()
@@ -139,6 +144,7 @@ public abstract class BaseUnitTest {
             .compiled(IMAGE_2_BUILT)
             .environment(IMAGE_2_ENV_DTO)
             .defaultPort(IMAGE_2_PORT)
+            .logo(IMAGE_2_LOGO)
             .build();
 
     public final static Long CONTAINER_1_ID = 1L;

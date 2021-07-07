@@ -87,6 +87,11 @@ export default {
       }
       this.loading = false
     },
+    sleep (ms) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms)
+      })
+    },
     async createDB () {
       this.loading = true
       let res
@@ -125,21 +130,25 @@ export default {
       await new Promise(resolve => setTimeout(resolve, 2000))
 
       // create the DB
-      try {
-        res = await this.$axios.post('/api/database/', {
-          name: this.database,
-          containerId,
-          description: this.description,
-          isPublic: this.isPublic
-        })
-        console.log(res)
-      } catch (err) {
-        this.loading = false
+      for (let i = 0; i < 30; i++) {
+        try {
+          res = await this.$axios.post('/api/database/', {
+            name: this.database,
+            containerId,
+            description: this.description,
+            isPublic: this.isPublic
+          }, { progress: false })
+          i = 31
+        } catch (err) {
+          console.debug('wait', res)
+          await this.sleep(1000)
+        }
+      }
+      this.loading = false
+      if (res.status !== 201) {
         this.$toast.error('Could not create database.')
         return
       }
-
-      this.loading = false
       this.$toast.success(`Database "${res.data.name}" created.`)
       this.$emit('refresh')
     }

@@ -61,12 +61,6 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9095:9095
-    links:
-      - fda-discovery-service
-      - fda-database-service
-      - fda-container-service
-      - fda-query-service
-      - fda-table-service
     depends_on:
       - fda-discovery-service
     logging:
