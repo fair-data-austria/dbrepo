@@ -87,10 +87,10 @@
                 :items="c.suggestions"
                 :menu-props="{ maxHeight: '400' }"
                 label="Enumeration"
-                multiple></v-select>
+                multiple />
             </v-col>
             <v-col cols="auto" class="pl-2">
-              <v-checkbox v-model="c.primaryKey" @click="setOthers(c)" label="Primary Key" />
+              <v-checkbox v-model="c.primaryKey" label="Primary Key" @click="setOthers(c)" />
             </v-col>
             <v-col cols="auto" class="pl-10">
               <v-checkbox v-model="c.nullAllowed" :disabled="c.primaryKey" label="Null Allowed" />
@@ -115,7 +115,7 @@
       <v-stepper-content step="4">
         Proceed to table view.
         <div class="mt-2">
-          <v-btn :to="`/db/${$route.params.db_id}/tables/${newTableId}`" outlined>
+          <v-btn :to="`/database/${$route.params.db_id}/table/${newTableId}`" outlined>
             <v-icon>mdi-table</v-icon>
             View
           </v-btn>
@@ -206,7 +206,7 @@ export default {
           column.enumValues = column.enumValues.split(',')
         }
       })
-      const createUrl = `/api/tables/api/database/${this.$route.params.db_id}/table`
+      const createUrl = `/api/table/api/databases/${this.$route.params.db_id}/table`
       let createResult
       try {
         createResult = await this.$axios.post(createUrl, this.tableCreate)
@@ -216,7 +216,7 @@ export default {
         console.log(err)
         return
       }
-      const insertUrl = `/api/tables/api/database/${this.$route.params.db_id}/table/${createResult.data.id}/data`
+      const insertUrl = `/api/table/api/database/${this.$route.params.db_id}/table/${createResult.data.id}/data`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)

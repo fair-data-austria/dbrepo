@@ -146,7 +146,7 @@ export default {
       }
       this.loading = false
       if (res.status !== 201) {
-        this.$toast.error('Could not create database.')
+        this.$toast.error('Could not create gffff.')
         return
       }
       this.$toast.success(`Database "${res.data.name}" created.`)

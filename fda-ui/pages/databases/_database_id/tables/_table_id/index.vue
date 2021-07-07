@@ -34,7 +34,7 @@ export default {
   methods: {
     async loadProperties () {
       try {
-        const res = await this.$axios.get(`/api/tables/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}`)
+        const res = await this.$axios.get(`/api/table/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}`)
         this.table = res.data
         console.debug('headers', res.data.columns)
         this.headers = res.data.columns.map((c) => {
@@ -50,7 +50,7 @@ export default {
     },
     async loadData () {
       try {
-        const res = await this.$axios.get(`/api/tables/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}/data`)
+        const res = await this.$axios.get(`/api/table/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}/data`)
         this.rows = res.data.result
         console.debug('table data', res.data)
       } catch (err) {

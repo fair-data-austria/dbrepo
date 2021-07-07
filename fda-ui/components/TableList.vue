@@ -8,11 +8,11 @@
         <v-expansion-panel-content>
           <v-row dense>
             <v-col>
-              <v-btn :to="`/db/${$route.params.db_id}/tables/${item.id}`" outlined>
+              <v-btn :to="`/databases/${$route.params.db_id}/tables/${item.id}`" outlined>
                 <v-icon>mdi-table</v-icon>
                 View
               </v-btn>
-              <v-btn :to="`/db/${$route.params.db_id}/tables/${item.id}/import_csv`" outlined>
+              <v-btn :to="`/databases/${$route.params.db_id}/tables/${item.id}/import_csv`" outlined>
                 Import CSV
               </v-btn>
             </v-col>
@@ -99,7 +99,7 @@ export default {
       if (typeof this.panelIndex !== 'undefined') {
         const tableId = this.tables[this.panelIndex].id
         try {
-          const res = await this.$axios.get(`/api/tables/api/database/${this.$route.params.db_id}/table/${tableId}`)
+          const res = await this.$axios.get(`/api/table/api/database/${this.$route.params.db_id}/table/${tableId}`)
           this.tableDetails = res.data
         } catch (err) {
           this.$toast.error('Could not get table details.')
@@ -119,16 +119,16 @@ export default {
       let res
       try {
         res = await this.$axios.get(
-          `/api/tables/api/database/${this.$route.params.db_id}/table`)
+          `/api/table/api/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
       } catch (err) {
-        this.$toast.error('Could not list tables.')
+        this.$toast.error('Could not list table.')
       }
     },
     async deleteTable () {
       try {
         await this.$axios.delete(
-          `/api/tables/api/database/${this.$route.params.db_id}/table/${this.deleteTableId}`)
+          `/api/table/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
         this.refresh()
       } catch (err) {
         this.$toast.error('Could not delete table.')

@@ -21,7 +21,7 @@
             v-for="item in databases"
             :key="item.id">
             <td>
-              <v-btn :to="`/db/${item.id}`" icon>
+              <v-btn :to="`/databases/${item.id}/info`" icon>
                 <v-icon>{{ iconSelect }}</v-icon>
               </v-btn>
               {{ item.name }}
