@@ -1,7 +1,14 @@
 <template>
-  <div v-if="db">
-    <DBToolbar />
-    <QueryBuilder />
+  <div>
+    <DBToolbar v-model="db" />
+    <v-card>
+      <v-card-title>
+        Query Builder
+      </v-card-title>
+      <v-card-text>
+        <QueryBuilder />
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 

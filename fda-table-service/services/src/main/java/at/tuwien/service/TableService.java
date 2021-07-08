@@ -92,7 +92,7 @@ public class TableService extends JdbcConnector {
 
     @Transactional
     public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException {
+            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
         log.trace("create table in db {} with request {}", databaseId, createDto);
         final Database database = findDatabase(databaseId);
         /* create database in container */

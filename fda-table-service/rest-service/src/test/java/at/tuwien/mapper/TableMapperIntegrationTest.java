@@ -6,6 +6,7 @@ import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableMalformedException;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
@@ -155,7 +156,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_success() throws SQLException, ArbitraryPrimaryKeysException,
-            ImageNotSupportedException {
+            ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         tableMapper.tableCreateDtoToCreateTableColumnStep(context, TABLE_2_CREATE_DTO)
                 .execute();
@@ -178,7 +179,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_twoColumnPrimaryKey_succeeds() throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[1]
@@ -220,7 +221,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_primaryKeyBlob_succeeds() throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
@@ -248,7 +249,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_primaryKeyDate_succeeds() throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
@@ -276,7 +277,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_primaryKeyText_succeeds() throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
@@ -304,7 +305,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_primaryKeyString_succeeds() throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[0]
@@ -374,7 +375,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_uniqueConstraint_success() throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
 
@@ -393,7 +394,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_uniqueConstraint2_success() throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         TABLE_2_CREATE_DTO.getColumns()[1]
@@ -422,7 +423,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @Test
     public void tableCreateDtoToCreateTableColumnStep_enum_success() throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{COLUMNS5[0], COLUMNS5[1], COLUMNS5[2],

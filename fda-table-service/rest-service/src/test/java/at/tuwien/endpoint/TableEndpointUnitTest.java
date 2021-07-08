@@ -64,7 +64,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException {
+            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -82,7 +82,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_databaseNotFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException, ArbitraryPrimaryKeysException {
+            DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)

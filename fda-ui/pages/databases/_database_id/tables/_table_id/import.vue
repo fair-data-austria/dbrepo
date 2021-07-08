@@ -1,45 +1,32 @@
 <template>
   <div>
-    <h3>
-      Table Import CSV
-    </h3>
-    <v-row dense>
-      <v-col cols="8">
+    <v-card>
+      <v-card-title v-if="!loading">
+        Import CSV
+      </v-card-title>
+      <v-card-subtitle>Table xxx</v-card-subtitle>
+      <v-card-text>
         <v-checkbox
           v-model="tableInsert.skipHeader"
           label="Skip first row" />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col cols="8">
         <v-text-field
           v-model="tableInsert.nullElement"
           placeholder="e.g. NA or leave empty"
           label="NULL Element" />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col cols="8">
         <v-text-field
           v-model="tableInsert.delimiter"
           label="Delimiter"
           placeholder="e.g. ;" />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col cols="8">
         <v-file-input
           v-model="file"
           accept="text/csv"
           show-size
           label="CSV File" />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col cols="6">
+      </v-card-text>
+      <v-card-actions>
         <v-btn :disabled="!file" :loading="loading" color="primary" @click="upload">Next</v-btn>
-      </v-col>
-    </v-row>
+      </v-card-actions>
+    </v-card>
   </div>
 </template>
 <script>
@@ -84,7 +71,7 @@ export default {
         this.loading = false
         return
       }
-      const insertUrl = `/api/table/api/database/${this.$route.params.db_id}/table/${this.$route.params.table_id}/data`
+      const insertUrl = `http://localhost:9094/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)

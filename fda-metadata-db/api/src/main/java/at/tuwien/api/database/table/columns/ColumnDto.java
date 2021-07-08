@@ -31,6 +31,10 @@ public class ColumnDto {
     private ColumnTypeDto columnType;
 
     @NotNull
+    @ApiModelProperty(name = "unique", example = "true")
+    private Boolean unique;
+
+    @NotNull
     @ApiModelProperty(name = "null allowed", example = "true")
     private Boolean isNullAllowed;
 

@@ -6,8 +6,11 @@
     </v-toolbar-title>
     <v-spacer />
     <v-toolbar-title>
-      <v-btn color="primary" :to="`/databases/${$route.params.database_id}/tables/table_from_csv`">
+      <v-btn :to="`/databases/${$route.params.database_id}/tables/import`" class="mr-2">
         <v-icon left>mdi-cloud-upload</v-icon> Import CSV
+      </v-btn>
+      <v-btn color="primary" :to="`/databases/${$route.params.database_id}/tables/create`">
+        <v-icon left>mdi-table-large-plus</v-icon> Create Table
       </v-btn>
     </v-toolbar-title>
     <template v-slot:extension>

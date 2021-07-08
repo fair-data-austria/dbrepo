@@ -115,7 +115,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void create_table_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException {
+            ImageNotSupportedException, DataProcessingException, TableMalformedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_2_NAME)
                 .description(TABLE_2_DESCRIPTION)

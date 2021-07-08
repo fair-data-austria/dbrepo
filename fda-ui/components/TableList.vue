@@ -1,6 +1,11 @@
 <template>
   <div>
-    <v-expansion-panels v-model="panelIndex" accordion>
+    <v-card v-if="tables.length === 0" flat>
+      <v-card-title>
+        (no tables)
+      </v-card-title>
+    </v-card>
+    <v-expansion-panels v-if="tables.length > 0" v-model="panelIndex" accordion>
       <v-expansion-panel v-for="(item,i) in tables" :key="i">
         <v-expansion-panel-header>
           {{ item.name }}
@@ -8,11 +13,11 @@
         <v-expansion-panel-content>
           <v-row dense>
             <v-col>
-              <v-btn :to="`/databases/${$route.params.db_id}/tables/${item.id}`" outlined>
+              <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}`" outlined>
                 <v-icon>mdi-table</v-icon>
                 View
               </v-btn>
-              <v-btn :to="`/databases/${$route.params.db_id}/tables/${item.id}/import_csv`" outlined>
+              <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}/import`" outlined>
                 Import CSV
               </v-btn>
             </v-col>
@@ -99,7 +104,7 @@ export default {
       if (typeof this.panelIndex !== 'undefined') {
         const tableId = this.tables[this.panelIndex].id
         try {
-          const res = await this.$axios.get(`/api/table/api/database/${this.$route.params.db_id}/table/${tableId}`)
+          const res = await this.$axios.get(`http://localhost:9094/api/database/${this.$route.params.database_id}/table/${tableId}`)
           this.tableDetails = res.data
         } catch (err) {
           this.$toast.error('Could not get table details.')
@@ -119,7 +124,7 @@ export default {
       let res
       try {
         res = await this.$axios.get(
-          `/api/table/api/database/${this.$route.params.database_id}/table`)
+          `http://localhost:9094/api/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
       } catch (err) {
         this.$toast.error('Could not list table.')
@@ -128,7 +133,7 @@ export default {
     async deleteTable () {
       try {
         await this.$axios.delete(
-          `/api/table/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
+          `http://localhost:9094/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
         this.refresh()
       } catch (err) {
         this.$toast.error('Could not delete table.')

@@ -11,6 +11,7 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableMalformedException;
 import org.apache.commons.lang.WordUtils;
 import org.jooq.*;
 import org.jooq.impl.DefaultDataType;
@@ -50,6 +51,7 @@ public interface TableMapper {
     @Mappings({
             @Mapping(target = "name", expression = "java(data.getName())"),
             @Mapping(target = "internalName", expression = "java(data.getInternalName())"),
+            @Mapping(target = "unique", source = "isUnique"),
             @Mapping(target = "checkExpression", expression = "java(data.getCheckExpression())"),
             @Mapping(target = "foreignKey", expression = "java(data.getForeignKey())")
     })
@@ -106,13 +108,6 @@ public interface TableMapper {
         return new String(c);
     }
 
-    @Mappings({
-            @Mapping(source = "primaryKey", target = "isPrimaryKey"),
-            @Mapping(source = "type", target = "columnType"),
-            @Mapping(source = "nullAllowed", target = "isNullAllowed"),
-    })
-    ColumnDto columnCreateDtoToColumnDto(ColumnCreateDto data);
-
     default String columnCreateDtoToEnumTypeName(TableCreateDto table, ColumnCreateDto data) {
         return "__" + nameToInternalName(nameToColumnName(table.getName())) + "_" + nameToInternalName(nameToColumnName(data.getName()));
     }
@@ -124,6 +119,7 @@ public interface TableMapper {
 
     @Mappings({
             @Mapping(source = "primaryKey", target = "isPrimaryKey"),
+            @Mapping(source = "unique", target = "isUnique"),
             @Mapping(source = "type", target = "columnType"),
             @Mapping(source = "nullAllowed", target = "isNullAllowed"),
             @Mapping(source = "name", target = "name", qualifiedByName = "identityMapping"),
@@ -134,7 +130,10 @@ public interface TableMapper {
     TableColumn columnCreateDtoToTableColumn(ColumnCreateDto data);
 
     default CreateTableColumnStep tableCreateDtoToCreateTableColumnStep(DSLContext context, TableCreateDto data)
-            throws ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            throws ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
+        if (data.getColumns().length == 0) {
+            throw new TableMalformedException("The must be at least one column");
+        }
         if (Arrays.stream(data.getColumns()).noneMatch(ColumnCreateDto::getPrimaryKey)) {
             throw new ArbitraryPrimaryKeysException("There must be at least one primary key column");
         }
@@ -167,20 +166,19 @@ public interface TableMapper {
             columnStep.column(nameToInternalName(nameToColumnName(column.getName())), dataType);
         }
         /* primary keys */
-        constraints.add(constraint("PK_FDA")
+        constraints.add(constraint("PK_" + nameToInternalName(data.getName()))
                 .primaryKey(Arrays.stream(data.getColumns())
                         .filter(ColumnCreateDto::getPrimaryKey)
                         .map(c -> field(nameToInternalName(nameToColumnName(c.getName()))))
                         .toArray(Field[]::new)));
         /* constraints */
         final long count = Arrays.stream(data.getColumns())
-                .filter(Objects::nonNull)
-                .filter(ColumnCreateDto::getUnique)
+                .filter(c -> Objects.nonNull(c.getUnique()))
                 .count();
         if (count > 0) {
             /* primary key constraints */
             Arrays.stream(data.getColumns())
-                    .filter(ColumnCreateDto::getUnique)
+                    .filter(c -> Objects.nonNull(c.getUnique()))
                     .forEach(c -> constraints.add(constraint("UK_" + nameToInternalName(nameToColumnName(c.getName())))
                             .unique(nameToInternalName(nameToColumnName(c.getName())))));
             /* check constraints */

@@ -120,7 +120,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 });
     }
 
-    private void create_table() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
+    private void create_table() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, TableMalformedException {
         final Table response = dataService.createTable(DATABASE_1_ID, TableCreateDto.builder()
                 .name(TABLE_2_NAME)
                 .description(TABLE_2_DESCRIPTION)
@@ -152,7 +152,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
     @Test
     @Disabled
     public void insertFromFile_columnNumberDiffers_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            ArbitraryPrimaryKeysException, DataProcessingException {
+            ArbitraryPrimaryKeysException, DataProcessingException, TableMalformedException {
         create_table();
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
@@ -169,7 +169,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insertFromFile_notRunning_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            ArbitraryPrimaryKeysException, DataProcessingException {
+            ArbitraryPrimaryKeysException, DataProcessingException, TableMalformedException {
         create_table();
         dockerClient.stopContainerCmd(request.getId()).exec();
         final TableInsertDto request = TableInsertDto.builder()
