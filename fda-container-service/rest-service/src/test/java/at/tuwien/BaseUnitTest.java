@@ -162,7 +162,7 @@ public abstract class BaseUnitTest {
     public final static String CONTAINER_2_NAME = "fda-userdb-t01";
     public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-t01";
     public final static String CONTAINER_2_DATABASE = "tuw";
-    public final static String CONTAINER_2_IP = "172.28.0.8";
+    public final static String CONTAINER_2_IP = "172.28.0.6";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Container CONTAINER_1 = Container.builder()
