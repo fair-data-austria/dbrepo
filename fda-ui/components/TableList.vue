@@ -104,7 +104,7 @@ export default {
       if (typeof this.panelIndex !== 'undefined') {
         const tableId = this.tables[this.panelIndex].id
         try {
-          const res = await this.$axios.get(`http://localhost:9094/api/database/${this.$route.params.database_id}/table/${tableId}`)
+          const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${tableId}`)
           this.tableDetails = res.data
         } catch (err) {
           this.$toast.error('Could not get table details.')
@@ -124,7 +124,7 @@ export default {
       let res
       try {
         res = await this.$axios.get(
-          `http://localhost:9094/api/database/${this.$route.params.database_id}/table`)
+          `/api/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
       } catch (err) {
         this.$toast.error('Could not list table.')
@@ -133,7 +133,7 @@ export default {
     async deleteTable () {
       try {
         await this.$axios.delete(
-          `http://localhost:9094/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
+          `/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
         this.refresh()
       } catch (err) {
         this.$toast.error('Could not delete table.')

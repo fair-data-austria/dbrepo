@@ -71,7 +71,7 @@ export default {
         this.loading = false
         return
       }
-      const insertUrl = `http://localhost:9094/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
+      const insertUrl = `/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)
