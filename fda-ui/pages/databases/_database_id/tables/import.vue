@@ -185,6 +185,7 @@ export default {
           this.step = 3
           console.debug('upload csv', res.data)
         } else {
+          console.error('Upload failed. Try from docker container, not with yarn dev', res)
           this.$toast.error('Could not upload CSV data')
           return
         }

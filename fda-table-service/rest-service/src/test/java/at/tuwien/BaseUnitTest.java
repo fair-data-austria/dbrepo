@@ -41,8 +41,6 @@ public abstract class BaseUnitTest {
     public final static String TABLE_2_NAME = "Weather AT";
     public final static String TABLE_2_INTERNALNAME = "weather_at";
 
-    public final static String TABLE_2_ENUM = "__weather_at";
-
     public final static Long COLUMN_1_ID = 1L;
     public final static Integer COLUMN_1_ORDINALPOS = 0;
     public final static Boolean COLUMN_1_PRIMARY = true;
@@ -115,6 +113,7 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_DIALECT = "POSTGRES";
     public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
     public final static String IMAGE_1_JDBC = "postgresql";
+    public final static String IMAGE_1_LOGO = "AAAA";
     public final static Integer IMAGE_1_PORT = 5433;
     public final static Long IMAGE_1_SIZE = 12000L;
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
@@ -150,6 +149,7 @@ public abstract class BaseUnitTest {
             .size(IMAGE_1_SIZE)
             .environment(IMAGE_1_ENV)
             .defaultPort(IMAGE_1_PORT)
+            .logo(IMAGE_1_LOGO)
             .build();
 
     public final static Long CONTAINER_1_ID = 1L;

@@ -60,6 +60,9 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
     private TableRepository tableRepository;
 
     @Autowired
+    private TableService tableService;
+
+    @Autowired
     private DataService dataService;
 
     private CreateContainerResponse request;
@@ -121,17 +124,18 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
     }
 
     private void create_table() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, TableMalformedException {
-        final Table response = dataService.createTable(DATABASE_1_ID, TableCreateDto.builder()
-                .name(TABLE_2_NAME)
-                .description(TABLE_2_DESCRIPTION)
+        final Table response = tableService.createTable(DATABASE_1_ID, TableCreateDto.builder()
+                .name(TABLE_1_NAME)
+                .description(TABLE_1_DESCRIPTION)
                 .columns(COLUMNS5)
                 .build());
     }
 
     @Test
-    public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
-            ArbitraryPrimaryKeysException, DataProcessingException {
+    @Disabled
+    public void insertFromFile_succeeds() throws TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException,
+            ArbitraryPrimaryKeysException, DataProcessingException, TableNotFoundException, FileStorageException {
         create_table();
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
@@ -141,16 +145,15 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        dataService.insertFromFile(DATABASE_1_ID, TABLE_2_ID, request);
-        final Optional<Table> response = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_2_ID);
+        dataService.insertFromFile(DATABASE_1_ID, TABLE_1_ID, request);
+        final Optional<Table> response = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID);
         assertTrue(response.isPresent());
-        assertEquals(TABLE_2_ID, response.get().getId());
-        assertEquals(TABLE_2_NAME, response.get().getName());
-        assertEquals(TABLE_2_DESCRIPTION, response.get().getDescription());
+        assertEquals(TABLE_1_ID, response.get().getId());
+        assertEquals(TABLE_1_NAME, response.get().getName());
+        assertEquals(TABLE_1_DESCRIPTION, response.get().getDescription());
     }
 
     @Test
-    @Disabled
     public void insertFromFile_columnNumberDiffers_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
             ArbitraryPrimaryKeysException, DataProcessingException, TableMalformedException {
         create_table();

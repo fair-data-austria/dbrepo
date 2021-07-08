@@ -44,7 +44,8 @@ public interface TableMapper {
     @Mappings({
             @Mapping(source = "id", target = "id"),
             @Mapping(target = "name", expression = "java(data.getName())"),
-            @Mapping(target = "internalName", expression = "java(data.getInternalName())")
+            @Mapping(target = "internalName", expression = "java(data.getInternalName())"),
+            @Mapping(source = "description", target = "description", qualifiedByName = "identityMapping"),
     })
     TableDto tableToTableDto(Table data);
 
