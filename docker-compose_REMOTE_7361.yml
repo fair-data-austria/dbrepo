@@ -85,7 +85,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9092:9092
-    volumes: 
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-service
@@ -178,7 +178,7 @@ services:
     networks:
       - fda-public
       - fda-userdb
-    command: sh -c "/wait && python test_db.py && flask run"
+    command: sh -c "/wait && flask run"
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka
       WAIT_HOSTS: fda-discovery-service:9090
@@ -189,7 +189,6 @@ services:
       - 5000:5000
     volumes:
       - /tmp:/tmp
-      - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-service
     depends_on:

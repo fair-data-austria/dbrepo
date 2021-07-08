@@ -85,7 +85,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9092:9092
-    volumes: 
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-service
@@ -197,6 +197,27 @@ services:
     logging:
       driver: json-file
 
+<<<<<<< HEAD
+#  fda-ui:
+#    restart: always
+#    container_name: fda-ui
+#    hostname: fda-ui
+#    build: ./fda-ui
+#    image: fda-ui
+#    networks:
+#      - fda-public
+#    ports:
+#      - 3000:3000
+#    depends_on:
+#      - fda-container-service
+#      - fda-database-service
+#      - fda-table-service
+#    environment:
+#      HOST: 0.0.0.0
+#      API_CONTAINER: http://fda-container-service:9091
+#      API_DATABASE: http://fda-database-service:9092
+#      API_TABLES: http://fda-table-service:9094
+=======
   fda-ui:
     restart: always
     container_name: fda-ui
@@ -219,3 +240,4 @@ services:
       API_DATABASE: http://fda-database-service:9092
       API_TABLES: http://fda-table-service:9094
       API_ANALYSE: http://fda-analyse-service:5000
+>>>>>>> dev
