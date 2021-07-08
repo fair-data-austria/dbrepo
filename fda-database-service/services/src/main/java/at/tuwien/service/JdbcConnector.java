@@ -35,10 +35,9 @@ public abstract class JdbcConnector {
                 .execute();
     }
 
-    protected void modify(Database database) throws SQLException, ImageNotSupportedException {
-        final DSLContext context = open(database);
-        final AlterDatabaseStep step = context.alterDatabase(databaseMapper.databaseToInternalDatabaseName(database));
-        // todo: check name diff
+    protected void modify(Database old, Database database) throws SQLException, ImageNotSupportedException {
+        final DSLContext context = open(old);
+        final AlterDatabaseStep step = context.alterDatabase(databaseMapper.databaseToInternalDatabaseName(old));
         step.renameTo(database.getName())
                 .execute();
     }

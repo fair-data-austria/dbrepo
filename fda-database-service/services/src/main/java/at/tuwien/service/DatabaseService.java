@@ -125,7 +125,7 @@ public class DatabaseService extends JdbcConnector {
         // call container to create database
         final Database database = databaseMapper.modifyDatabaseByDatabaseModifyDto(databaseResponse.get(), modifyDto);
         try {
-            modify(database);
+            modify(databaseResponse.get(), database);
         } catch (SQLException e) {
             log.error("Could not modify the database: {}", e.getMessage());
             throw new DatabaseMalformedException(e);

@@ -22,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -178,7 +179,6 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void change_start_succeeds() throws DockerClientException {
         dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
-
         /* test */
         containerService.start(CONTAINER_1_ID);
     }

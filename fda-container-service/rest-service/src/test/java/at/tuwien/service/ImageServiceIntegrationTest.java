@@ -2,21 +2,16 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.image.ImageCreateDto;
-import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
 
-import static at.tuwien.BaseUnitTest.IMAGE_1_ENV_DTO;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -46,6 +41,7 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
                 .jdbcMethod(IMAGE_1_JDBC)
                 .defaultPort(IMAGE_1_PORT)
                 .environment(IMAGE_1_ENV_DTO)
+                .logo(IMAGE_1_LOGO)
                 .build();
 
         /* test */
@@ -55,7 +51,9 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_duplicate_fails() throws ImageNotFoundException, DockerClientException {
+    public void create_duplicate_fails() {
+        imageRepository.save(IMAGE_1);
+
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -64,6 +62,7 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
                 .jdbcMethod(IMAGE_1_JDBC)
                 .dialect(IMAGE_1_DIALECT)
                 .environment(IMAGE_1_ENV_DTO)
+                .logo(IMAGE_1_LOGO)
                 .build();
 
         /* test */
