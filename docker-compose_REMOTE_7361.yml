@@ -18,7 +18,6 @@ networks:
         - subnet: 172.28.0.0/16
 
 services:
-
   fda-metadata-db:
     restart: always
     container_name: fda-metadata-db
@@ -29,6 +28,7 @@ services:
       - fda-public
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
+      - ./fda-analyse-service/fda-mdb:/docker-entrypoint-initdb.d/
     ports:
       - 5432:5432
     environment:
@@ -61,6 +61,12 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9095:9095
+    links:
+      - fda-discovery-service
+      - fda-database-service
+      - fda-container-service
+      - fda-query-service
+      - fda-table-service
     depends_on:
       - fda-discovery-service
     logging:
@@ -79,7 +85,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9092:9092
-    volumes: 
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-service
@@ -101,7 +107,7 @@ services:
     networks:
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seed
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9091:9091
     volumes:
@@ -172,10 +178,10 @@ services:
     networks:
       - fda-public
       - fda-userdb
-    command: sh -c "/wait && python test_db.py && flask run"
+    command: sh -c "/wait && flask run"
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka
-      WAIT_HOSTS: fda-database-service:9092
+      WAIT_HOSTS: fda-discovery-service:9090
       WAIT_HOSTS_TIMEOUT: 600
       WAIT_SLEEP_INTERVAL: 30
       WAIT_HOST_CONNECT_TIMEOUT: 30
@@ -183,7 +189,6 @@ services:
       - 5000:5000
     volumes:
       - /tmp:/tmp
-      - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-service
     depends_on:
@@ -210,7 +215,6 @@ services:
     environment:
       HOST: 0.0.0.0
       API_CONTAINER: http://fda-container-service:9091
-      API_IMAGE: http://fda-container-service:9091
       API_DATABASE: http://fda-database-service:9092
       API_TABLES: http://fda-table-service:9094
       API_ANALYSE: http://fda-analyse-service:5000

@@ -68,13 +68,6 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 		NO MINVALUE
 		NO MAXVALUE
 		CACHE 1;
-
-	CREATE SEQUENCE public.mdb_user_seq
-		START WITH 1
-		INCREMENT BY 1
-		NO MINVALUE
-		NO MAXVALUE
-		CACHE 1;
 	
 	CREATE TABLE IF NOT EXISTS mdb_CONTAINER ( 
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_container_seq'),
@@ -97,7 +90,7 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 		CACHE 1;
 
 	CREATE TABLE IF NOT EXISTS mdb_DATA ( 
-		ID bigint PRIMARY KEY DEFAULT nextval('mdb_data_seq'),
+		ID INTEGER PRIMARY KEY DEFAULT nextval('mdb_data_seq'), 
 		PROVENANCE TEXT, 
 		FileEncoding TEXT, 
 		FileType VARCHAR(100),
@@ -106,17 +99,15 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 	);  
 
 	CREATE TABLE IF NOT EXISTS mdb_USERS ( 
-		UserID bigint PRIMARY KEY DEFAULT nextval('mdb_user_seq'),
-		TISS_ID bigint,
-		OID bigint,
+		UserID INTEGER PRIMARY KEY,
+		TISS_ID INTEGER,
+		OID INTEGER,
 		First_name VARCHAR(50),
 		Last_name VARCHAR(50),
 		Gender gender,
 		Preceding_titles VARCHAR(50),
 		Postpositioned_title VARCHAR(50),
-		Main_Email TEXT,
-		created timestamp without time zone NOT NULL,
-		last_modified timestamp without time zone
+		Main_Email TEXT
 	); 
 	
 	CREATE SEQUENCE public.mdb_databases_seq
@@ -139,26 +130,6 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 		NO MINVALUE
 		NO MAXVALUE
 		CACHE 1;
-
-    CREATE SEQUENCE public.mdb_queries_seq
-        START WITH 1
-        INCREMENT BY 1
-        NO MINVALUE
-        NO MAXVALUE
-        CACHE 1;
-
-	CREATE TABLE IF NOT EXISTS mdb_queries (
-        ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
-        execution_timestamp timestamp without time zone NOT NULL,
-        query TEXT NOT NULL,
-        query_normalized TEXT NOT NULL,
-        query_hash character varying(255) NULL,
-        result_hash character varying(255) NULL,
-        result_number INTEGER NULL,
-        created timestamp without time zone NOT NULL,
-        last_modified timestamp without time zone,
-        PRIMARY KEY(ID)
-    );
 
 	CREATE TABLE IF NOT EXISTS mdb_DATABASES ( 
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'), 
@@ -192,20 +163,14 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS ( 
 		ID bigint DEFAULT nextval('mdb_columns_seq'), 
-        cDBID bigint,
-        tID bigint,
-        cName VARCHAR(50),
-        internal_name VARCHAR(50) NOT NULL,
-        Datatype VARCHAR(50),
-        ordinal_position INTEGER,
-        is_primary_key BOOLEAN,
-        is_null_allowed BOOLEAN,
-        foreign_key VARCHAR(50),
-        check_expression character varying(255),
-        created timestamp without time zone NOT NULL,
-        last_modified timestamp without time zone,
-        FOREIGN KEY (cDBID,tID) REFERENCES mdb_TABLES(tDBID,ID),
-        PRIMARY KEY(cDBID, tID, ID)
+		cDBID bigint, 
+		tID bigint, 
+		cName VARCHAR(50), 
+		Datatype VARCHAR(50), 
+		ordinal_position INTEGER,
+		null_constraint character varying(255),
+		FOREIGN KEY (cDBID,tID) REFERENCES mdb_TABLES(tDBID,ID), 
+		PRIMARY KEY(cDBID, tID, ID)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_nomCOLUMNS ( 

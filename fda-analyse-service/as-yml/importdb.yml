@@ -12,11 +12,8 @@ parameters:
   schema:
     type: "object"
     properties:
-      cid:
-        type: "integer"
-        example : 1
       dbid: 
-        type: "inteer"
+        type: "integer"
         example: 1
       resourcetype: 
         type: "string"
@@ -27,12 +24,6 @@ parameters:
       publisher: 
         type: "string"
         example: "Geological Institute, University of Tokyo"
-      year: 
-        type: "integer"
-        example: "2020"
-      bool_open: 
-        type: "boolean"
-        example: "true"
 responses:
   200: 
     description: "OK"

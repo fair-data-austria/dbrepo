@@ -1,5 +1,5 @@
-summary: "Import into Entity md_Columns from metadatabase"
-description: "This is a simple API which imports into entity md_COLUMNS in metadatabase"
+summary: "Update into Entity md_Databases to metadatabase"
+description: "Import into entity tables in metadatabase"
 consumes:
 - "application/json"
 produces:
@@ -13,12 +13,6 @@ parameters:
     type: "object"
     properties:
       dbid: 
-        type: "integer"
-        example: 1
-      tid: 
-        type: "integer" 
-        example: 1
-      cid: 
         type: "integer"
         example: 1
 responses:

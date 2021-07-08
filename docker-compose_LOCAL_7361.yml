@@ -18,17 +18,16 @@ networks:
         - subnet: 172.28.0.0/16
 
 services:
-
   fda-metadata-db:
     restart: always
     container_name: fda-metadata-db
     hostname: fda-metadata-db
-    build: ./fda-metadata-db
-    image: fda-metadata-db
+    image: postgres:13-alpine
     networks:
       - fda-public
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
+      - ./fda-analyse-service/fda-mdb:/docker-entrypoint-initdb.d/
     ports:
       - 5432:5432
     environment:
@@ -36,12 +35,12 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fda
 
-  fda-discovery-service:
+  fda-discovery-server:
     restart: always
-    container_name: fda-discovery-service
-    hostname: fda-discovery-service
-    build: ./fda-discovery-service
-    image: fda-discovery-service
+    container_name: fda-discovery-server
+    hostname: fda-discovery-server
+    build: ./fda-discovery-server
+    image: fda-discovery-server
     networks:
       - fda-public
     environment:
@@ -61,8 +60,14 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9095:9095
+    links:
+      - fda-discovery-server
+      - fda-database-service
+      - fda-container-service
+      - fda-query-service
+      - fda-table-service
     depends_on:
-      - fda-discovery-service
+      - fda-discovery-server
     logging:
       driver: json-file
 
@@ -79,14 +84,12 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9092:9092
-    volumes: 
-      - /var/run/docker.sock:/var/run/docker.sock
     links:
-      - fda-discovery-service
+      - fda-discovery-server
       - fda-container-service
       - fda-metadata-db
     depends_on:
-      - fda-discovery-service
+      - fda-discovery-server
       - fda-container-service
       - fda-metadata-db
     logging:
@@ -101,16 +104,16 @@ services:
     networks:
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seed
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9091:9091
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     links:
-      - fda-discovery-service
+      - fda-discovery-server
       - fda-metadata-db
     depends_on:
-      - fda-discovery-service
+      - fda-discovery-server
       - fda-metadata-db
     logging:
       driver: json-file
@@ -131,10 +134,10 @@ services:
     volumes:
       - /tmp:/tmp
     links:
-      - fda-discovery-service
+      - fda-discovery-server
       - fda-container-service
     depends_on:
-      - fda-discovery-service
+      - fda-discovery-server
       - fda-container-service
     logging:
       driver: json-file
@@ -154,14 +157,13 @@ services:
     ports:
       - 9094:9094
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
     links:
       - fda-metadata-db
-      - fda-discovery-service
+      - fda-discovery-server
     depends_on:
       - fda-metadata-db
-      - fda-discovery-service
+      - fda-discovery-server
 
   fda-analyse-service:
     restart: always
@@ -174,8 +176,8 @@ services:
       - fda-userdb
     command: sh -c "/wait && python test_db.py && flask run"
     environment:
-      EUREKA_SERVER: http://fda-discovery-service:9090/eureka
-      WAIT_HOSTS: fda-database-service:9092
+      EUREKA_SERVER: http://fda-discovery-server:9090/eureka
+      WAIT_HOSTS: fda-discovery-server:9090
       WAIT_HOSTS_TIMEOUT: 600
       WAIT_SLEEP_INTERVAL: 30
       WAIT_HOST_CONNECT_TIMEOUT: 30
@@ -185,32 +187,28 @@ services:
       - /tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
     links:
-      - fda-discovery-service
+      - fda-discovery-server
     depends_on:
-      - fda-discovery-service
+      - fda-discovery-server
     logging:
       driver: json-file
 
-  fda-ui:
-    restart: always
-    container_name: fda-ui
-    hostname: fda-ui
-    build: ./fda-ui
-    image: fda-ui
-    networks:
-      - fda-public
-    ports:
-      - 3000:3000
-    volumes:
-      - /tmp:/tmp
-    depends_on:
-      - fda-container-service
-      - fda-database-service
-      - fda-table-service
-    environment:
-      HOST: 0.0.0.0
-      API_CONTAINER: http://fda-container-service:9091
-      API_IMAGE: http://fda-container-service:9091
-      API_DATABASE: http://fda-database-service:9092
-      API_TABLES: http://fda-table-service:9094
-      API_ANALYSE: http://fda-analyse-service:5000
+#  fda-ui:
+#    restart: always
+#    container_name: fda-ui
+#    hostname: fda-ui
+#    build: ./fda-ui
+#    image: fda-ui
+#    networks:
+#      - fda-public
+#    ports:
+#      - 3000:3000
+#    depends_on:
+#      - fda-container-service
+#      - fda-database-service
+#      - fda-table-service
+#    environment:
+#      HOST: 0.0.0.0
+#      API_CONTAINER: http://fda-container-service:9091
+#      API_DATABASE: http://fda-database-service:9092
+#      API_TABLES: http://fda-table-service:9094
