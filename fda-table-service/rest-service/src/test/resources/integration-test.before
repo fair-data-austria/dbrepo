@@ -1,5 +1,4 @@
 #!/bin/bash
 docker pull mariadb:latest
-docker pull postgres:13-alpine
-echo '172.28.0.5 fda-userdb-u01' > ~/hosts
-echo '172.28.0.6 fda-userdb-u02' >> ~/hosts
+docker pull mysql:latest
+docker pull postgres:latest
