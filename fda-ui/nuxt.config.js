@@ -4,7 +4,7 @@ import colors from 'vuetify/es5/util/colors'
 // pick env vars from .env file or get them passed through docker-compose
 require('dotenv').config()
 
-if (!process.env.API_CONTAINER) {
+if (!process.env.API) {
   throw new Error(`Environment variable API_CONTAINER not defined.
 
 Have you passed env vars from docker-compose or defined them in your .env file?`)
@@ -64,11 +64,7 @@ export default {
   },
 
   proxy: {
-    '/api/container': process.env.API_CONTAINER,
-    '/api/image': process.env.API_IMAGE,
-    '/api/database': process.env.API_DATABASE,
-    '/api/analyse': process.env.API_ANALYSE,
-    '/api/table': process.env.API_TABLES
+    '/api': process.env.API
   },
 
   serverMiddleware: [

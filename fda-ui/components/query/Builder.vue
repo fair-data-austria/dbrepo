@@ -73,7 +73,7 @@ export default {
     // XXX same as in TableList
     try {
       const res = await this.$axios.get(
-        `http://localhost:9094/api/database/${this.$route.params.database_id}/table`)
+        `/api/database/${this.$route.params.database_id}/table`)
       this.tables = res.data
     } catch (err) {
       this.$toast.error('Could not list table.')
@@ -102,7 +102,7 @@ export default {
     async loadColumns () {
       const tableId = this.table.id
       try {
-        const res = await this.$axios.get(`http://localhost:9094/api/database/${this.$route.params.database_id}/table/${tableId}`)
+        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${tableId}`)
         this.tableDetails = res.data
         this.buildQuery()
       } catch (err) {

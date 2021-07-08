@@ -20,7 +20,7 @@ logging:
     root: warn
     at.tuwien.: debug
 eureka:
-  instance.hostname: fda-discovery-service
+  instance.hostname: fda-table-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
   mapping.path: /root
