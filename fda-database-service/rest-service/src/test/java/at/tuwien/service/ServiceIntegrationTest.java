@@ -174,7 +174,7 @@ public class ServiceIntegrationTest extends BaseUnitTest {
                 .isPublic(DATABASE_2_PUBLIC)
                 .build();
         /* maria db takes ages to boot up */
-        Thread.sleep(20 * 1000);
+        Thread.sleep(40 * 1000);
 
         /* test */
         final Database response = databaseService.create(request);
