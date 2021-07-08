@@ -176,10 +176,12 @@ public class DataService extends JdbcConnector {
         final List<Map<String, Object>> records = new LinkedList<>();
         reader.readAll()
                 .forEach(x -> cells.add(Arrays.asList(x)));
+        log.debug("csv raw row size {}, cells raw size {}", reader.readAll().size(), cells.size());
         /* map to the map-list structure */
         for (int i = (data.getSkipHeader() ? 1 : 0); i < cells.size(); i++) {
             final Map<String, Object> record = new HashMap<>();
             final List<String> row = cells.get(i);
+            log.trace("row {}: {}", i, row);
             for (int j = 0; j < table.getColumns().size(); j++) {
                 record.put(table.getColumns().get(j).getInternalName(), row.get(j));
             }
