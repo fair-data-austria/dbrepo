@@ -2,9 +2,11 @@ before_script:
   - "docker version"
   - "docker-compose version"
   - "mvn --version"
+  - "echo ${HOSTALIASES}"
+  - "cat ${HOSTALIASES}"
 
 variables:
-  HOSTALIASES: ~/hosts
+  HOSTALIASES: ./hosts
   DOCKER_TLS_CERTDIR: /certs
 
 cache: 
@@ -23,7 +25,9 @@ stages:
 build-docker:
   stage: build
   script:
-    - "docker image pull postgres:13-alpine"
+    - "docker image pull postgres:latest"
+    - "docker image pull mysql:latest"
+    - "docker image pull mariadb:latest"
     - "docker-compose down"
     - "docker container stop $(docker container ls -aq) || true"
     - "docker container rm $(docker container ls -aq) || true"
