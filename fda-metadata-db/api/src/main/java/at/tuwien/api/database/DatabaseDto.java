@@ -7,6 +7,7 @@ import lombok.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -40,5 +41,9 @@ public class DatabaseDto {
     @NotBlank
     @Parameter(name = "database publisher", example = "National Office")
     private String publisher;
+
+    @NotBlank
+    @Parameter(name = "database creation time", example = "2020-08-04 11:12:00")
+    private Instant created;
 
 }

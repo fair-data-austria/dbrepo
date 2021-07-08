@@ -68,7 +68,7 @@ export default {
     '/api/image': process.env.API_IMAGE,
     '/api/database': process.env.API_DATABASE,
     '/api/analyse': process.env.API_ANALYSE,
-    '/api/table': { target: process.env.API_TABLES, pathRewrite: { '^/api/tables/': '' } }
+    '/api/table': process.env.API_TABLES
   },
 
   serverMiddleware: [

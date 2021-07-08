@@ -82,6 +82,10 @@ public class TableColumn {
 
     @ToString.Include
     @Column
+    private Boolean isUnique;
+
+    @ToString.Include
+    @Column
     private String checkExpression;
 
     @ToString.Include

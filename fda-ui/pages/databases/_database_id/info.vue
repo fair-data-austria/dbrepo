@@ -11,21 +11,26 @@
             {{ publisher }}
           </v-card-subtitle>
           <v-card-text>
-            {{ description }}
-          </v-card-text>
-          <v-card-text>
-            <v-chip class="ma-2" label>
-              <v-icon left>
-                mdi-label
-              </v-icon>
-              {{ db.image.repository }}
-            </v-chip>
-            <v-chip class="ma-2" label>
-              <v-icon left>
-                mdi-label
-              </v-icon>
-              {{ db.image.tag }}
-            </v-chip>
+            <blockquote>
+              <p>{{ description }}</p>
+            </blockquote>
+            <p>
+              Created {{ db.created }}
+            </p>
+            <div>
+              <v-chip outlined label>
+                <v-icon left>
+                  mdi-label
+                </v-icon>
+                {{ db.image.repository }}
+              </v-chip>
+              <v-chip outlined label>
+                <v-icon left>
+                  mdi-label
+                </v-icon>
+                {{ db.image.tag }}
+              </v-chip>
+            </div>
           </v-card-text>
         </v-card>
       </v-tab-item>

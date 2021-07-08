@@ -10,9 +10,11 @@
         <v-text-field
           v-model="tableCreate.name"
           required
+          autocomplete="off"
           label="Name" />
         <v-text-field
           v-model="tableCreate.description"
+          autocomplete="off"
           label="Description" />
         <v-btn :disabled="!step1Valid" color="primary" @click="step = 2">
           Continue
@@ -115,7 +117,7 @@
       <v-stepper-content step="4">
         Proceed to table view.
         <div class="mt-2">
-          <v-btn :to="`/database/${$route.params.db_id}/table/${newTableId}`" outlined>
+          <v-btn :to="`/database/${$route.params.database_id}/tables/${newTableId}`" outlined>
             <v-icon>mdi-table</v-icon>
             View
           </v-btn>
@@ -206,7 +208,7 @@ export default {
           column.enumValues = column.enumValues.split(',')
         }
       })
-      const createUrl = `/api/table/api/databases/${this.$route.params.db_id}/table`
+      const createUrl = `http://localhost:9094/api/database/${this.$route.params.database_id}/table`
       let createResult
       try {
         createResult = await this.$axios.post(createUrl, this.tableCreate)
@@ -216,7 +218,7 @@ export default {
         console.log(err)
         return
       }
-      const insertUrl = `/api/table/api/database/${this.$route.params.db_id}/table/${createResult.data.id}/data`
+      const insertUrl = `http://localhost:9094/api/database/${this.$route.params.database_id}/table/${createResult.data.id}/data`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)

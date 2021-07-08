@@ -66,7 +66,7 @@ public class DataService extends JdbcConnector {
 
     @Transactional
     public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException {
+            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
         final Database database = findDatabase(databaseId);
         /* create database in container */
         try {
@@ -127,7 +127,7 @@ public class DataService extends JdbcConnector {
         final TableCsvDto values;
         try {
             values = readCsv(table, data);
-            log.trace("read {} rows from csv", values.getData().size());
+            log.debug("read {} rows from csv", values.getData().size());
         } catch (IOException | CsvException | ArrayIndexOutOfBoundsException e) {
             log.error("failed to parse csv {}", e.getMessage());
             throw new FileStorageException("failed to parse csv", e);

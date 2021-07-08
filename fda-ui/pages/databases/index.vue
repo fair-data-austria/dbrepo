@@ -17,6 +17,9 @@
           </tr>
         </thead>
         <tbody>
+          <tr v-if="databases.length === 0" aria-readonly="true">
+            <td colspan="4">(no databases)</td>
+          </tr>
           <tr
             v-for="item in databases"
             :key="item.id">
@@ -35,9 +38,6 @@
             <td>{{ item.description }}</td>
             <td>{{ item.engine }}</td>
             <td>{{ item.created }}</td>
-          </tr>
-          <tr v-if="databases.length === 0" aria-readonly="true">
-            <td colspan="4">(no databases)</td>
           </tr>
         </tbody>
       </template>

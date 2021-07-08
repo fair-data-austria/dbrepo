@@ -31,18 +31,21 @@
             <v-checkbox
               v-model="c.primaryKey"
               label="Primary Key"
+              @click="setOthers(c)"
               @change="(x) => onChange(idx, x, 'primaryKey')" />
           </v-col>
           <v-col cols="1">
             <v-checkbox
               v-model="c.unique"
               label="Unique"
+              :disabled="c.primaryKey"
               @change="(x) => onChange(idx, x, 'unique')" />
           </v-col>
           <v-col cols="2">
             <v-checkbox
               v-model="c.nullAllowed"
               label="NULL Allowed"
+              :disabled="c.primaryKey"
               @change="(x) => onChange(idx, x, 'nullAllowed')" />
           </v-col>
           <v-spacer />
@@ -86,6 +89,10 @@ export default {
     this.addColumn()
   },
   methods: {
+    setOthers (column) {
+      column.nullAllowed = false
+      column.unique = true
+    },
     checkForm (e) {
       e.preventDefault()
     },
@@ -133,7 +140,7 @@ export default {
         columns: this.columns
       }
       try {
-        const res = await this.$axios.post(`/api/table/api/database/${this.$route.params.db_id}/table`, data)
+        const res = await this.$axios.post(`http://localhost:9094/api/database/${this.$route.params.database_id}/table`, data)
         if (res.status === 201) {
           this.$toast.success('Table created.')
           this.$root.$emit('table-create', res.data)
@@ -149,8 +156,8 @@ export default {
 </script>
 
 <style>
-  .column {
-    border: 1px solid #ccc;
-    border-radius: 3px;
-  }
+.column {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
 </style>

@@ -7,6 +7,7 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
@@ -45,7 +46,7 @@ public abstract class JdbcConnector {
     }
 
     protected void create(Database database, TableCreateDto createDto) throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open(database);
         tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto)
                 .execute();
