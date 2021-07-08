@@ -25,10 +25,10 @@ stages:
 build-docker:
   stage: build
   script:
-    - "docker image pull postgres:latest"
-    - "docker image pull mysql:latest"
-    - "docker image pull mariadb:latest"
-    - "docker-compose down"
+    - "docker image pull postgres:latest || true"
+    - "docker image pull mysql:latest || true"
+    - "docker image pull mariadb:latest || true"
+    - "docker-compose down || true"
     - "docker container stop $(docker container ls -aq) || true"
     - "docker container rm $(docker container ls -aq) || true"
     - "docker volume rm $(docker volume ls -q) || true"
