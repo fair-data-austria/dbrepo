@@ -1,5 +1,5 @@
-summary: "Import into Entity md_Columns from metadatabase"
-description: "This is a simple API which imports into entity md_COLUMNS in metadatabase"
+summary: "Update into Entity mdb_columns_num to metadatabase"
+description: "Update attribute siuni in metadatabase"
 consumes:
 - "application/json"
 produces:
@@ -16,11 +16,14 @@ parameters:
         type: "integer"
         example: 1
       tid: 
-        type: "integer" 
+        type: "integer"
         example: 1
       cid: 
         type: "integer"
         example: 1
+      siunit: 
+        type: "string"
+        example: "m"
 responses:
   200: 
     description: "OK"

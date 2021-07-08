@@ -1,5 +1,5 @@
-summary: "Import into Entity md_Columns from metadatabase"
-description: "This is a simple API which imports into entity md_COLUMNS in metadatabase"
+summary: "Import into Entity md_Data from metadatabase"
+description: "This is a simple API which imports into entity DATA in metadatabase"
 consumes:
 - "application/json"
 produces:
@@ -12,15 +12,12 @@ parameters:
   schema:
     type: "object"
     properties:
-      dbid: 
+      dataid:
         type: "integer"
-        example: 1
-      tid: 
-        type: "integer" 
-        example: 1
-      cid: 
-        type: "integer"
-        example: 1
+        example : 1
+      PROVENANCE: 
+        type: "string"
+        example: "Geographical Institute of Vienna"
 responses:
   200: 
     description: "OK"
