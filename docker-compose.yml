@@ -172,7 +172,7 @@ services:
     networks:
       - fda-public
       - fda-userdb
-    command: sh -c "/wait && python test_db.py && flask run"
+    command: sh -c "/wait && flask run" # docker-compose should not test the implementation
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka
       WAIT_HOSTS: fda-database-service:9092
