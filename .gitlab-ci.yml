@@ -2,8 +2,6 @@ before_script:
   - "docker version"
   - "docker-compose version"
   - "mvn --version"
-  - "echo ${HOSTALIASES}"
-  - "cat ${HOSTALIASES}"
 
 variables:
   HOSTALIASES: ./hosts
