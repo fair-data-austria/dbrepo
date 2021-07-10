@@ -147,7 +147,6 @@ public class ServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    @Disabled("Cannot test docker hostname in maven")
     public void create_postgres_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, SQLException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
@@ -215,7 +214,6 @@ public class ServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    @Disabled("Cannot test docker hostname in maven")
     public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseMalformedException {
 
@@ -251,7 +249,6 @@ public class ServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    @Disabled("Cannot test docker hostname in maven")
     public void modify_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseMalformedException {
         final DatabaseModifyDto request = DatabaseModifyDto.builder()
