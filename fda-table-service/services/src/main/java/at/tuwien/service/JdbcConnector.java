@@ -17,9 +17,11 @@ import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static org.jooq.impl.DSL.*;
@@ -48,8 +50,16 @@ public abstract class JdbcConnector {
     protected void create(Database database, TableCreateDto createDto) throws SQLException,
             ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open(database);
-        tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto)
-                .execute();
+        CreateTableColumnStep createTableColumnStep = tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto);
+        log.debug("Before insertion: {} ", createTableColumnStep.getSQL());
+        if(database.getContainer().getImage().getDialect().equals("MARIADB")) {
+            String sql = createTableColumnStep.getSQL();
+            sql = sql.substring(0, sql.length() - 1) + ", start TIMESTAMP(6) GENERATED ALWAYS AS ROW START, end TIMESTAMP(6) GENERATED ALWAYS AS ROW END, PERIOD FOR SYSTEM_TIME(start, end)) WITH SYSTEM VERSIONING;";
+            log.debug("With versioning {} ",sql);
+            context.fetch(sql);
+        } else {
+            createTableColumnStep.execute();
+        }
     }
 
     protected void insert(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException {
