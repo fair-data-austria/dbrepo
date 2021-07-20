@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Log4j2
@@ -198,11 +199,11 @@ public class DataService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto selectAll(Long databaseId, Long tableId) throws TableNotFoundException,
+    public QueryResultDto selectAll(Long databaseId, Long tableId, Timestamp timestamp) throws TableNotFoundException,
             DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException {
         final QueryResultDto queryResult;
         try {
-            queryResult = selectAll(findById(databaseId, tableId));
+            queryResult = selectAll(findById(databaseId, tableId), timestamp);
         } catch (SQLException e) {
             log.error("Could not find data: {}", e.getMessage());
             throw new DatabaseConnectionException(e);

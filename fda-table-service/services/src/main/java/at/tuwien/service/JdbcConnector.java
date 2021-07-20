@@ -52,6 +52,7 @@ public abstract class JdbcConnector {
         final DSLContext context = open(database);
         CreateTableColumnStep createTableColumnStep = tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto);
         log.debug("Before insertion: {} ", createTableColumnStep.getSQL());
+        /* add versioning for mariadb databases */
         if(database.getContainer().getImage().getDialect().equals("MARIADB")) {
             String sql = createTableColumnStep.getSQL();
             sql = sql.substring(0, sql.length() - 1) + ", start TIMESTAMP(6) GENERATED ALWAYS AS ROW START, end TIMESTAMP(6) GENERATED ALWAYS AS ROW END, PERIOD FOR SYSTEM_TIME(start, end)) WITH SYSTEM VERSIONING;";
@@ -84,15 +85,21 @@ public abstract class JdbcConnector {
         context.dropTable(table.getName());
     }
 
-    protected QueryResultDto selectAll(Table table) throws SQLException, ImageNotSupportedException {
+    protected QueryResultDto selectAll(Table table, Timestamp timestamp) throws SQLException, ImageNotSupportedException {
         if (table == null || table.getInternalName() == null) {
             log.error("Could not obtain the table internal name");
             throw new SQLException("Could not obtain the table internal name");
         }
         final DSLContext context = open(table.getDatabase());
-        return queryMapper.recordListToQueryResultDto(context
-                .selectFrom(table.getInternalName())
-                .fetch());
+        /* For versioning, but with jooq implementation better */
+        if(table.getDatabase().getContainer().getImage().getDialect().equals("MARIADB") && timestamp != null) {
+            return queryMapper.recordListToQueryResultDto(context.fetch("SELECT * from " + table.getInternalName() + " FOR SYSTEM_TIME AS OF TIMESTAMP'"+timestamp.toLocalDateTime()+"';"));
+        } else {
+            return queryMapper.recordListToQueryResultDto(context
+                    .selectFrom(table.getInternalName())
+                    .fetch());
+        }
+
     }
 
 }
