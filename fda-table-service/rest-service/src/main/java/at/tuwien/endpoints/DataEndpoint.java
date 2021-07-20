@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.sql.Timestamp;
 
 @Log4j2
 @CrossOrigin(origins = "*")
@@ -59,10 +60,11 @@ public class DataEndpoint {
             @ApiResponse(code = 405, message = "The connection to the database was unsuccessful."),
     })
     public ResponseEntity<QueryResultDto> getAll(@PathVariable("id") Long databaseId,
-                                                 @PathVariable("tableId") Long tableId) throws TableNotFoundException,
+                                                 @PathVariable("tableId") Long tableId, @RequestParam(required = false) Timestamp timestamp) throws TableNotFoundException,
             DatabaseNotFoundException, DatabaseConnectionException, ImageNotSupportedException {
-        final QueryResultDto data = dataService.selectAll(databaseId, tableId);
+        final QueryResultDto data = dataService.selectAll(databaseId, tableId, timestamp);
         return ResponseEntity.ok(data);
     }
+
 
 }
