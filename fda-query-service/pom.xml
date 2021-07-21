@@ -12,7 +12,7 @@
     <artifactId>fda-query-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fda-query-service</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Service to Query databases </description>
 
     <packaging>pom</packaging>
     <modules>
@@ -30,6 +30,7 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
+        <jooq.version>3.14.11</jooq.version>
     </properties>
 
     <dependencies>
@@ -90,6 +91,17 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- DSL -->
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+            <version>${jooq.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
