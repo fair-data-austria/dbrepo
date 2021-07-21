@@ -189,7 +189,6 @@ services:
       - 5000:5000
     volumes:
       - /tmp:/tmp
-      - /var/run/docker.sock:/var/run/docker.sock
     links:
       - fda-discovery-service
     depends_on:
