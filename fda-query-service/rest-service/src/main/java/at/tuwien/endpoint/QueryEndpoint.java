@@ -67,7 +67,7 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<?> create(@PathVariable Long id) throws ImageNotSupportedException,
             DatabaseConnectionException, DatabaseNotFoundException {
-        queryService.create(id);
+        queryService.createQueryStore(id);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .build();
     }
