@@ -115,14 +115,10 @@ public class QueryStoreService extends JdbcConnector {
 
     private boolean exists(Database database) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(database);
-        String x = "table_name like '"+QUERYSTORENAME + "'";
-        log.debug(x);
-        Integer i =  context.select(count())
+        return context.select(count())
                 .from("information_schema.tables")
-                .where(x)
-                .fetchOne(0, int.class) ;
-        log.debug(i);
-        return i==1 ? true : false;
+                .where("table_name like '" + QUERYSTORENAME + "'")
+                .fetchOne(0, int.class) == 1;
     }
 
 }
