@@ -43,36 +43,6 @@ public class QueryEndpoint {
     }
 
     @Transactional
-    @GetMapping("/query")
-    @ApiOperation(value = "List all queries", notes = "Lists all already executed queries")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "All queries are listed."),
-            @ApiResponse(code = 400, message = "Problem with reading the stored queries."),
-            @ApiResponse(code = 404, message = "The database does not exist."),
-    })
-    public ResponseEntity<List<QueryResultDto>> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseConnectionException, QueryMalformedException {
-        final List<Query> queries = queryService.findAll(id);
-        return ResponseEntity.ok(queries.stream()
-                .map(queryMapper::queryToQueryDTO)
-                .collect(Collectors.toList()));
-    }
-
-    @PostMapping("/query")
-    @ApiOperation(value = "Creates the query Story")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Created the Querystore successfully"),
-            @ApiResponse(code = 404, message = "The database does not exist."),
-            @ApiResponse(code = 405, message = "The container is not running."),
-            @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<?> create(@PathVariable Long id) throws ImageNotSupportedException,
-            DatabaseConnectionException, DatabaseNotFoundException {
-        queryService.createQueryStore(id);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .build();
-    }
-
-    @Transactional
     @PutMapping("/query")
     @ApiOperation(value = "executes a query")
     @ApiResponses(value = {

@@ -46,11 +46,6 @@ public class QueryService extends JdbcConnector {
         this.databaseRepository = databaseRepository;
     }
 
-    @Transactional
-    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException {
-        return null;
-    }
-
     public QueryResultDto executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLFeatureNotSupportedException {
         CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
 
@@ -71,70 +66,5 @@ public class QueryService extends JdbcConnector {
         return null;
     }
 
-    /**
-     * Creates the querystore for a given database
-     * @param databaseId
-     * @throws ImageNotSupportedException
-     * @throws DatabaseNotFoundException
-     */
-    @Transactional
-    public void createQueryStore(Long databaseId) throws ImageNotSupportedException, DatabaseNotFoundException {
-        log.info("Create QueryStore");
-        final Database database = findDatabase(databaseId);
-        log.info("database {}", database.toString());
-        /* create database in container */
-        try {
-                final DSLContext context = open(database);
-                context.createTable("mdb_querystore")
-                        .column("id", INTEGER)
-                        .column("query", VARCHAR(255).nullable(false))
-                        .column("query_hash", VARCHAR(255))
-                        .column("execution_timestamp", TIMESTAMP)
-                        .column("result_hash", VARCHAR(255))
-                        .column("result_number", INTEGER)
-                        .constraints(
-                                constraint("pk").primaryKey("id")
-                        )
-                        .execute();
-
-        } catch (SQLException e) {
-            throw new DataProcessingException("could not create table", e);
-        }
-    }
-
-    private Query saveQuery(Database database, Query query, QueryResultDto queryResult) {
-        //TODO in next sprint
-        String q = query.getQuery();
-        query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
-        query.setQueryNormalized(normalizeQuery(query.getQuery()));
-        query.setQueryHash(query.getQueryNormalized().hashCode() + "");
-        query.setResultHash(query.getQueryHash());
-        query.setResultNumber(0);
-        //saveQuery(database, query);
-        return null;
-    }
-
-    private String normalizeQuery(String query) {
-        return query;
-    }
-
-    private boolean checkValidity(String query) {
-        String queryparts[] = query.toLowerCase().split("from");
-        if (queryparts[0].contains("select")) {
-            //TODO add more checks
-            return true;
-        }
-        return false;
-    }
-
-    @Transactional
-    public Database findDatabase(Long id) throws DatabaseNotFoundException {
-        final Optional<Database> database = databaseRepository.findById(id);
-        if (database.isEmpty()) {
-            log.error("no database with this id found in metadata database");
-            throw new DatabaseNotFoundException("database not found in metadata database");
-        }
-        return database.get();
-    }
 
 }

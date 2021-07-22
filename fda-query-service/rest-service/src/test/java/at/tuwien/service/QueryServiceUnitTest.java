@@ -47,16 +47,17 @@ public class QueryServiceUnitTest extends BaseUnitTest {
         assertEquals(QUERY_1_ID, response.get(0).getId());
     } */
 
+    /*
     @Test
     public void findAll_notFound_fails() {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.empty());
 
-        /* test */
+        // test
         assertThrows(DatabaseNotFoundException.class, () -> {
             queryService.findAll(DATABASE_1_ID);
         });
-    }
+    }*/
 
     /*
     @Test
