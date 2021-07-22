@@ -18,6 +18,9 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.ResultQuery;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,33 +41,40 @@ import static org.jooq.impl.SQLDataType.*;
 public class QueryService extends JdbcConnector {
 
     private final DatabaseRepository databaseRepository;
-
+    private final QueryStoreService queryStoreService;
+    private final QueryMapper queryMapper;
 
     @Autowired
-    public QueryService(ImageMapper imageMapper, QueryMapper queryMapper, DatabaseRepository databaseRepository) {
+    public QueryService(ImageMapper imageMapper, QueryMapper queryMapper, DatabaseRepository databaseRepository, QueryStoreService queryStoreService) {
         super(imageMapper, queryMapper);
         this.databaseRepository = databaseRepository;
+        this.queryStoreService = queryStoreService;
+        this.queryMapper = queryMapper;
     }
 
-    public QueryResultDto executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLFeatureNotSupportedException {
-        CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
-
-        Statement stmt = parserRealSql.parse(new StringReader(query.getQuery()));
-        if(stmt instanceof Select) {
-            Select selectStatement = (Select) stmt;
-            PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
-
-            List<SelectItem> selectitems = ps.getSelectItems();
-            System.out.println(ps.getFromItem().toString());
-            selectitems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
-        }
-        else {
-            throw new SQLFeatureNotSupportedException("SQL Query is not a SELECT statement - please only use SELECT statements");
-        }
+    @Transactional
+    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException {
+        //Query q = parseQuery(query);
+        Database database = findDatabase(id);
+        DSLContext context = open(database);
+        ResultQuery<Record> resultQuery = context.resultQuery(query.getQuery());
+        Result<Record> result = resultQuery.fetch();
+        log.debug(result.toString());
         //saveQuery(database, query, null);
-
-        return null;
+        return queryMapper.recordListToQueryResultDto(result);
     }
+
+    @Transactional
+    public Database findDatabase(Long id) throws DatabaseNotFoundException {
+        final Optional<Database> database = databaseRepository.findById(id);
+        if (database.isEmpty()) {
+            log.error("no database with this id found in metadata database");
+            throw new DatabaseNotFoundException("database not found in metadata database");
+        }
+        return database.get();
+    }
+
+
 
 
 }

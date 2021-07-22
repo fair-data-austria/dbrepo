@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,21 +51,10 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> modify(@PathVariable Long id, @RequestBody ExecuteQueryDto dto)
-            throws DatabaseNotFoundException, ImageNotSupportedException, SQLFeatureNotSupportedException,
-            JSQLParserException {
-        final QueryResultDto response = queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
-        return ResponseEntity.ok(response);
-    }
-
-    @Transactional
-    @PutMapping("/query/version/{timestamp}")
-    @ApiOperation(value = "executes a query with a given timestamp")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "result of Query with Timestamp")})
-    public ResponseEntity<QueryResultDto> modify(@PathVariable Long id, @PathVariable String timestamp, @RequestBody ExecuteQueryDto dto)
-            throws DatabaseNotFoundException, ImageNotSupportedException, SQLFeatureNotSupportedException,
-            JSQLParserException {
-        final QueryResultDto response = queryService.executeStatement(id, queryMapper.queryDTOtoQuery(dto));
+    public ResponseEntity<QueryResultDto> execute(@PathVariable Long id, @RequestBody ExecuteQueryDto dto)
+            throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
+            JSQLParserException, QueryMalformedException {
+        final QueryResultDto response = queryService.execute(id, queryMapper.queryDTOtoQuery(dto));
         return ResponseEntity.ok(response);
     }
 

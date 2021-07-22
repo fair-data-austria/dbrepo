@@ -42,7 +42,7 @@ public abstract class JdbcConnector {
 
     protected DSLContext open(Database database) throws SQLException, ImageNotSupportedException {
         final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
-        log.trace("Attempt to connect to '{}'", url);
+        log.info("Attempt to connect to '{}'", url);
         final Connection connection = DriverManager.getConnection(url, imageMapper.containerImageToProperties(database.getContainer().getImage()));
         return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
     }
@@ -55,7 +55,7 @@ public abstract class JdbcConnector {
         /* add versioning for mariadb databases */
         if(database.getContainer().getImage().getDialect().equals("MARIADB")) {
             String sql = createTableColumnStep.getSQL();
-            sql = sql.substring(0, sql.length() - 1) + ", start TIMESTAMP(6) GENERATED ALWAYS AS ROW START, end TIMESTAMP(6) GENERATED ALWAYS AS ROW END, PERIOD FOR SYSTEM_TIME(start, end)) WITH SYSTEM VERSIONING;";
+            sql = sql + "WITH SYSTEM VERSIONING;";
             log.debug("With versioning {} ",sql);
             context.fetch(sql);
         } else {
