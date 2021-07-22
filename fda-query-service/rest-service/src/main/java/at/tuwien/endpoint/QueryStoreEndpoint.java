@@ -40,12 +40,10 @@ public class QueryStoreEndpoint {
             @ApiResponse(code = 400, message = "Problem with reading the stored queries."),
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
-    public ResponseEntity<List<QueryResultDto>> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseConnectionException, QueryMalformedException {
-        final List<Query> queries = querystoreService.findAll(id);
-        return ResponseEntity.ok(queries.stream()
-                .map(queryMapper::queryToQueryDTO)
-                .collect(Collectors.toList()));
+    public ResponseEntity<QueryResultDto> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
+            ImageNotSupportedException, DatabaseConnectionException, QueryMalformedException, SQLException {
+        final QueryResultDto result = querystoreService.findAll(id);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping()
