@@ -9,6 +9,9 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.ResultQuery;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +33,25 @@ public class QueryStoreService extends JdbcConnector {
 
     private final DatabaseRepository databaseRepository;
     private final String QUERYSTORENAME = "mdb_querystore";
+    private final QueryMapper queryMapper;
 
     @Autowired
     public QueryStoreService(ImageMapper imageMapper, QueryMapper queryMapper, DatabaseRepository databaseRepository) {
         super(imageMapper, queryMapper);
         this.databaseRepository = databaseRepository;
+        this.queryMapper = queryMapper;
     }
 
     @Transactional
-    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException {
-        return null;
+    public QueryResultDto findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException, SQLException {
+        Database database = findDatabase(id);
+        DSLContext context = open(database);
+        ResultQuery<Record> resultQuery = context.selectQuery();
+        Result<Record> result = resultQuery.fetch();
+        log.debug(result.toString());
+        return queryMapper.recordListToQueryResultDto(context
+                .selectFrom(QUERYSTORENAME) //TODO Order after timestamps
+                .fetch());
     }
 
     /**
