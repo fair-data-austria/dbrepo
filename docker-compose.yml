@@ -197,6 +197,21 @@ services:
     logging:
       driver: json-file
 
+  fda-search-service:
+    restart: always
+    container_name: fda-search-service
+    hostname: fda-search-service
+#    build: ./fda-search-service
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.4
+    networks:
+      - fda-public
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+      - 9600:9600
+
   fda-ui:
     restart: always
     container_name: fda-ui
