@@ -16,6 +16,7 @@ import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
@@ -107,6 +108,7 @@ public class ServiceIntegrationTest extends BaseUnitTest {
         /* start container */
         dockerClient.startContainerCmd(request1.getId()).exec();
         dockerClient.startContainerCmd(request2.getId()).exec();
+        Thread.sleep(10 * 1000);
         databaseRepository.save(DATABASE_1);
         databaseRepository.save(DATABASE_2);
     }
@@ -125,7 +127,11 @@ public class ServiceIntegrationTest extends BaseUnitTest {
                     } catch (NotModifiedException e) {
                         // ignore
                     }
-                    dockerClient.removeContainerCmd(container.getId()).exec();
+                    try {
+                        dockerClient.removeContainerCmd(container.getId()).exec();
+                    } catch (ConflictException e) {
+                        // ignore
+                    }
                 });
         /* remove networks */
         dockerClient.listNetworksCmd()
