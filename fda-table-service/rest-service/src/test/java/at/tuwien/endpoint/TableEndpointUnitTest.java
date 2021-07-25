@@ -99,44 +99,6 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         });
     }
 
-    @Disabled("not throwing")
-    @Test
-    public void create_notPostgres_fails() {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
-                .build();
-        final Database DATABASE_2 = DATABASE_1;
-        DATABASE_2.getContainer().getImage().setRepository("mariadb");
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        when(databaseRepository.findById(DATABASE_2.getId()))
-                .thenReturn(Optional.of(DATABASE_2));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableEndpoint.create(DATABASE_1_ID, request);
-        });
-    }
-
-    @Disabled("not throwing")
-    @Test
-    public void create_notSql_fails() throws TableNotFoundException, DatabaseNotFoundException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
-                .build();
-        when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
-                .thenReturn(TABLE_1);
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableEndpoint.create(DATABASE_1_ID, request);
-        });
-    }
-
     @Test
     public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException {
@@ -163,12 +125,6 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         assertThrows(TableNotFoundException.class, () -> {
             tableEndpoint.findById(DATABASE_1_ID, TABLE_1_ID);
         });
-    }
-
-    @Disabled("not throwing")
-    @Test
-    public void delete_notSql_fails() {
-
     }
 
     @Test

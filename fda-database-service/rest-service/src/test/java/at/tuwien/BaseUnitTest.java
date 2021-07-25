@@ -176,7 +176,7 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static List<String> IMAGE_1_ENV = List.of("POSTGRES_USER=postgres",
-            "POSTGRES_PASSWORD=postgres");
+            "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=" + DATABASE_1_INTERNALNAME);
 
     public final static List<String> IMAGE_2_ENV = List.of("MARIADB_USER=mariadb",
             "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb");
