@@ -16,7 +16,6 @@ image: "docker/compose:latest"
 
 stages: 
   - build
-  - test-e2e
   - test-backend
   - deploy
 
@@ -36,21 +35,6 @@ build-metadata-db:
   stage: build
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
-
-test-e2e:
-  stage: test-e2e
-  script:
-    - "docker-compose up -d"
-    - "docker exec fda-ui bash -c './scripts/wait.sh http://fda-database-service:9092/api/database/'"
-    - "sleep 30"
-    - "false && docker exec fda-ui yarn test" # right now not adapted to dev branch
-  artifacts:
-    when: always
-    paths:
-      - "fda-ui/videos/*"
-    expire_in: 1 week
-  variables:
-    CI_DEBUG_TRACE: "true"
 
 test-backend-container:
   stage: test-backend
