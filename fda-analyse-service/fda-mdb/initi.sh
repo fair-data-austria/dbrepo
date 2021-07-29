@@ -215,7 +215,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		Mean NUMERIC, 
 		Median NUMERIC, 
 		Sd Numeric, 
-		Histogram INTEGER[],
+		Histogram NUMERIC[],
 		last_modified timestamp without time zone,
 		FOREIGN KEY (cDBID,tID, cID) REFERENCES mdb_COLUMNS(cDBID,tID,ID),
 		PRIMARY KEY(cDBID, tID, cID)

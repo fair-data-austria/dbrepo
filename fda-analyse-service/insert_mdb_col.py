@@ -1,11 +1,11 @@
-from psycopg2 import connect 
+from psycopg2 import connect
 from sqlalchemy import create_engine, text
 import requests
-import json 
+import json
 
-def insert_mdb_col(dbid, tid): 
-    # Get database info 
-    try: 
+def insert_mdb_col(dbid, tid):
+    # Get database info
+    try:
         s = requests.get(
         "http://fda-database-service:9092/api/database/",
         params = {"id":dbid}
@@ -14,7 +14,7 @@ def insert_mdb_col(dbid, tid):
         print("Error while trying to get database info",e)
         
     # Get tablename by dbid and tid 
-    try: 
+    try:
         tbl_info = requests.get(
         "http://fda-table-service:9094/api/database/{0}/table/{1}/".format(dbid,tid)).json()
         tbl_name = tbl_info['internalName']
@@ -139,11 +139,11 @@ def insert_mdb_nomcol(dbid,tid,cid):
 
 def insert_mdb_numcol(dbid,tid,cid): 
     # Connecting to metadatabase to obtain columnname
-    try: 
+    try:
         conn=connect(
-        dbname="fda", 
+        dbname="fda",
         user = "postgres",
-        host = "fda-metadata-db", 
+        host = "fda-metadata-db",
         password = "postgres"
         )
         
@@ -158,15 +158,15 @@ def insert_mdb_numcol(dbid,tid,cid):
         "http://fda-database-service:9092/api/database/",
         params = {"id":dbid}
         ).json()
-    except Exception as e: 
+    except Exception as e:
         print("Error while trying to get database info",e)
     try: 
         tbl_info = requests.get(
         "http://fda-table-service:9094/api/database/{0}/table/{1}/".format(dbid,tid)).json()
         tbl_name = tbl_info['internalName']
-    except Exception as e: 
-        print("Error:", e)    
-    # Determine min, max, ... 
+    except Exception as e:
+        print("Error:", e)
+    # Determine min, max, ...
     try: 
         engine = create_engine('postgresql+psycopg2://postgres:postgres@fda-userdb-'+s[0]['internalName'].replace('_', '-')+'/'+s[0]['internalName'])
         
@@ -194,28 +194,39 @@ def insert_mdb_numcol(dbid,tid,cid):
             res = conn.execute(sql).fetchone()
         sdval = float(res[0])
         
-        # histogram 
-        sql = text("select " + cname + "from " + tbl_name + "where rand() <= 0.3")
-        #to-do 
-        
+        # histogram (equi-width, last array entry is the bucket width)
+        num_buckets = 10
+        hist_lst = []
+        #sql = text("select " + cname + "from " + tbl_name + "where rand() <= 0.3")
+        width_bucket = (maxval - minval + 1)/num_buckets
+        for i in range(0,num_buckets):
+            sql = text("select count(*) from " + tbl_name + " where " + cname + " >= " + str(minval + i*width_bucket) + " and " + cname + " < " + str(minval + (i+1)*width_bucket))
+            with engine.begin() as conn:
+                res = conn.execute(sql).fetchone()
+            hist_lst.append(res[0])
+        hist_lst.append(width_bucket)
+        hist_lst = [str(x) for x in hist_lst]
+        histpgarr = lst2pgarr(hist_lst)
 
-    except Exception as e: 
+    except Exception as e:
         print("Error while connecting to database",e)
-    # Insert / update values in metadata-db 
-    try: 
+    # Insert / update values in metadata-db
+    try:
         conn=connect(
-        dbname="fda", 
+        dbname="fda",
         user = "postgres",
-        host = "fda-metadata-db", 
+        host = "fda-metadata-db",
         password = "postgres"
         )
         
-        cursor = conn.cursor() 
-        cursor.execute("""Insert into mdb_columns_num (cdbid,tid,cid,minval,maxval,mean,sd,last_modified) 
-            values (%s,%s,%s,%s,%s,%s,%s,%s,current_timestamp)
+        conn=connect(dbname="fda",user = "postgres",host = "fda-metadata-db",password = "postgres")
+        
+        cursor = conn.cursor()
+        cursor.execute("""Insert into mdb_columns_num (cdbid,tid,cid,minval,maxval,mean,sd,histogram,last_modified) 
+            values (%s,%s,%s,%s,%s,%s,%s,%s,%s,current_timestamp)
             ON CONFLICT (cdbid,tid,cid) do update set 
-            (minval,maxval,mean,sd,last_modified) = (%s,%s,%s,%s,%s,current_timestamp)""",
-            (dbid,tid,cid,minval,maxval,meanval,sdval,minval,maxval,meanval,sdval,))
+            (minval,maxval,mean,sd,histogram,last_modified) = (%s,%s,%s,%s,%s,%s,current_timestamp)""",
+            (dbid,tid,cid,minval,maxval,meanval,sdval,histpgarr,minval,maxval,meanval,sdval,histpgarr,))
 
         ret = cursor.statusmessage 
         conn.commit()  
@@ -273,9 +284,9 @@ def insert_mdb_catcol(dbid,tid,cid):
         
     try: 
         conn=connect(
-        dbname="fda", 
+        dbname="fda",
         user = "postgres",
-        host = "fda-metadata-db", 
+        host = "fda-metadata-db",
         password = "postgres"
         )
         
@@ -400,7 +411,6 @@ def update_mdb_col(dbid, tid, cid):
         print("Error while connecting to metadatabase.",e)
     return json.dumps(ret)
 
-# Useful helper functions 
-    
+# Useful helper functions
 lstflat = lambda x: [item for sublst in x for item in sublst]
 lst2pgarr = lambda lst: '{' + ','.join(lst) + '}'
