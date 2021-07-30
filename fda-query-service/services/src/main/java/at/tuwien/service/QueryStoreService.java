@@ -90,7 +90,7 @@ public class QueryStoreService extends JdbcConnector {
         }
     }
 
-    private Query saveQuery(Database database, Query query, QueryResultDto queryResult) {
+    public Query saveQuery(Database database, Query query, QueryResultDto queryResult) {
         //TODO in next sprint
         String q = query.getQuery();
         query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
