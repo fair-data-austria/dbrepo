@@ -9,16 +9,7 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectItem;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.ResultQuery;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataProcessingException;
+import org.jooq.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +42,6 @@ public class QueryService extends JdbcConnector {
 
     @Transactional
     public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
-        //Query q = parseQuery(query);
         Database database = findDatabase(id);
         if(database.getContainer().getImage().getDialect().equals("MARIADB")){
             if(!queryStoreService.exists(database)) {
@@ -59,11 +49,30 @@ public class QueryService extends JdbcConnector {
             }
         }
         DSLContext context = open(database);
-        ResultQuery<Record> resultQuery = context.resultQuery(query.getQuery());
-        Result<Record> result = resultQuery.fetch();
+        //TODO Fix that import
+        ResultQuery<org.jooq.Record> resultQuery = context.resultQuery(parse(query,database).getQuery());
+        Result<org.jooq.Record> result = resultQuery.fetch();
+        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
         log.debug(result.toString());
-        //saveQuery(database, query, null);
-        return queryMapper.recordListToQueryResultDto(result);
+
+        // Save the query in the store
+        queryStoreService.saveQuery(database, query, queryResultDto);
+        return queryResultDto;
+    }
+
+    private Query parse(Query query, Database database) throws SQLException, ImageNotSupportedException {
+        DSLContext context = open(database);
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        query.setExecutionTimestamp(ts);
+
+        Select<?> select = context.parser().parseSelect(query.getQuery());
+        log.debug(select);
+        //RETURN columnnames from select
+        select.getSelect().stream().forEach(System.out::println);
+        String q = select.getSQL();
+
+        return query;
+
     }
 
     @Transactional

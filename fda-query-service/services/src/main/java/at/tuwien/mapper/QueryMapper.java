@@ -32,4 +32,5 @@ public interface QueryMapper {
                 .result(result)
                 .build();
     }
+
 }
