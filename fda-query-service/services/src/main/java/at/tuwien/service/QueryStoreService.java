@@ -125,7 +125,7 @@ public class QueryStoreService extends JdbcConnector {
         return database.get();
     }
 
-    private boolean exists(Database database) throws SQLException, ImageNotSupportedException {
+    public boolean exists(Database database) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(database);
         return context.select(count())
                 .from("information_schema.tables")

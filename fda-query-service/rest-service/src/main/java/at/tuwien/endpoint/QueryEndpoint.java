@@ -3,10 +3,7 @@ package at.tuwien.endpoint;
 import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.query.Query;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.QueryMalformedException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.QueryService;
 import io.swagger.annotations.ApiOperation;
@@ -53,7 +50,7 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<QueryResultDto> execute(@PathVariable Long id, @RequestBody ExecuteQueryDto dto)
             throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
-            JSQLParserException, QueryMalformedException {
+            JSQLParserException, QueryMalformedException, QueryStoreException {
         final QueryResultDto response = queryService.execute(id, queryMapper.queryDTOtoQuery(dto));
         return ResponseEntity.ok(response);
     }

@@ -3,10 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.QueryMalformedException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.DatabaseRepository;
@@ -53,9 +50,14 @@ public class QueryService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException {
+    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
         //Query q = parseQuery(query);
         Database database = findDatabase(id);
+        if(database.getContainer().getImage().getDialect().equals("MARIADB")){
+            if(!queryStoreService.exists(database)) {
+                queryStoreService.create(id);
+            }
+        }
         DSLContext context = open(database);
         ResultQuery<Record> resultQuery = context.resultQuery(query.getQuery());
         Result<Record> result = resultQuery.fetch();
