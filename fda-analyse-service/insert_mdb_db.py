@@ -24,4 +24,3 @@ def insert_mdb_db(dbid, resourcetype, description, publisher):
     except Exception as e: 
         print("Error while connecting to mdb",e)
     return json.dumps(r)
-        

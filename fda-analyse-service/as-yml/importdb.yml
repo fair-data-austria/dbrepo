@@ -1,5 +1,5 @@
-summary: "Import into Entity md_Databases to metadatabase"
-description: "This is a simple API which imports databases into metadatabase"
+summary: "Update entity mdb_databases in metadatabase"
+description: "This is a simple API which updates attributes 'description', 'resourcetype' and 'publisher' of a database in the metadatabase. "
 consumes:
 - "application/json"
 produces:
@@ -7,7 +7,7 @@ produces:
 parameters:
 - in: "body"
   name: "body"
-  description: "to-do description"
+  description: "Updates attributes 'description', 'resourcetype' and 'publisher' of a certain database in the metadatabase."
   required: true
   schema:
     type: "object"
