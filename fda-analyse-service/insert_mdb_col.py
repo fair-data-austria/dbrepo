@@ -354,7 +354,7 @@ def update_mdb_col(dbid, tid, cid):
 
         cursor = conn.cursor()
 
-        cursor.execute("SELECT cname from mdb_columns where cdbid=%s and tid =%s and id=%s ",(dbid,tid,cid))
+        cursor.execute("SELECT internal_name from mdb_columns where cdbid=%s and tid =%s and id=%s ",(dbid,tid,cid))
         cname=cursor.fetchone()[0]
     except Exception as e:
         print("Error while trying to get cname from mdb",e)
