@@ -18,8 +18,9 @@ def insert_mdb_db_pub(dbid, ispublic):
         cursor.execute("""Update mdb_databases set (is_public,last_modified) = 
         (%s,current_timestamp)
         where id=%s;""", (ispublic,dbid,))
+        r = cursor.statusmessage
         conn.commit()
         conn.close()
     except Exception as e: 
         print("Error while connecting to mdbase",e)
-        
+    return json.dumps(r)
