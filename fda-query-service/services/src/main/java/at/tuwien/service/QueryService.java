@@ -9,7 +9,17 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
-import org.jooq.*;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectItem;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.ResultQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,8 +60,8 @@ public class QueryService extends JdbcConnector {
         }
         DSLContext context = open(database);
         //TODO Fix that import
-        ResultQuery<org.jooq.Record> resultQuery = context.resultQuery(parse(query,database).getQuery());
-        Result<org.jooq.Record> result = resultQuery.fetch();
+        ResultQuery<Record> resultQuery = context.resultQuery(parse(query,database).getQuery());
+        Result<Record> result = resultQuery.fetch();
         QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
         log.debug(result.toString());
 
@@ -60,18 +70,41 @@ public class QueryService extends JdbcConnector {
         return queryResultDto;
     }
 
-    private Query parse(Query query, Database database) throws SQLException, ImageNotSupportedException {
-        DSLContext context = open(database);
+    private Query parse(Query query, Database database) throws SQLException, ImageNotSupportedException, JSQLParserException {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         query.setExecutionTimestamp(ts);
 
-        Select<?> select = context.parser().parseSelect(query.getQuery());
-        log.debug(select);
-        //RETURN columnnames from select
-        select.getSelect().stream().forEach(System.out::println);
-        String q = select.getSQL();
+        CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
+        Statement statement = parserRealSql.parse(new StringReader(query.getQuery()));
+        log.debug("Given query {}", query.getQuery());
 
-        return query;
+        if(statement instanceof Select) {
+            Select selectStatement = (Select) statement;
+            PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
+            List<SelectItem> selectItems = ps.getSelectItems();
+            selectItems.stream().forEach(System.out::println);
+            //TODO Validate if all columns and tables are in database
+            PlainSelect result = new PlainSelect();
+            result.setSelectItems(ps.getSelectItems());
+
+            result.setFromItem(ps.getFromItem());
+            //TODO extract from as a whole?
+            if(ps.getJoins()!=null) {
+                result.setJoins(ps.getJoins());
+            }
+
+            if(ps.getWhere() != null) {
+                Expression where = ps.getWhere();
+                result.setWhere(where);
+
+            }
+            selectItems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
+            query.setQueryNormalized(result.toString());
+            return query;
+        }
+        else {
+            throw new JSQLParserException("SQL Query is not a SELECT statement - please only use SELECT statements");
+        }
 
     }
 
