@@ -5,5 +5,8 @@ export const state = () => ({
 export const mutations = {
   SET_DATABASE (state, db) {
     state.db = db
+  },
+  SET_THEME (state, theme) {
+    state.theme = theme
   }
 }

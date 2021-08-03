@@ -16,7 +16,6 @@
 
     <packaging>pom</packaging>
     <modules>
-        <module>gateway</module>
         <module>rest-service</module>
         <module>services</module>
         <module>report</module>
@@ -31,6 +30,7 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
+        <jooq.version>3.14.11</jooq.version>
     </properties>
 
     <dependencies>
@@ -42,6 +42,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency><!-- https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.3-Release-Notes#validation-starter-no-longer-included-in-web-starters -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
@@ -51,6 +55,21 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>${mariadb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
         </dependency>
         <!-- Entity and API -->
         <dependency>
@@ -65,11 +84,16 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- DataSource -->
+        <!-- DSL -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+            <version>${jooq.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>

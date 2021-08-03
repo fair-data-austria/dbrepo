@@ -4,6 +4,7 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
+import at.tuwien.api.container.image.ImageEnvItemDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,7 +57,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void getById_succeeds() {
+    public void getById_succeeds() throws ImageNotFoundException {
         when(imageRepository.findById(IMAGE_1_ID))
                 .thenReturn(Optional.of(IMAGE_1));
 
@@ -77,23 +79,6 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_notFound_fails() {
-        final ImageCreateDto request = ImageCreateDto.builder()
-                .repository(IMAGE_1_REPOSITORY)
-                .tag(IMAGE_1_TAG)
-                .defaultPort(IMAGE_1_PORT)
-                .environment(IMAGE_1_ENV_DTO)
-                .build();
-        when(imageService.create(request))
-                .thenThrow(ImageNotFoundException.class);
-
-        /* test */
-        assertThrows(ImageNotFoundException.class, () -> {
-            imageService.create(request);
-        });
-    }
-
-    @Test
     public void create_duplicate_fails() {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
@@ -101,8 +86,8 @@ public class ImageServiceUnitTest extends BaseUnitTest {
                 .defaultPort(IMAGE_1_PORT)
                 .environment(IMAGE_1_ENV_DTO)
                 .build();
-        when(imageService.create(request))
-                .thenThrow(ImageAlreadyExistsException.class);
+        when(imageRepository.save(any(ContainerImage.class)))
+                .thenThrow(ConstraintViolationException.class);
 
         /* test */
         assertThrows(ImageAlreadyExistsException.class, () -> {
@@ -111,7 +96,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_succeeds() {
+    public void update_succeeds() throws ImageNotFoundException, DockerClientException {
         final ImageChangeDto request = ImageChangeDto.builder()
                 .environment(IMAGE_1_ENV_DTO)
                 .defaultPort(IMAGE_1_PORT)
@@ -125,6 +110,26 @@ public class ImageServiceUnitTest extends BaseUnitTest {
         final ContainerImage response = imageService.update(IMAGE_1_ID, request);
         assertEquals(IMAGE_1_REPOSITORY, response.getRepository());
         assertEquals(IMAGE_1_TAG, response.getTag());
+    }
+
+    @Test
+    public void update_port_succeeds() throws ImageNotFoundException, DockerClientException {
+        final ImageEnvItemDto[] env = IMAGE_1_ENV_DTO;
+        env[0].setValue("postgres2");
+        final ImageChangeDto request = ImageChangeDto.builder()
+                .environment(IMAGE_1_ENV_DTO)
+                .defaultPort(9999)
+                .build();
+        when(imageRepository.findById(IMAGE_1_ID))
+                .thenReturn(Optional.of(IMAGE_1));
+        when(imageRepository.save(any()))
+                .thenReturn(IMAGE_1);
+
+        /* test */
+        final ContainerImage response = imageService.update(IMAGE_1_ID, request);
+        assertEquals(IMAGE_1_REPOSITORY, response.getRepository());
+        assertEquals(IMAGE_1_TAG, response.getTag());
+        assertEquals("postgres2", response.getEnvironment().get(0).getValue());
     }
 
     @Test
@@ -143,7 +148,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_succeeds() {
+    public void delete_succeeds() throws ImageNotFoundException, PersistenceException {
         doNothing()
                 .when(imageRepository)
                 .deleteById(IMAGE_1_ID);

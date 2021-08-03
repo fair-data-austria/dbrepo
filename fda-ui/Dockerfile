@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libxtst6
 
 # Our app
-COPY ./.env ./
+COPY ./.env-docker ./.env
 COPY ./assets ./assets
 COPY ./ava.config.cjs ./
 COPY ./babel.config.js ./

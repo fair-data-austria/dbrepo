@@ -2,7 +2,14 @@ import os
 from flask import Flask, flash, request, redirect, url_for, Response, abort, jsonify
 from determine_dt import determine_datatypes
 from analysecsv import analysecsv
+from insert_mdb_db import insert_mdb_db
 from import_db import import_db
+from update_mdb_db_ispublic import insert_mdb_db_pub
+from insert_mdb_tbl import insert_mdb_tbl
+from insert_mdb_col import insert_mdb_col, update_mdb_col
+from insert_mdb_col import update_mdb_siunit
+from update_mdb_data import update_mdb_data
+from determine_pk import determine_pk 
 #from werkzeug.utils import secure_filename
 #from werkzeug import cached_property
 import logging
@@ -27,11 +34,19 @@ swagger_config = {
     "headers": [],
     "specs": [
         {
-            "endpoint": "api",
-            "route": "/api.json",
-            "rule_filter": lambda rule: True,  # all in
+            "title": "analyze",
+            "endpoint": "api-analyze",
+            "route": "/api-analyze.json",
+            "rule_filter": lambda rule: rule.endpoint.startswith('analyze'),
             "model_filter": lambda tag: True,  # all in
-        }
+        },
+        {
+            "title": "MDB operations",
+            "endpoint": "api-mdb",
+            "route": "/api-mdb.json",
+            "rule_filter": lambda rule: rule.endpoint.startswith('mdb'),
+            "model_filter": lambda tag: True,  # all in
+        },
     ],
     "static_url_path": "/flasgger_static",
     "swagger_ui": True,
@@ -45,96 +60,165 @@ template = dict(
 app.json_encoder = LazyJSONEncoder
 swagger = Swagger(app, config=swagger_config, template=template)
 
-#TODO GET instead of POST  
-@app.route('/determinedt', methods=["POST"])
+@app.route('/determinedt', methods=["POST"], endpoint='analyze_determinedt')
 @swag_from('/as-yml/determinedt.yml')
-def determinedt(): 
+def determinedt():
     input_json = request.get_json()
-    try: 
+    try:
         filepath = str(input_json['filepath'])
-        enum = False 
+        enum = False
         if 'enum' in input_json:
-            enum = bool(input_json['enum']) 
+            enum = bool(input_json['enum'])
             print(enum)
-        enum_tol = 0.001 
+        enum_tol = 0.001
         if 'enum_tol' in input_json:
             enum_tol = float(input_json['enum_tol'])
             print(enum_tol)
         seperator = ','
-        if 'seperator' in input_json: 
+        if 'seperator' in input_json:
             seperator = str(input_json['seperator'])
         res = determine_datatypes(filepath,enum,enum_tol,seperator)
-    except e: 
+    except Exception as e:
         print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/checkcsv', methods=["POST"])
+@app.route('/determinepk', methods=["POST"], endpoint='analyze_determinepk')
+@swag_from('/as-yml/determinepk.yml')
+def determinepk():
+    input_json = request.get_json()
+    try:
+        filepath = str(input_json['filepath'])
+        seperator = ','
+        if 'seperator' in input_json:
+            seperator = str(input_json['seperator'])
+        res = determine_pk(filepath,seperator)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
+@app.route('/checkcsv', methods=["POST"], endpoint='analyze_checkcsv')
 @swag_from('/as-yml/checkcsv.yml')
-def checkcsv(): 
-    input_json = request.get_json() 
-    try: 
+def checkcsv():
+    input_json = request.get_json()
+    try:
         filepath = str(input_json['filepath'])
         intdbname = str(input_json['intdbname'])
         dbhost = str(input_json['dbhost'])
         dbid = int(input_json['dbid'])
         tname = str(input_json['tname'])
-        header = True 
+        header = True
         if 'header' in input_json:
-            header = bool(input_json['header']) 
+            header = bool(input_json['header'])
         seperator = ','
-        if 'seperator' in input_json: 
+        if 'seperator' in input_json:
             seperator = str(input_json['seperator'])
         res = analysecsv(filepath,seperator,intdbname, dbhost, dbid, tname, header)
-    except e: 
+    except Exception as e:
         print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/importdatabase', methods=["POST"])
+@app.route('/update_mdb_db', methods=["POST"], endpoint='mdb_update_db')
 @swag_from('/as-yml/importdb.yml')
-def importdb(): 
-    input_json = request.get_json() 
-    try: 
-        cid=int(input_json['cid'])
+def importdb():
+    input_json = request.get_json()
+    try:
         dbid=int(input_json['dbid'])
         resourcetype = str(input_json['resourcetype'])
         description = str(input_json['description'])
         publisher = str(input_json['publisher'])
-        year = int(input_json['year'])
-        bool_open = True 
-        if 'bool_open' in input_json: 
-            bool_open = bool(input_json['bool_open'])
-        res = import_db(cid,dbid, resourcetype, description, publisher,year,bool_open)
-    except e:
+        res = insert_mdb_db(dbid, resourcetype, description, publisher)
+    except Exception as e:
         print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/importdata', methods=["POST"])
-@swag_from('/as-yml/importdata.yml')
-def importdb1(): 
-    input_json = request.get_json() 
-    try: 
-        res = ok 
-    except: 
+@app.route('/update_mdb_tbl', methods=["POST"], endpoint='mdb_update_tbl')
+@swag_from('/as-yml/importtbl.yml')
+def importtbl():
+    input_json = request.get_json()
+    try:
+        dbid=int(input_json['dbid'])
+        res = insert_mdb_tbl(dbid)
+    except Exception as e:
+        print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/updatecolumns', methods=["POST"])
-@swag_from('/as-yml/updatecol.yml')
-def importdb2(): 
-    input_json = request.get_json() 
-    try: 
-        res = ok 
-    except: 
+@app.route('/update_mdb_db_ispublic', methods=["POST"], endpoint='mdb_ispublic')
+@swag_from('/as-yml/updateispub.yml')
+def updateispublic():
+    input_json = request.get_json()
+    try:
+        dbid=int(input_json['dbid'])
+        ispublic=bool(input_json['is_public'])
+        res = insert_mdb_db_pub(dbid, ispublic)
+    except Exception as e:
+        print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
-        
+
+@app.route('/update_mdb_columns_num_siunit', methods=["POST"], endpoint='mdb_columns_num')
+@swag_from('/as-yml/updatesiunit.yml')
+def updatesiunit():
+    input_json = request.get_json()
+    try:
+        dbid=int(input_json['dbid'])
+        tid=int(input_json['tid'])
+        cid=int(input_json['cid'])
+        siunit=str(input_json['siunit'])
+        res = update_mdb_siunit(dbid,tid,cid,siunit)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
+@app.route('/update_mdb_data_provenance', methods=["POST"], endpoint='mdb_update_data_provenance')
+@swag_from('/as-yml/updatedata.yml')
+def updatesdataprovenance():
+    input_json = request.get_json()
+    try:
+        dataid=int(input_json['dataid'])
+        prov=str(input_json['provenance'])
+        res = update_mdb_data(dataid,prov)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
+#@app.route('/insert_mdb_col', methods=["POST"], endpoint='mdb_insert_col')
+#@swag_from('/as-yml/importcol.yml')
+#def importcol():
+#    input_json = request.get_json()
+#    try:
+#        dbid=int(input_json['dbid'])
+#        tid=int(input_json['tid'])
+#        res = insert_mdb_col(dbid,tid)
+#    except Exception as e:
+#        print(e)
+#        res = {"success": False, "message": "Unknown error"}
+#    return jsonify(res), 200
+
+@app.route('/update_mdb_col', methods=["POST"], endpoint='mdb_update_col')
+@swag_from('/as-yml/updatecol.yml')
+def updatecol(): 
+    input_json = request.get_json() 
+    try: 
+        dbid=int(input_json['dbid'])
+        tid=int(input_json['tid'])
+        cid=int(input_json['cid'])
+        res = update_mdb_col(dbid,tid,cid)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"}
+    return jsonify(res), 200
+
 rest_server_port = 5000
 eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
                    app_name="fda-analyse-service",
-                   instance_port=rest_server_port)    
-    
+                   instance_port=rest_server_port)
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

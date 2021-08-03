@@ -3,6 +3,8 @@ package at.tuwien.endpoint;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.api.database.DatabaseDto;
+import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.endpoints.DatabaseEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.service.DatabaseService;
@@ -47,7 +49,8 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws DatabaseConnectionException, ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
+    public void create_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
+            DatabaseMalformedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -64,7 +67,8 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_containerNotFound_fails() throws DatabaseConnectionException, ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
+    public void create_containerNotFound_fails() throws ImageNotSupportedException, ContainerNotFoundException,
+            DatabaseMalformedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -80,7 +84,8 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_imageNotSupported_fails() throws DatabaseConnectionException, ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
+    public void create_imageNotSupported_fails() throws ImageNotSupportedException, ContainerNotFoundException,
+            DatabaseMalformedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -96,43 +101,11 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_noConnection_fails() throws DatabaseConnectionException, ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
-        final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(CONTAINER_1_ID)
-                .name(CONTAINER_1_NAME)
-                .build();
-
-        when(databaseService.create(request))
-                .thenThrow(DatabaseConnectionException.class);
-
-        /* test */
-        assertThrows(DatabaseConnectionException.class, () -> {
-            databaseEndpoint.create(request);
-        });
-    }
-
-    @Test
-    public void create_syntaxInvalid_fails() throws DatabaseConnectionException, ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
-        final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(CONTAINER_1_ID)
-                .name(CONTAINER_1_NAME)
-                .build();
-
-        when(databaseService.create(request))
-                .thenThrow(DatabaseMalformedException.class);
-
-        /* test */
-        assertThrows(DatabaseMalformedException.class, () -> {
-            databaseEndpoint.create(request);
-        });
-    }
-
-    @Test
     public void findById_succeeds() throws DatabaseNotFoundException {
         when(databaseService.findById(DATABASE_1_ID))
                 .thenReturn(DATABASE_1);
 
-        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.findById(DATABASE_1_ID);
+        final ResponseEntity<DatabaseDto> response = databaseEndpoint.findById(DATABASE_1_ID);
 
         /* test */
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -151,26 +124,35 @@ public class EndpointUnitTest extends BaseUnitTest {
         });
     }
 
-    @Disabled(value = "not implemented yet")
     @Test
-    public void modify_succeeds() {
-        //
-    }
+    public void modify_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
+            DatabaseMalformedException {
+        final DatabaseModifyDto request = DatabaseModifyDto.builder()
+                .databaseId(DATABASE_1_ID)
+                .name("NAME")
+                .isPublic(true)
+                .build();
 
-    @Disabled(value = "not implemented yet")
-    @Test
-    public void modify_malformedPayload_fails() {
-        //
-    }
-
-    @Disabled(value = "not implemented yet")
-    @Test
-    public void modify_notFound_fails() {
-        //
+        /* test */
+        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.modify(CONTAINER_1_ID, request);
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
 
     @Test
-    public void delete_succeeds() throws DatabaseConnectionException, DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
+    public void modify_notFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
+            DatabaseMalformedException {
+        final DatabaseModifyDto request = DatabaseModifyDto.builder()
+                .databaseId(9999L)
+                .build();
+
+        /* test */
+        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.modify(CONTAINER_1_ID, request);
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+    }
+
+    @Test
+    public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
+            DatabaseMalformedException {
         final ResponseEntity<?> response = databaseEndpoint.delete(DATABASE_1_ID);
 
         /* test */
@@ -178,19 +160,8 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_invalidSyntax_fails() throws DatabaseConnectionException, DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
-        willThrow(DatabaseMalformedException.class)
-                .given(databaseService)
-                .delete(DATABASE_1_ID);
-
-        /* test */
-        assertThrows(DatabaseMalformedException.class, () -> {
-            databaseEndpoint.delete(DATABASE_1_ID);
-        });
-    }
-
-    @Test
-    public void delete_invalidImage_fails() throws DatabaseConnectionException, DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
+    public void delete_invalidImage_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
+            DatabaseMalformedException {
         willThrow(ImageNotSupportedException.class)
                 .given(databaseService)
                 .delete(DATABASE_1_ID);
@@ -202,7 +173,8 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_notFound_fails() throws DatabaseConnectionException, DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
+    public void delete_notFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
+            DatabaseMalformedException {
         willThrow(DatabaseNotFoundException.class)
                 .given(databaseService)
                 .delete(DATABASE_1_ID);
@@ -213,15 +185,4 @@ public class EndpointUnitTest extends BaseUnitTest {
         });
     }
 
-    @Test
-    public void delete_noConnection_fails() throws DatabaseConnectionException, DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
-        willThrow(DatabaseConnectionException.class)
-                .given(databaseService)
-                .delete(DATABASE_1_ID);
-
-        /* test */
-        assertThrows(DatabaseConnectionException.class, () -> {
-            databaseEndpoint.delete(DATABASE_1_ID);
-        });
-    }
 }

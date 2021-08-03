@@ -17,17 +17,17 @@ import java.time.Instant;
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "mdb_environment_item")
+@Table(name = "mdb_image_environment_item")
 public class ContainerImageEnvironmentItem {
 
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "environment-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "environment-sequence",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_environment_item_seq")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_image_environment_item_seq")
     )
     public Long id;
 
@@ -38,6 +38,11 @@ public class ContainerImageEnvironmentItem {
     @ToString.Include
     @Column(nullable = false)
     private String value;
+
+    @ToString.Include
+    @Column(nullable = false, name = "etype", columnDefinition = "enum('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER')")
+    @Enumerated(EnumType.STRING)
+    private ContainerImageEnvironmentItemType type;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

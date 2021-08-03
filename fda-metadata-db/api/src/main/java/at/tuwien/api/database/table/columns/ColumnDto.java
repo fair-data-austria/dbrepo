@@ -15,8 +15,12 @@ import javax.validation.constraints.NotNull;
 public class ColumnDto {
 
     @NotBlank
-    @ApiModelProperty(name = "name", example = "Price Limit")
+    @ApiModelProperty(name = "name", example = "Date")
     private String name;
+
+    @NotBlank
+    @ApiModelProperty(name = "internal name", example = "mdb_date")
+    private String internalName;
 
     @NotNull
     @ApiModelProperty(name = "primary key", example = "true")
@@ -27,13 +31,23 @@ public class ColumnDto {
     private ColumnTypeDto columnType;
 
     @NotNull
+    @ApiModelProperty(name = "unique", example = "true")
+    private Boolean unique;
+
+    @NotNull
     @ApiModelProperty(name = "null allowed", example = "true")
     private Boolean isNullAllowed;
 
-    @ApiModelProperty(name = "check constraint", example = "Price Limit > 0")
+    @ApiModelProperty(name = "check constraint", example = "Price Limit > 0", hidden = true)
     private String checkExpression;
 
-    @ApiModelProperty(name = "foreign key")
+    @ApiModelProperty(name = "foreign key", hidden = true)
     private String foreignKey;
+
+    @ApiModelProperty(name = "foreign key reference, only considered when foreignKey != null", example = "null")
+    private String references;
+
+    @ApiModelProperty(name = "enum values, only considered when type = ENUM", example = "[\"male\",\"female\",\"other\"]")
+    private String[] enumValues;
 
 }

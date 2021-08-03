@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Generated ###
+mapping.xml
+rest-service/src/main/java/at/tuwien/userdb/Table.java
+
 ### STS ###
 .apt_generated
 .classpath

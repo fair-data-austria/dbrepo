@@ -7,6 +7,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -17,15 +18,15 @@ import javax.validation.constraints.NotNull;
 public class TableCreateDto {
 
     @NotBlank
-    @ApiModelProperty(name = "name", example = "Fundamentals")
+    @ApiModelProperty(name = "name", example = "Weather Australia")
     private String name;
 
     @NotBlank
-    @Parameter(name = "table description", required = true, example = "SEC 10K annual fillings (2016-2012) ")
+    @ApiModelProperty(name = "table description", required = true, example = "Predict next-day rain in Australia", notes = "https://www.kaggle.com/jsphyg/weather-dataset-rattle-package")
     private String description;
 
     @NotNull
-    @Parameter(name = "table columns", required = true)
+    @ApiModelProperty(name = "table columns", required = true, example = "[{\"checkExpression\":null,\"foreignKey\":null,\"name\":\"id\",\"nullAllowed\":false,\"primaryKey\":true,\"type\":\"NUMBER\",\"unique\":true,\"enumValues\":[]},{\"checkExpression\":null,\"foreignKey\":null,\"name\":\"Date\",\"nullAllowed\":true,\"primaryKey\":false,\"type\":\"DATE\",\"unique\":false,\"enumValues\":[]},{\"checkExpression\":null,\"foreignKey\":null,\"name\":\"Location\",\"nullAllowed\":true,\"primaryKey\":false,\"type\":\"STRING\",\"unique\":false,\"enumValues\":[]},{\"checkExpression\":null,\"foreignKey\":null,\"name\":\"MinTemp\",\"nullAllowed\":true,\"primaryKey\":false,\"type\":\"NUMBER\",\"unique\":false,\"enumValues\":[]},{\"checkExpression\":null,\"foreignKey\":null,\"name\":\"MaxTemp\",\"nullAllowed\":true,\"primaryKey\":false,\"type\":\"NUMBER\",\"unique\":false,\"enumValues\":[]},{\"checkExpression\":null,\"foreignKey\":null,\"name\":\"Rainfall\",\"nullAllowed\":true,\"primaryKey\":false,\"type\":\"NUMBER\",\"unique\":false,\"enumValues\":[]}]")
     private ColumnCreateDto[] columns;
 
 }

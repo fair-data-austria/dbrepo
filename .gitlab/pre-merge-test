@@ -13,8 +13,7 @@ SERVICES="container
 # 1) Docker
 echo -e "\e[96m1\e[39m) Docker"
 echo "Building all"
-docker-compose build fda-metadata-db > /dev/null 2>&1
-docker-compose build --parallel > /dev/null 2>&1
+docker-compose build > /dev/null 2>&1
 
 if [[ $? -ne 0 ]]; then
   echo -e "... \e[91mNOT OK\e[39m"
@@ -24,6 +23,8 @@ fi
 
 # 2) Maven
 echo -e "\e[96m2\e[39m) Maven"
+
+mvn -f ./fda-metadata-db/pom.xml clean install > /dev/null 2>&1
 
 for service in $SERVICES; do
   echo "Testing ./fda-${service}-service"

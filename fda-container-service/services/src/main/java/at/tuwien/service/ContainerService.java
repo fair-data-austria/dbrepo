@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.ContainerStateDto;
+import at.tuwien.api.container.network.IpAddressDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
@@ -25,6 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.net.*;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -88,8 +92,8 @@ public class ContainerService {
         }
         container.setHash(response.getId());
         container = containerRepository.save(container);
-        log.info("Created container with hash {}", container.getHash());
-        log.debug("container created {}", container);
+        log.info("Created container {}", container.getId());
+        log.debug("created container {}", container);
         return container;
     }
 
@@ -101,10 +105,14 @@ public class ContainerService {
         }
         try {
             dockerClient.stopContainerCmd(container.get().getHash()).exec();
-        } catch (NotFoundException | NotModifiedException e) {
+        } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
+        } catch (NotModifiedException e) {
+            log.warn("container already stopped {}", e.getMessage());
+            throw new DockerClientException("container already stopped", e);
         }
+        log.info("Stopped container {}", containerId);
         log.debug("Stopped container {}", container.get());
         return container.get();
     }
@@ -118,15 +126,19 @@ public class ContainerService {
         }
         try {
             dockerClient.removeContainerCmd(container.get().getHash()).exec();
-        } catch (NotFoundException | NotModifiedException e) {
+        } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
+        } catch (NotModifiedException e) {
+            log.warn("container already removed {}", e.getMessage());
+            throw new DockerClientException("container already removed", e);
         } catch (ConflictException e) {
             log.error("Could not remove container: {}", e.getMessage());
             throw new ContainerStillRunningException("docker client failed", e);
         }
         containerRepository.deleteById(containerId);
-        log.debug("Removed container {}", containerId);
+        log.info("Removed container {}", containerId);
+        log.debug("Removed container {}", container.get());
     }
 
     @Transactional
@@ -137,6 +149,33 @@ public class ContainerService {
             throw new ContainerNotFoundException("no container with this id in metadata database");
         }
         return container.get();
+    }
+
+    /**
+     * Packs the container state into a response dto, return less information when the container is not running
+     *
+     * @param container The container
+     * @param out       The response dto
+     * @return Information about the container
+     * @throws DockerClientException Upon failure to communicate with the Docker daemon
+     */
+    public ContainerDto packInspectResponse(Container container, ContainerDto out) throws DockerClientException {
+        final ContainerStateDto stateDto = getContainerState(container.getHash());
+        try {
+            out.setState(stateDto);
+        } catch (NullPointerException e) {
+            throw new DockerClientException("Could not get container state");
+        }
+        try {
+            findIpAddresses(container.getHash())
+                    .forEach((key, value) -> out.setIpAddress(IpAddressDto.builder()
+                            .ipv4(value)
+                            .build()));
+        } catch (ContainerNotRunningException e) {
+            log.warn("could not get container ip: {}", e.getMessage());
+            return out;
+        }
+        return out;
     }
 
     @Transactional
@@ -152,14 +191,24 @@ public class ContainerService {
      */
     @Transactional
     public Container start(Long containerId) throws ContainerNotFoundException, DockerClientException {
-        Container container = getById(containerId);
+        final Optional<Container> container = containerRepository.findById(containerId);
+        if (container.isEmpty()) {
+            log.error("failed to get container with id {}", containerId);
+            throw new ContainerNotFoundException("no container with this id in metadata database");
+        }
         try {
-            dockerClient.startContainerCmd(container.getHash()).exec();
-        } catch (NotFoundException | NotModifiedException e) {
+            dockerClient.startContainerCmd(container.get().getHash())
+                    .exec();
+        } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
+        } catch (NotModifiedException e) {
+            log.warn("container already started {}", e.getMessage());
+            throw new DockerClientException("container already started", e);
         }
-        return container;
+        log.info("Started container {}", containerId);
+        log.debug("Started container {}", container);
+        return container.get();
     }
 
     public Map<String, String> findIpAddresses(String containerHash) throws ContainerNotFoundException, ContainerNotRunningException {
@@ -173,7 +222,6 @@ public class ContainerService {
         }
         final Map<String, String> networks = new HashMap<>();
         if (!response.getState().getRunning()) {
-            log.warn("cannot get IPv4 of container that is not running");
             throw new ContainerNotRunningException("container is not running");
         }
         response.getNetworkSettings()
@@ -195,7 +243,7 @@ public class ContainerService {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
         }
-        log.debug("received container state {}", response);
+        log.debug("received container state {}", response.getState());
         final ContainerDto dto = containerMapper.inspectContainerResponseToContainerDto(response);
         return dto.getState();
     }

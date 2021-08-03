@@ -8,6 +8,7 @@ import at.tuwien.api.container.network.IpAddressDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
+import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigInteger;
@@ -25,91 +26,125 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_TAG = "13-alpine";
     public final static String IMAGE_1_HASH = "83b40f2726e5";
     public final static Integer IMAGE_1_PORT = 5432;
+    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.PostgreSQLDialect";
+    public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
+    public final static String IMAGE_1_JDBC = "postgresql";
     public final static Long IMAGE_1_SIZE = 12000L;
+    public final static String IMAGE_1_LOGO = "AAAA";
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .build());
     public final static ImageEnvItemDto[] IMAGE_1_ENV_DTO = List.of(ImageEnvItemDto.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ImageEnvItemTypeDto.USERNAME)
                     .build(),
             ImageEnvItemDto.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ImageEnvItemTypeDto.PASSWORD)
                     .build())
             .toArray(new ImageEnvItemDto[0]);
     public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
             "POSTGRES_PASSWORD=postgres");
 
+    public final static Long IMAGE_2_ID = 2L;
     public final static String IMAGE_2_REPOSITORY = "redis";
     public final static String IMAGE_2_TAG = "latest";
     public final static String IMAGE_2_HASH = "f877e80bb9ef";
     public final static Integer IMAGE_2_PORT = 6379;
+    public final static String IMAGE_2_DIALECT = "org.hibernate.dialect.SQLServerDialect";
+    public final static String IMAGE_2_DRIVER = "redis.clients.Jedis";
+    public final static String IMAGE_2_JDBC = "redis";
     public final static Long IMAGE_2_SIZE = 24000L;
+    public final static String IMAGE_2_LOGO = "BBBB";
     public final static Instant IMAGE_2_BUILT = Instant.now().minus(9, DAYS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_2_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .build());
     public final static ImageEnvItemDto[] IMAGE_2_ENV_DTO = List.of(ImageEnvItemDto.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
+                    .type(ImageEnvItemTypeDto.USERNAME)
                     .build(),
             ImageEnvItemDto.builder()
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
+                    .type(ImageEnvItemTypeDto.PASSWORD)
                     .build())
             .toArray(new ImageEnvItemDto[0]);
 
     public final static ContainerImage IMAGE_1 = ContainerImage.builder()
-            .id(1L)
+            .id(IMAGE_1_ID)
             .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
             .hash(IMAGE_1_HASH)
+            .jdbcMethod(IMAGE_1_JDBC)
+            .dialect(IMAGE_1_DIALECT)
+            .driverClass(IMAGE_1_DRIVER)
             .compiled(IMAGE_1_BUILT)
             .size(IMAGE_1_SIZE)
             .environment(IMAGE_1_ENV)
             .defaultPort(IMAGE_1_PORT)
+            .logo(IMAGE_1_LOGO)
             .build();
 
     public final static ImageDto IMAGE_1_DTO = ImageDto.builder()
             .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
             .hash(IMAGE_1_HASH)
+            .jdbcMethod(IMAGE_1_JDBC)
+            .dialect(IMAGE_1_DIALECT)
+            .driverClass(IMAGE_1_DRIVER)
             .compiled(IMAGE_1_BUILT)
             .size(BigInteger.valueOf(IMAGE_1_SIZE))
             .environment(IMAGE_1_ENV_DTO)
             .defaultPort(IMAGE_1_PORT)
+            .logo(IMAGE_2_LOGO)
             .build();
 
     public final static ContainerImage IMAGE_2 = ContainerImage.builder()
+            .id(IMAGE_2_ID)
             .repository(IMAGE_2_REPOSITORY)
             .tag(IMAGE_2_TAG)
             .hash(IMAGE_2_HASH)
+            .jdbcMethod(IMAGE_2_JDBC)
+            .dialect(IMAGE_2_DIALECT)
+            .driverClass(IMAGE_2_DRIVER)
             .compiled(IMAGE_2_BUILT)
             .size(IMAGE_2_SIZE)
             .environment(IMAGE_2_ENV)
             .defaultPort(IMAGE_2_PORT)
+            .logo(IMAGE_2_LOGO)
             .build();
 
     public final static ImageDto IMAGE_2_DTO = ImageDto.builder()
             .repository(IMAGE_2_REPOSITORY)
             .tag(IMAGE_2_TAG)
             .hash(IMAGE_2_HASH)
+            .jdbcMethod(IMAGE_2_JDBC)
+            .dialect(IMAGE_2_DIALECT)
+            .driverClass(IMAGE_2_DRIVER)
             .size(BigInteger.valueOf(IMAGE_2_SIZE))
             .compiled(IMAGE_2_BUILT)
             .environment(IMAGE_2_ENV_DTO)
             .defaultPort(IMAGE_2_PORT)
+            .logo(IMAGE_2_LOGO)
             .build();
 
     public final static Long CONTAINER_1_ID = 1L;
@@ -122,12 +157,12 @@ public abstract class BaseUnitTest {
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Long CONTAINER_2_ID = 2L;
-    public final static String CONTAINER_2_HASH = "0ff1ce";
+    public static String CONTAINER_2_HASH = "0ff1ce";
     public final static ContainerImage CONTAINER_2_IMAGE = IMAGE_2;
     public final static String CONTAINER_2_NAME = "fda-userdb-t01";
     public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-t01";
     public final static String CONTAINER_2_DATABASE = "tuw";
-    public final static String CONTAINER_2_IP = "172.28.0.8";
+    public final static String CONTAINER_2_IP = "172.28.0.6";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Container CONTAINER_1 = Container.builder()
@@ -191,6 +226,13 @@ public abstract class BaseUnitTest {
             .tag(IMAGE_1_TAG)
             .environment(IMAGE_1_ENV_DTO)
             .defaultPort(IMAGE_1_PORT)
+            .build();
+
+    public final static ImageCreateDto IMAGE_2_CREATE_DTO = ImageCreateDto.builder()
+            .repository(IMAGE_2_REPOSITORY)
+            .tag(IMAGE_2_TAG)
+            .environment(IMAGE_2_ENV_DTO)
+            .defaultPort(IMAGE_2_PORT)
             .build();
 
     public final static ContainerCreateRequestDto CONTAINER_1_CREATE_DTO = ContainerCreateRequestDto.builder()

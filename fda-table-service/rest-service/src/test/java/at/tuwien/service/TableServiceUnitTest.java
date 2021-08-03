@@ -1,29 +1,27 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.table.TableBriefDto;
-import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableDto;
-import at.tuwien.endpoints.TableEndpoint;
-import at.tuwien.entities.database.Database;
+import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
+import com.opencsv.exceptions.CsvException;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.SQLException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,18 +41,17 @@ public class TableServiceUnitTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
-    @MockBean
-    private PostgresService postgresService;
-
     @BeforeAll
     public static void beforeAll() {
         TABLE_1.setDatabase(DATABASE_1);
     }
 
     @Test
-    public void findAll_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
+    public void findAll_succeeds() throws DatabaseNotFoundException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabase(DATABASE_1))
+                .thenReturn(List.of(TABLE_1));
 
         /* test */
         final List<Table> response = tableService.findAll(DATABASE_1_ID);
@@ -73,23 +70,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
         });
     }
 
-    @Disabled("invalid mock")
-    @Test
-    public void delete_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DataProcessingException, DatabaseNotFoundException, ImageNotSupportedException {
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        doNothing()
-                .when(postgresService)
-                .deleteTable(TABLE_1);
-        doNothing()
-                .when(tableRepository)
-                .deleteById(TABLE_1_ID);
-
-        /* test */
-        tableService.delete(DATABASE_1_ID, TABLE_1_ID);
-    }
-
     @Test
     public void delete_notFound_fails() {
         when(databaseRepository.findById(DATABASE_1_ID))
@@ -97,27 +77,12 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.delete(DATABASE_1_ID, TABLE_1_ID);
+            tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
     @Test
-    public void delete_noConnection_fails() throws DatabaseConnectionException, TableMalformedException,
-            DataProcessingException {
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        doAnswer(invocation -> new TableMalformedException("no connection"))
-                .when(postgresService)
-                .deleteTable(TABLE_1);
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
-            tableService.delete(DATABASE_1_ID, TABLE_1_ID);
-        });
-    }
-
-    @Test
-    public void delete_noSql_fails() throws DataProcessingException {
+    public void delete_noSql_fails() {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -125,7 +90,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            tableService.delete(DATABASE_1_ID, TABLE_1_ID);
+            tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
@@ -156,58 +121,45 @@ public class TableServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .columns(COLUMNS5)
-                .description(TABLE_1_DESCRIPTION)
+    public void readCsv_succeeds() throws IOException, CsvException {
+        final MultipartFile file = new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath()));
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(true)
+                .nullElement("NA")
                 .build();
-        when(tableRepository.save(any()))
-                .thenReturn(TABLE_1);
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        doNothing()
-                .when(postgresService)
-                .createTable(DATABASE_1, request);
 
         /* test */
-        final Table response = tableService.create(DATABASE_1_ID, request);
-        assertEquals(TABLE_1_ID, response.getId());
-        assertEquals(TABLE_1_NAME, response.getName());
+        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
+        assertEquals(1000, response.getData().size());
     }
 
-    @Disabled("cannot yet test private method")
     @Test
-    public void create_noPostgres_fails() {
-
-    }
-
-    @Disabled("cannot yet test private method")
-    @Test
-    public void create_noConnection_fails() {
-
-    }
-
-    @Disabled("invalid mock")
-    @Test
-    public void create_noSql_fails() throws DataProcessingException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .columns(COLUMNS5)
-                .description(TABLE_1_DESCRIPTION)
+    public void readCsv_nullElement_succeeds() throws IOException, CsvException {
+        final MultipartFile file = new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath()));
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(true)
+                .nullElement(null)
                 .build();
-        when(tableRepository.save(any()))
-                .thenReturn(TABLE_1);
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        doAnswer(invocation -> new TableMalformedException("no sql"))
-                .when(postgresService.getCreateTableStatement(any(), request));
 
         /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableService.create(DATABASE_1_ID, request);
-        });
+        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
+        assertEquals(1000, response.getData().size());
+    }
+
+    @Test
+    public void readCsv_skipheader_succeeds() throws IOException, CsvException {
+        final MultipartFile file = new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:weather-small.csv").toPath()));
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(false)
+                .nullElement(null)
+                .build();
+
+        /* test */
+        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
+        assertEquals(1001, response.getData().size());
     }
 
 }

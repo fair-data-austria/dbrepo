@@ -2,14 +2,19 @@ package at.tuwien.service;
 
 import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
+import at.tuwien.exception.PersistenceException;
 import at.tuwien.mapper.ImageMapper;
+import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.exception.InternalServerErrorException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.PullResponseItem;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.Persistence;
 import javax.validation.ConstraintViolationException;
 import java.time.Duration;
 import java.time.Instant;
@@ -32,12 +38,15 @@ public class ImageService {
 
     private final DockerClient dockerClient;
     private final ImageRepository imageRepository;
+    private final ContainerRepository containerRepository;
     private final ImageMapper imageMapper;
 
     @Autowired
-    public ImageService(DockerClient dockerClient, ImageRepository imageRepository, ImageMapper imageMapper) {
+    public ImageService(DockerClient dockerClient, ImageRepository imageRepository,
+                        ContainerRepository containerRepository, ImageMapper imageMapper) {
         this.dockerClient = dockerClient;
         this.imageRepository = imageRepository;
+        this.containerRepository = containerRepository;
         this.imageMapper = imageMapper;
     }
 
@@ -57,25 +66,33 @@ public class ImageService {
     }
 
     @Transactional
-    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException {
+    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException, DockerClientException {
         pull(createDto.getRepository(), createDto.getTag());
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
-        image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(createDto.getEnvironment()));
-        image.setDefaultPort(createDto.getDefaultPort());
-        log.debug("Create image {}", createDto);
-        final ContainerImage out;
-        try {
-            out = imageRepository.save(image);
-        } catch(ConstraintViolationException | DataIntegrityViolationException e) {
+        if (imageRepository.findByRepositoryAndTag(createDto.getRepository(), createDto.getTag()).isPresent()) {
             log.error("image already exists: {}", createDto);
             throw new ImageAlreadyExistsException("image already exists");
         }
+        image.setEnvironment(imageMapper.imageEnvironmentItemDtoToEnvironmentItemList(createDto.getEnvironment()));
+        image.setDefaultPort(createDto.getDefaultPort());
+        image.setDialect(createDto.getDialect());
+        image.setLogo(createDto.getLogo());
+        image.setDriverClass(createDto.getDriverClass());
+        image.setJdbcMethod(createDto.getJdbcMethod());
+        final ContainerImage out;
+        try {
+            out = imageRepository.save(image);
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            log.error("image already exists: {}", createDto);
+            throw new ImageAlreadyExistsException("image already exists");
+        }
+        log.info("Created image {}", out.getId());
         log.debug("created image {}", out);
         return out;
     }
 
     @Transactional
-    public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException {
+    public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException, DockerClientException {
         final ContainerImage image = getById(imageId);
         /* pull changes */
         pull(image.getRepository(), image.getTag());
@@ -92,22 +109,32 @@ public class ImageService {
         image.setCompiled(dockerImage.getCompiled());
         image.setHash(dockerImage.getHash());
         image.setSize(dockerImage.getSize());
-        log.debug("update image {}", image);
+        image.setDialect(changeDto.getDialect());
+        image.setDriverClass(changeDto.getDriverClass());
+        image.setJdbcMethod(changeDto.getJdbcMethod());
         /* update metadata db */
-        return imageRepository.save(image);
+        final ContainerImage out = imageRepository.save(image);
+        log.info("Updated image {}", out.getId());
+        log.debug("updated image {}", out);
+        return out;
     }
 
-    public void delete(Long id) throws ImageNotFoundException {
+    @Transactional
+    public void delete(Long id) throws ImageNotFoundException, PersistenceException {
         try {
             imageRepository.deleteById(id);
         } catch (EntityNotFoundException | EmptyResultDataAccessException e) {
-            log.error("image id {} not found in metadata database", id);
+            log.warn("image id {} not found in metadata database", id);
             throw new ImageNotFoundException("no image with this id found in metadata database.");
+        } catch (ConstraintViolationException e) {
+            throw new PersistenceException(e);
         }
-        log.info("deleted image with id {}", id);
+        log.info("Deleted image {}", id);
     }
 
-    /** HELPER FUNCTIONS */
+    /**
+     * HELPER FUNCTIONS
+     */
     private ContainerImage inspect(String repository, String tag) throws ImageNotFoundException {
         final InspectImageResponse response;
         try {
@@ -120,8 +147,7 @@ public class ImageService {
         return imageMapper.inspectImageResponseToContainerImage(response);
     }
 
-    private void pull(String repository, String tag) throws ImageNotFoundException {
-        log.debug("pulling image {}:{}", repository, tag);
+    private void pull(String repository, String tag) throws ImageNotFoundException, DockerClientException {
         final ResultCallback.Adapter<PullResponseItem> response;
         try {
             response = dockerClient.pullImageCmd(repository)
@@ -129,10 +155,12 @@ public class ImageService {
                     .start();
             final Instant now = Instant.now();
             response.awaitCompletion();
-            log.debug("waited {}s for pull of {}:{}", Duration.between(Instant.now(), now).getSeconds(), repository, tag);
+            log.debug("pulled image in {} seconds", Duration.between(now, Instant.now()).getSeconds());
         } catch (NotFoundException | InterruptedException e) {
-            log.error("image {}:{} not found in library", repository, tag);
+            log.warn("image {}:{} not found in library", repository, tag);
             throw new ImageNotFoundException("image not found in library", e);
+        } catch(InternalServerErrorException e) {
+            throw new DockerClientException("failed to pull from docker registry", e);
         }
     }
 

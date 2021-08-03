@@ -1,0 +1,23 @@
+summary: "Update entity mdb_tables in metadatabase"
+description: "Automatically updates the number of columns and rows of each table in a certain database in the repository and saves the information in the metadatabase (entity mdb_tables, attributes numcols and numrows)."
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "Updates the number of columns (numcols) and rows (numrows) of all tables of a certain database by specifing a database id (dbid) and write changes to the metadatabase. "
+  required: true
+  schema:
+    type: "object"
+    properties:
+      dbid: 
+        type: "integer"
+        example: 1
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    

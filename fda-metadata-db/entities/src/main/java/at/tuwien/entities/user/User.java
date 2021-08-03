@@ -26,9 +26,9 @@ public class User {
 	@EqualsAndHashCode.Include
 	@ToString.Include
 	@Column(name = "userid", columnDefinition = "numeric(19, 2)")
-	@GeneratedValue(generator = "sequence-per-entity")
+	@GeneratedValue(generator = "user-sequence")
 	@GenericGenerator(
-			name = "sequence-per-entity",
+			name = "user-sequence",
 			strategy = "enhanced-sequence",
 			parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_user_seq")
 	)

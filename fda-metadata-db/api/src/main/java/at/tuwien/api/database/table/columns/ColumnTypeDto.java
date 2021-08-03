@@ -6,5 +6,11 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum ColumnTypeDto {
-    ENUM, NUMBER, STRING, TEXT, BOOLEAN, DATE, BLOB
+    ENUM,
+    NUMBER,
+    STRING,
+    TEXT,
+    BOOLEAN,
+    DATE,
+    BLOB;
 }

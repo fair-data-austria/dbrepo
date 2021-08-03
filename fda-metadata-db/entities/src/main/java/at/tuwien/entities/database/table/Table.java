@@ -9,7 +9,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
@@ -28,9 +27,9 @@ public class Table {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "table-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "table-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_tables_seq")
     )
@@ -46,16 +45,20 @@ public class Table {
     private String name;
 
     @ToString.Include
-    @Column(nullable = false, unique = true)
-    private String internalName;
+    @Column(name = "tdescription")
+    private String description;
 
     @ToString.Include
+    @Column(nullable = false)
+    private String internalName;
+
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, mappedBy = "table")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "table")
     private List<TableColumn> columns;
 
     @Column(nullable = false, updatable = false)
@@ -65,6 +68,11 @@ public class Table {
     @Column
     @LastModifiedDate
     private Instant lastModified;
+
+    @PreRemove
+    public void preRemove() {
+        this.database = null;
+    }
 
 }
 
