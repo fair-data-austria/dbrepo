@@ -64,7 +64,8 @@ public class QueryService extends JdbcConnector {
         log.debug(result.toString());
 
         // Save the query in the store
-        queryStoreService.saveQuery(database, query, queryResultDto);
+        boolean b = queryStoreService.saveQuery(database, query, queryResultDto);
+        System.out.println(b);
         return queryResultDto;
     }
 
@@ -116,6 +117,7 @@ public class QueryService extends JdbcConnector {
                     log.debug("Please do not use * to query data");
                     continue;
                 }
+                // ignore prefixes
                 if(select.contains(".")) {
                     log.debug(select);
                     select = select.split("\\.")[1];
@@ -133,23 +135,11 @@ public class QueryService extends JdbcConnector {
                     throw new JSQLParserException("Column "+s.toString() + " does not exist");
                 }
             }
-
-            PlainSelect result = new PlainSelect();
-            result.setSelectItems(ps.getSelectItems());
-
-            result.setFromItem(ps.getFromItem());
-            //TODO extract from as a whole?
-            if(ps.getJoins()!=null) {
-                result.setJoins(ps.getJoins());
-            }
-
+            //TODO Future work
             if(ps.getWhere() != null) {
                 Expression where = ps.getWhere();
-                result.setWhere(where);
-
+                log.debug("Where clause: {}", where);
             }
-            selectItems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
-            query.setQueryNormalized(result.toString());
             return query;
         }
         else {
