@@ -111,10 +111,19 @@ public class QueryService extends JdbcConnector {
 
             //Checking if all columns exist
             for(SelectItem s : selectItems) {
+                String select = s.toString();
+                if(select.trim().equals("*")) {
+                    log.debug("Please do not use * to query data");
+                    continue;
+                }
+                if(select.contains(".")) {
+                    log.debug(select);
+                    select = select.split("\\.")[1];
+                }
                 boolean i = false;
                 for(TableColumn tc : allColumns ) {
                     log.debug("{},{},{}", tc.getInternalName(), tc.getName(), s);
-                    if(s.toString().equals(tc.getInternalName()) || s.toString().equals(tc.getName())) {
+                    if(select.equals(tc.getInternalName()) || select.toString().equals(tc.getName())) {
                         i=false;
                         break;
                     }
@@ -125,7 +134,6 @@ public class QueryService extends JdbcConnector {
                 }
             }
 
-            //TODO Validate if all columns and tables are in database
             PlainSelect result = new PlainSelect();
             result.setSelectItems(ps.getSelectItems());
 
