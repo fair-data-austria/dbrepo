@@ -1,0 +1,32 @@
+summary: "Update entity mdb_columns_num to metadatabase"
+description: "Update attribute siunit in metadatabase"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "Update attribute siunit (physical quatities for length, mass, ... ) in metadatabase"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      dbid: 
+        type: "integer"
+        example: 1
+      tid: 
+        type: "integer"
+        example: 1
+      cid: 
+        type: "integer"
+        example: 1
+      siunit: 
+        type: "string"
+        example: "m"
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    

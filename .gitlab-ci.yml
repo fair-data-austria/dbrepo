@@ -3,7 +3,11 @@ before_script:
   - "docker-compose version"
   - "mvn --version"
 
-cache: 
+variables:
+  HOSTALIASES: ./hosts
+  DOCKER_TLS_CERTDIR: /certs
+
+cache:
   paths: 
     - /root/.m2/repository/
     - /root/.npm/
@@ -12,13 +16,20 @@ image: "docker/compose:latest"
 
 stages: 
   - build
-  # - test-e2e
+  - test-e2e
   - test-backend
   - deploy
 
 build-docker:
   stage: build
   script:
+    - "docker image pull postgres:latest || true"
+    - "docker image pull mysql:latest || true"
+    - "docker image pull mariadb:latest || true"
+    - "docker-compose down || true"
+    - "docker container stop $(docker container ls -aq) || true"
+    - "docker container rm $(docker container ls -aq) || true"
+    - "docker volume rm $(docker volume ls -q) || true"
     - "docker-compose build"
 
 build-metadata-db:
@@ -26,20 +37,20 @@ build-metadata-db:
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
 
-# test-e2e:
-#   stage: test-e2e
-#   script:
-#     - "docker-compose up -d"
-#     - "docker exec fda-ui bash -c './scripts/wait.sh http://fda-database-service:9092/api/database/'"
-#     - "sleep 30"
-#     - "docker exec fda-ui yarn test"
-#   artifacts:
-#     when: always
-#     paths:
-#       - "fda-ui/videos/*"
-#     expire_in: 1 week
-#   variables:
-#     CI_DEBUG_TRACE: "true"
+test-e2e:
+  stage: test-e2e
+  script:
+    - "docker-compose up -d"
+    - "docker exec fda-ui bash -c './scripts/wait.sh http://fda-database-service:9092/api/database/'"
+    - "sleep 30"
+    - "docker exec fda-ui yarn test"
+  artifacts:
+    when: always
+    paths:
+      - "fda-ui/videos/*"
+    expire_in: 1 week
+  variables:
+    CI_DEBUG_TRACE: "true"
 
 test-backend-container:
   stage: test-backend
@@ -138,8 +149,6 @@ test-backend-table:
 deploy-all:
   stage: deploy
   script:
+    - "docker-compose down"
     - "docker-compose up -d"
     - "docker-compose down"
-
-variables: 
-  DOCKER_TLS_CERTDIR: /certs

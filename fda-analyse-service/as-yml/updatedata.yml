@@ -1,0 +1,26 @@
+summary: "Updates entity mdb_data from metadatabase"
+description: "This is a simple API which imports into entity DATA in metadatabase"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "Updates the data provenance of a provided dataset and stores information in the metadatabase. "
+  required: true
+  schema:
+    type: "object"
+    properties:
+      dataid:
+        type: "integer"
+        example : 1
+      PROVENANCE: 
+        type: "string"
+        example: "Geographical Institute of Vienna"
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    

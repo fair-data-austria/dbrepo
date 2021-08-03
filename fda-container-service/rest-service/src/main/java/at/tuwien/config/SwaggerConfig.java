@@ -18,7 +18,6 @@ public class SwaggerConfig {
     @Bean
     public Docket databaseApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("container-api")
                 .apiInfo(apiInfo())
                 .select()
                 .paths(PathSelectors.ant("/api/**"))

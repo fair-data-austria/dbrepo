@@ -26,25 +26,29 @@ public class Database {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "database-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "database-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_databases_seq")
     )
     private Long id;
 
-    @ToString.Include
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private Container container;
 
     @ToString.Include
     @Column(nullable = false)
     private String name;
 
-    @ToString.Exclude
+    @ToString.Include
     @Column(nullable = false)
     private String internalName;
+
+    @ToString.Include
+    @Column
+    private String description;
 
     @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

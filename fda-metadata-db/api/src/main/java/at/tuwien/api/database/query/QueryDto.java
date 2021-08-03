@@ -1,27 +1,31 @@
-package at.tuwien.api.database.query;
+package at.tuwien.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
+
+@Data
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class QueryDto {
-
     private Long id;
 
-    private Timestamp executionTimestamp;
+    private Timestamp execution_timestamp;
 
     private String query;
 
-    private String queryNormalized;
+    private String query_normalized;
 
-    private String queryHash;
+    private String query_hash;
 
-    private String resultHash;
+    private String result_hash;
 
-    private Integer resultNumber;
+    private Integer result_number;
 }

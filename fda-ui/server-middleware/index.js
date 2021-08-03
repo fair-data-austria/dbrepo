@@ -33,6 +33,7 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
     })
     analysis = await analysis.json()
     analysis = JSON.parse(analysis)
+    console.debug('analyzed', analysis)
   } catch (error) {
     return res.json({ success: false, error })
   }
@@ -48,7 +49,9 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
       name: k,
       type: v,
       nullAllowed: true,
-      primaryKey: false
+      primaryKey: false,
+      unique: null,
+      enumValues: []
     }
   })
 

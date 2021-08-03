@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.io.IOException;
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-public class QueryMalformedException extends IOException {
+public class QueryMalformedException extends Exception {
 
     public QueryMalformedException(String msg) {
         super(msg);

@@ -25,9 +25,9 @@ public class ContainerImage {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "image-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "image-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_image_seq")
     )
@@ -37,9 +37,25 @@ public class ContainerImage {
     @Column(nullable = false)
     private String repository;
 
+    @ToString.Exclude
+    @Column(nullable = false)
+    private String logo;
+
     @ToString.Include
     @Column(nullable = false)
     private String tag;
+
+    @ToString.Include
+    @Column
+    private String driverClass;
+
+    @ToString.Include
+    @Column
+    private String dialect;
+
+    @ToString.Include
+    @Column
+    private String jdbcMethod;
 
     @ToString.Include
     @Column(nullable = false)
@@ -61,6 +77,10 @@ public class ContainerImage {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ContainerImageEnvironmentItem> environment;
 
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "image")
+    private List<Container> containers;
+
     @Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant created;
@@ -68,5 +88,12 @@ public class ContainerImage {
     @Column
     @LastModifiedDate
     private Instant lastModified;
+
+    @PreRemove
+    public void preRemove() {
+        this.containers.forEach(container -> {
+            container.setImage(null);
+        });
+    }
 
 }

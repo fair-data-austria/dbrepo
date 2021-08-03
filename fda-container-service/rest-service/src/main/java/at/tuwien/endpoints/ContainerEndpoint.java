@@ -81,22 +81,8 @@ public class ContainerEndpoint {
     public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws DockerClientException, ContainerNotFoundException {
         final Container container = containerService.getById(id);
         final ContainerDto containerDto = containerMapper.containerToContainerDto(container);
-        try {
-            containerService.findIpAddresses(container.getHash())
-                    .forEach((key, value) -> containerDto.setIpAddress(IpAddressDto.builder()
-                            .ipv4(value)
-                            .build()));
-        } catch (ContainerNotRunningException e) {
-            throw new DockerClientException("Could not get container IP", e);
-        }
-        final ContainerStateDto stateDto = containerService.getContainerState(container.getHash());
-        try {
-            containerDto.setState(stateDto);
-        } catch (NullPointerException e) {
-            throw new DockerClientException("Could not get container state");
-        }
         return ResponseEntity.ok()
-                .body(containerDto);
+                .body(containerService.packInspectResponse(container, containerDto));
     }
 
     @Transactional
@@ -110,17 +96,15 @@ public class ContainerEndpoint {
     })
     public ResponseEntity<ContainerBriefDto> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
             throws ContainerNotFoundException, DockerClientException {
-        ContainerBriefDto container;
         if (changeDto.getAction().equals(ContainerActionTypeDto.START)) {
-            container = containerMapper.containerToDatabaseContainerBriefDto(containerService.start(id));
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(containerMapper.containerToDatabaseContainerBriefDto(containerService.start(id)));
         } else if (changeDto.getAction().equals(ContainerActionTypeDto.STOP)) {
-            container = containerMapper.containerToDatabaseContainerBriefDto(containerService.stop(id));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .build();
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(containerMapper.containerToDatabaseContainerBriefDto(containerService.stop(id)));
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(container);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .build();
     }
 
     @DeleteMapping("/{id}")

@@ -2,6 +2,7 @@ package at.tuwien.entities.database.table.columns;
 
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Entity
@@ -27,9 +29,9 @@ public class TableColumn {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    @GeneratedValue(generator = "sequence-per-entity")
+    @GeneratedValue(generator = "column-sequence")
     @GenericGenerator(
-            name = "sequence-per-entity",
+            name = "column-sequence",
             strategy = "enhanced-sequence",
             parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_columns_seq")
     )
@@ -71,7 +73,8 @@ public class TableColumn {
 
     @ToString.Include
     @Column(nullable = false, name = "datatype")
-    private String columnType;
+    @Enumerated(EnumType.STRING)
+    private TableColumnType columnType;
 
     @ToString.Include
     @Column(nullable = false)
@@ -79,15 +82,32 @@ public class TableColumn {
 
     @ToString.Include
     @Column
-    private String checkExpression;
+    private Boolean isUnique;
 
     @ToString.Include
     @Column
+    private String checkExpression;
+
+    @ToString.Include
+    @ElementCollection
+    @CollectionTable(name = "mdb_columns_enums", joinColumns = {
+            @JoinColumn(name = "id", insertable = false, updatable = false),
+            @JoinColumn(name = "tid", insertable = false, updatable = false),
+            @JoinColumn(name = "edbid", insertable = false, updatable = false)
+    })
+    private List<String> enumValues;
+
+    @ToString.Include
+    @Column(nullable = false)
     private Integer ordinalPosition;
 
     @ToString.Include
     @Column
     private String foreignKey;
+
+    @ToString.Include
+    @Column(name = "reference_table")
+    private String references;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

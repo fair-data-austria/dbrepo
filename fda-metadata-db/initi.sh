@@ -9,46 +9,55 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   BEGIN;
 	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 	CREATE TYPE accesstype AS ENUM ('R', 'W');
-		
-	CREATE SEQUENCE public.mdb_environment_item_seq
+	CREATE TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER');
+
+	CREATE CAST (character varying AS image_environment_type) WITH INOUT AS ASSIGNMENT;
+
+	CREATE SEQUENCE public.mdb_image_environment_item_seq
 	    START WITH 1
 	    INCREMENT BY 1
 	    NO MINVALUE
 	    NO MAXVALUE
 	    CACHE 1;
-	
-	CREATE TABLE public.mdb_environment_item (
-	    id bigint NOT NULL DEFAULT nextval('mdb_environment_item_seq'),
+
+	CREATE TABLE public.mdb_image_environment_item (
+	    id bigint NOT NULL DEFAULT nextval('mdb_image_environment_item_seq'),
 	    created timestamp without time zone NOT NULL,
 	    last_modified timestamp without time zone,
 	    key character varying(255) NOT NULL,
-	    value character varying(255) NOT NULL
+	    value character varying(255) NOT NULL,
+	    etype image_environment_type NOT NULL
 	);
-	
+
 	CREATE SEQUENCE public.mdb_image_seq
 	    START WITH 1
 	    INCREMENT BY 1
 	    NO MINVALUE
 	    NO MAXVALUE
 	    CACHE 1;
-	
+
 	CREATE TABLE public.mdb_image (
 		id bigint PRIMARY KEY DEFAULT nextval('mdb_image_seq'),
 		created timestamp without time zone NOT NULL,
 		last_modified timestamp without time zone,
 		compiled timestamp without time zone NOT NULL,
 		default_port integer NOT NULL,
+		logo TEXT NOT NULL,
 		hash character varying(255) NOT NULL,
+		dialect character varying(255) NOT NULL,
+		driver_class character varying(255) NOT NULL,
+		jdbc_method character varying(255),
 		repository character varying(255) NOT NULL,
 		size bigint NOT NULL,
-		tag character varying(255) NOT NULL
+		tag character varying(255) NOT NULL,
+		UNIQUE(repository, tag)
 	);
 
 	CREATE TABLE public.mdb_image_environment (
 		container_image_id bigint NOT NULL,
 		environment_id bigint NOT NULL
 	);
-	
+
 	CREATE SEQUENCE public.mdb_container_seq
 		START WITH 1
 		INCREMENT BY 1
@@ -62,8 +71,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MINVALUE
 		NO MAXVALUE
 		CACHE 1;
-	
-	CREATE TABLE IF NOT EXISTS mdb_CONTAINER ( 
+
+	CREATE TABLE IF NOT EXISTS mdb_CONTAINER (
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_container_seq'),
 		CONTAINER_CREATED timestamp without time zone NOT NULL,
 		CREATED timestamp without time zone NOT NULL,
@@ -75,7 +84,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		IMAGE_ID bigint REFERENCES mdb_image(id),
 		IP_ADDRESS character varying(255)
 	);
-	
+
 	CREATE SEQUENCE public.mdb_data_seq
 		START WITH 1
 		INCREMENT BY 1
@@ -83,16 +92,16 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MAXVALUE
 		CACHE 1;
 
-	CREATE TABLE IF NOT EXISTS mdb_DATA ( 
+	CREATE TABLE IF NOT EXISTS mdb_DATA (
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_data_seq'),
-		PROVENANCE TEXT, 
-		FileEncoding TEXT, 
+		PROVENANCE TEXT,
+		FileEncoding TEXT,
 		FileType VARCHAR(100),
 		Version TEXT,
 		Seperator TEXT
-	);  
+	);
 
-	CREATE TABLE IF NOT EXISTS mdb_USERS ( 
+	CREATE TABLE IF NOT EXISTS mdb_USERS (
 		UserID bigint PRIMARY KEY DEFAULT nextval('mdb_user_seq'),
 		TISS_ID bigint,
 		OID bigint,
@@ -104,22 +113,22 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		Main_Email TEXT,
 		created timestamp without time zone NOT NULL,
 		last_modified timestamp without time zone
-	); 
-	
+	);
+
 	CREATE SEQUENCE public.mdb_databases_seq
 		START WITH 1
 		INCREMENT BY 1
 		NO MINVALUE
 		NO MAXVALUE
 		CACHE 1;
-		
+
 	CREATE SEQUENCE public.mdb_tables_seq
 		START WITH 1
 		INCREMENT BY 1
 		NO MINVALUE
 		NO MAXVALUE
 		CACHE 1;
-		
+
 	CREATE SEQUENCE public.mdb_columns_seq
 		START WITH 1
 		INCREMENT BY 1
@@ -128,6 +137,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		CACHE 1;
 
   CREATE SEQUENCE public.mdb_queries_seq
+		START WITH 1
+		INCREMENT BY 1
+		NO MINVALUE
+		NO MAXVALUE
+		CACHE 1;
+
+  CREATE SEQUENCE public.mdb_columns_enum_seq
 		START WITH 1
 		INCREMENT BY 1
 		NO MINVALUE
@@ -147,31 +163,32 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     PRIMARY KEY(ID)
     );
 
-	CREATE TABLE IF NOT EXISTS mdb_DATABASES ( 
-		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'), 
+	CREATE TABLE IF NOT EXISTS mdb_DATABASES (
+		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'),
 		container_id bigint REFERENCES mdb_CONTAINER(id),
 		created timestamp without time zone NOT NULL,
-		name character varying(255) NOT NULL, 
+		name character varying(255) NOT NULL,
 		internal_name character varying(255) NOT NULL,
-		ResourceType TEXT, 
-		Description TEXT, 
-		Engine VARCHAR(20) DEFAULT 'Postgres', 
-		Publisher VARCHAR(50), 
-		Year DATE DEFAULT CURRENT_DATE, 
-		is_public BOOLEAN NOT NULL DEFAULT TRUE, 
-		last_modified timestamp without time zone, 
-		Creator INTEGER REFERENCES mdb_USERS(UserID), 
+		ResourceType TEXT,
+		Description TEXT,
+		Engine VARCHAR(20) DEFAULT 'Postgres',
+		Publisher VARCHAR(50),
+		Year DATE DEFAULT CURRENT_DATE,
+		is_public BOOLEAN NOT NULL DEFAULT TRUE,
+		last_modified timestamp without time zone,
+		Creator INTEGER REFERENCES mdb_USERS(UserID),
 		Contactperson INTEGER REFERENCES mdb_USERS(UserID)
-	); 
+	);
 
-	CREATE TABLE IF NOT EXISTS mdb_TABLES ( 
+	CREATE TABLE IF NOT EXISTS mdb_TABLES (
 		ID bigint NOT NULL DEFAULT nextval('mdb_tables_seq'),
-		tDBID bigint REFERENCES mdb_DATABASES(id), 
-		created timestamp without time zone NOT NULL, 
-		internal_name character varying(255) NOT NULL, 
-		last_modified timestamp without time zone, 
-		tName VARCHAR(50), 
-		NumCols INTEGER, 
+		tDBID bigint REFERENCES mdb_DATABASES(id),
+		created timestamp without time zone NOT NULL,
+		internal_name character varying(255) NOT NULL,
+		last_modified timestamp without time zone,
+		tName VARCHAR(50),
+		tDescription TEXT,
+		NumCols INTEGER,
 		NumRows INTEGER, 
 		Version TEXT,
 		PRIMARY KEY(tDBID,ID)
@@ -186,13 +203,27 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		Datatype VARCHAR(50), 
 		ordinal_position INTEGER,
 		is_primary_key BOOLEAN,
+		is_unique BOOLEAN,
 		is_null_allowed BOOLEAN,
-		foreign_key VARCHAR(50),
+		foreign_key VARCHAR(255),
+		reference_table VARCHAR(255),
 		check_expression character varying(255),
 		created timestamp without time zone NOT NULL,
 		last_modified timestamp without time zone,
 		FOREIGN KEY (cDBID,tID) REFERENCES mdb_TABLES(tDBID,ID), 
 		PRIMARY KEY(cDBID, tID, ID)
+	);
+
+	CREATE TABLE IF NOT EXISTS mdb_COLUMNS_ENUMS (
+		ID bigint DEFAULT nextval('mdb_columns_enum_seq'),
+		eDBID bigint,
+		tID bigint,
+		cID bigint,
+		enum_values CHARACTER VARYING(255) NOT NULL,
+		created timestamp without time zone NOT NULL,
+		last_modified timestamp without time zone,
+		FOREIGN KEY (eDBID, tID, cID) REFERENCES mdb_COLUMNS(cDBID, tID, ID),
+		PRIMARY KEY (ID)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS_nom ( 
