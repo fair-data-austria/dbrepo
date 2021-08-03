@@ -8,10 +8,7 @@ import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.ResultQuery;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +20,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
-import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.count;
+import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
 
 @Log4j2
@@ -46,8 +42,8 @@ public class QueryStoreService extends JdbcConnector {
     public QueryResultDto findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException, SQLException {
         Database database = findDatabase(id);
         DSLContext context = open(database);
-        ResultQuery<Record> resultQuery = context.selectQuery();
-        Result<Record> result = resultQuery.fetch();
+        ResultQuery<org.jooq.Record> resultQuery = context.selectQuery();
+        Result<org.jooq.Record> result = resultQuery.fetch();
         log.debug(result.toString());
         return queryMapper.recordListToQueryResultDto(context
                 .selectFrom(QUERYSTORENAME) //TODO Order after timestamps
@@ -90,15 +86,31 @@ public class QueryStoreService extends JdbcConnector {
         }
     }
 
-    public Query saveQuery(Database database, Query query, QueryResultDto queryResult) {
-        //TODO in next sprint
+    public Query saveQuery(Database database, Query query, QueryResultDto queryResult) throws SQLException, ImageNotSupportedException {
+        log.debug("Save Query");
         String q = query.getQuery();
         query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
         query.setQueryNormalized(normalizeQuery(query.getQuery()));
         query.setQueryHash(query.getQueryNormalized().hashCode() + "");
         query.setResultHash(query.getQueryHash());
         query.setResultNumber(0);
-        //saveQuery(database, query);
+
+        DSLContext context = open(database);
+        context.insertInto(table(QUERYSTORENAME))
+                .columns(field("id"),
+                        field("doi"),
+                        field("query"),
+                        field("query_hash"),
+                        field("execution_timestamp"),
+                        field("result_hash"),
+                        field("result_number"))
+                .values(maxId(database), "doi"+query.getId(), query.getQuery(), query.getQueryHash(), query.getExecutionTimestamp(), ""+queryResult.hashCode(), queryResult.getResult().size());
+        return null;
+    }
+
+    public Integer maxId(Database database) throws SQLException, ImageNotSupportedException {
+        DSLContext context = open(database);
+        Field<?> i = context.select(max(field("id"))).from(QUERYSTORENAME).fetch().get(0).field("id");
         return null;
     }
 
