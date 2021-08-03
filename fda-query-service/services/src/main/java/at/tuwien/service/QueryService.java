@@ -3,6 +3,8 @@ package at.tuwien.service;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
@@ -11,11 +13,8 @@ import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -26,13 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.StringReader;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.SQLDataType.*;
 
 @Log4j2
 @Service
@@ -82,7 +80,51 @@ public class QueryService extends JdbcConnector {
             Select selectStatement = (Select) statement;
             PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
             List<SelectItem> selectItems = ps.getSelectItems();
-            selectItems.stream().forEach(System.out::println);
+
+            //Parse all tables
+            List<FromItem> fromItems = new ArrayList<>();
+            fromItems.add(ps.getFromItem());
+            if(ps.getJoins() != null && ps.getJoins().size() > 0) {
+                for (Join j : ps.getJoins()) {
+                    if (j.getRightItem() != null) {
+                        fromItems.add(j.getRightItem());
+                    }
+                }
+            }
+            //Checking if all tables exist
+            List<TableColumn> allColumns = new ArrayList<>();
+            for(FromItem f : fromItems) {
+                boolean i = false;
+                log.debug("from item iterated through: {}", f);
+                for(Table t : database.getTables()) {
+                    if(f.toString().equals(t.getInternalName()) || f.toString().equals(t.getName())) {
+                        allColumns.addAll(t.getColumns());
+                        i=false;
+                        break;
+                    }
+                    i = true;
+                }
+                if(i) {
+                    throw new JSQLParserException("Table "+f.toString() + " does not exist");
+                }
+            }
+
+            //Checking if all columns exist
+            for(SelectItem s : selectItems) {
+                boolean i = false;
+                for(TableColumn tc : allColumns ) {
+                    log.debug("{},{},{}", tc.getInternalName(), tc.getName(), s);
+                    if(s.toString().equals(tc.getInternalName()) || s.toString().equals(tc.getName())) {
+                        i=false;
+                        break;
+                    }
+                    i = true;
+                }
+                if(i) {
+                    throw new JSQLParserException("Column "+s.toString() + " does not exist");
+                }
+            }
+
             //TODO Validate if all columns and tables are in database
             PlainSelect result = new PlainSelect();
             result.setSelectItems(ps.getSelectItems());
