@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,7 +87,7 @@ public class QueryStoreService extends JdbcConnector {
         }
     }
 
-    public Query saveQuery(Database database, Query query, QueryResultDto queryResult) throws SQLException, ImageNotSupportedException {
+    public boolean saveQuery(Database database, Query query, QueryResultDto queryResult) throws SQLException, ImageNotSupportedException {
         log.debug("Save Query");
         String q = query.getQuery();
         query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
@@ -94,9 +95,9 @@ public class QueryStoreService extends JdbcConnector {
         query.setQueryHash(query.getQueryNormalized().hashCode() + "");
         query.setResultHash(query.getQueryHash());
         query.setResultNumber(0);
-
+        query.setId(Long.valueOf(maxId(database))+1);
         DSLContext context = open(database);
-        context.insertInto(table(QUERYSTORENAME))
+        int success = context.insertInto(table(QUERYSTORENAME))
                 .columns(field("id"),
                         field("doi"),
                         field("query"),
@@ -104,14 +105,19 @@ public class QueryStoreService extends JdbcConnector {
                         field("execution_timestamp"),
                         field("result_hash"),
                         field("result_number"))
-                .values(maxId(database), "doi"+query.getId(), query.getQuery(), query.getQueryHash(), query.getExecutionTimestamp(), ""+queryResult.hashCode(), queryResult.getResult().size());
-        return null;
+                .values(query.getId(), "doi/"+query.getId(), query.getQuery(), query.getQueryHash(), query.getExecutionTimestamp(), ""+queryResult.hashCode(), queryResult.getResult().size()).execute();
+        return success == 1 ? true : false;
     }
 
     public Integer maxId(Database database) throws SQLException, ImageNotSupportedException {
         DSLContext context = open(database);
-        Field<?> i = context.select(max(field("id"))).from(QUERYSTORENAME).fetch().get(0).field("id");
-        return null;
+        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(context
+                .selectFrom(QUERYSTORENAME).orderBy(field("id").desc()).limit(1)
+                .fetch());
+        if(queryResultDto.getResult() == null || queryResultDto.getResult().size() == 0) {
+            return 0;
+        }
+        return (Integer) queryResultDto.getResult().get(0).get("id");
     }
 
     private String normalizeQuery(String query) {
