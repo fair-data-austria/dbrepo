@@ -55,4 +55,20 @@ public class QueryEndpoint {
         return ResponseEntity.ok(response);
     }
 
+    @Transactional
+    @GetMapping("/query/{queryId}")
+    @ApiOperation(value = "re-executes a query")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Re-Execute a saved query and return the results"),
+            @ApiResponse(code = 404, message = "The database does not exist."),
+            @ApiResponse(code = 405, message = "The container is not running."),
+            @ApiResponse(code = 409, message = "The container image is not supported."),})
+    public ResponseEntity<QueryResultDto> reexecute(@PathVariable Long id, @PathVariable Long queryId)
+            throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
+            JSQLParserException, QueryMalformedException, QueryStoreException {
+        final QueryResultDto response = queryService.reexecute(id, queryId);
+        System.out.println(response.toString());
+        return ResponseEntity.ok(response);
+    }
+
 }

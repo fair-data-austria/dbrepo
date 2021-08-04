@@ -51,6 +51,17 @@ public class QueryStoreService extends JdbcConnector {
                 .fetch());
     }
 
+    public QueryResultDto findOne(Long databaseId, Long queryId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+        Database database = findDatabase(databaseId);
+        DSLContext context = open(database);
+        ResultQuery<org.jooq.Record> resultQuery = context.selectQuery();
+        Result<org.jooq.Record> result = resultQuery.fetch();
+        log.debug(result.toString());
+        return queryMapper.recordListToQueryResultDto(context
+                .selectFrom(QUERYSTORENAME).where("id = "+ queryId)
+                .fetch());
+    }
+
     /**
      * Creates the querystore for a given database
      * @param databaseId
@@ -151,4 +162,9 @@ public class QueryStoreService extends JdbcConnector {
                 .fetchOne(0, int.class) == 1;
     }
 
+    //TODO Remove from here, is not necessary
+    @Override
+    public QueryResultDto reexecute(Long databaseId, Long queryId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+        return null;
+    }
 }

@@ -1,10 +1,12 @@
 package at.tuwien.service;
 
 
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.DatabaseConnectionException;
+import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryMalformedException;
 import at.tuwien.mapper.ImageMapper;
@@ -41,4 +43,5 @@ public abstract class JdbcConnector {
         return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
     }
 
+    public abstract QueryResultDto reexecute(Long databaseId, Long queryId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException;
 }
