@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -159,6 +161,25 @@ public class QueryService extends JdbcConnector {
     }
 
 
+    @Override
+    public QueryResultDto reexecute(Long databaseId, Long queryId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+        log.info("re-execute query with the id {}", queryId);
+        DSLContext context = open(findDatabase(databaseId));
+        //TODO Fix that import
+        QueryResultDto savedQuery = queryStoreService.findOne(databaseId, queryId);
+        StringBuilder query = new StringBuilder();
+        query.append((String)savedQuery.getResult().get(0).get("query"));
+        query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
+        Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
 
+        query.append(t.toLocalDateTime().toString());
+        query.append("';");
+        log.debug(query.toString());
+        ResultQuery<Record> resultQuery = context.resultQuery(query.toString());
+        Result<Record> result = resultQuery.fetch();
+        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
+        log.debug(result.toString());
 
+        return queryResultDto;
+    }
 }
