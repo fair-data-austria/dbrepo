@@ -32,20 +32,8 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     private DatabaseRepository databaseRepository;
 
 
-    /*
-    @Test
-    public void findAll_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseConnectionException, QueryMalformedException {
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(postgresService.getQueries(DATABASE_1))
-                .thenReturn(List.of(QUERY_1));
 
-        /* test
-        final List<Query> response = queryService.findAll(DATABASE_1_ID);
-        assertEquals(1, response.size());
-        assertEquals(QUERY_1_ID, response.get(0).getId());
-    } */
+
 
     /*
     @Test
