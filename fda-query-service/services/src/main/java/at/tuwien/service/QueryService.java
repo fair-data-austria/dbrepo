@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.jooq.impl.DSL.constraint;
@@ -74,7 +75,6 @@ public class QueryService extends JdbcConnector {
     private Query parse(Query query, Database database) throws SQLException, ImageNotSupportedException, JSQLParserException {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         query.setExecutionTimestamp(ts);
-
         CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
         Statement statement = parserRealSql.parse(new StringReader(query.getQuery()));
         log.debug("Given query {}", query.getQuery());

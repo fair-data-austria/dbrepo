@@ -1,5 +1,6 @@
 package at.tuwien.endpoint;
 
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,9 +42,13 @@ public class QueryStoreEndpoint {
             @ApiResponse(code = 400, message = "Problem with reading the stored queries."),
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
-    public ResponseEntity<QueryResultDto> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
+    public ResponseEntity<List<Query>> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
             ImageNotSupportedException, DatabaseConnectionException, QueryMalformedException, SQLException {
-        final QueryResultDto result = querystoreService.findAll(id);
+        final List<Query> result = querystoreService.findAll(id);
+        List<QueryDto> res = new ArrayList<>();
+        /*for(Query r : result) {
+            res.add(queryMapper.queryToQueryDto(r));
+        };*/
         return ResponseEntity.ok(result);
     }
 

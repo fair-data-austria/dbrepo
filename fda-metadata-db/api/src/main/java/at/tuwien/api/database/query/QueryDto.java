@@ -1,4 +1,4 @@
-package at.tuwien.dto;
+package at.tuwien.api.database.query;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +20,8 @@ public class QueryDto {
     private Timestamp execution_timestamp;
 
     private String query;
+
+    private String doi;
 
     private String query_normalized;
 

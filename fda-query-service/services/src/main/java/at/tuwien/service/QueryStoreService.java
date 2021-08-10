@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.jooq.impl.DSL.*;
@@ -40,13 +41,13 @@ public class QueryStoreService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException, SQLException {
+    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException, SQLException {
         Database database = findDatabase(id);
         DSLContext context = open(database);
         ResultQuery<org.jooq.Record> resultQuery = context.selectQuery();
         Result<org.jooq.Record> result = resultQuery.fetch();
         log.debug(result.toString());
-        return queryMapper.recordListToQueryResultDto(context
+        return queryMapper.recordListToQueryList(context
                 .selectFrom(QUERYSTORENAME) //TODO Order after timestamps
                 .fetch());
     }
@@ -101,9 +102,11 @@ public class QueryStoreService extends JdbcConnector {
     public boolean saveQuery(Database database, Query query, QueryResultDto queryResult) throws SQLException, ImageNotSupportedException {
         log.debug("Save Query");
         String q = query.getQuery();
+
+
         query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
         query.setQueryNormalized(normalizeQuery(query.getQuery()));
-        query.setQueryHash(query.getQueryNormalized().hashCode() + "");
+        query.setQueryHash(query.getQueryNormalized().toLowerCase(Locale.ROOT).hashCode() + "");
         query.setResultHash(query.getQueryHash());
         query.setResultNumber(0);
         query.setId(Long.valueOf(maxId(database))+1);
