@@ -64,11 +64,11 @@ public class QueryService extends JdbcConnector {
         ResultQuery<Record> resultQuery = context.resultQuery(parse(query,database).getQuery());
         Result<Record> result = resultQuery.fetch();
         QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
-        log.debug(result.toString());
+        log.debug("Result of the query is: \n {}", result.toString());
 
         // Save the query in the store
         boolean b = queryStoreService.saveQuery(database, query, queryResultDto);
-        System.out.println(b);
+        log.debug("Save query returned code {}", b);
         return queryResultDto;
     }
 
