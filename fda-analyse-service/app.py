@@ -21,6 +21,7 @@ import json
 from flasgger import Swagger
 from flasgger.utils import swag_from
 from flasgger import LazyString, LazyJSONEncoder
+from gevent.pywsgi import WSGIServer
 
 
 #logging.basicConfig()
@@ -220,5 +221,6 @@ eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:90
                    app_name="fda-analyse-service",
                    instance_port=rest_server_port)
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+if __name__ == '__main__':
+    http_server = WSGIServer(('', 5000), app)
+    http_server.serve_forever()
