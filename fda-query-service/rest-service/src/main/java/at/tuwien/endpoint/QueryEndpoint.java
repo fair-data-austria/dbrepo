@@ -67,7 +67,6 @@ public class QueryEndpoint {
             throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
             JSQLParserException, QueryMalformedException, QueryStoreException {
         final QueryResultDto response = queryService.reexecute(id, queryId);
-        System.out.println(response.toString());
         return ResponseEntity.ok(response);
     }
 
