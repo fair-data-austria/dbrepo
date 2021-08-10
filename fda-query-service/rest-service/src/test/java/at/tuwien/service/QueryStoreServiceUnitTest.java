@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -28,9 +29,12 @@ public class QueryStoreServiceUnitTest extends BaseUnitTest {
     @Autowired
     private QueryStoreService queryStoreService;
 
+    @Autowired
+    private QueryService queryService;
+
     @MockBean
     private DatabaseRepository databaseRepository;
-    /*
+
     @Test
     public void findAll_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseConnectionException, QueryMalformedException, SQLException {
@@ -44,5 +48,30 @@ public class QueryStoreServiceUnitTest extends BaseUnitTest {
         assertEquals(1, response.size());
         assertEquals(QUERY_1_ID, response.get(0).getId());
     }
-*/
+
+
+    @Test
+    public void findAll_notFound_fails() {
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.empty());
+
+        // test
+        assertThrows(DatabaseNotFoundException.class, () -> {
+            queryStoreService.findAll(DATABASE_1_ID);
+        });
+    }
+
+
+    @Test
+    public void findAll_noConnection_fails() throws DatabaseConnectionException, QueryMalformedException, SQLException, DatabaseNotFoundException, ImageNotSupportedException {
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+
+        /* test */
+        assertThrows(DatabaseConnectionException.class, () -> {
+            queryStoreService.findAll(DATABASE_2_ID);
+        });
+    }
+
+
 }

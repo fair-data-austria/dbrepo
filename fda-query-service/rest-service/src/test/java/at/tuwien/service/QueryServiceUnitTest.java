@@ -35,31 +35,6 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
 
 
-    /*
-    @Test
-    public void findAll_notFound_fails() {
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.empty());
-
-        // test
-        assertThrows(DatabaseNotFoundException.class, () -> {
-            queryService.findAll(DATABASE_1_ID);
-        });
-    }*/
-
-    /*
-    @Test
-    public void findAll_noConnection_fails() throws DatabaseConnectionException, QueryMalformedException {
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_2));
-        when(postgresService.getQueries(DATABASE_2))
-                .thenThrow(DatabaseConnectionException.class);
-
-        /* test
-        assertThrows(DatabaseConnectionException.class, () -> {
-            queryService.findAll(DATABASE_1_ID);
-        });
-    } */
 
     /*
     @Test
