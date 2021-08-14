@@ -10,18 +10,21 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+    open-in-view: false
   application:
     name: fda-query-service
   cloud:
     loadbalancer.ribbon.enabled: false
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
 server.port: 9093
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
     root: warn
-    at.: debug
+    at.tuwien.: debug
 eureka:
   instance.hostname: fda-query-service
-  server:
-    peer-node-read-timeout-ms: 200
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
