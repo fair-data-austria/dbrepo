@@ -65,7 +65,7 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
-            throws ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
+            throws ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException, BrokerMalformedException {
         final Database database = databaseService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));
@@ -109,7 +109,7 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<?> delete(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseMalformedException {
+            ImageNotSupportedException, DatabaseMalformedException, BrokerMalformedException {
         databaseService.delete(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();

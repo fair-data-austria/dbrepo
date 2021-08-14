@@ -2,12 +2,14 @@ package at.tuwien.api.container;
 
 import at.tuwien.api.container.image.ImageDto;
 import at.tuwien.api.container.network.IpAddressDto;
+import at.tuwien.api.database.DatabaseDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -36,6 +38,10 @@ public class ContainerDto {
     @NotNull
     @ApiModelProperty(name = "state", example = "RUNNING")
     private ContainerStateDto state;
+
+    @NotNull
+    @ApiModelProperty(name = "databases")
+    private List<DatabaseDto> databases;
 
     @NotNull
     private IpAddressDto ipAddress;
