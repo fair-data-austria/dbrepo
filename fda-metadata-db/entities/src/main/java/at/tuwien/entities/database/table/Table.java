@@ -58,7 +58,7 @@ public class Table {
     private Database database;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "table")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
     private List<TableColumn> columns;
 
     @Column(nullable = false, updatable = false)

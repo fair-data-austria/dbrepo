@@ -15,10 +15,6 @@ spring:
     name: fda-query-service
   cloud:
     loadbalancer.ribbon.enabled: false
-  rabbitmq:
-    host: fda-broker-service
-    username: guest
-    password: guest
 server.port: 9093
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"

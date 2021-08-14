@@ -6,10 +6,7 @@ import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.database.Database;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.DatabaseMalformedException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
@@ -154,7 +151,7 @@ public class ServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void create_postgres_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, SQLException {
+            DatabaseMalformedException, SQLException, BrokerMalformedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(DATABASE_1_NAME)
@@ -173,7 +170,7 @@ public class ServiceIntegrationTest extends BaseUnitTest {
     @Test
     @Disabled("Cannot start in normal time")
     public void create_mariadb_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, InterruptedException {
+            DatabaseMalformedException, InterruptedException, BrokerMalformedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_2_ID)
                 .name(DATABASE_2_NAME)
@@ -221,7 +218,7 @@ public class ServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException {
+            DatabaseMalformedException, BrokerMalformedException {
 
         /* test */
         databaseService.delete(DATABASE_1_ID);

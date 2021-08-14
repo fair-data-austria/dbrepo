@@ -36,6 +36,9 @@ public class Database {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumns({
+            @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
+    })
     private Container container;
 
     @ToString.Include

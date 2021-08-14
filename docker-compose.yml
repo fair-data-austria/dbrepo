@@ -160,9 +160,11 @@ services:
     links:
       - fda-metadata-db
       - fda-discovery-service
+      - fda-broker-service
     depends_on:
       - fda-metadata-db
       - fda-discovery-service
+      - fda-broker-service
 
   fda-analyse-service:
     restart: always

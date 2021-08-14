@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -27,14 +28,16 @@ public class DatabaseService extends JdbcConnector {
     private final ContainerRepository containerRepository;
     private final DatabaseRepository databaseRepository;
     private final DatabaseMapper databaseMapper;
+    private final AmqpService amqpService;
 
     @Autowired
     public DatabaseService(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
-                           ImageMapper imageMapper, DatabaseMapper databaseMapper) {
+                           ImageMapper imageMapper, DatabaseMapper databaseMapper, AmqpService amqpService) {
         super(imageMapper, databaseMapper);
         this.containerRepository = containerRepository;
         this.databaseRepository = databaseRepository;
         this.databaseMapper = databaseMapper;
+        this.amqpService = amqpService;
     }
 
     /**
@@ -66,7 +69,7 @@ public class DatabaseService extends JdbcConnector {
 
     @Transactional
     public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException {
+            DatabaseMalformedException, BrokerMalformedException {
         log.trace("Delete database {}", databaseId);
         final Optional<Database> databaseResponse = databaseRepository.findById(databaseId);
         if (databaseResponse.isEmpty()) {
@@ -75,18 +78,23 @@ public class DatabaseService extends JdbcConnector {
         }
         try {
             delete(databaseResponse.get());
+            amqpService.delete(databaseResponse.get());
         } catch (SQLException e) {
             log.error("Could not delete the database: {}", e.getMessage());
             throw new DatabaseMalformedException(e);
+        } catch (IOException e) {
+            log.error("Could not delete the exchange: {}", e.getMessage());
+            throw new BrokerMalformedException(e);
         }
         databaseRepository.deleteById(databaseId);
         log.info("Deleted database {}", databaseId);
         log.debug("deleted database {}", databaseResponse.get());
+        log.info("Deleted exchange {}", databaseId);
     }
 
     @Transactional
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException {
+            DatabaseMalformedException, BrokerMalformedException {
         log.trace("Create database {}", createDto);
         final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
         if (containerResponse.isEmpty()) {
@@ -108,8 +116,15 @@ public class DatabaseService extends JdbcConnector {
         }
         // save in metadata database
         final Database out = databaseRepository.save(database);
+        try {
+            amqpService.create(out);
+        } catch (IOException e) {
+            log.error("Could not create the exchange: {}", e.getMessage());
+            throw new BrokerMalformedException(e);
+        }
         log.info("Created database {}", out.getId());
         log.debug("created database {}", out);
+        log.info("Created exchange {}", out.getId());
         return out;
     }
 

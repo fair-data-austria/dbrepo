@@ -12,20 +12,20 @@ import java.text.Normalizer;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ContainerMapper.class})
 public interface DatabaseMapper {
 
     @Mappings({
             @Mapping(target = "id", source = "id"),
             @Mapping(target = "engine", expression = "java(data.getContainer().getImage().getRepository()+\":\"+data.getContainer().getImage().getTag())"),
-            @Mapping(target="created", source = "created", dateFormat = "dd-MM-yyyy HH:mm")
+            @Mapping(target = "created", source = "created", dateFormat = "dd-MM-yyyy HH:mm")
     })
     DatabaseBriefDto databaseToDatabaseBriefDto(Database data);
 
     @Mappings({
             @Mapping(target = "id", source = "id"),
             @Mapping(target = "image", source = "container.image"),
-            @Mapping(target="created", source = "created", dateFormat = "dd-MM-yyyy HH:mm")
+            @Mapping(target = "created", source = "created", dateFormat = "dd-MM-yyyy HH:mm")
     })
     DatabaseDto databaseToDatabaseDto(Database data);
 

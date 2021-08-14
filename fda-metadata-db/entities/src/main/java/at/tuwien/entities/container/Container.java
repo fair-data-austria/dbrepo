@@ -56,6 +56,13 @@ public class Container {
     private Integer port;
 
     @ToString.Include
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumns({
+            @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
+    })
+    private List<Database> databases;
+
+    @ToString.Include
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ContainerImage image;
 

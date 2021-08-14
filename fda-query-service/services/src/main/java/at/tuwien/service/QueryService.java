@@ -1,6 +1,5 @@
 package at.tuwien.service;
 
-import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.io.StringReader;
 import java.sql.SQLFeatureNotSupportedException;
-import java.sql.SQLSyntaxErrorException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +30,8 @@ import java.util.Optional;
 @Service
 public class QueryService {
 
-
     private final DatabaseRepository databaseRepository;
     private final PostgresService postgresService;
-
 
     @Autowired
     public QueryService(DatabaseRepository databaseRepository, PostgresService postgresService) {
@@ -53,15 +49,14 @@ public class QueryService {
 
         Statement stmt = parserRealSql.parse(new StringReader(query.getQuery()));
         Database database = findDatabase(id);
-        if(stmt instanceof Select) {
+        if (stmt instanceof Select) {
             Select selectStatement = (Select) stmt;
-            PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
+            PlainSelect ps = (PlainSelect) selectStatement.getSelectBody();
 
             List<SelectItem> selectitems = ps.getSelectItems();
             System.out.println(ps.getFromItem().toString());
             selectitems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
-        }
-        else {
+        } else {
             throw new SQLFeatureNotSupportedException("SQL Query is not a SELECT statement - please only use SELECT statements");
         }
         saveQuery(database, query, null);

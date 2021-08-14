@@ -15,8 +15,6 @@ import at.tuwien.exception.TableMalformedException;
 import org.apache.commons.lang.WordUtils;
 import org.jooq.*;
 import org.jooq.impl.DefaultDataType;
-import org.jooq.meta.jaxb.CustomType;
-import org.jooq.meta.jaxb.ForcedType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

@@ -1,13 +1,13 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.config.AmqpConfig;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.AmqpMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
@@ -18,21 +18,21 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.DeliverCallback;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityNotFoundException;
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
@@ -41,17 +41,15 @@ import java.util.*;
 @Service
 public class DataService extends JdbcConnector {
 
-    private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
-    private final TableMapper tableMapper;
+    private final TableRepository tableRepository;
 
     @Autowired
-    public DataService(TableRepository tableRepository, DatabaseRepository databaseRepository,
+    public DataService(DatabaseRepository databaseRepository, TableRepository tableRepository,
                        ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
         super(imageMapper, tableMapper, queryMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
-        this.tableMapper = tableMapper;
     }
 
     @Transactional
@@ -62,49 +60,6 @@ public class DataService extends JdbcConnector {
             throw new TableNotFoundException("table not found in database");
         }
         return table.get();
-    }
-
-    @Transactional
-    public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
-        final Database database = findDatabase(databaseId);
-        /* create database in container */
-        try {
-            create(database, createDto);
-        } catch (SQLException e) {
-            throw new DataProcessingException("could not create table", e);
-        }
-        /* save in metadata db */
-        final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
-        mappedTable.setDatabase(database);
-        mappedTable.setTdbid(databaseId);
-        mappedTable.setColumns(List.of()); // TODO: our metadata db model (primary keys x3) does not allow this currently
-        final Table table;
-        try {
-            table = tableRepository.save(mappedTable);
-        } catch (EntityNotFoundException e) {
-            log.error("failed to create table compound key: {}", e.getMessage());
-            throw new DataProcessingException("failed to create table compound key", e);
-        }
-        /* we cannot insert columns at the same time since they depend on the table id */
-        for (int i = 0; i < createDto.getColumns().length; i++) {
-            final TableColumn column = tableMapper.columnCreateDtoToTableColumn(createDto.getColumns()[i]);
-            column.setOrdinalPosition(i);
-            column.setCdbid(databaseId);
-            column.setTid(table.getId());
-            table.getColumns()
-                    .add(column);
-        }
-        /* update table in metadata db */
-        try {
-            tableRepository.save(table);
-        } catch (EntityNotFoundException e) {
-            log.error("failed to create column compound key: {}", e.getMessage());
-            throw new DataProcessingException("failed to create column compound key", e);
-        }
-        log.info("Created table {}", table.getId());
-        log.debug("created table: {}", table);
-        return table;
     }
 
     /**

@@ -1,6 +1,8 @@
 package at.tuwien.api.database;
 
+import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.image.ImageDto;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
 
@@ -19,31 +21,35 @@ public class DatabaseDto {
 
     @NotNull
     @Min(value = 1)
-    @Parameter(name = "database id", example = "1")
+    @ApiModelProperty(name = "database id", example = "1")
     private Long id;
 
     @NotBlank
-    @Parameter(name = "database name", example = "Weather Australia")
+    @ApiModelProperty(name = "database name", example = "Weather Australia")
     private String name;
 
     @NotBlank
-    @Parameter(name = "database internal name", example = "weather_australia")
+    @ApiModelProperty(name = "database internal name", example = "weather_australia")
     private String internalName;
 
     @NotBlank
-    @Parameter(name = "database description", example = "Weather Australia 2009-2021")
+    @ApiModelProperty(name = "database description", example = "Weather Australia 2009-2021")
     private String description;
 
     @NotBlank
-    @Parameter(name = "database container image")
+    @ApiModelProperty(name = "database container image")
     private ImageDto image;
 
     @NotBlank
-    @Parameter(name = "database publisher", example = "National Office")
+    @ApiModelProperty(name = "container")
+    private ContainerDto container;
+
+    @NotBlank
+    @ApiModelProperty(name = "database publisher", example = "National Office")
     private String publisher;
 
     @NotBlank
-    @Parameter(name = "database creation time", example = "2020-08-04 11:12:00")
+    @ApiModelProperty(name = "database creation time", example = "2020-08-04 11:12:00")
     private Instant created;
 
 }
