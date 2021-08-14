@@ -2,6 +2,7 @@ version: "3.6"
 
 volumes:
   fda-metadata-db-data:
+  fda-broker-service-data:
 
 networks:
   fda-public:
@@ -190,6 +191,20 @@ services:
       - fda-discovery-service
     logging:
       driver: json-file
+
+  fda-broker-service:
+    restart: always
+    container_name: fda-broker-service
+    hostname: fda-broker-service
+    build: ./fda-broker-service
+    image: fda-broker-service
+    networks:
+      - fda-public
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - fda-broker-service-data:/var/lib/rabbitmq/
 
   fda-ui:
     restart: always

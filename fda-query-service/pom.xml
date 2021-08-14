@@ -149,6 +149,12 @@
             <artifactId>swagger-models</artifactId>
             <version>${swagger.version}</version>
         </dependency>
+        <!-- AMPQ -->
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>${rabbit-amqp-client.version}</version>
+        </dependency>
         <!-- Gateway -->
         <dependency>
             <groupId>org.projectreactor</groupId>
@@ -159,45 +165,6 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
             <version>2.1.1</version>
-        </dependency>
-
-        <!-- Swagger -->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-boot-starter</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-spring-web</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-annotations</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-models</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
-        <!-- Mapping -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${mapstruct.version}</version>
-            <optional>true</optional><!-- IntelliJ -->
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
         </dependency>
     </dependencies>
 
@@ -211,6 +178,7 @@
                     <excludes>
                         <exclude>at/tuwien/utils/**/*</exclude>
                         <exclude>at/tuwien/mapper/**/*</exclude>
+                        <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>
                         <exclude>**/FdaQueryServiceApplication.class</exclude>
