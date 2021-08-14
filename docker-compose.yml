@@ -85,10 +85,12 @@ services:
     links:
       - fda-discovery-service
       - fda-container-service
+      - fda-table-service
       - fda-metadata-db
     depends_on:
       - fda-discovery-service
       - fda-container-service
+      - fda-table-service
       - fda-metadata-db
     logging:
       driver: json-file

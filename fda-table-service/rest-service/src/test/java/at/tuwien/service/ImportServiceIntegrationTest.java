@@ -145,7 +145,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        dataService.insertFromFile(DATABASE_1_ID, TABLE_1_ID, request);
+        dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
         final Optional<Table> response = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID);
         assertTrue(response.isPresent());
         assertEquals(TABLE_1_ID, response.get().getId());
@@ -166,7 +166,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(FileStorageException.class, () -> {
-            dataService.insertFromFile(DATABASE_1_ID, TABLE_2_ID, request);
+            dataService.insertCsv(DATABASE_1_ID, TABLE_2_ID, request);
         });
     }
 
@@ -184,7 +184,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            dataService.insertFromFile(DATABASE_1_ID, TABLE_2_ID, request);
+            dataService.insertCsv(DATABASE_1_ID, TABLE_2_ID, request);
         });
     }
 

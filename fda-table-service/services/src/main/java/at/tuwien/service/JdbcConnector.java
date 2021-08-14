@@ -1,5 +1,7 @@
 package at.tuwien.service;
 
+import at.tuwien.api.amqp.DataDto;
+import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
@@ -21,6 +23,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 
@@ -52,7 +55,7 @@ public abstract class JdbcConnector {
                 .execute();
     }
 
-    protected void insert(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException {
+    protected void insertCsv(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException {
         if (data.getData().size() == 0) {
             log.warn("No data to insert into table");
             return;
@@ -66,6 +69,15 @@ public abstract class JdbcConnector {
                     .values(row));
         }
         context.batch(statements)
+                .execute();
+    }
+
+    protected void insertTuple(Table table, TupleDto[] data) throws SQLException, ImageNotSupportedException {
+        final DSLContext context = open(table.getDatabase());
+        final List<Field<?>> headers = Arrays.stream(data)
+                .map(t -> field(t.getK()))
+                .collect(Collectors.toList());
+        context.insertInto(table(table.getInternalName()), headers)
                 .execute();
     }
 
