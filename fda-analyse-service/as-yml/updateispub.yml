@@ -7,7 +7,7 @@ produces:
 parameters:
 - in: "body"
   name: "body"
-  description: "to-do description"
+  description: "Update attribute is_public in metadatabase"
   required: true
   schema:
     type: "object"

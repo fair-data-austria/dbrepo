@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 public class ContainerCreateRequestDto {
 
     @NotBlank
-    @ApiModelProperty(name = "name", example = "New York Stock Exchange")
+    @ApiModelProperty(name = "name", example = "Weather World")
     private String name;
 
     @NotBlank

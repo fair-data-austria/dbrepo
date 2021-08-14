@@ -1,20 +1,20 @@
 import path from 'path'
 import colors from 'vuetify/es5/util/colors'
-import isDocker from 'is-docker'
 
 // pick env vars from .env file or get them passed through docker-compose
-if (!isDocker()) {
-  require('dotenv').config()
+require('dotenv').config()
+
+if (!process.env.API) {
+  throw new Error(`Environment variable API_CONTAINER not defined.
+
+Have you passed env vars from docker-compose or defined them in your .env file?`)
 }
 
 export default {
-  // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
-  // ssr: false,
+  target: 'server',
 
-  // Target (https://go.nuxtjs.dev/config-target)
-  target: 'static',
+  telemetry: false,
 
-  // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     titleTemplate: '%s - fda-ui',
     title: 'fda-ui',
@@ -28,32 +28,24 @@ export default {
     ]
   },
 
-  // Global CSS (https://go.nuxtjs.dev/config-css)
   css: [
     '@assets/globals.scss'
   ],
 
-  // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
-    { src: '~/plugins/toast', ssr: false }, // only client side
-    { src: '~/plugins/vuex-persist', ssr: false } // only client side
-    // { src: '~/plugins/mock' }
+    { src: '~/plugins/toast', ssr: false },
+    { src: '~/plugins/vendors', ssr: false }
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
 
-  // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
-    // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
-    // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify'
   ],
 
-  // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    // https://go.nuxtjs.dev/axios
     '@nuxtjs/proxy',
     '@nuxtjs/axios',
     ['nuxt-i18n', {
@@ -63,29 +55,22 @@ export default {
       ],
       lazy: true,
       langDir: 'lang/',
-      // strategy: 'no_prefix',
       defaultLocale: 'en'
-      // detectBrowserLanguage: false
     }]
   ],
 
-  // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
     proxy: true
   },
 
   proxy: {
-    '/api/container': process.env.API_CONTAINER,
-    '/api/database': process.env.API_DATABASE,
-    '/api/analyse': process.env.API_ANALYSE,
-    '/api/tables': { target: process.env.API_TABLES, pathRewrite: { '^/api/tables/': '' } }
+    '/api': process.env.API
   },
 
   serverMiddleware: [
     { path: '/server-middleware', handler: path.resolve(__dirname, 'server-middleware/index.js') }
   ],
 
-  // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
@@ -104,7 +89,6 @@ export default {
     }
   },
 
-  // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     babel: {
       presets (env, [preset, options]) {

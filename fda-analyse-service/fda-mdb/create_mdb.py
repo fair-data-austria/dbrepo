@@ -48,9 +48,13 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 		compiled timestamp without time zone NOT NULL,
 		default_port integer NOT NULL,
 		hash character varying(255) NOT NULL,
+		dialect character varying(255),
+		driver_class character varying(255),
+		jdbc_method character varying(255),
 		repository character varying(255) NOT NULL,
 		size bigint NOT NULL,
-		tag character varying(255) NOT NULL
+		tag character varying(255) NOT NULL,
+		UNIQUE(repository, tag)
 	);
 
 	CREATE TABLE public.mdb_image_environment (
@@ -150,8 +154,8 @@ cursor.execute(f"""	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 		created timestamp without time zone NOT NULL, 
 		internal_name character varying(255) NOT NULL, 
 		last_modified timestamp without time zone, 
-		tName VARCHAR(50), 
-		NumCols INTEGER, 
+		tName VARCHAR(50),
+		NumCols INTEGER,
 		NumRows INTEGER, 
 		Version TEXT,
 		PRIMARY KEY(tDBID,ID)

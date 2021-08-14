@@ -15,25 +15,35 @@ import javax.validation.constraints.NotNull;
 public class ColumnCreateDto {
 
     @NotBlank
-    @ApiModelProperty(name = "name", example = "Ticker Symbol")
+    @ApiModelProperty(name = "name", example = "Date")
     private String name;
 
     @NotNull
-    @ApiModelProperty(name = "primary key", example = "false")
-    private Boolean primaryKey = true;
+    @ApiModelProperty(name = "primary key", example = "true")
+    private Boolean primaryKey;
 
     @NotNull
-    @ApiModelProperty(name = "name", example = "STRING")
+    @ApiModelProperty(name = "column type", example = "STRING")
     private ColumnTypeDto type;
 
     @NotNull
-    @ApiModelProperty(name = "null values permitted", example = "true")
-    private Boolean nullAllowed = true;
+    @ApiModelProperty(name = "null value", example = "false")
+    private Boolean nullAllowed;
 
-    @ApiModelProperty(name = "check expression", example = "column > 0")
+    @NotNull
+    @ApiModelProperty(name = "unique", example = "true")
+    private Boolean unique;
+
+    @ApiModelProperty(name = "check expression", example = "null")
     private String checkExpression;
 
-    @ApiModelProperty(name = "foreign key")
+    @ApiModelProperty(name = "foreign key", example = "null")
     private String foreignKey;
+
+    @ApiModelProperty(name = "foreign key reference, only considered when foreignKey != null", example = "null")
+    private String references;
+
+    @ApiModelProperty(name = "enum values, only considered when type = ENUM", example = "[\"male\",\"female\",\"other\"]")
+    private String[] enumValues;
 
 }

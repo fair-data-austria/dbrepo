@@ -21,11 +21,7 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title v-text="title" />
       <v-spacer />
-      <v-chip v-if="container">{{ container.DbName }}</v-chip>
-      <v-menu
-        bottom
-        offset-y
-        left>
+      <v-menu bottom offset-y left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
@@ -58,7 +54,8 @@ import {
   mdiDatabase,
   mdiTable,
   mdiFileDelimited,
-  mdiDatabaseSearch
+  mdiDatabaseSearch,
+  mdiHome
 } from '@mdi/js'
 
 export default {
@@ -68,7 +65,7 @@ export default {
       drawer: false,
       items: [
         {
-          icon: 'mdi-home',
+          icon: mdiHome,
           title: 'Home',
           to: '/'
         },
@@ -92,7 +89,7 @@ export default {
         {
           icon: mdiDatabaseSearch,
           title: 'SQL Query',
-          to: '/sql',
+          to: '/queries',
           needsContainer: true
         }
       ],
@@ -111,6 +108,29 @@ export default {
         if (x.needsContainer && !this.container) { return false }
         return true
       })
+    },
+    db () {
+      return this.$store.state.db
+    }
+  },
+  watch: {
+    $route () {
+      this.loadDB()
+    }
+  },
+  mounted () {
+    this.loadDB()
+  },
+  methods: {
+    async loadDB () {
+      if (this.$route.params.db_id && !this.db) {
+        try {
+          const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
+          this.$store.commit('SET_DATABASE', res.data)
+        } catch (err) {
+          this.$toast.error('Could not load gffff.')
+        }
+      }
     }
   }
 }

@@ -1,28 +1,28 @@
-from psycopg2 import connect 
+from psycopg2 import connect
 import psycopg2.extras
 import requests
-import json 
+import json
 
 def insert_mdb_tbl(dbid): 
     # Get database info 
-    try: 
+    try:
         s = requests.get(
         "http://fda-database-service:9092/api/database/",
         params = {"id":dbid}
         ).json()
-    except Exception as e: 
+    except Exception as e:
         print("Error while trying to get database info",e)
-    
+
     # Conneting to database 
-    try: 
-        conn=connect( 
-                dbname = s[0]['internalName'], 
+    try:
+        conn=connect(
+                dbname = s[0]['internalName'],
                 user = "postgres", 
-                host = 'fda-userdb-'+ s[0]['internalName'].replace('_', '-'), 
+                host = 'fda-userdb-'+ s[0]['internalName'].replace('_', '-'),
                 password = "postgres"
                 )
-        cursor = conn.cursor() 
-        
+        cursor = conn.cursor()
+
         # Extract table names, number of tables 
         cursor.execute("""SELECT columns.table_name, count(columns.column_name) as colcount, 
                        (select n_live_tup from pg_stat_user_tables where relname = columns.table_name) as rowcount
@@ -37,31 +37,32 @@ def insert_mdb_tbl(dbid):
         for item in res:
             tblnames.append((item[1],item[2],dbid,item[0],))
         print(tblnames)
-       
-        conn.commit() 
-        conn.close() 
-    except Exception as e: 
-        print("Error while connecting to database.", e) 
+
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print("Error while connecting to database.", e)
         
-    try: 
+    try:
         # Connecting to metadatabase 
         conn=connect(
         dbname="fda", 
         user = "postgres",
-        host = "fda-metadata-db", 
+        host = "fda-metadata-db",
         password = "postgres"
         )
-    
+
         cursor = conn.cursor() 
-        
+
         # Prepare and insert tblnames into table mdb_TABLES 
         cursor.execute("PREPARE stmt AS Update mdb_TABLES set (numcols,numrows,last_modified) = ($1,$2,current_timestamp) where tdbid = $3 and internal_name = $4")
         psycopg2.extras.execute_batch(cursor, 
                       """EXECUTE stmt (%s,%s,%s,%s)"""
                       , tblnames)
         cursor.execute("DEALLOCATE stmt")
-               
+        r = cursor.statusmessage
         conn.commit()
         conn.close()
     except Exception as e: 
         print("Error while connecting to metadatabase.",e)
+    return json.dumps(r)

@@ -9,20 +9,24 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   BEGIN;
 	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 	CREATE TYPE accesstype AS ENUM ('R', 'W');
-		
-	CREATE SEQUENCE public.mdb_environment_item_seq
+	CREATE TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER');
+
+	CREATE CAST (character varying AS image_environment_type) WITH INOUT AS ASSIGNMENT;
+
+	CREATE SEQUENCE public.mdb_image_environment_item_seq
 	    START WITH 1
 	    INCREMENT BY 1
 	    NO MINVALUE
 	    NO MAXVALUE
 	    CACHE 1;
 	
-	CREATE TABLE public.mdb_environment_item (
-	    id bigint NOT NULL DEFAULT nextval('mdb_environment_item_seq'),
+	CREATE TABLE public.mdb_image_environment_item (
+	    id bigint NOT NULL DEFAULT nextval('mdb_image_environment_item_seq'),
 	    created timestamp without time zone NOT NULL,
 	    last_modified timestamp without time zone,
 	    key character varying(255) NOT NULL,
-	    value character varying(255) NOT NULL
+	    value character varying(255) NOT NULL,
+	    etype image_environment_type NOT NULL
 	);
 	
 	CREATE SEQUENCE public.mdb_image_seq
@@ -39,9 +43,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		compiled timestamp without time zone NOT NULL,
 		default_port integer NOT NULL,
 		hash character varying(255) NOT NULL,
+		dialect character varying(255) NOT NULL,
+		driver_class character varying(255) NOT NULL,
+		jdbc_method character varying(255),
 		repository character varying(255) NOT NULL,
 		size bigint NOT NULL,
-		tag character varying(255) NOT NULL
+		tag character varying(255) NOT NULL,
+		UNIQUE(repository, tag)
 	);
 
 	CREATE TABLE public.mdb_image_environment (
@@ -170,8 +178,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		created timestamp without time zone NOT NULL, 
 		internal_name character varying(255) NOT NULL, 
 		last_modified timestamp without time zone, 
-		tName VARCHAR(50), 
-		NumCols INTEGER, 
+		tName VARCHAR(50),
+		tDescription TEXT,
+		NumCols INTEGER,
 		NumRows INTEGER, 
 		Version TEXT,
 		PRIMARY KEY(tDBID,ID)
@@ -215,7 +224,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		Mean NUMERIC, 
 		Median NUMERIC, 
 		Sd Numeric, 
-		Histogram INTEGER[],
+		Histogram NUMERIC[],
 		last_modified timestamp without time zone,
 		FOREIGN KEY (cDBID,tID, cID) REFERENCES mdb_COLUMNS(cDBID,tID,ID),
 		PRIMARY KEY(cDBID, tID, cID)

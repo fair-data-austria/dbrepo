@@ -1,5 +1,5 @@
-summary: "Update into Entity mdb_columns_num to metadatabase"
-description: "Update attribute siuni in metadatabase"
+summary: "Update entity mdb_columns_num to metadatabase"
+description: "Update attribute siunit in metadatabase"
 consumes:
 - "application/json"
 produces:
@@ -7,7 +7,7 @@ produces:
 parameters:
 - in: "body"
   name: "body"
-  description: "to-do description"
+  description: "Update attribute siunit (physical quatities for length, mass, ... ) in metadatabase"
   required: true
   schema:
     type: "object"

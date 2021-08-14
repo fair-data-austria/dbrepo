@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# DESCRIPTION: script to generate the markdown documentation of some services for the wiki
+# WHEN: merge to master
+
+# dependencies
+docker pull quay.io/goswagger/swagger > /dev/null
+
+echo -e "\e[96m1\e[39m) Spin-up the services"
+docker-compose up -d > /dev/null  2>&1
+
+echo -e "\e[96m2\e[39m) Generate markdown documentations"
+
+echo "Generating docs for ./fda-container-service"
+wget http://localhost:9091/v2/api-docs -O swagger.json  > /dev/null 2>&1
+docker run --rm -it  --user $(id -u):$(id -g) -e GOPATH=$HOME/go:/go -v $HOME:$HOME -w $(pwd) quay.io/goswagger/swagger generate markdown --skip-validation -q
+mv markdown.md container.md
+
+echo "Generating docs for ./fda-database-service"
+wget http://localhost:9092/v2/api-docs -O swagger.json  > /dev/null 2>&1
+docker run --rm -it  --user $(id -u):$(id -g) -e GOPATH=$HOME/go:/go -v $HOME:$HOME -w $(pwd) quay.io/goswagger/swagger generate markdown --skip-validation -q
+mv markdown.md database.md
+
+echo "Generating docs for ./fda-query-service"
+wget http://localhost:9093/v2/api-docs -O swagger.json  > /dev/null 2>&1
+docker run --rm -it  --user $(id -u):$(id -g) -e GOPATH=$HOME/go:/go -v $HOME:$HOME -w $(pwd) quay.io/goswagger/swagger generate markdown --skip-validation -q
+mv markdown.md query.md
+
+echo "Generating docs for ./fda-table-service"
+wget http://localhost:9094/v2/api-docs -O swagger.json  > /dev/null 2>&1
+docker run --rm -it  --user $(id -u):$(id -g) -e GOPATH=$HOME/go:/go -v $HOME:$HOME -w $(pwd) quay.io/goswagger/swagger generate markdown --skip-validation -q
+mv markdown.md table.md
