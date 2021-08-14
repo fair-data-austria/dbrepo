@@ -1,10 +1,12 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
+import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
@@ -12,25 +14,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 
 @Log4j2
 @Service
-public class DatabaseService {
+public class DatabaseService extends JdbcConnector {
 
     private final ContainerRepository containerRepository;
     private final DatabaseRepository databaseRepository;
-    private final PostgresService postgresService;
     private final DatabaseMapper databaseMapper;
 
     @Autowired
     public DatabaseService(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
-                           PostgresService postgresService, DatabaseMapper databaseMapper) {
+                           ImageMapper imageMapper, DatabaseMapper databaseMapper) {
+        super(imageMapper, databaseMapper);
         this.containerRepository = containerRepository;
         this.databaseRepository = databaseRepository;
-        this.postgresService = postgresService;
         this.databaseMapper = databaseMapper;
     }
 
@@ -55,7 +58,7 @@ public class DatabaseService {
     public Database findById(Long databaseId) throws DatabaseNotFoundException {
         final Optional<Database> opt = databaseRepository.findById(databaseId);
         if (opt.isEmpty()) {
-            log.error("could not find database with id {}", databaseId);
+            log.warn("could not find database with id {}", databaseId);
             throw new DatabaseNotFoundException("could not find database with this id");
         }
         return opt.get();
@@ -63,53 +66,74 @@ public class DatabaseService {
 
     @Transactional
     public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseConnectionException, DatabaseMalformedException {
-        log.debug("get database id {}", databaseId);
+            DatabaseMalformedException {
+        log.trace("Delete database {}", databaseId);
         final Optional<Database> databaseResponse = databaseRepository.findById(databaseId);
         if (databaseResponse.isEmpty()) {
-            log.error("Database with id {} does not exist", databaseId);
+            log.warn("Database with id {} does not exist", databaseId);
             throw new DatabaseNotFoundException("Database does not exist.");
         }
-        final Database database = databaseResponse.get();
-        log.debug("retrieved database {}", database);
-        // check if postgres
-        if (!database.getContainer().getImage().getRepository().equals("postgres")) {
-            log.error("No support for {}:{}", database.getContainer().getImage().getRepository(), database.getContainer().getImage().getTag());
-            throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
+        try {
+            delete(databaseResponse.get());
+        } catch (SQLException e) {
+            log.error("Could not delete the database: {}", e.getMessage());
+            throw new DatabaseMalformedException(e);
         }
-        // call container to create database
-        postgresService.delete(database);
-        // delete in metadata database
         databaseRepository.deleteById(databaseId);
+        log.info("Deleted database {}", databaseId);
+        log.debug("deleted database {}", databaseResponse.get());
     }
 
     @Transactional
-    public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, DatabaseConnectionException,
-            DatabaseMalformedException, ContainerNotFoundException {
-        log.debug("get container {}", createDto.getContainerId());
+    public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
+            DatabaseMalformedException {
+        log.trace("Create database {}", createDto);
         final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
         if (containerResponse.isEmpty()) {
-            log.error("Container with id {} does not exist", createDto.getContainerId());
+            log.warn("Container with id {} does not exist", createDto.getContainerId());
             throw new ContainerNotFoundException("Container does not exist.");
-        }
-        final Container container = containerResponse.get();
-        log.debug("retrieved container {}", container);
-        // check if postgres
-        if (!container.getImage().getRepository().equals("postgres")) {
-            log.error("only postgres is supported currently");
-            throw new ImageNotSupportedException("Currently only PostgreSQL is supported.");
         }
         // call container to create database
         final Database database = new Database();
         database.setName(createDto.getName());
-        database.setContainer(container);
-        database.setIsPublic(false);
         database.setInternalName(databaseMapper.databaseToInternalDatabaseName(database));
-        postgresService.create(database);
+        database.setContainer(containerResponse.get());
+        database.setDescription(createDto.getDescription());
+        database.setIsPublic(createDto.getIsPublic());
+        try {
+            create(database);
+        } catch (SQLException e) {
+            log.error("Could not create the database: {}", e.getMessage());
+            throw new DatabaseMalformedException(e);
+        }
         // save in metadata database
         final Database out = databaseRepository.save(database);
-        log.debug("save db: {}", out);
-        log.info("Created a new database '{}' in container {}", createDto.getName(), createDto.getContainerId());
+        log.info("Created database {}", out.getId());
+        log.debug("created database {}", out);
+        return out;
+    }
+
+    @Transactional
+    public Database modify(DatabaseModifyDto modifyDto) throws ImageNotSupportedException, DatabaseNotFoundException,
+            DatabaseMalformedException {
+        log.trace("Modify database {}", modifyDto);
+        final Optional<Database> databaseResponse = databaseRepository.findById(modifyDto.getDatabaseId());
+        if (databaseResponse.isEmpty()) {
+            log.warn("Database with id {} does not exist", modifyDto.getDatabaseId());
+            throw new DatabaseNotFoundException("Database does not exist.");
+        }
+        // call container to create database
+        final Database database = databaseMapper.modifyDatabaseByDatabaseModifyDto(databaseResponse.get(), modifyDto);
+        try {
+            modify(databaseResponse.get(), database);
+        } catch (SQLException e) {
+            log.error("Could not modify the database: {}", e.getMessage());
+            throw new DatabaseMalformedException(e);
+        }
+        // save in metadata database
+        final Database out = databaseRepository.save(database);
+        log.info("Updated database {}", out.getId());
+        log.debug("updated database {}", out);
         return out;
     }
 

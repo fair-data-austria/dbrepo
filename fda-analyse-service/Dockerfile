@@ -3,6 +3,7 @@ MAINTAINER Cornelia Michlits <cornelia.michlits@tuwien.ac.at>
 
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
+ENV FLASK_ENV=production
 
 RUN apt-get update > /dev/null
 RUN apt-get install -y libxml2-dev libxslt-dev python-lxml gcc > /dev/null
@@ -22,5 +23,11 @@ COPY . .
 
 EXPOSE 5000
 
-# TODO on runtime displays: "WARNING: This is a development server. Do not use it in a production deployment."
-CMD ["flask", "run"]
+#CMD ["flask", "run"]
+
+RUN pip install Flask requests gevent
+
+COPY app.py /app.py
+COPY pywsgi.py /pywsgi.py
+
+CMD python /pywsgi.py

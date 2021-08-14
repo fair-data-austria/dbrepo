@@ -1,8 +1,9 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.api.database.DatabaseBriefDto;
-import at.tuwien.api.database.DatabaseChangeDto;
 import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.api.database.DatabaseDto;
+import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,13 +59,13 @@ public class DatabaseEndpoint {
     @ApiOperation(value = "Creates a new database in a container", notes = "Creates a new database in a container. Note that the backend distincts between numerical (req: categories), nominal (req: max_length) and categorical (req: max_length, siUnit, min, max, mean, median, standard_deviation, histogram) column types.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "The database was successfully created."),
-            @ApiResponse(code = 400, message = "Parameters were set wrongfully, e.g. more attributes than required for column type."),
+            @ApiResponse(code = 400, message = "Parameters were set wrongfully"),
             @ApiResponse(code = 401, message = "Not authorized to create a database."),
             @ApiResponse(code = 404, message = "Container does not exist with this id."),
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
-            throws ImageNotSupportedException, DatabaseConnectionException, DatabaseMalformedException, ContainerNotFoundException {
+            throws ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException {
         final Database database = databaseService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));
@@ -77,22 +79,24 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 400, message = "The payload contains invalid data."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseBriefDto> findById(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException {
-        final DatabaseBriefDto database = databaseMapper.databaseToDatabaseBriefDto(databaseService.findById(id));
-        return ResponseEntity.ok(database);
+    public ResponseEntity<DatabaseDto> findById(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException {
+        return ResponseEntity.ok(databaseMapper.databaseToDatabaseDto(databaseService.findById(id)));
     }
 
     @PutMapping("/{id}")
-    @ApiOperation(value = "Modify a database (not part of sprint 1)")
+    @ApiOperation(value = "Modify a database")
     @ApiResponses({
             @ApiResponse(code = 202, message = "The database was successfully modified."),
             @ApiResponse(code = 400, message = "Parameters were set wrongfully, e.g. more attributes than required for column type."),
             @ApiResponse(code = 401, message = "Not authorized to change a database."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseBriefDto> modify(@NotBlank @PathVariable Long id, @Valid @RequestBody DatabaseChangeDto changeDto) {
+    public ResponseEntity<DatabaseBriefDto> modify(@NotBlank @PathVariable Long id,
+                                                   @Valid @RequestBody DatabaseModifyDto modifyDto)
+            throws DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
+        final DatabaseBriefDto database = databaseMapper.databaseToDatabaseBriefDto(databaseService.modify(modifyDto));
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .build();
+                .body(database);
     }
 
     @DeleteMapping("/{id}")
@@ -105,7 +109,7 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<?> delete(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException,
-            DatabaseMalformedException, ImageNotSupportedException, DatabaseConnectionException {
+            ImageNotSupportedException, DatabaseMalformedException {
         databaseService.delete(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();

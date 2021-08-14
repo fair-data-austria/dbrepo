@@ -19,7 +19,6 @@ public class SwaggerConfig {
     @Bean
     public Docket queryApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("query-api")
                 .apiInfo(apiInfo())
                 .select()
                 .paths(PathSelectors.ant("/api/**"))

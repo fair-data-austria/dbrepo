@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -20,5 +21,21 @@ public class ImageChangeDto {
     private Integer defaultPort;
 
     private ImageEnvItemDto[] environment;
+
+    @NotBlank
+    @ApiModelProperty(required = true, example = "org.postgresql.Driver")
+    private String driverClass;
+
+    @NotBlank
+    @ApiModelProperty(required = true, example = "base64:aaaa")
+    private String logo;
+
+    @NotBlank
+    @ApiModelProperty(required = true, example = "Postgres")
+    private String dialect;
+
+    @NotBlank
+    @ApiModelProperty(required = true, example = "postgresql")
+    private String jdbcMethod;
 
 }

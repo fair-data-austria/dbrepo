@@ -35,19 +35,26 @@ public class Database {
     private Long id;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private Container container;
 
     @ToString.Include
     @Column(nullable = false)
     private String name;
 
-    @ToString.Exclude
+    @ToString.Include
     @Column(nullable = false)
     private String internalName;
 
     @ToString.Include
-    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Column
+    private String description;
+
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "tdbid", referencedColumnName = "id", insertable = false, updatable = false)
+    })
     private List<Table> tables;
 
     @ToString.Include

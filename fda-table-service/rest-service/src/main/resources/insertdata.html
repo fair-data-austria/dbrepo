@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload CSV</title>
+</head>
+<body>
+<h1>Upload .csv</h1>
+<form method="POST" enctype="multipart/form-data" id="fileUploadForm" action="http://localhost:9094/api/database/1/table/1">
+    <label for="delimiter">Delimiter</label><br />
+    <input type="text" name="delimiter" id="delimiter" value=";"/><br/>
+    <label for="skipHeader">Skip Header</label><br />
+    <input type="checkbox" name="skipHeader" id="skipHeader" checked /><br/>
+    <label for="nullElement">Null Element</label><br />
+    <input type="text" name="nullElement" id="nullElement" value="NA"/><br/><br/>
+    <input type="file" name="csv"/><br/><br/>
+    <input type="submit" value="Submit" id="btnSubmit"/>
+</form>
+</body>
+</html>

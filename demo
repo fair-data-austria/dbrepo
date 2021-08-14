@@ -1,0 +1,17 @@
+#!/bin/bash
+echo "[ Pull image ] =================================="
+docker pull postgres:latest > /dev/null
+echo "[ Remove artifacts  ] ==========================="
+docker container stop $(docker container ls -aq) > /dev/null
+sleep 1
+docker container rm $(docker container ls -aq) > /dev/null
+sleep 1
+docker-compose down --volumes > /dev/null
+sleep 1
+docker volume rm $(docker volume ls -q) > /dev/null
+sleep 1
+echo "[ Build ] ======================================="
+docker-compose build fda-metadata-db > /dev/null
+docker-compose build --parallel > /dev/null
+echo "[ Done ] ========================================"
+docker-compose up

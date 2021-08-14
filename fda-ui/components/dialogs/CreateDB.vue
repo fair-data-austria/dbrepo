@@ -1,31 +1,51 @@
 <template>
   <v-card>
-    <v-card-title class="headline">
-      Database
+    <v-card-title>
+      Create Database
     </v-card-title>
     <v-card-text>
-      <v-form v-model="formValid">
+      <v-alert
+        border="left"
+        color="amber lighten-4">
+        Choose an expressive database name and select a database engine.
+      </v-alert>
+      <v-form v-model="formValid" autocomplete="off">
         <v-text-field
+          id="dbname"
           v-model="database"
-          label="Name"
+          label="Database Name"
+          :rules="[v => !!v || $t('Required')]"
+          required />
+        <v-textarea
+          v-model="description"
+          rows="2"
+          label="Database Description"
           :rules="[v => !!v || $t('Required')]"
           required />
         <v-select
           v-model="engine"
-          label="Engine"
-          :items="[engine]"
+          label="Database Engine"
+          :items="engines"
           item-text="label"
           :rules="[v => !!v || $t('Required')]"
+          return-object
           required />
+        <v-checkbox
+          v-model="isPublic"
+          disabled
+          label="Public" />
       </v-form>
     </v-card-text>
     <v-card-actions>
       <v-spacer />
       <v-btn
+        class="mb-2"
         @click="cancel">
         Cancel
       </v-btn>
       <v-btn
+        id="createDB"
+        class="mb-2"
         :disabled="!formValid"
         :loading="loading"
         color="primary"
@@ -42,33 +62,53 @@ export default {
     return {
       formValid: false,
       loading: false,
-      database: '',
-      engine: {
-        label: 'PostgreSQL, latest',
-        repo: 'postgres',
-        tag: 'latest'
-      },
-      container: ''
+      database: null,
+      description: null,
+      isPublic: true,
+      engine: null,
+      engines: [],
+      container: null
     }
+  },
+  beforeMount () {
+    this.getImages()
   },
   methods: {
     cancel () {
-      this.$parent.$parent.$parent.createDbDialog = false
+      this.$parent.$parent.$parent.$parent.createDbDialog = false
+    },
+    async getImages () {
+      this.loading = true
+      let res
+      try {
+        res = await this.$axios.get('/api/image/')
+        this.engines = res.data
+        console.debug('engines', this.engines)
+      } catch (err) {
+        this.$toast.error('Failed to fetch supported engines. Try reload the page.')
+      }
+      this.loading = false
+    },
+    sleep (ms) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms)
+      })
     },
     async createDB () {
       this.loading = true
-
-      // create a container
       let res
+      // create a container
       let containerId
+      console.debug('model', this.engine)
       try {
         res = await this.$axios.post('/api/container/', {
           name: this.database,
-          repository: this.engine.repo,
+          description: this.description,
+          repository: this.engine.repository,
           tag: this.engine.tag
         })
         containerId = res.data.id
-        console.log(containerId)
+        console.debug('created container', res.data)
       } catch (err) {
         this.$toast.error('Could not create container. Try another name.')
         this.loading = false
@@ -80,6 +120,7 @@ export default {
         res = await this.$axios.put(`/api/container/${containerId}`, {
           action: 'START'
         })
+        console.debug('started container', res.data)
       } catch (err) {
         this.loading = false
         this.$toast.error('Could not start container.')
@@ -91,23 +132,28 @@ export default {
       await new Promise(resolve => setTimeout(resolve, 2000))
 
       // create the DB
-      try {
-        res = await this.$axios.post('/api/database/', {
-          name: this.database,
-          containerId
-        })
-        console.log(res)
-      } catch (err) {
-        this.loading = false
+      for (let i = 0; i < 30; i++) {
+        try {
+          res = await this.$axios.post('/api/database/', {
+            name: this.database,
+            containerId,
+            description: this.description,
+            isPublic: this.isPublic
+          }, { progress: false })
+          i = 31
+        } catch (err) {
+          console.debug('wait', res)
+          await this.sleep(1000)
+        }
+      }
+      this.loading = false
+      if (res.status !== 201) {
         this.$toast.error('Could not create database.')
         return
       }
-
-      this.loading = false
       this.$toast.success(`Database "${res.data.name}" created.`)
       this.$emit('refresh')
     }
   }
 }
-
 </script>

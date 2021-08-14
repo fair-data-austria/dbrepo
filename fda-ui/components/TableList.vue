@@ -1,6 +1,11 @@
 <template>
   <div>
-    <v-expansion-panels v-model="panelIndex" accordion>
+    <v-card v-if="tables.length === 0" flat>
+      <v-card-title>
+        (no tables)
+      </v-card-title>
+    </v-card>
+    <v-expansion-panels v-if="tables.length > 0" v-model="panelIndex" accordion>
       <v-expansion-panel v-for="(item,i) in tables" :key="i">
         <v-expansion-panel-header>
           {{ item.name }}
@@ -8,11 +13,11 @@
         <v-expansion-panel-content>
           <v-row dense>
             <v-col>
-              <v-btn :to="`/db/${$route.params.db_id}/tables/${item.id}`" outlined>
+              <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}`" outlined>
                 <v-icon>mdi-table</v-icon>
                 View
               </v-btn>
-              <v-btn :to="`/db/${$route.params.db_id}/tables/${item.id}/import_csv`" outlined>
+              <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}/import`" outlined>
                 Import CSV
               </v-btn>
             </v-col>
@@ -33,14 +38,26 @@
                 <th>Column Name</th>
                 <th>Type</th>
                 <th>Primary Key</th>
-                <th>Null Allowed</th>
+                <th>Unique</th>
+                <th>NULL Allowed</th>
               </thead>
               <tbody>
                 <tr v-for="(col, idx) in tableDetails.columns" :key="idx">
-                  <td class="pl-0">{{ col.name }}</td>
-                  <td class="pl-0">{{ col.columnType }}</td>
-                  <td class="pl-0"><v-simple-checkbox v-model="col.isPrimaryKey" disabled /></td>
-                  <td class="pl-0"><v-simple-checkbox v-model="col.isNullAllowed" disabled /></td>
+                  <td>
+                    {{ col.name }}
+                  </td>
+                  <td>
+                    {{ col.columnType }}
+                  </td>
+                  <td>
+                    <v-simple-checkbox v-model="col.isPrimaryKey" disabled aria-readonly="true" />
+                  </td>
+                  <td>
+                    <v-simple-checkbox v-model="col.unique" disabled aria-readonly="true" />
+                  </td>
+                  <td>
+                    <v-simple-checkbox v-model="col.isNullAllowed" disabled aria-readonly="true" />
+                  </td>
                 </tr>
               </tbody>
             </v-simple-table>
@@ -87,7 +104,7 @@ export default {
       if (typeof this.panelIndex !== 'undefined') {
         const tableId = this.tables[this.panelIndex].id
         try {
-          const res = await this.$axios.get(`/api/tables/api/database/${this.$route.params.db_id}/table/${tableId}`)
+          const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${tableId}`)
           this.tableDetails = res.data
         } catch (err) {
           this.$toast.error('Could not get table details.')
@@ -103,19 +120,20 @@ export default {
   },
   methods: {
     async refresh () {
+      // XXX same as in QueryBuilder
       let res
       try {
         res = await this.$axios.get(
-          `/api/tables/api/database/${this.$route.params.db_id}/table`)
+          `/api/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
       } catch (err) {
-        this.$toast.error('Could not list tables.')
+        this.$toast.error('Could not list table.')
       }
     },
     async deleteTable () {
       try {
         await this.$axios.delete(
-          `/api/tables/api/database/${this.$route.params.db_id}/table/${this.deleteTableId}`)
+          `/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
         this.refresh()
       } catch (err) {
         this.$toast.error('Could not delete table.')

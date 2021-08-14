@@ -1,6 +1,7 @@
 package at.tuwien.api.database;
 
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -15,11 +16,19 @@ import javax.validation.constraints.NotNull;
 public class DatabaseCreateDto {
 
     @NotNull
-    @ApiModelProperty(name = "at.tuwien.container id", example = "1")
+    @ApiModelProperty(name = "container id", example = "1")
     private Long containerId;
 
     @NotBlank
-    @ApiModelProperty(name = "at.tuwien.database name", example = "Exchange Traded Fund")
+    @ApiModelProperty(name = "database name", example = "Weather Australia")
     private String name;
+
+    @NotNull
+    @Parameter(name = "database publicity", example = "true")
+    private Boolean isPublic;
+
+    @NotBlank
+    @Parameter(name = "database description", example = "true")
+    private String description;
 
 }
