@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.mapper.DatabaseMapper;

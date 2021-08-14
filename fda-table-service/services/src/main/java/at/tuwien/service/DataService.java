@@ -1,13 +1,13 @@
 package at.tuwien.service;
 
+import at.tuwien.api.amqp.DataDto;
+import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
-import at.tuwien.config.AmqpConfig;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
-import at.tuwien.mapper.AmqpMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
@@ -18,8 +18,6 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DeliverCallback;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -63,7 +60,6 @@ public class DataService extends JdbcConnector {
     }
 
     /**
-     * TODO this needs to be at some different endpoint
      * Insert data from a file into a table of a database with possible null values (denoted by a null element).
      *
      * @param databaseId The database.
@@ -75,7 +71,7 @@ public class DataService extends JdbcConnector {
      * @throws FileStorageException       The CSV could not be parsed.
      */
     @Transactional
-    public void insertFromFile(Long databaseId, Long tableId, TableInsertDto data)
+    public void insertCsv(Long databaseId, Long tableId, TableInsertDto data)
             throws TableNotFoundException, ImageNotSupportedException, DatabaseNotFoundException, FileStorageException,
             TableMalformedException {
         final Table table = findById(databaseId, tableId);
@@ -88,7 +84,7 @@ public class DataService extends JdbcConnector {
             throw new FileStorageException("failed to parse csv", e);
         }
         try {
-            insert(table, values);
+            insertCsv(table, values);
         } catch (SQLException | DataAccessException e) {
             log.error("could not insert data {}", e.getMessage());
             throw new TableMalformedException("could not insert data", e);
@@ -150,6 +146,15 @@ public class DataService extends JdbcConnector {
         return TableCsvDto.builder()
                 .data(records)
                 .build();
+    }
+
+    public void insert(Table table, TupleDto[] data) throws ImageNotSupportedException, TableMalformedException {
+        try {
+            insertTuple(table, data);
+        } catch (SQLException e) {
+            log.error("could not insert data {}", e.getMessage());
+            throw new TableMalformedException("could not insert data", e);
+        }
     }
 
     @Transactional
