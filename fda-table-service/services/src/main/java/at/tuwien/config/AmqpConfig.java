@@ -15,8 +15,6 @@ import java.util.concurrent.TimeoutException;
 @Configuration
 public class AmqpConfig {
 
-
-
     @Value("${spring.rabbitmq.host}")
     private String ampqHost;
 

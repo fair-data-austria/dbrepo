@@ -4,7 +4,6 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-@Log4j2
 @Getter
 @Configuration
 public class AmqpConfig {
