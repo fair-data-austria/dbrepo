@@ -7,6 +7,7 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.AmqpMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
@@ -32,22 +33,29 @@ import java.util.*;
 @Service
 public class TableService extends JdbcConnector {
 
-    private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
+    private final TableRepository tableRepository;
     private final TableMapper tableMapper;
+    private final AmqpMapper amqpMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
+                        ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper,
+                        AmqpMapper amqpMapper) {
         super(imageMapper, tableMapper, queryMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
         this.tableMapper = tableMapper;
+        this.amqpMapper = amqpMapper;
     }
 
     @Transactional
-    public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
-        log.trace("list for db {}", databaseId);
+    public List<Table> findAll() {
+        return tableRepository.findAll();
+    }
+
+    @Transactional
+    public List<Table> findAllForDatabaseId(Long databaseId) throws DatabaseNotFoundException {
         final Optional<Database> database;
         try {
             database = databaseRepository.findById(databaseId);
@@ -65,7 +73,6 @@ public class TableService extends JdbcConnector {
     @Transactional
     public void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException {
-        log.trace("delete db {} table {}", databaseId, tableId);
         final Table table = findById(databaseId, tableId);
         try {
             delete(table);
@@ -80,7 +87,6 @@ public class TableService extends JdbcConnector {
 
     @Transactional
     public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException {
-        log.trace("get info for db {} table {}", databaseId, tableId);
         final Optional<Table> table = tableRepository.findByDatabaseAndId(findDatabase(databaseId), tableId);
         if (table.isEmpty()) {
             log.error("Table {} not found in database {}", tableId, databaseId);
@@ -106,6 +112,7 @@ public class TableService extends JdbcConnector {
         mappedTable.setDatabase(database);
         mappedTable.setTdbid(databaseId);
         mappedTable.setColumns(List.of()); // TODO: our metadata db model (primary keys x3) does not allow this currently
+        mappedTable.setTopic(amqpMapper.queueName(mappedTable));
         final Table table;
         try {
             table = tableRepository.save(mappedTable);
@@ -123,15 +130,16 @@ public class TableService extends JdbcConnector {
                     .add(column);
         }
         /* update table in metadata db */
+        final Table out;
         try {
-            tableRepository.save(table);
+            out = tableRepository.save(table);
         } catch (EntityNotFoundException e) {
             log.error("Could not create column compound key: {}", e.getMessage());
             throw new DataProcessingException("failed to create column compound key", e);
         }
-        log.info("Created table {}", table.getId());
-        log.debug("created table: {}", table);
-        return table;
+        log.info("Created table {}", out.getId());
+        log.debug("created table: {}", out);
+        return out;
     }
 
     /* helper functions */

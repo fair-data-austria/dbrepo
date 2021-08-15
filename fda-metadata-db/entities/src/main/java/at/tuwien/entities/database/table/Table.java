@@ -52,6 +52,10 @@ public class Table {
     @Column(nullable = false)
     private String internalName;
 
+    @ToString.Include
+    @Column(nullable = false, updatable = false)
+    private String topic;
+
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)

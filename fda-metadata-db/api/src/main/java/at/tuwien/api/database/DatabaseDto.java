@@ -37,6 +37,10 @@ public class DatabaseDto {
     private String description;
 
     @NotBlank
+    @ApiModelProperty(name = "database exchange", example = "fda.c1.d1")
+    private String exchange;
+
+    @NotBlank
     @ApiModelProperty(name = "database container image")
     private ImageDto image;
 

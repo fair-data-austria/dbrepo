@@ -14,10 +14,6 @@
             <blockquote>
               <p>{{ description }}</p>
             </blockquote>
-            <v-alert border="top" colored-border type="info" elevation="2">
-              You can also add data through the AMQP protocol by connecting to <code>fda-broker-service</code> using the
-              topic <code>fda.c{{ container.id }}.d{{ db.id }}</code>.
-            </v-alert>
             <p>
               Created {{ db.created }}
             </p>
@@ -43,9 +39,6 @@ export default {
   computed: {
     db () {
       return this.$store.state.db
-    },
-    container () {
-      return this.$store.state.db.container
     },
     description () {
       return this.db.description === null ? '(no description)' : this.db.description

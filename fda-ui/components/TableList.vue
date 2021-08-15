@@ -5,12 +5,58 @@
         (no tables)
       </v-card-title>
     </v-card>
-    <v-expansion-panels v-if="tables.length > 0" v-model="panelIndex" accordion>
-      <v-expansion-panel v-for="(item,i) in tables" :key="i">
+    <v-expansion-panels v-if="tables.length > 0" accordion>
+      <v-expansion-panel v-for="(item,i) in tables" :key="i" @click="details(item)">
         <v-expansion-panel-header>
           {{ item.name }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
+          <v-row dense>
+            <v-col>
+              <v-list dense>
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon>mdi-fingerprint</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      ID: {{ tableDetails.id }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon>mdi-information-variant</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      Internal Name: <code>{{ tableDetails.internalName }}</code>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon>mdi-road-variant</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      AMQP Routing Key: <code>{{ tableDetails.topic }}</code>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon>mdi-notebook-outline</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      Description: {{ tableDetails.description }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-col>
+          </v-row>
           <v-row dense>
             <v-col>
               <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}`" outlined>
@@ -21,47 +67,44 @@
                 Import CSV
               </v-btn>
             </v-col>
-            <v-col>
-              ID: {{ item.id }}<br>
-              Internal Name: {{ item.internalName }}<br>
-            </v-col>
             <v-col class="align-right">
               <v-btn outlined color="error" @click="showDeleteTableDialog(item.id)">
                 Delete
               </v-btn>
             </v-col>
           </v-row>
-          <div v-if="tableDetails">
-            Description: {{ tableDetails.description }}<br>
-            <v-simple-table class="colTable">
-              <thead>
-                <th>Column Name</th>
-                <th>Type</th>
-                <th>Primary Key</th>
-                <th>Unique</th>
-                <th>NULL Allowed</th>
-              </thead>
-              <tbody>
-                <tr v-for="(col, idx) in tableDetails.columns" :key="idx">
-                  <td>
-                    {{ col.name }}
-                  </td>
-                  <td>
-                    {{ col.columnType }}
-                  </td>
-                  <td>
-                    <v-simple-checkbox v-model="col.isPrimaryKey" disabled aria-readonly="true" />
-                  </td>
-                  <td>
-                    <v-simple-checkbox v-model="col.unique" disabled aria-readonly="true" />
-                  </td>
-                  <td>
-                    <v-simple-checkbox v-model="col.isNullAllowed" disabled aria-readonly="true" />
-                  </td>
-                </tr>
-              </tbody>
-            </v-simple-table>
-          </div>
+          <v-row v-if="tableDetails.columns" dense>
+            <v-col>
+              <v-simple-table class="colTable">
+                <thead>
+                  <th>Column Name</th>
+                  <th>Type</th>
+                  <th>Primary Key</th>
+                  <th>Unique</th>
+                  <th>NULL Allowed</th>
+                </thead>
+                <tbody>
+                  <tr v-for="(col, idx) in tableDetails.columns" :key="idx">
+                    <td>
+                      {{ col.name }}
+                    </td>
+                    <td>
+                      {{ col.columnType }}
+                    </td>
+                    <td>
+                      <v-simple-checkbox v-model="col.isPrimaryKey" disabled aria-readonly="true" />
+                    </td>
+                    <td>
+                      <v-simple-checkbox v-model="col.unique" disabled aria-readonly="true" />
+                    </td>
+                    <td>
+                      <v-simple-checkbox v-model="col.isNullAllowed" disabled aria-readonly="true" />
+                    </td>
+                  </tr>
+                </tbody>
+              </v-simple-table>
+            </v-col>
+          </v-row>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -93,25 +136,8 @@ export default {
   data () {
     return {
       tables: [],
-      panelIndex: undefined,
-      tableDetails: null,
-      dialogDelete: false,
-      deleteTableId: -1
-    }
-  },
-  watch: {
-    async panelIndex () {
-      if (typeof this.panelIndex !== 'undefined') {
-        const tableId = this.tables[this.panelIndex].id
-        try {
-          const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${tableId}`)
-          this.tableDetails = res.data
-        } catch (err) {
-          this.$toast.error('Could not get table details.')
-        }
-      } else {
-        this.tableDetails = null
-      }
+      tableDetails: { id: 0 },
+      dialogDelete: false
     }
   },
   mounted () {
@@ -119,12 +145,24 @@ export default {
     this.refresh()
   },
   methods: {
+    async details (table) {
+      if (this.tableDetails.id === table.id) {
+        return
+      }
+      try {
+        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${table.id}`)
+        console.debug('table', res.data)
+        this.tableDetails = res.data
+      } catch (err) {
+        this.tableDetails = undefined
+        this.$toast.error('Could not get table details.')
+      }
+    },
     async refresh () {
       // XXX same as in QueryBuilder
       let res
       try {
-        res = await this.$axios.get(
-          `/api/database/${this.$route.params.database_id}/table`)
+        res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
       } catch (err) {
         this.$toast.error('Could not list table.')
@@ -132,8 +170,7 @@ export default {
     },
     async deleteTable () {
       try {
-        await this.$axios.delete(
-          `/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
+        await this.$axios.delete(`/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
         this.refresh()
       } catch (err) {
         this.$toast.error('Could not delete table.')
