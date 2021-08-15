@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.api.database.DatabaseDto;
 import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
@@ -9,6 +10,8 @@ import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,19 +29,25 @@ import java.util.Optional;
 @Service
 public class DatabaseService extends JdbcConnector {
 
+    private final static String AMQP_EXCHANGE = "fda";
+    private static final String AMQP_QUEUE_DATABASES = "fda.databases";
+
     private final ContainerRepository containerRepository;
     private final DatabaseRepository databaseRepository;
     private final DatabaseMapper databaseMapper;
-    private final AmqpService amqpService;
+    private final ObjectMapper objectMapper;
+    private final Channel channel;
 
     @Autowired
     public DatabaseService(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
-                           ImageMapper imageMapper, DatabaseMapper databaseMapper, AmqpService amqpService) {
+                           ImageMapper imageMapper, DatabaseMapper databaseMapper, ObjectMapper objectMapper,
+                           Channel channel) {
         super(imageMapper, databaseMapper);
         this.containerRepository = containerRepository;
         this.databaseRepository = databaseRepository;
         this.databaseMapper = databaseMapper;
-        this.amqpService = amqpService;
+        this.objectMapper = objectMapper;
+        this.channel = channel;
     }
 
     /**
@@ -69,33 +79,36 @@ public class DatabaseService extends JdbcConnector {
 
     @Transactional
     public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, BrokerMalformedException {
-        log.trace("Delete database {}", databaseId);
+            DatabaseMalformedException {
         final Optional<Database> databaseResponse = databaseRepository.findById(databaseId);
         if (databaseResponse.isEmpty()) {
             log.warn("Database with id {} does not exist", databaseId);
             throw new DatabaseNotFoundException("Database does not exist.");
         }
+        final Database database = databaseResponse.get();
         try {
-            delete(databaseResponse.get());
-            amqpService.delete(databaseResponse.get());
+            delete(database);
         } catch (SQLException e) {
             log.error("Could not delete the database: {}", e.getMessage());
             throw new DatabaseMalformedException(e);
+        }
+        database.setDeleted(Instant.now());
+        try {
+            final DatabaseDto dto = databaseMapper.databaseToDatabaseDto(database);
+            channel.basicPublish(AMQP_EXCHANGE, AMQP_QUEUE_DATABASES, null, objectMapper.writeValueAsBytes(dto));
+            log.debug("published removal of {}", dto);
         } catch (IOException e) {
-            log.error("Could not delete the exchange: {}", e.getMessage());
-            throw new BrokerMalformedException(e);
+            log.error("Could not send deletion of database: {}", e.getMessage());
+            throw new DatabaseMalformedException(e);
         }
         databaseRepository.deleteById(databaseId);
         log.info("Deleted database {}", databaseId);
         log.debug("deleted database {}", databaseResponse.get());
-        log.info("Deleted exchange {}", databaseId);
     }
 
     @Transactional
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, BrokerMalformedException {
-        log.trace("Create database {}", createDto);
+            DatabaseMalformedException {
         final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
         if (containerResponse.isEmpty()) {
             log.warn("Container with id {} does not exist", createDto.getContainerId());
@@ -117,21 +130,21 @@ public class DatabaseService extends JdbcConnector {
         // save in metadata database
         final Database out = databaseRepository.save(database);
         try {
-            amqpService.create(out);
+            final DatabaseDto dto = databaseMapper.databaseToDatabaseDto(database);
+            channel.basicPublish(AMQP_EXCHANGE, AMQP_QUEUE_DATABASES, null, objectMapper.writeValueAsBytes(dto));
+            log.debug("published creation of {}", dto);
         } catch (IOException e) {
-            log.error("Could not create the exchange: {}", e.getMessage());
-            throw new BrokerMalformedException(e);
+            log.error("Could not send creation of database: {}", e.getMessage());
+            throw new DatabaseMalformedException(e);
         }
         log.info("Created database {}", out.getId());
         log.debug("created database {}", out);
-        log.info("Created exchange {}", out.getId());
         return out;
     }
 
     @Transactional
     public Database modify(DatabaseModifyDto modifyDto) throws ImageNotSupportedException, DatabaseNotFoundException,
             DatabaseMalformedException {
-        log.trace("Modify database {}", modifyDto);
         final Optional<Database> databaseResponse = databaseRepository.findById(modifyDto.getDatabaseId());
         if (databaseResponse.isEmpty()) {
             log.warn("Database with id {} does not exist", modifyDto.getDatabaseId());

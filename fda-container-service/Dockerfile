@@ -20,6 +20,9 @@ RUN mvn -q clean package -DskipTests
 ###### THIRD STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
+COPY ./service_ready /usr/bin
+RUN chmod +x /usr/bin/service_ready
+
 COPY --from=build ./rest-service/target/rest-service-*.jar ./rest-service.jar
 
 EXPOSE 9091

@@ -1,6 +1,5 @@
 package at.tuwien.service;
 
-import at.tuwien.api.amqp.DataDto;
 import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;

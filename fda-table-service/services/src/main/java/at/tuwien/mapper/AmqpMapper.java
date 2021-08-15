@@ -11,7 +11,7 @@ public interface AmqpMapper {
     }
 
     default String queueName(Database database) {
-        return exchangeName(database) + ".q" + 1;
+        return exchangeName(database) + ".q";
     }
 
 }

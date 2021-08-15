@@ -6,6 +6,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   --CREATE DATABASE $fda_mdb;
   --GRANT ALL PRIVILEGES ON DATABASE $APP_DB_NAME TO $APP_DB_USER;
   --\connect $APP_DB_NAME $APP_DB_USER
+  CREATE USER root;
+  CREATE DATABASE root;
   BEGIN;
 	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 	CREATE TYPE accesstype AS ENUM ('R', 'W');
@@ -167,6 +169,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'),
 		container_id bigint REFERENCES mdb_CONTAINER(id),
 		created timestamp without time zone NOT NULL,
+		deleted timestamp without time zone NULL,
 		name character varying(255) NOT NULL,
 		internal_name character varying(255) NOT NULL,
 		ResourceType TEXT,
@@ -324,4 +327,3 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
   COMMIT;
 EOSQL
-

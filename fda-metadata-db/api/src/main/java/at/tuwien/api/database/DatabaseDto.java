@@ -52,4 +52,8 @@ public class DatabaseDto {
     @ApiModelProperty(name = "database creation time", example = "2020-08-04 11:12:00")
     private Instant created;
 
+    @NotBlank
+    @ApiModelProperty(name = "database deletion time", example = "2020-08-04 11:13:00")
+    private Instant deleted;
+
 }
