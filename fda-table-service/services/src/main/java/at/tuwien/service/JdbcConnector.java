@@ -17,6 +17,7 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -54,6 +55,7 @@ public abstract class JdbcConnector {
                 .execute();
     }
 
+    @Transactional
     protected void insertCsv(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException {
         if (data.getData().size() == 0) {
             log.warn("No data to insert into table");
@@ -68,15 +70,6 @@ public abstract class JdbcConnector {
                     .values(row));
         }
         context.batch(statements)
-                .execute();
-    }
-
-    protected void insertTuple(Table table, TupleDto[] data) throws SQLException, ImageNotSupportedException {
-        final DSLContext context = open(table.getDatabase());
-        final List<Field<?>> headers = Arrays.stream(data)
-                .map(t -> field(t.getK()))
-                .collect(Collectors.toList());
-        context.insertInto(table(table.getInternalName()), headers)
                 .execute();
     }
 

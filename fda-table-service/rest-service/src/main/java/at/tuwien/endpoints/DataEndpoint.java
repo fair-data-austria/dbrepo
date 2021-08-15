@@ -2,6 +2,7 @@ package at.tuwien.endpoints;
 
 import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
@@ -64,7 +65,7 @@ public class DataEndpoint {
     })
     public ResponseEntity<?> insertFromTuple(@PathVariable("id") Long databaseId,
                                     @PathVariable("tableId") Long tableId,
-                                    @Valid @RequestBody TupleDto[] data) throws ImageNotSupportedException,
+                                    @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
             TableMalformedException {
         final Table table = Table.builder()
                 .id(tableId)

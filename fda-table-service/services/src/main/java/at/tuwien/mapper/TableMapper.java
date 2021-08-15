@@ -1,5 +1,6 @@
 package at.tuwien.mapper;
 
+import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;

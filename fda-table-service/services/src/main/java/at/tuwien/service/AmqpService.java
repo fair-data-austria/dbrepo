@@ -1,25 +1,29 @@
 package at.tuwien.service;
 
 import at.tuwien.api.amqp.TupleDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.AmqpException;
+import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.TableRepository;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
+import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.Arrays;
+import java.sql.SQLException;
 import java.util.List;
 
 @Log4j2
@@ -29,12 +33,15 @@ public class AmqpService {
     private static final String AMQP_EXCHANGE = "fda";
 
     private final Channel channel;
+    private final DataService dataService;
     private final ObjectMapper objectMapper;
     private final TableRepository tableRepository;
 
     @Autowired
-    public AmqpService(Channel channel, ObjectMapper objectMapper, TableRepository tableRepository) {
+    public AmqpService(Channel channel, DataService dataService, ObjectMapper objectMapper,
+                       TableRepository tableRepository) {
         this.channel = channel;
+        this.dataService = dataService;
         this.objectMapper = objectMapper;
         this.tableRepository = tableRepository;
     }
@@ -109,13 +116,15 @@ public class AmqpService {
     protected void createUserConsumer(Table table) throws IOException {
         channel.basicConsume(table.getTopic(), true, (consumerTag, response) -> {
             try {
-                final TupleDto[] payload = objectMapper.readValue(response.getBody(), TupleDto[].class);
-                log.debug("create consumer for database id {} table id {}", null, Arrays.asList(payload));
-            } catch (JsonParseException e) {
+                dataService.insertCsv(table, objectMapper.readValue(response.getBody(), TableCsvDto.class));
+            } catch (JsonParseException | MismatchedInputException e) {
                 log.warn("Could not parse AMQP payload {}", e.getMessage());
                 /* ignore */
             } catch (ConnectException e) {
                 log.warn("Could not redirect AMQP payload {}", e.getMessage());
+                /* ignore */
+            } catch (SQLException | ImageNotSupportedException | DataAccessException e) {
+                log.warn("Could not insert AMQP payload {}", e.getMessage());
                 /* ignore */
             }
         }, consumerTag -> {/* */});

@@ -131,7 +131,6 @@ public class DataService extends JdbcConnector {
         for (int i = (data.getSkipHeader() ? 1 : 0); i < cells.size(); i++) {
             final Map<String, Object> record = new HashMap<>();
             final List<String> row = cells.get(i);
-            log.trace("row {}: {}", i, row);
             for (int j = 0; j < table.getColumns().size(); j++) {
                 record.put(table.getColumns().get(j).getInternalName(), row.get(j));
             }
@@ -139,7 +138,6 @@ public class DataService extends JdbcConnector {
             if (data.getNullElement() != null) {
                 record.replaceAll((key, value) -> value.equals(data.getNullElement()) ? null : value);
             }
-            log.trace("processed {}", row);
             records.add(record);
         }
         return TableCsvDto.builder()
@@ -147,9 +145,9 @@ public class DataService extends JdbcConnector {
                 .build();
     }
 
-    public void insert(Table table, TupleDto[] data) throws ImageNotSupportedException, TableMalformedException {
+    public void insert(Table table, TableCsvDto data) throws ImageNotSupportedException, TableMalformedException {
         try {
-            insertTuple(table, data);
+            insertCsv(table, data);
         } catch (SQLException e) {
             log.error("could not insert data {}", e.getMessage());
             throw new TableMalformedException("could not insert data", e);
