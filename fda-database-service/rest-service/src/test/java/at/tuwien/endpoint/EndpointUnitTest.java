@@ -50,7 +50,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, BrokerMalformedException {
+            DatabaseMalformedException, AmqpException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -68,7 +68,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_containerNotFound_fails() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, BrokerMalformedException {
+            DatabaseMalformedException, AmqpException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -85,7 +85,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_imageNotSupported_fails() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, BrokerMalformedException {
+            DatabaseMalformedException, AmqpException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -152,7 +152,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, BrokerMalformedException {
+            DatabaseMalformedException, AmqpException {
         final ResponseEntity<?> response = databaseEndpoint.delete(DATABASE_1_ID);
 
         /* test */
@@ -161,7 +161,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_invalidImage_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, BrokerMalformedException {
+            DatabaseMalformedException, AmqpException {
         willThrow(ImageNotSupportedException.class)
                 .given(databaseService)
                 .delete(DATABASE_1_ID);
@@ -174,7 +174,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, BrokerMalformedException {
+            DatabaseMalformedException, AmqpException {
         willThrow(DatabaseNotFoundException.class)
                 .given(databaseService)
                 .delete(DATABASE_1_ID);

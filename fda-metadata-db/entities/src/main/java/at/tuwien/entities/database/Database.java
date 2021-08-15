@@ -55,6 +55,10 @@ public class Database {
     private String internalName;
 
     @ToString.Include
+    @Column(nullable = false, updatable = false)
+    private String exchange;
+
+    @ToString.Include
     @Column
     private String description;
 

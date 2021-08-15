@@ -4,15 +4,11 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableDto;
-import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.endpoints.TableEndpoint;
-import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import at.tuwien.service.TableService;
-import com.opencsv.exceptions.CsvException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.ResourceUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,7 +44,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void findAll_succeeds() throws DatabaseNotFoundException {
-        when(tableService.findAll(DATABASE_1_ID))
+        when(tableService.findAllForDatabaseId(DATABASE_1_ID))
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
@@ -64,7 +55,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
+            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException, AmqpException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)

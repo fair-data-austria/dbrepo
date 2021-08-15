@@ -54,7 +54,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
-        final List<Table> response = tableService.findAll(DATABASE_1_ID);
+        final List<Table> response = tableService.findAllForDatabaseId(DATABASE_1_ID);
         assertEquals(1, response.size());
         assertEquals(TABLE_1_ID, response.get(0).getId());
     }
@@ -66,7 +66,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.findAll(DATABASE_1_ID);
+            tableService.findAllForDatabaseId(DATABASE_1_ID);
         });
     }
 
