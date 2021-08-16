@@ -33,11 +33,6 @@ build-docker:
     - "docker volume rm $(docker volume ls -q) || true"
     - "docker-compose build"
 
-build-software:
-  stage: build
-  script:
-    - "cd ./fda-ui && npm install"
-
 build-metadata-db:
   stage: build
   script:
@@ -46,8 +41,9 @@ build-metadata-db:
 test-frontend-ui:
   stage: test-frontend
   script:
+    - "npm --prefix ./fda-ui install"
     - "docker-compose up -d"
-    - "cd ./fda-ui && npm run test"
+    - "npm --prefix ./fda-ui run test"
   artifacts:
     when: always
     paths:
