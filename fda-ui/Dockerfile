@@ -2,12 +2,14 @@
 FROM node:14-alpine as build
 MAINTAINER Kirill Stytsenko <kirill.stytsenko@univie.ac.at>
 
+ENV NODE_ENV=production
+
 WORKDIR /app
 
 COPY ./package.json ./
 
 # Install npm dependencies
-RUN yarn install --frozen-lockfile > /dev/null 2>&1
+RUN npm install > /dev/null 2>&1
 
 COPY ./nuxt.config.js ./
 COPY ./.env-docker ./.env
