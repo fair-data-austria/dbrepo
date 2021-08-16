@@ -26,20 +26,24 @@ public abstract class BaseUnitTest {
     public final static Long DATABASE_1_ID = 1L;
     public final static String DATABASE_1_NAME = "Weather";
     public final static String DATABASE_1_INTERNALNAME = "weather";
-    public final static String TABLE_1_DESCRIPTION = "Weather in the world";
+    public final static String DATABASE_1_EXCHANGE = "fda." + DATABASE_1_INTERNALNAME;
 
     public final static Long DATABASE_2_ID = 2L;
     public final static String DATABASE_2_NAME = "RIVER";
     public final static String DATABASE_2_INTERNALNAME = "river";
-    public final static String TABLE_2_DESCRIPTION = "River Data";
+    public final static String DATABASE_2_EXCHANGE = "fda." + DATABASE_2_INTERNALNAME;
 
     public final static Long TABLE_1_ID = 1L;
     public final static String TABLE_1_NAME = "Weather AUS";
     public final static String TABLE_1_INTERNALNAME = "weather_aus";
+    public final static String TABLE_1_DESCRIPTION = "Weather in the world";
+    public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNALNAME;
 
     public final static Long TABLE_2_ID = 2L;
     public final static String TABLE_2_NAME = "Weather AT";
     public final static String TABLE_2_INTERNALNAME = "weather_at";
+    public final static String TABLE_2_DESCRIPTION = "River Data";
+    public final static String TABLE_2_TOPIC = DATABASE_2_EXCHANGE + "." + TABLE_2_INTERNALNAME;
 
     public final static Long COLUMN_1_ID = 1L;
     public final static Integer COLUMN_1_ORDINALPOS = 0;
@@ -253,6 +257,7 @@ public abstract class BaseUnitTest {
             .lastModified(Instant.now())
             .columns(TABLE_1_COLUMNS)
             .tdbid(DATABASE_1_ID)
+            .topic(TABLE_1_TOPIC)
             .build();
 
     public final static Database DATABASE_1 = Database.builder()
@@ -264,6 +269,7 @@ public abstract class BaseUnitTest {
             .container(CONTAINER_1)
             .tables(List.of(TABLE_1))
             .internalName(DATABASE_1_INTERNALNAME)
+            .exchange(DATABASE_1_EXCHANGE)
             .build();
 
     /* no connection */
@@ -276,6 +282,7 @@ public abstract class BaseUnitTest {
             .tables(List.of())
             .container(CONTAINER_2)
             .internalName(DATABASE_2_INTERNALNAME)
+            .exchange(DATABASE_2_EXCHANGE)
             .build();
 
     public final static ColumnCreateDto[] COLUMNS5 = new ColumnCreateDto[]{

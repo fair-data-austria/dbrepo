@@ -15,6 +15,12 @@ import static java.time.temporal.ChronoUnit.HOURS;
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseUnitTest {
 
+    public final static String BROKER_NAME = "fda-broker-service";
+    public final static String BROKER_IP = "172.29.0.2";
+    public final static String BROKER_HOSTNAME = "fda-broker-service";
+    public final static String BROKER_IMAGE = "rabbitmq";
+    public final static String BROKER_TAG = "3-alpine";
+
     public final static Long IMAGE_1_ID = 1L;
     public final static String IMAGE_1_REPOSITORY = "postgres";
     public final static String IMAGE_1_TAG = "latest";
@@ -87,7 +93,7 @@ public abstract class BaseUnitTest {
 
     public final static Long CONTAINER_1_ID = 1L;
     public final static String CONTAINER_1_HASH = "deadbeef";
-    public final static String CONTAINER_1_NAME = "u01";
+    public final static String CONTAINER_1_NAME = "fda-userdb-u01";
     public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(2, HOURS);
     public final static Instant CONTAINER_1_UPDATED = Instant.now();
@@ -95,7 +101,7 @@ public abstract class BaseUnitTest {
 
     public final static Long CONTAINER_2_ID = 2L;
     public final static String CONTAINER_2_HASH = "0ff1ce";
-    public final static String CONTAINER_2_NAME = "u02";
+    public final static String CONTAINER_2_NAME = "fda-userdb-u02";
     public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-u02";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(2, HOURS);
     public final static Instant CONTAINER_2_UPDATED = Instant.now();

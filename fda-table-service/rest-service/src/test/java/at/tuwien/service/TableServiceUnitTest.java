@@ -3,11 +3,13 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import com.opencsv.exceptions.CsvException;
+import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +33,12 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class TableServiceUnitTest extends BaseUnitTest {
+
+    @MockBean
+    private Channel channel;
+
+    @MockBean
+    private ReadyConfig readyConfig;
 
     @Autowired
     private TableService tableService;
