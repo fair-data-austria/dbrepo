@@ -36,18 +36,18 @@ build-docker:
 build-software:
   stage: build
   script:
-    - "npm --prefix ./fda-ui install"
+    - "cd ./fda-ui && npm install"
 
 build-metadata-db:
   stage: build
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
 
-test-ui:
+test-frontend-ui:
   stage: test-frontend
   script:
     - "docker-compose up -d"
-    - "npm --prefix ./fda-ui run test"
+    - "cd ./fda-ui && npm run test"
   artifacts:
     when: always
     paths:
