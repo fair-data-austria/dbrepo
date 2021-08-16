@@ -81,6 +81,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		HASH character varying(255) NOT NULL,
 		INTERNAL_NAME character varying(255) NOT NULL,
 		LAST_MODIFIED timestamp without time zone,
+		deleted timestamp without time zone NULL,
 		NAME character varying(255) NOT NULL,
 		PORT integer,
 		IMAGE_ID bigint REFERENCES mdb_image(id),

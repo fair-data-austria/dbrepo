@@ -1,10 +1,10 @@
 package at.tuwien.service;
 
-import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.mapper.ImageMapper;
+import lombok.extern.log4j.Log4j2;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+@Log4j2
 public abstract class JdbcConnector {
 
     private final ImageMapper imageMapper;
@@ -25,6 +26,7 @@ public abstract class JdbcConnector {
 
     protected DSLContext open(Database database) throws SQLException, ImageNotSupportedException {
         final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/";
+        log.debug("attempt connection to url {}", url);
         final Properties properties = imageMapper.containerImageToProperties(database.getContainer().getImage());
         final Connection connection = DriverManager.getConnection(url, properties);
         return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
