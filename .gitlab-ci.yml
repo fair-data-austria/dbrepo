@@ -26,6 +26,7 @@ build-docker:
     - "docker image pull postgres:latest || true"
     - "docker image pull mysql:latest || true"
     - "docker image pull mariadb:latest || true"
+    - "docker image pull rabbitmq:3-alpine || true"
     - "docker-compose down || true"
     - "docker container stop $(docker container ls -aq) || true"
     - "docker container rm $(docker container ls -aq) || true"

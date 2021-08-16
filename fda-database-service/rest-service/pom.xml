@@ -33,7 +33,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>repackage</goal><!-- to make it exuteable with $ java -jar ./app.jar -->
+                            <goal>repackage</goal><!-- https://docs.spring.io/spring-boot/docs/current/maven-plugin/reference/htmlsingle/#packaging -->
                         </goals>
                     </execution>
                 </executions>
