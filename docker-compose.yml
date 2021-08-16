@@ -36,11 +36,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fda
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-discovery-service:
     restart: on-failure
@@ -54,11 +49,6 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9090:9090
-    healthcheck:
-      test:  [ "CMD-SHELL", "service_ready" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-gateway-service:
     restart: on-failure
@@ -77,11 +67,6 @@ services:
         condition: service_healthy
     logging:
       driver: json-file
-    healthcheck:
-      test: [ "CMD-SHELL", "service_ready" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-database-service:
     restart: on-failure
@@ -107,11 +92,6 @@ services:
         condition: service_healthy
     logging:
       driver: json-file
-    healthcheck:
-      test: [ "CMD-SHELL", "service_ready" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-container-service:
     restart: on-failure
@@ -134,11 +114,6 @@ services:
         condition: service_healthy
     logging:
       driver: json-file
-    healthcheck:
-      test: [ "CMD-SHELL", "service_ready" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-query-service:
     restart: on-failure
@@ -164,11 +139,6 @@ services:
         condition: service_healthy
     logging:
       driver: json-file
-    healthcheck:
-      test: [ "CMD-SHELL", "service_ready" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-table-service:
     restart: on-failure
@@ -194,11 +164,6 @@ services:
         condition: service_healthy
       fda-broker-service:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD-SHELL", "service_ready" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-analyse-service:
     restart: on-failure
@@ -212,10 +177,6 @@ services:
     command: sh -c "/wait && flask run" # docker-compose should not test the implementation
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka
-      WAIT_HOSTS: fda-database-service:9092
-      WAIT_HOSTS_TIMEOUT: 600
-      WAIT_SLEEP_INTERVAL: 30
-      WAIT_HOST_CONNECT_TIMEOUT: 30
     ports:
       - 5000:5000
     volumes:
@@ -228,11 +189,6 @@ services:
         condition: service_healthy
     logging:
       driver: json-file
-    healthcheck:
-      test: [ "CMD-SHELL", "true" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-broker-service:
     restart: on-failure
@@ -247,11 +203,6 @@ services:
       - 15672:15672
     volumes:
       - fda-broker-service-data:/var/lib/rabbitmq/
-    healthcheck:
-      test: [ "CMD-SHELL", "service_ready" ]
-      interval: 6s
-      timeout: 5s
-      retries: 10
 
   fda-ui:
     restart: on-failure

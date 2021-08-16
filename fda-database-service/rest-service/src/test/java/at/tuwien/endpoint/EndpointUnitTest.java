@@ -5,11 +5,18 @@ import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.api.database.DatabaseDto;
 import at.tuwien.api.database.DatabaseModifyDto;
+import at.tuwien.config.DockerConfig;
+import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.DatabaseEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.service.DatabaseService;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.ConflictException;
+import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Network;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,12 +25,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.SQLException;
+import java.nio.channels.Channel;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -31,10 +40,70 @@ import static org.mockito.Mockito.when;
 public class EndpointUnitTest extends BaseUnitTest {
 
     @MockBean
+    private ReadyConfig readyConfig;
+
+    @MockBean
     private DatabaseService databaseService;
 
     @Autowired
     private DatabaseEndpoint databaseEndpoint;
+
+    @BeforeAll
+    public static void beforeAll() throws InterruptedException {
+        final DockerConfig dockerConfig = new DockerConfig();
+        final HostConfig hostConfig = dockerConfig.hostConfig();
+        final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
+        /* create network */
+        dockerClient.createNetworkCmd()
+                .withName("fda-public")
+                .withInternal(true)
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.29.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+        /* create amqp */
+        final CreateContainerResponse request = dockerClient.createContainerCmd(BROKER_IMAGE + ":" + BROKER_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-public"))
+                .withName(BROKER_NAME)
+                .withIpv4Address(BROKER_IP)
+                .withHostName(BROKER_HOSTNAME)
+                .exec();
+        dockerClient.startContainerCmd(request.getId()).exec();
+        Thread.sleep(5 * 1000);
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        final DockerConfig dockerConfig = new DockerConfig();
+        final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
+        /* stop containers and remove them */
+        dockerClient.listContainersCmd()
+                .withShowAll(true)
+                .exec()
+                .forEach(container -> {
+                    System.out.println("DELETE CONTAINER " + Arrays.toString(container.getNames()));
+                    try {
+                        dockerClient.stopContainerCmd(container.getId()).exec();
+                    } catch (NotModifiedException e) {
+                        // ignore
+                    }
+                    try {
+                        dockerClient.removeContainerCmd(container.getId()).exec();
+                    } catch (ConflictException e) {
+                        // ignore
+                    }
+                });
+        /* remove networks */
+        dockerClient.listNetworksCmd()
+                .exec()
+                .stream()
+                .filter(n -> n.getName().startsWith("fda"))
+                .forEach(network -> {
+                    System.out.println("DELETE NETWORK " + network.getName());
+                    dockerClient.removeNetworkCmd(network.getId()).exec();
+                });
+    }
 
     @Test
     public void findAll_succeeds() {

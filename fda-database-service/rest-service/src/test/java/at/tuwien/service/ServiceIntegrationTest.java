@@ -70,6 +70,14 @@ public class ServiceIntegrationTest extends BaseUnitTest {
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
+        dockerClient.createNetworkCmd()
+                .withName("fda-public")
+                .withInternal(true)
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.29.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
         imageRepository.save(IMAGE_1);
         imageRepository.save(IMAGE_2);
         /* create container */
@@ -86,8 +94,15 @@ public class ServiceIntegrationTest extends BaseUnitTest {
                 .withName(CONTAINER_2_NAME)
                 .withIpv4Address(CONTAINER_2_IP)
                 .withHostName(CONTAINER_2_INTERNALNAME)
+                .exec();/* create amqp */
+        final CreateContainerResponse request = dockerClient.createContainerCmd(BROKER_IMAGE + ":" + BROKER_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-public"))
+                .withName(BROKER_NAME)
+                .withIpv4Address(BROKER_IP)
+                .withHostName(BROKER_HOSTNAME)
                 .exec();
         /* start container */
+        dockerClient.startContainerCmd(request.getId()).exec();
         dockerClient.startContainerCmd(request1.getId()).exec();
         dockerClient.startContainerCmd(request2.getId()).exec();
         Thread.sleep(10 * 1000);

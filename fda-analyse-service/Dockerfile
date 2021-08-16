@@ -12,6 +12,7 @@ COPY requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt > /dev/null
 
+HEALTHCHECK --interval=25s --timeout=3s --retries=2 CMD exit 0
 # Add docker-compose-wait tool -------------------
 ENV WAIT_VERSION 2.7.2
 
