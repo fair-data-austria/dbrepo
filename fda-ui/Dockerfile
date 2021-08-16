@@ -1,20 +1,8 @@
 # FROM node:lts as build
-FROM mcr.microsoft.com/playwright:v1.11.1-focal as build
+FROM node:14-alpine as build
 MAINTAINER Kirill Stytsenko <kirill.stytsenko@univie.ac.at>
 
 WORKDIR /app
-
-# python, make, g++ are needed by node-gyp
-# RUN apk add --no-cache build-base python3 > /dev/null
-RUN apt-get install make g++ python3 -y > /dev/null
-
-# Install Chromium dependencies - playwright
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  libnss3 \
-  libxss1 \
-  libasound2 \
-  fonts-noto-color-emoji \
-  libxtst6
 
 # Our app
 COPY ./.env-docker ./.env
@@ -28,7 +16,6 @@ COPY ./nuxt.config.js ./
 COPY ./package.json ./
 COPY ./pages ./pages
 COPY ./plugins ./plugins
-COPY ./scripts ./scripts
 COPY ./server-middleware ./server-middleware
 COPY ./static ./static
 COPY ./store ./store
