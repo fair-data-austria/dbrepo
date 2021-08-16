@@ -19,7 +19,6 @@ import java.util.List;
 public class AmqpService {
 
     private static final String AMQP_EXCHANGE = "fda";
-    private static final String AMQP_QUEUE_DATABASES = "fda.databases";
 
     private final Channel channel;
     private final DatabaseRepository databaseRepository;
@@ -38,8 +37,6 @@ public class AmqpService {
     @PostConstruct
     public void init() throws IOException {
         channel.exchangeDeclare(AMQP_EXCHANGE, BuiltinExchangeType.TOPIC, true);
-        channel.queueDeclare(AMQP_QUEUE_DATABASES, true, false, false, null);
-        channel.queueBind(AMQP_QUEUE_DATABASES, AMQP_EXCHANGE, AMQP_QUEUE_DATABASES);
         final List<Database> databases = databaseRepository.findAll();
         for (Database database : databases) {
             create(database);

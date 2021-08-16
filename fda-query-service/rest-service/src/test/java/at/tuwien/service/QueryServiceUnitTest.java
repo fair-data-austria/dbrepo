@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
@@ -24,6 +25,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class QueryServiceUnitTest extends BaseUnitTest {
+
+    @MockBean
+    private ReadyConfig readyConfig;
 
     @Autowired
     private QueryService queryService;

@@ -40,7 +40,7 @@ import static org.mockito.Mockito.*;
 @Log4j2
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class ServiceUnitTest extends BaseUnitTest {
+public class DatabaseServiceUnitTest extends BaseUnitTest {
 
     @MockBean
     private ReadyConfig readyConfig;
@@ -62,15 +62,20 @@ public class ServiceUnitTest extends BaseUnitTest {
         final DockerConfig dockerConfig = new DockerConfig();
         final HostConfig hostConfig = dockerConfig.hostConfig();
         final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
-        /* create network */
-        dockerClient.createNetworkCmd()
-                .withName("fda-public")
-                .withInternal(true)
-                .withIpam(new Network.Ipam()
-                        .withConfig(new Network.Ipam.Config()
-                                .withSubnet("172.29.0.0/16")))
-                .withEnableIpv6(false)
-                .exec();
+        /* create network */final boolean exists = (long) dockerClient.listNetworksCmd()
+                .withNameFilter("fda-public")
+                .exec()
+                .size() == 1;
+        if (!exists) {
+            dockerClient.createNetworkCmd()
+                    .withName("fda-public")
+                    .withInternal(true)
+                    .withIpam(new Network.Ipam()
+                            .withConfig(new Network.Ipam.Config()
+                                    .withSubnet("172.29.0.0/16")))
+                    .withEnableIpv6(false)
+                    .exec();
+        }
         /* create amqp */
         final CreateContainerResponse request = dockerClient.createContainerCmd(BROKER_IMAGE + ":" + BROKER_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-public"))

@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ServiceIntegrationTest extends BaseUnitTest {
+public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private ReadyConfig readyConfig;
@@ -77,22 +77,28 @@ public class ServiceIntegrationTest extends BaseUnitTest {
         final HostConfig hostConfig = dockerConfig.hostConfig();
         final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
         /* create network */
-        dockerClient.createNetworkCmd()
-                .withName("fda-userdb")
-                .withInternal(true)
-                .withIpam(new Network.Ipam()
-                        .withConfig(new Network.Ipam.Config()
-                                .withSubnet("172.28.0.0/16")))
-                .withEnableIpv6(false)
-                .exec();
-        dockerClient.createNetworkCmd()
-                .withName("fda-public")
-                .withInternal(true)
-                .withIpam(new Network.Ipam()
-                        .withConfig(new Network.Ipam.Config()
-                                .withSubnet("172.29.0.0/16")))
-                .withEnableIpv6(false)
-                .exec();
+        final boolean exists = (long) dockerClient.listNetworksCmd()
+                .withNameFilter("fda-public", "fda-userdb")
+                .exec()
+                .size() == 2;
+        if (!exists) {
+            dockerClient.createNetworkCmd()
+                    .withName("fda-userdb")
+                    .withInternal(true)
+                    .withIpam(new Network.Ipam()
+                            .withConfig(new Network.Ipam.Config()
+                                    .withSubnet("172.28.0.0/16")))
+                    .withEnableIpv6(false)
+                    .exec();
+            dockerClient.createNetworkCmd()
+                    .withName("fda-public")
+                    .withInternal(true)
+                    .withIpam(new Network.Ipam()
+                            .withConfig(new Network.Ipam.Config()
+                                    .withSubnet("172.29.0.0/16")))
+                    .withEnableIpv6(false)
+                    .exec();
+        }
         /* create amqp */
         final CreateContainerResponse request = dockerClient.createContainerCmd(BROKER_IMAGE + ":" + BROKER_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-public"))

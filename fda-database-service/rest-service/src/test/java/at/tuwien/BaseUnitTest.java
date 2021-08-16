@@ -93,6 +93,11 @@ public abstract class BaseUnitTest {
     public final static Instant DATABASE_2_CREATED = Instant.now().minus(1, HOURS);
     public final static Instant DATABASE_2_UPDATED = Instant.now();
 
+    public final static Long TABLE_1_ID = 1L;
+    public final static String TABLE_1_NAME = "NYSE";
+    public final static String TABLE_1_INTERNALNAME = "nyse";
+    public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNALNAME;
+
     public final static Long CONTAINER_1_ID = 1L;
     public final static String CONTAINER_1_HASH = "deadbeef";
     public final static String CONTAINER_1_NAME = "fda-userdb-u01";
@@ -168,6 +173,7 @@ public abstract class BaseUnitTest {
             .isPublic(DATABASE_1_PUBLIC)
             .container(CONTAINER_1)
             .created(DATABASE_1_CREATED)
+            .tables(List.of())
             .lastModified(DATABASE_1_UPDATED)
             .container(CONTAINER_1)
             .exchange(DATABASE_1_EXCHANGE)
@@ -180,6 +186,7 @@ public abstract class BaseUnitTest {
             .isPublic(DATABASE_2_PUBLIC)
             .container(CONTAINER_2)
             .created(DATABASE_2_CREATED)
+            .tables(List.of())
             .lastModified(DATABASE_2_UPDATED)
             .container(CONTAINER_2)
             .exchange(DATABASE_2_EXCHANGE)
