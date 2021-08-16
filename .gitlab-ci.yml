@@ -38,12 +38,6 @@ build-metadata-db:
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
 
-# dnf install -y chromium
-build-software:
-  stage: build
-  script:
-    - "npm -g -y install yarn playwright"
-
 test-e2e:
   stage: test-e2e
   script:

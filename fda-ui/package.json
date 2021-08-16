@@ -10,12 +10,7 @@
     "generate": "nuxt generate",
     "ver": "nuxt --version",
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "lint": "yarn lint:js",
-    "test:unit": "ava test/unit/**/* test/specs/**/*",
-    "test:watch": "ava --watch test/unit/**/* test/specs/**/*",
-    "test:e2e": "cross-env PORT=3001 ava --timeout=2h --fail-fast test/e2e/**",
-    "test:e2e:docker": "cross-env PORT=3000 SLOWMO=500 ava --timeout=2h --fail-fast test/e2e/**",
-    "test": "yarn test:unit && yarn test:e2e:docker"
+    "lint": "yarn lint:js"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.13.9",
@@ -63,7 +58,6 @@
     "jsdom": "^16.6.0",
     "jsdom-global": "^3.0.2",
     "nyc": "^15.1.0",
-    "playwright": "^1.11.1",
     "require-extension-hooks": "^0.3.3",
     "require-extension-hooks-babel": "^1.0.0-beta.1",
     "require-extension-hooks-vue": "^3.0.0",
