@@ -33,6 +33,11 @@ build-docker:
     - "docker volume rm $(docker volume ls -q) || true"
     - "docker-compose build"
 
+build-software:
+  stage: build
+  script:
+    - "sudo npm install -g -y ./fda-ui"
+
 build-metadata-db:
   stage: build
   script:
