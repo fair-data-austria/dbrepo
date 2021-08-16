@@ -1,7 +1,6 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.api.container.*;
-import at.tuwien.api.container.network.IpAddressDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ContainerMapper;

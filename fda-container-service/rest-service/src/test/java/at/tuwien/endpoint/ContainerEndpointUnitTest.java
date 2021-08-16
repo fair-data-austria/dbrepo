@@ -2,6 +2,7 @@ package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.*;
+import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.ContainerEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.repository.ImageRepository;
@@ -29,6 +30,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class ContainerEndpointUnitTest extends BaseUnitTest {
+
+    @MockBean
+    private ReadyConfig readyConfig;
 
     @MockBean
     private ContainerService containerService;
