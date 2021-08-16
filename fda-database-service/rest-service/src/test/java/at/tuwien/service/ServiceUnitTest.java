@@ -3,12 +3,22 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.api.database.DatabaseModifyDto;
+import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.repository.ContainerRepository;
 import at.tuwien.repository.DatabaseRepository;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.ConflictException;
+import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Network;
+import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.channels.Channel;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,12 +37,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Log4j2
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class ServiceUnitTest extends BaseUnitTest {
 
     @MockBean
     private ReadyConfig readyConfig;
+
+    @MockBean
+    private Channel channel;
 
     @Autowired
     private DatabaseService databaseService;
@@ -41,6 +56,52 @@ public class ServiceUnitTest extends BaseUnitTest {
 
     @MockBean
     private ContainerRepository containerRepository;
+
+    @BeforeAll
+    public static void beforeAll() throws InterruptedException {
+        final DockerConfig dockerConfig = new DockerConfig();
+        final HostConfig hostConfig = dockerConfig.hostConfig();
+        final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
+        /* create network */
+        dockerClient.createNetworkCmd()
+                .withName("fda-public")
+                .withInternal(true)
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.29.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+        /* create amqp */
+        final CreateContainerResponse request = dockerClient.createContainerCmd(BROKER_IMAGE + ":" + BROKER_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-public"))
+                .withName(BROKER_NAME)
+                .withIpv4Address(BROKER_IP)
+                .withHostName(BROKER_HOSTNAME)
+                .exec();
+        dockerClient.startContainerCmd(request.getId())
+                .exec();
+        Thread.sleep(5 * 1000);
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        final DockerConfig dockerConfig = new DockerConfig();
+        final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
+        /* stop containers and remove them */
+        dockerClient.stopContainerCmd(BROKER_NAME)
+                .exec();
+        dockerClient.removeContainerCmd(BROKER_NAME)
+                .exec();
+        /* remove networks */
+        dockerClient.listNetworksCmd()
+                .exec()
+                .stream()
+                .filter(n -> n.getName().startsWith("fda"))
+                .forEach(network -> {
+                    log.info("Delete Network {}", network.getName());
+                    dockerClient.removeNetworkCmd(network.getId()).exec();
+                });
+    }
 
     @Test
     public void findAll_succeeds() {

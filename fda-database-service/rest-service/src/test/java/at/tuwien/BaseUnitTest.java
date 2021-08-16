@@ -81,6 +81,7 @@ public abstract class BaseUnitTest {
     public final static String DATABASE_1_NAME = "Fundamentals SEC";
     public final static Boolean DATABASE_1_PUBLIC = false;
     public final static String DATABASE_1_INTERNALNAME = "sec";
+    public final static String DATABASE_1_EXCHANGE = "fda." + DATABASE_1_INTERNALNAME;
     public final static Instant DATABASE_1_CREATED = Instant.now().minus(1, HOURS);
     public final static Instant DATABASE_1_UPDATED = Instant.now();
 
@@ -88,6 +89,7 @@ public abstract class BaseUnitTest {
     public final static String DATABASE_2_NAME = "River Flow";
     public final static Boolean DATABASE_2_PUBLIC = false;
     public final static String DATABASE_2_INTERNALNAME = "river_flow";
+    public final static String DATABASE_2_EXCHANGE = "fda." + DATABASE_2_INTERNALNAME;
     public final static Instant DATABASE_2_CREATED = Instant.now().minus(1, HOURS);
     public final static Instant DATABASE_2_UPDATED = Instant.now();
 
@@ -168,6 +170,7 @@ public abstract class BaseUnitTest {
             .created(DATABASE_1_CREATED)
             .lastModified(DATABASE_1_UPDATED)
             .container(CONTAINER_1)
+            .exchange(DATABASE_1_EXCHANGE)
             .build();
 
     public final static Database DATABASE_2 = Database.builder()
@@ -179,11 +182,11 @@ public abstract class BaseUnitTest {
             .created(DATABASE_2_CREATED)
             .lastModified(DATABASE_2_UPDATED)
             .container(CONTAINER_2)
+            .exchange(DATABASE_2_EXCHANGE)
             .build();
 
     public final static List<String> IMAGE_1_ENV = List.of("POSTGRES_USER=postgres",
             "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=" + DATABASE_1_INTERNALNAME);
 
-    public final static List<String> IMAGE_2_ENV = List.of("MARIADB_USER=mariadb",
-            "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb");
+    public final static List<String> IMAGE_2_ENV = List.of("MARIADB_ROOT_PASSWORD=mariadb");
 }
