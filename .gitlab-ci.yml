@@ -36,7 +36,7 @@ build-docker:
 build-software:
   stage: build
   script:
-    - "sudo npm install -g -y ./fda-ui"
+    - "npm --prefix ./fda-ui install"
 
 build-metadata-db:
   stage: build
@@ -47,7 +47,7 @@ test-ui:
   stage: test-frontend
   script:
     - "docker-compose up -d"
-    - "yarn --cwd ./fda-ui test"
+    - "npm --prefix ./fda-ui run test"
   artifacts:
     when: always
     paths:
