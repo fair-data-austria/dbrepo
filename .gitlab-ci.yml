@@ -16,7 +16,7 @@ image: "docker/compose:latest"
 
 stages: 
   - build
-  - test-e2e
+  - test-frontend
   - test-backend
   - deploy
 
@@ -43,8 +43,8 @@ build-metadata-db:
   script:
     - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
 
-test-e2e:
-  stage: test-e2e
+test-ui:
+  stage: test-frontend
   script:
     - "docker-compose up -d"
     - "yarn --cwd ./fda-ui test"
@@ -59,7 +59,6 @@ test-e2e:
 test-backend-container:
   stage: test-backend
   script:
-    - docker system prune -f
     - "./fda-container-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-container-service/pom.xml clean test verify"
     - "./fda-container-service/rest-service/src/test/resources/integration-test.after"
@@ -80,7 +79,6 @@ test-backend-container:
 test-backend-database:
   stage: test-backend
   script:
-    - docker system prune -f
     - "./fda-database-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-database-service/pom.xml clean test verify"
     - "./fda-database-service/rest-service/src/test/resources/integration-test.after"
@@ -111,7 +109,6 @@ test-backend-gateway:
 test-backend-query:
   stage: test-backend
   script:
-    - docker system prune -f
     - "./fda-query-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-query-service/pom.xml clean test verify"
     - "./fda-query-service/rest-service/src/test/resources/integration-test.after"
@@ -132,7 +129,6 @@ test-backend-query:
 test-backend-table:
   stage: test-backend
   script:
-    - docker system prune -f
     - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
     - "mvn -f fda-table-service/pom.xml clean test verify"
     - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
