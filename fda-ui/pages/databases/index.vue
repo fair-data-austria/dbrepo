@@ -1,7 +1,8 @@
 <template>
   <v-card>
     <v-card-title>
-      Databases
+      <span>Databases</span>
+      <v-progress-circular v-if="loading" :size="20" :width="3" indeterminate color="primary" />
     </v-card-title>
     <v-card-subtitle>
       All public databases found in the metadata database.
@@ -18,7 +19,9 @@
         </thead>
         <tbody>
           <tr v-if="databases.length === 0" aria-readonly="true">
-            <td colspan="4">(no databases)</td>
+            <td colspan="4">
+              <span v-if="!loading">(no databases)</span>
+            </td>
           </tr>
           <tr
             v-for="item in databases"
@@ -70,6 +73,7 @@ export default {
     return {
       createDbDialog: false,
       databases: [],
+      loading: true,
       iconSelect: mdiDatabaseArrowRightOutline
     }
   },
@@ -79,8 +83,10 @@ export default {
   methods: {
     async refresh () {
       this.createDbDialog = false
+      this.loading = true
       const res = await this.$axios.get('/api/database/')
       this.databases = res.data
+      this.loading = false
       console.debug('databases', res.data)
     },
     trim (s) {
@@ -109,5 +115,8 @@ export default {
   }
   .color-grey {
     color: #aaa;
+  }
+  .v-progress-circular {
+    margin-left: 8px;
   }
 </style>

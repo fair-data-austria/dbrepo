@@ -36,7 +36,7 @@ build-docker:
 build-software:
   stage: build
   script:
-    - "npm install -g -y ./fda-ui"
+    - "sudo npm install -g -y ./fda-ui"
 
 build-metadata-db:
   stage: build
