@@ -1,9 +1,7 @@
 package at.tuwien;
 
 import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
-import at.tuwien.api.database.table.columns.ColumnDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
@@ -21,7 +19,7 @@ import java.util.List;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 @TestPropertySource(locations = "classpath:application.properties")
-public abstract class BaseUnitTest {
+public abstract class BaseUnitTest extends CsvUnitTest {
 
     public final static Long DATABASE_1_ID = 1L;
     public final static String DATABASE_1_NAME = "Weather";
@@ -32,6 +30,11 @@ public abstract class BaseUnitTest {
     public final static String DATABASE_2_NAME = "RIVER";
     public final static String DATABASE_2_INTERNALNAME = "river";
     public final static String DATABASE_2_EXCHANGE = "fda." + DATABASE_2_INTERNALNAME;
+
+    public final static Long DATABASE_3_ID = 3L;
+    public final static String DATABASE_3_NAME = "Csv Table";
+    public final static String DATABASE_3_INTERNALNAME = "csv_table";
+    public final static String DATABASE_3_EXCHANGE = "fda." + DATABASE_3_INTERNALNAME;
 
     public final static Long TABLE_1_ID = 1L;
     public final static String TABLE_1_NAME = "Weather AUS";
@@ -44,6 +47,12 @@ public abstract class BaseUnitTest {
     public final static String TABLE_2_INTERNALNAME = "weather_at";
     public final static String TABLE_2_DESCRIPTION = "River Data";
     public final static String TABLE_2_TOPIC = DATABASE_2_EXCHANGE + "." + TABLE_2_INTERNALNAME;
+
+    public final static Long TABLE_3_ID = 3L;
+    public final static String TABLE_3_NAME = "Csv Table";
+    public final static String TABLE_3_INTERNALNAME = "csv_table";
+    public final static String TABLE_3_DESCRIPTION = "CSV Is Nice";
+    public final static String TABLE_3_TOPIC = DATABASE_3_EXCHANGE + "." + TABLE_3_INTERNALNAME;
 
     public final static Long COLUMN_1_ID = 1L;
     public final static Integer COLUMN_1_ORDINALPOS = 0;
@@ -75,7 +84,7 @@ public abstract class BaseUnitTest {
     public final static Integer COLUMN_3_ORDINALPOS = 2;
     public final static Boolean COLUMN_3_PRIMARY = false;
     public final static String COLUMN_3_NAME = "MinTemp";
-    public final static String COLUMN_3_INTERNAL_NAME = "mdb_min_temp";
+    public final static String COLUMN_3_INTERNAL_NAME = "mdb_mintemp";
     public final static TableColumnType COLUMN_3_TYPE = TableColumnType.NUMBER;
     public final static ColumnTypeDto COLUMN_3_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_3_NULL = true;
@@ -141,6 +150,9 @@ public abstract class BaseUnitTest {
     public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
             "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=" + DATABASE_1_INTERNALNAME);
 
+    public final static List<String> IMAGE_3_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
+            "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=" + DATABASE_3_INTERNALNAME);
+
     public final static ContainerImage IMAGE_1 = ContainerImage.builder()
             .id(IMAGE_1_ID)
             .repository(IMAGE_1_REPOSITORY)
@@ -169,6 +181,13 @@ public abstract class BaseUnitTest {
     public final static String CONTAINER_2_NAME = "u02";
     public final static String CONTAINER_2_INTERNALNAME = "not3x1st1ng";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
+    
+    public final static Long CONTAINER_3_ID = 3L;
+    public final static String CONTAINER_3_HASH = "deadbeef";
+    public final static String CONTAINER_3_NAME = "u02";
+    public final static String CONTAINER_3_IP = "172.28.0.6";
+    public final static String CONTAINER_3_INTERNALNAME = "fda-userdb-u02";
+    public final static Instant CONTAINER_3_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Container CONTAINER_1 = Container.builder()
             .id(CONTAINER_1_ID)
@@ -188,6 +207,15 @@ public abstract class BaseUnitTest {
             .containerCreated(CONTAINER_2_CREATED)
             .build();
 
+    public final static Container CONTAINER_3 = Container.builder()
+            .id(CONTAINER_3_ID)
+            .name(CONTAINER_3_NAME)
+            .internalName(CONTAINER_3_INTERNALNAME)
+            .image(CONTAINER_1_IMAGE)
+            .hash(CONTAINER_3_HASH)
+            .containerCreated(CONTAINER_3_CREATED)
+            .build();
+
     public final static List<TableColumn> TABLE_1_COLUMNS = List.of(TableColumn.builder()
                     .id(COLUMN_1_ID)
                     .ordinalPosition(COLUMN_1_ORDINALPOS)
@@ -197,6 +225,7 @@ public abstract class BaseUnitTest {
                     .internalName(COLUMN_1_INTERNAL_NAME)
                     .columnType(COLUMN_1_TYPE)
                     .isNullAllowed(COLUMN_1_NULL)
+                    .isUnique(COLUMN_1_UNIQUE)
                     .isPrimaryKey(COLUMN_1_PRIMARY)
                     .enumValues(COLUMN_1_ENUM_VALUES)
                     .build(),
@@ -209,6 +238,7 @@ public abstract class BaseUnitTest {
                     .internalName(COLUMN_2_INTERNAL_NAME)
                     .columnType(COLUMN_2_TYPE)
                     .isNullAllowed(COLUMN_2_NULL)
+                    .isUnique(COLUMN_2_UNIQUE)
                     .isPrimaryKey(COLUMN_2_PRIMARY)
                     .enumValues(COLUMN_2_ENUM_VALUES)
                     .build(),
@@ -221,6 +251,7 @@ public abstract class BaseUnitTest {
                     .internalName(COLUMN_3_INTERNAL_NAME)
                     .columnType(COLUMN_3_TYPE)
                     .isNullAllowed(COLUMN_3_NULL)
+                    .isUnique(COLUMN_3_UNIQUE)
                     .isPrimaryKey(COLUMN_3_PRIMARY)
                     .enumValues(COLUMN_3_ENUM_VALUES)
                     .build(),
@@ -233,6 +264,7 @@ public abstract class BaseUnitTest {
                     .internalName(COLUMN_4_INTERNAL_NAME)
                     .columnType(COLUMN_4_TYPE)
                     .isNullAllowed(COLUMN_4_NULL)
+                    .isUnique(COLUMN_4_UNIQUE)
                     .isPrimaryKey(COLUMN_4_PRIMARY)
                     .enumValues(COLUMN_4_ENUM_VALUES)
                     .build(),
@@ -245,6 +277,7 @@ public abstract class BaseUnitTest {
                     .internalName(COLUMN_5_INTERNAL_NAME)
                     .columnType(COLUMN_5_TYPE)
                     .isNullAllowed(COLUMN_5_NULL)
+                    .isUnique(COLUMN_5_UNIQUE)
                     .isPrimaryKey(COLUMN_5_PRIMARY)
                     .enumValues(COLUMN_5_ENUM_VALUES)
                     .build());
@@ -253,11 +286,23 @@ public abstract class BaseUnitTest {
             .id(TABLE_1_ID)
             .created(Instant.now())
             .internalName(TABLE_1_INTERNALNAME)
+            .description(TABLE_1_DESCRIPTION)
             .name(TABLE_1_NAME)
             .lastModified(Instant.now())
             .columns(TABLE_1_COLUMNS)
             .tdbid(DATABASE_1_ID)
             .topic(TABLE_1_TOPIC)
+            .build();
+
+    public final static Table TABLE_3 = Table.builder()
+            .id(TABLE_3_ID)
+            .created(Instant.now())
+            .internalName(TABLE_3_INTERNALNAME)
+            .description(TABLE_3_DESCRIPTION)
+            .name(TABLE_3_NAME)
+            .lastModified(Instant.now())
+            .tdbid(DATABASE_3_ID)
+            .topic(TABLE_3_TOPIC)
             .build();
 
     public final static Database DATABASE_1 = Database.builder()
@@ -270,6 +315,18 @@ public abstract class BaseUnitTest {
             .tables(List.of(TABLE_1))
             .internalName(DATABASE_1_INTERNALNAME)
             .exchange(DATABASE_1_EXCHANGE)
+            .build();
+
+    public final static Database DATABASE_3 = Database.builder()
+            .id(DATABASE_3_ID)
+            .created(Instant.now().minus(1, HOURS))
+            .lastModified(Instant.now())
+            .isPublic(false)
+            .name(DATABASE_3_NAME)
+            .container(CONTAINER_3)
+            .tables(List.of(TABLE_3))
+            .internalName(DATABASE_3_INTERNALNAME)
+            .exchange(DATABASE_3_EXCHANGE)
             .build();
 
     /* no connection */
@@ -285,7 +342,7 @@ public abstract class BaseUnitTest {
             .exchange(DATABASE_2_EXCHANGE)
             .build();
 
-    public final static ColumnCreateDto[] COLUMNS5 = new ColumnCreateDto[]{
+    public final static ColumnCreateDto[] COLUMNS_CSV01 = new ColumnCreateDto[]{
             ColumnCreateDto.builder()
                     .type(COLUMN_1_TYPE_DTO)
                     .name(COLUMN_1_NAME)
@@ -322,52 +379,10 @@ public abstract class BaseUnitTest {
                     .unique(COLUMN_5_UNIQUE)
                     .build()};
 
-    public final static ColumnDto[] COLUMNS5_DTO = new ColumnDto[]{
-            ColumnDto.builder()
-                    .name(COLUMN_1_NAME)
-                    .columnType(COLUMN_1_TYPE_DTO)
-                    .isNullAllowed(COLUMN_1_NULL)
-                    .isPrimaryKey(COLUMN_1_PRIMARY)
-                    .foreignKey(COLUMN_1_FOREIGN_KEY)
-                    .checkExpression(COLUMN_1_CHECK)
-                    .build(),
-            ColumnDto.builder()
-                    .name(COLUMN_2_NAME)
-                    .columnType(COLUMN_2_TYPE_DTO)
-                    .isNullAllowed(COLUMN_2_NULL)
-                    .isPrimaryKey(COLUMN_2_PRIMARY)
-                    .foreignKey(COLUMN_2_FOREIGN_KEY)
-                    .checkExpression(COLUMN_2_CHECK)
-                    .build(),
-            ColumnDto.builder()
-                    .name(COLUMN_3_NAME)
-                    .columnType(COLUMN_3_TYPE_DTO)
-                    .isNullAllowed(COLUMN_3_NULL)
-                    .isPrimaryKey(COLUMN_3_PRIMARY)
-                    .foreignKey(COLUMN_3_FOREIGN_KEY)
-                    .checkExpression(COLUMN_3_CHECK)
-                    .build(),
-            ColumnDto.builder()
-                    .name(COLUMN_4_NAME)
-                    .columnType(COLUMN_4_TYPE_DTO)
-                    .isNullAllowed(COLUMN_4_NULL)
-                    .isPrimaryKey(COLUMN_4_PRIMARY)
-                    .foreignKey(COLUMN_4_FOREIGN_KEY)
-                    .checkExpression(COLUMN_4_CHECK)
-                    .build(),
-            ColumnDto.builder()
-                    .name(COLUMN_5_NAME)
-                    .columnType(COLUMN_5_TYPE_DTO)
-                    .isNullAllowed(COLUMN_5_NULL)
-                    .isPrimaryKey(COLUMN_5_PRIMARY)
-                    .foreignKey(COLUMN_5_FOREIGN_KEY)
-                    .checkExpression(COLUMN_5_CHECK)
-                    .build()};
-
     public final static TableCreateDto TABLE_2_CREATE_DTO = TableCreateDto.builder()
             .name(TABLE_2_NAME)
             .description(TABLE_2_DESCRIPTION)
-            .columns(COLUMNS5)
+            .columns(COLUMNS_CSV01)
             .build();
 
 }

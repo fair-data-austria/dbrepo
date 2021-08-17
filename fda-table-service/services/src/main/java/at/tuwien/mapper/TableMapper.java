@@ -174,20 +174,18 @@ public interface TableMapper {
                         .toArray(Field[]::new)));
         /* constraints */
         final long count = Arrays.stream(data.getColumns())
-                .filter(c -> Objects.nonNull(c.getUnique()))
+                .filter(c -> Objects.nonNull(c.getUnique()) && c.getUnique())
                 .count();
         if (count > 0) {
             /* primary key constraints */
             Arrays.stream(data.getColumns())
-                    .filter(c -> Objects.nonNull(c.getUnique()))
+                    .filter(c -> Objects.nonNull(c.getUnique()) && c.getUnique())
                     .forEach(c -> constraints.add(constraint("UK_" + nameToInternalName(nameToColumnName(c.getName())))
                             .unique(nameToInternalName(nameToColumnName(c.getName())))));
             /* check constraints */
             if (Arrays.stream(data.getColumns()).anyMatch(c -> Objects.nonNull(c.getCheckExpression()))) {
                 throw new ArbitraryPrimaryKeysException("Check constraints currently not supported");
             }
-//                    .forEach(c -> constraints.add(constraint("CK_" + nameToInternalName(nameToColumnName(c.getName())))
-//                            .check(null)));
             /* foreign key constraints */
             Arrays.stream(data.getColumns())
                     .filter(c -> Objects.nonNull(c.getForeignKey()))
