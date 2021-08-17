@@ -13,15 +13,12 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import java.util.Properties;
 
 @Configuration
-//@EnableElasticsearchRepositories(basePackages = {"at.tuwien.repository"})
-//@ComponentScan(basePackages = {"at.tuwien.repository"})
 public class ElasticsearchConfig {
 
     @Bean
     public RestHighLevelClient client() {
-        ClientConfiguration clientConfiguration
-            = ClientConfiguration.builder()
-                .connectedTo("localhost:9200")
+        ClientConfiguration clientConfiguration = ClientConfiguration.builder()
+                .connectedTo("fda-search-service:9200")
                 .build();
 
         return RestClients.create(clientConfiguration).rest();

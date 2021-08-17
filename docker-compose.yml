@@ -195,8 +195,7 @@ services:
     restart: always
     container_name: fda-search-service
     hostname: fda-search-service
-#    build: ./fda-search-service
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.4
+    image: elasticsearch:7.13.4
     networks:
       - fda-public
     environment:
