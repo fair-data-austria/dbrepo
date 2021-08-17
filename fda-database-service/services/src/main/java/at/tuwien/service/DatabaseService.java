@@ -7,8 +7,9 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.mapper.ImageMapper;
-import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.DatabaseRepository;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.elasticsearch.DatabaseElasticsearchRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,17 @@ public class DatabaseService extends JdbcConnector {
 
     private final ContainerRepository containerRepository;
     private final DatabaseRepository databaseRepository;
+    private final DatabaseElasticsearchRepository databaseElasticsearchRepository;
     private final DatabaseMapper databaseMapper;
 
     @Autowired
     public DatabaseService(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
+                           DatabaseElasticsearchRepository databaseElasticsearchRepository,
                            ImageMapper imageMapper, DatabaseMapper databaseMapper) {
         super(imageMapper, databaseMapper);
         this.containerRepository = containerRepository;
         this.databaseRepository = databaseRepository;
+        this.databaseElasticsearchRepository = databaseElasticsearchRepository;
         this.databaseMapper = databaseMapper;
     }
 
@@ -108,6 +112,7 @@ public class DatabaseService extends JdbcConnector {
         }
         // save in metadata database
         final Database out = databaseRepository.save(database);
+        databaseElasticsearchRepository.save(database);
         log.info("Created database {}", out.getId());
         log.debug("created database {}", out);
         return out;

@@ -3,29 +3,20 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.api.database.DatabaseModifyDto;
-import at.tuwien.entities.container.Container;
-import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DatabaseMalformedException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.mapper.ImageMapper;
-import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.DatabaseRepository;
-import at.tuwien.repository.ImageRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.jpa.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
-import com.github.dockerjava.api.model.PortBinding;
-import org.checkerframework.checker.units.qual.A;
 import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -33,22 +24,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)

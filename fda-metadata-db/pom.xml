@@ -84,10 +84,10 @@
             <artifactId>swagger-annotations</artifactId>
             <version>${swagger.version}</version>
         </dependency>
+        <!-- elasticsearch -->
         <dependency>
-            <groupId>io.swagger.core.v3<<groupId>org.springframework.data</groupId>
+            <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-elasticsearch</artifactId>
-            <version>4.0.0.RELEASE</version>
         </dependency>
     </dependencies>
 
