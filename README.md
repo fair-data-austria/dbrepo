@@ -6,22 +6,11 @@
 
 ## Build
 
-Everything is handled by Docker Compose, just build it by executing:
+Everything is handled by compose, just build it by running:
 
 ```bash
 docker-compose build
 ```
-
-## Start
-
-After build, the system can be started by executing:
-
-```bash
-docker-compose up -d
-```
-
-## Development
-
 Local development minimum requirements:
 
 - Ubuntu 18.04 LTS (RPM-based operating systems are also tested)
@@ -53,7 +42,9 @@ Local deployment minimum versions:
 - Docker Engine 20.10.0
 - Docker Compose 1.28.0
 
-# Contribute
+## Deployment
+
+The pipeline is set-up to build and test all commits. A commit to dev or master branch triggers additional jobs.
 
 Contributions are always welcome and encouraged, simply fork the repository and
 contact [Andreas Rauber](http://www.ifs.tuwien.ac.at/~andi/).

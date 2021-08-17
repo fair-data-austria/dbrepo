@@ -2,15 +2,14 @@ package at.tuwien.service;
 
 import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
-import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.exception.PersistenceException;
 import at.tuwien.mapper.ImageMapper;
-import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.ImageRepository;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.jpa.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.InspectImageResponse;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.Persistence;
 import javax.validation.ConstraintViolationException;
 import java.time.Duration;
 import java.time.Instant;

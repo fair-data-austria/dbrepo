@@ -1,6 +1,5 @@
 package at.tuwien.service;
 
-import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
@@ -10,8 +9,8 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.repository.DatabaseRepository;
-import at.tuwien.repository.TableRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.jpa.TableRepository;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;

@@ -7,7 +7,7 @@ import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryMalformedException;
-import at.tuwien.repository.DatabaseRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
