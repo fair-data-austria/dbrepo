@@ -1,13 +1,11 @@
 package at.tuwien.service;
 
-import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.AmqpException;
 import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.mapper.TableMapper;
-import at.tuwien.repository.TableRepository;
+import at.tuwien.repository.jpa.TableRepository;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
