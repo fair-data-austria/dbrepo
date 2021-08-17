@@ -84,11 +84,6 @@
             <artifactId>swagger-annotations</artifactId>
             <version>${swagger.version}</version>
         </dependency>
-        <!-- elasticsearch -->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-elasticsearch</artifactId>
-        </dependency>
     </dependencies>
 
     <!-- build at.tuwien.gateway.config in ./rest-service/pom.xml -->

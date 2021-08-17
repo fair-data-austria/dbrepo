@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 
 ### Generated ###
+ready
 mapping.xml
 rest-service/src/main/java/at/tuwien/userdb/Table.java
 
