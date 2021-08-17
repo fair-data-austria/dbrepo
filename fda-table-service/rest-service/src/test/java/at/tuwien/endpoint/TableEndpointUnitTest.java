@@ -69,7 +69,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
+                .columns(COLUMNS_CSV01)
                 .build();
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
@@ -87,7 +87,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
+                .columns(COLUMNS_CSV01)
                 .build();
         when(tableService.createTable(DATABASE_1_ID, request))
                 .thenAnswer(invocation -> {

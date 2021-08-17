@@ -75,6 +75,7 @@ public class DataService extends JdbcConnector {
             TableMalformedException {
         final Table table = findById(databaseId, tableId);
         final TableCsvDto values;
+        log.debug("");
         try {
             values = readCsv(table, data);
             log.debug("read {} rows from csv", values.getData().size());

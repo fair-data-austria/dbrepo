@@ -2,7 +2,6 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
@@ -13,7 +12,6 @@ import at.tuwien.repository.TableRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.HealthCheck;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
@@ -22,17 +20,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -130,7 +122,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_2_NAME)
                 .description(TABLE_2_DESCRIPTION)
-                .columns(COLUMNS5)
+                .columns(COLUMNS_CSV01)
                 .build();
 
         /* test */
@@ -139,7 +131,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
         assertEquals(DATABASE_1_ID, response.getTdbid());
-        assertEquals(COLUMNS5.length, response.getColumns().size());
+        assertEquals(COLUMNS_CSV01.length, response.getColumns().size());
     }
 
     @Test
