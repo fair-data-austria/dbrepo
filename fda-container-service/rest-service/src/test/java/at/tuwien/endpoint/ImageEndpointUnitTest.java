@@ -1,20 +1,13 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.container.*;
 import at.tuwien.api.container.image.ImageBriefDto;
 import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
 import at.tuwien.api.container.image.ImageDto;
-import at.tuwien.endpoints.ContainerEndpoint;
 import at.tuwien.endpoints.ImageEndpoint;
-import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
-import at.tuwien.repository.ImageRepository;
-import at.tuwien.service.ContainerService;
 import at.tuwien.service.ImageService;
-import com.github.dockerjava.api.DockerClient;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.persistence.EntityNotFoundException;
-import java.awt.*;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
