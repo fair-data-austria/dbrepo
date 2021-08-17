@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableJpaAuditing
 @EnableOpenApi
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = {"at.tuwien.repository.jpa"})
+//@EnableJpaRepositories(basePackages = {"at.tuwien.repository.jpa"})
 @EnableElasticsearchRepositories(basePackages = {"at.tuwien.repository.elasticsearch"})
 @EntityScan(basePackages = {"at.tuwien.entities"})
 public class FdaDatabaseManagingApplication {
