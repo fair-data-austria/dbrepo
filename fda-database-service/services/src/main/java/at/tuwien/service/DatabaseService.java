@@ -8,7 +8,7 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.jpa.ContainerRepository;
-import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.elastic.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
