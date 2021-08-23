@@ -23,6 +23,7 @@ import org.mapstruct.Named;
 
 import java.text.Normalizer;
 import java.util.*;
+import java.util.Comparator;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -200,6 +201,7 @@ public interface TableMapper {
     default List<Field<?>> tableToFieldList(Table data) {
         return data.getColumns()
                 .stream()
+                .sorted(Comparator.comparing(TableColumn::getOrdinalPosition))
                 .map(c -> field(c.getInternalName()))
                 .collect(Collectors.toList());
     }

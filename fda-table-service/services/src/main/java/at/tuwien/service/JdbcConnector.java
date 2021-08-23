@@ -62,10 +62,10 @@ public abstract class JdbcConnector {
             return;
         }
         final List<Field<?>> headers = tableMapper.tableToFieldList(table);
+        log.trace("first row received {}", data.getData().size() > 0 ? data.getData().get(0) : null);
         final DSLContext context = open(table.getDatabase());
         final List<InsertValuesStepN<Record>> statements = new LinkedList<>();
         for (List<Object> row : tableMapper.tableCsvDtoToObjectListList(data)) {
-            log.trace("insert row {}", row);
             statements.add(context.insertInto(table(table.getInternalName()), headers)
                     .values(row));
         }
