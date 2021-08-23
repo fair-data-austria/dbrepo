@@ -41,8 +41,11 @@ public class QueryStoreService extends JdbcConnector {
     }
 
     @Transactional
-    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException, SQLException {
+    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException, SQLException, QueryStoreException {
         Database database = findDatabase(id);
+        if(!exists(database)){
+            create(id);
+        }
         DSLContext context = open(database);
         ResultQuery<org.jooq.Record> resultQuery = context.selectQuery();
         Result<org.jooq.Record> result = resultQuery.fetch();
