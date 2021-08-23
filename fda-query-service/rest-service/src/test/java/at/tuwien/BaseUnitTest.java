@@ -103,6 +103,8 @@ public abstract class BaseUnitTest {
             .container(CONTAINER_2)
             .build();
 
+
+    /*
     public final Query QUERY_1 = Query.builder()
             .id(QUERY_1_ID)
             .created(QUERY_1_CREATED)
@@ -114,5 +116,5 @@ public abstract class BaseUnitTest {
             .resultHash(QUERY_1_RESULTHASH)
             .resultNumber(QUERY_1_RESULTNUMBER)
             .build();
-
+*/
 }

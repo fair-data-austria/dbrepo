@@ -43,7 +43,7 @@ public class QueryStoreEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
     public ResponseEntity<List<Query>> findAll(@PathVariable Long id) throws DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseConnectionException, QueryMalformedException, SQLException {
+            ImageNotSupportedException, DatabaseConnectionException, QueryMalformedException, SQLException, QueryStoreException {
         final List<Query> result = querystoreService.findAll(id);
         List<QueryDto> res = new ArrayList<>();
         /*for(Query r : result) {
