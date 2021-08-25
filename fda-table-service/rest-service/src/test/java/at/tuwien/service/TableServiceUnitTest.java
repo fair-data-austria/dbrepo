@@ -103,7 +103,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -130,7 +130,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void readCsv_succeeds() throws IOException, CsvException {
-        final MultipartFile file = new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:csv_01.csv").toPath()));
+        final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
@@ -144,7 +144,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void readCsv_nullElement_succeeds() throws IOException, CsvException {
-        final MultipartFile file = new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:csv_01.csv").toPath()));
+        final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
@@ -158,7 +158,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void readCsv_skipheader_succeeds() throws IOException, CsvException {
-        final MultipartFile file = new MockMultipartFile("weather-small", Files.readAllBytes(ResourceUtils.getFile("classpath:csv_01.csv").toPath()));
+        final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(false)

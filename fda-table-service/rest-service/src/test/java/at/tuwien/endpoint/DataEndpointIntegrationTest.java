@@ -1,14 +1,17 @@
-package at.tuwien.service;
+package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.*;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.database.table.Table;
+import at.tuwien.endpoints.DataEndpoint;
+import at.tuwien.endpoints.TableEndpoint;
 import at.tuwien.exception.*;
-import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.service.DataService;
+import at.tuwien.service.JdbcConnector;
+import at.tuwien.service.TableService;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -16,24 +19,34 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
+import javax.transaction.Transactional;
+import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class TableServiceIntegrationTest extends BaseUnitTest {
+@ExtendWith(SpringExtension.class)
+public class DataEndpointIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -51,22 +64,26 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     private ImageRepository imageRepository;
 
     @Autowired
-    private DatabaseRepository databaseRepository;
+    private DataService dataService;
 
     @Autowired
-    private ContainerRepository containerRepository;
+    private TableService tableService;
 
     @Autowired
     private TableRepository tableRepository;
 
     @Autowired
-    private TableService tableService;
+    private DatabaseRepository databaseRepository;
+
+    @Autowired
+    private DataEndpoint dataEndpoint;
 
     private CreateContainerResponse request;
 
     @Transactional
     @BeforeEach
-    public void beforeEach() throws InterruptedException {
+    public void beforeEach() throws InterruptedException, TableMalformedException, ArbitraryPrimaryKeysException,
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
         afterEach();
         /* create network */
         dockerClient.createNetworkCmd()
@@ -88,8 +105,9 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         /* start container */
         dockerClient.startContainerCmd(request.getId()).exec();
         Thread.sleep(3000);
-        CONTAINER_1_HASH = request.getId();
         databaseRepository.save(DATABASE_1);
+        tableService.createTable(DATABASE_1_ID, TABLE_1_CREATE_DTO);
+        tableRepository.save(TABLE_1);
     }
 
     @AfterEach
@@ -119,29 +137,53 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_table_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_2_NAME)
-                .description(TABLE_2_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
+    @Disabled
+    public void insertFromTuple_succeeds() {
+        final TableCsvDto request = TableCsvDto.builder()
+                .data(List.of(Map.of(COLUMN_1_NAME, 1L, COLUMN_2_NAME, Instant.now(), COLUMN_3_NAME, 35.2,
+                        COLUMN_4_NAME, "Sydney", COLUMN_5_NAME, 10.2)))
                 .build();
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
-        assertEquals(TABLE_2_NAME, response.getName());
-        assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
-        assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
-        assertEquals(DATABASE_1_ID, response.getTdbid());
-        assertEquals(COLUMNS_CSV01.length, response.getColumns().size());
+        assertThrows(TableMalformedException.class, () -> {
+            dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        });
     }
 
     @Test
-    public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException {
+    public void insertFromTuple_empty_fails() {
+        final TableCsvDto request = TableCsvDto.builder()
+                .data(List.of())
+                .build();
 
         /* test */
-        tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+        assertThrows(TableMalformedException.class, () -> {
+            dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        });
+    }
+
+    @Test
+    public void insertFromTuple_empty2_fails() {
+        final TableCsvDto request = TableCsvDto.builder()
+                .data(List.of(Map.of()))
+                .build();
+
+        /* test */
+        assertThrows(TableMalformedException.class, () -> {
+            dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        });
+    }
+
+    @Test
+    public void getAll_succeeds() {
+
+        /* test */
+    }
+
+    @Test
+    public void getAll_fails() {
+
+        /* test */
     }
 
 }
