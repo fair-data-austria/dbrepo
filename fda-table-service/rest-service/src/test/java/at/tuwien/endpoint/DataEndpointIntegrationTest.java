@@ -137,7 +137,6 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    @Disabled
     public void insertFromTuple_succeeds() {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of(Map.of(COLUMN_1_NAME, 1L, COLUMN_2_NAME, Instant.now(), COLUMN_3_NAME, 35.2,
