@@ -17,8 +17,10 @@ import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +35,11 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ImportServiceIntegrationTest extends BaseUnitTest {
+public class DataServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -116,7 +119,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .withShowAll(true)
                 .exec()
                 .forEach(container -> {
-                    System.out.println("DELETE CONTAINER " + Arrays.toString(container.getNames()));
+                    log.info("Delete container {}", Arrays.asList(container.getNames()));
                     try {
                         dockerClient.stopContainerCmd(container.getId()).exec();
                     } catch (NotModifiedException e) {
@@ -130,7 +133,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .stream()
                 .filter(n -> n.getName().startsWith("fda"))
                 .forEach(network -> {
-                    System.out.println("DELETE NETWORK " + network.getName());
+                    log.info("Delete network {}", network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
     }
@@ -183,6 +186,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
+    @Disabled
     public void insertFromFileCsv02_succeeds() throws TableMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException,
             ArbitraryPrimaryKeysException, DataProcessingException, TableNotFoundException, FileStorageException {
@@ -222,7 +226,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(FileStorageException.class, () -> {
-            dataService.insertCsv(DATABASE_1_ID, TABLE_2_ID, request);
+            dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
@@ -244,7 +248,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            dataService.insertCsv(DATABASE_1_ID, TABLE_2_ID, request);
+            dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 

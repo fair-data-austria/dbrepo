@@ -379,6 +379,12 @@ public abstract class BaseUnitTest extends CsvUnitTest {
                     .unique(COLUMN_5_UNIQUE)
                     .build()};
 
+    public final static TableCreateDto TABLE_1_CREATE_DTO = TableCreateDto.builder()
+            .name(TABLE_1_NAME)
+            .description(TABLE_1_DESCRIPTION)
+            .columns(COLUMNS_CSV01)
+            .build();
+
     public final static TableCreateDto TABLE_2_CREATE_DTO = TableCreateDto.builder()
             .name(TABLE_2_NAME)
             .description(TABLE_2_DESCRIPTION)

@@ -5,6 +5,7 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.AmqpException;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableMalformedException;
 import at.tuwien.repository.jpa.TableRepository;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -121,7 +122,7 @@ public class AmqpService {
             } catch (ConnectException e) {
                 log.warn("Could not redirect AMQP payload {}", e.getMessage());
                 /* ignore */
-            } catch (SQLException | ImageNotSupportedException | DataAccessException e) {
+            } catch (SQLException | ImageNotSupportedException | DataAccessException | TableMalformedException e) {
                 log.warn("Could not insert AMQP payload {}", e.getMessage());
                 /* ignore */
             }
