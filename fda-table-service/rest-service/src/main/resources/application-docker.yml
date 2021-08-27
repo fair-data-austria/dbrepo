@@ -26,3 +26,4 @@ eureka:
 fda:
   mapping.path: /root
   table.path: /root
+  elastic.endpoint: fda-search-service:9200

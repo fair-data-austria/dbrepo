@@ -10,7 +10,7 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.elastic.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;

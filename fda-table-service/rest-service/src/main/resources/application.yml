@@ -28,3 +28,4 @@ eureka:
 fda:
   mapping.path: rest-service/src/main/resources
   table.path: rest-service/src/main/java/at/tuwien/userdb
+  elastic.endpoint: fda-search-service:9200
