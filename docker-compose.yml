@@ -204,6 +204,8 @@ services:
     ports:
       - 9200:9200
       - 9600:9600
+    logging:
+      driver: json-file
 
   fda-ui:
     restart: always
