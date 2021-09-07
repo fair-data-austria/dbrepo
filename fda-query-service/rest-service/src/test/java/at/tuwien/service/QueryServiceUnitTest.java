@@ -8,6 +8,8 @@ import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryMalformedException;
 import at.tuwien.repository.DatabaseRepository;
+import lombok.SneakyThrows;
+import net.sf.jsqlparser.JSQLParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +62,16 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void executeStatement_notValid_fails() {
-        //
+    public void parse_notValidSyntax_fails() throws DatabaseNotFoundException {
+        when(queryService.findDatabase(DATABASE_1_ID))
+                .thenReturn(DATABASE_1);
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+
+
+        assertThrows(JSQLParserException.class, () -> {
+            queryService.execute(DATABASE_1_ID, QUERY_1);
+        });
     }
 
     @Test
@@ -79,9 +89,5 @@ public class QueryServiceUnitTest extends BaseUnitTest {
         //
     }
 
-    @Test
-    public void create_queryStore_fails() {
-        //
-    }
 
 }

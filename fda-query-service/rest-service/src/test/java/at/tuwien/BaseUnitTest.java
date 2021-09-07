@@ -103,6 +103,7 @@ public abstract class BaseUnitTest {
             .container(CONTAINER_2)
             .build();
 
+    public final Query QUERY_1 = Query.builder().query("ST * from t").build();
 
     /*
     public final Query QUERY_1 = Query.builder()
