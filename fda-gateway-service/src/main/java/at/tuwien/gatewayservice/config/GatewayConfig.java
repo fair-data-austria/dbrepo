@@ -11,6 +11,11 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
+                .route("fda-analyse-service", r -> r.path("/api/analyse/**")
+                        .and()
+                        .method("POST","GET","PUT","DELETE")
+                        .and()
+                        .uri("lb://fda-analyse-service"))
                 .route("fda-container-service", r -> r.path("/api/container/**")
                         .and()
                         .method("POST","GET","PUT","DELETE")

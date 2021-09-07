@@ -6,6 +6,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   --CREATE DATABASE $fda_mdb;
   --GRANT ALL PRIVILEGES ON DATABASE $APP_DB_NAME TO $APP_DB_USER;
   --\connect $APP_DB_NAME $APP_DB_USER
+  CREATE USER root;
+  CREATE DATABASE root;
   BEGIN;
 	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 	CREATE TYPE accesstype AS ENUM ('R', 'W');
@@ -79,6 +81,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		HASH character varying(255) NOT NULL,
 		INTERNAL_NAME character varying(255) NOT NULL,
 		LAST_MODIFIED timestamp without time zone,
+		deleted timestamp without time zone NULL,
 		NAME character varying(255) NOT NULL,
 		PORT integer,
 		IMAGE_ID bigint REFERENCES mdb_image(id),
@@ -167,8 +170,10 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'),
 		container_id bigint REFERENCES mdb_CONTAINER(id),
 		created timestamp without time zone NOT NULL,
+		deleted timestamp without time zone NULL,
 		name character varying(255) NOT NULL,
 		internal_name character varying(255) NOT NULL,
+		exchange character varying(255) NOT NULL,
 		ResourceType TEXT,
 		Description TEXT,
 		Engine VARCHAR(20) DEFAULT 'Postgres',
@@ -185,6 +190,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		tDBID bigint REFERENCES mdb_DATABASES(id),
 		created timestamp without time zone NOT NULL,
 		internal_name character varying(255) NOT NULL,
+		topic character varying(255) NOT NULL,
 		last_modified timestamp without time zone,
 		tName VARCHAR(50),
 		tDescription TEXT,
@@ -324,4 +330,3 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
   COMMIT;
 EOSQL
-

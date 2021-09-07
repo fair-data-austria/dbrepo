@@ -78,7 +78,7 @@ public class ContainerImage {
     private List<ContainerImageEnvironmentItem> environment;
 
     @ToString.Exclude
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "image")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, mappedBy = "image")
     private List<Container> containers;
 
     @Column(nullable = false, updatable = false)

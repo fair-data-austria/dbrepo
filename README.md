@@ -39,6 +39,7 @@ The backend endpoints are accessible in the browser:
 The frontend is accessible in the browser:
 
 - [FAIR Portal](http://localhost:3000)
+- [Query Endpoint Management Portal](http://localhost:15672) (username=guest, password=guest)
 
 Other:
 
@@ -54,8 +55,10 @@ Local deployment minimum versions:
 
 # Contribute
 
-Contributions are always welcome and encouraged, simply fork the repository and contact [Andreas Rauber](http://www.ifs.tuwien.ac.at/~andi/).
+Contributions are always welcome and encouraged, simply fork the repository and
+contact [Andreas Rauber](http://www.ifs.tuwien.ac.at/~andi/).
 
 # License
 
-This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
+This work is licensed under
+a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)

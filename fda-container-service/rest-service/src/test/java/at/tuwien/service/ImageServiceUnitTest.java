@@ -5,6 +5,7 @@ import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
 import at.tuwien.api.container.image.ImageEnvItemDto;
+import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
@@ -35,6 +36,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class ImageServiceUnitTest extends BaseUnitTest {
+
+    @MockBean
+    private ReadyConfig readyConfig;
 
     @Autowired
     private ImageService imageService;

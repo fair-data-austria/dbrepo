@@ -8,7 +8,7 @@
             {{ db.internalName }}
           </v-card-title>
           <v-card-subtitle>
-            {{ publisher }}
+            {{ publisher }}, {{ db.image.repository }}:{{ db.image.tag }}
           </v-card-subtitle>
           <v-card-text>
             <blockquote>
@@ -17,20 +17,6 @@
             <p>
               Created {{ db.created }}
             </p>
-            <div>
-              <v-chip outlined label>
-                <v-icon left>
-                  mdi-label
-                </v-icon>
-                {{ db.image.repository }}
-              </v-chip>
-              <v-chip outlined label>
-                <v-icon left>
-                  mdi-label
-                </v-icon>
-                {{ db.image.tag }}
-              </v-chip>
-            </div>
           </v-card-text>
         </v-card>
       </v-tab-item>

@@ -1,12 +1,11 @@
 package at.tuwien.service;
 
+import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
@@ -24,15 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -42,17 +38,15 @@ import java.util.*;
 @Service
 public class DataService extends JdbcConnector {
 
-    private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
-    private final TableMapper tableMapper;
+    private final TableRepository tableRepository;
 
     @Autowired
-    public DataService(TableRepository tableRepository, DatabaseRepository databaseRepository,
+    public DataService(DatabaseRepository databaseRepository, TableRepository tableRepository,
                        ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
         super(imageMapper, tableMapper, queryMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
-        this.tableMapper = tableMapper;
     }
 
     @Transactional
@@ -65,51 +59,7 @@ public class DataService extends JdbcConnector {
         return table.get();
     }
 
-    @Transactional
-    public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
-        final Database database = findDatabase(databaseId);
-        /* create database in container */
-        try {
-            create(database, createDto);
-        } catch (SQLException e) {
-            throw new DataProcessingException("could not create table", e);
-        }
-        /* save in metadata db */
-        final Table mappedTable = tableMapper.tableCreateDtoToTable(createDto);
-        mappedTable.setDatabase(database);
-        mappedTable.setTdbid(databaseId);
-        mappedTable.setColumns(List.of()); // TODO: our metadata db model (primary keys x3) does not allow this currently
-        final Table table;
-        try {
-            table = tableRepository.save(mappedTable);
-        } catch (EntityNotFoundException e) {
-            log.error("failed to create table compound key: {}", e.getMessage());
-            throw new DataProcessingException("failed to create table compound key", e);
-        }
-        /* we cannot insert columns at the same time since they depend on the table id */
-        for (int i = 0; i < createDto.getColumns().length; i++) {
-            final TableColumn column = tableMapper.columnCreateDtoToTableColumn(createDto.getColumns()[i]);
-            column.setOrdinalPosition(i);
-            column.setCdbid(databaseId);
-            column.setTid(table.getId());
-            table.getColumns()
-                    .add(column);
-        }
-        /* update table in metadata db */
-        try {
-            tableRepository.save(table);
-        } catch (EntityNotFoundException e) {
-            log.error("failed to create column compound key: {}", e.getMessage());
-            throw new DataProcessingException("failed to create column compound key", e);
-        }
-        log.info("Created table {}", table.getId());
-        log.debug("created table: {}", table);
-        return table;
-    }
-
     /**
-     * TODO this needs to be at some different endpoint
      * Insert data from a file into a table of a database with possible null values (denoted by a null element).
      *
      * @param databaseId The database.
@@ -121,7 +71,7 @@ public class DataService extends JdbcConnector {
      * @throws FileStorageException       The CSV could not be parsed.
      */
     @Transactional
-    public void insertFromFile(Long databaseId, Long tableId, TableInsertDto data)
+    public void insertCsv(Long databaseId, Long tableId, TableInsertDto data)
             throws TableNotFoundException, ImageNotSupportedException, DatabaseNotFoundException, FileStorageException,
             TableMalformedException {
         final Table table = findById(databaseId, tableId);
@@ -134,7 +84,7 @@ public class DataService extends JdbcConnector {
             throw new FileStorageException("failed to parse csv", e);
         }
         try {
-            insert(table, values);
+            insertCsv(table, values);
         } catch (SQLException | DataAccessException e) {
             log.error("could not insert data {}", e.getMessage());
             throw new TableMalformedException("could not insert data", e);
@@ -182,7 +132,6 @@ public class DataService extends JdbcConnector {
         for (int i = (data.getSkipHeader() ? 1 : 0); i < cells.size(); i++) {
             final Map<String, Object> record = new HashMap<>();
             final List<String> row = cells.get(i);
-            log.trace("row {}: {}", i, row);
             for (int j = 0; j < table.getColumns().size(); j++) {
                 record.put(table.getColumns().get(j).getInternalName(), row.get(j));
             }
@@ -190,12 +139,20 @@ public class DataService extends JdbcConnector {
             if (data.getNullElement() != null) {
                 record.replaceAll((key, value) -> value.equals(data.getNullElement()) ? null : value);
             }
-            log.trace("processed {}", row);
             records.add(record);
         }
         return TableCsvDto.builder()
                 .data(records)
                 .build();
+    }
+
+    public void insert(Table table, TableCsvDto data) throws ImageNotSupportedException, TableMalformedException {
+        try {
+            insertCsv(table, data);
+        } catch (SQLException e) {
+            log.error("could not insert data {}", e.getMessage());
+            throw new TableMalformedException("could not insert data", e);
+        }
     }
 
     @Transactional

@@ -10,8 +10,13 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
+    open-in-view: false
   application:
     name: fda-table-service
+  rabbitmq:
+    host: fda-broker-service
+    username: guest
+    password: guest
   cloud:
     loadbalancer.ribbon.enabled: false
 server.port: 9094
@@ -19,11 +24,10 @@ logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
     root: warn
-    at.: debug
+    at.tuwien.: debug
+    at.tuwien.service.: trace
 eureka:
   instance.hostname: fda-table-service
-  server:
-    peer-node-read-timeout-ms: 200
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
 fda:
   mapping.path: rest-service/src/main/resources

@@ -1,5 +1,6 @@
 package at.tuwien.mapper;
 
+import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
@@ -43,6 +44,7 @@ public interface TableMapper {
             @Mapping(source = "id", target = "id"),
             @Mapping(target = "name", expression = "java(data.getName())"),
             @Mapping(target = "internalName", expression = "java(data.getInternalName())"),
+            @Mapping(target = "topic", expression = "java(data.getTopic())"),
             @Mapping(source = "description", target = "description", qualifiedByName = "identityMapping"),
     })
     TableDto tableToTableDto(Table data);

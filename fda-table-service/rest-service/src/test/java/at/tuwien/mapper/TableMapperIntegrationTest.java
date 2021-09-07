@@ -4,6 +4,7 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
+import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
@@ -14,6 +15,7 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
+import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.SerializationUtils;
 import org.jooq.*;
@@ -25,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +47,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @Log4j2
 @ExtendWith(SpringExtension.class)
 public class TableMapperIntegrationTest extends BaseUnitTest {
+
+    @MockBean
+    private Channel channel;
+
+    @MockBean
+    private ReadyConfig readyConfig;
 
     @Autowired
     private HostConfig hostConfig;

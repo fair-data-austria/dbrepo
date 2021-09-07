@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
@@ -16,6 +17,7 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.sql.Connection;
@@ -23,6 +25,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 
@@ -63,7 +66,8 @@ public abstract class JdbcConnector {
         }
     }
 
-    protected void insert(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException {
+    @Transactional
+    protected void insertCsv(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException {
         if (data.getData().size() == 0) {
             log.warn("No data to insert into table");
             return;
