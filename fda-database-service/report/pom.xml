@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>report</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>fda-database-service-report</name>
 
     <properties>

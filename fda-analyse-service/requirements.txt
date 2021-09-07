@@ -6,3 +6,6 @@ psycopg2-binary==2.8.6
 py-eureka-client==0.9.1
 docker==5.0.0
 sqlalchemy==1.4.15
+gevent==21.8.0
+requests==2.26.0
+gevent==21.8.0

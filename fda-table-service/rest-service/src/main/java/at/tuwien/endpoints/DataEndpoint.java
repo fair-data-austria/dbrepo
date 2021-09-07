@@ -1,7 +1,11 @@
 package at.tuwien.endpoints;
 
+import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.service.DataService;
 import io.swagger.annotations.ApiOperation;
@@ -12,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.sql.Timestamp;
@@ -31,7 +34,7 @@ public class DataEndpoint {
     }
 
     @Transactional
-    @PostMapping
+    @PostMapping("/csv")
     @ApiOperation(value = "Insert values", notes = "Insert Data into a Table in the database.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Updated the table."),
@@ -41,11 +44,37 @@ public class DataEndpoint {
             @ApiResponse(code = 415, message = "The file provided is not in csv format"),
             @ApiResponse(code = 422, message = "The csv was not processible."),
     })
-    public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
-                                    @PathVariable("tableId") Long tableId,
-                                    @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
+    public ResponseEntity<?> insertFromFile(@PathVariable("id") Long databaseId,
+                                           @PathVariable("tableId") Long tableId,
+                                           @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException {
-        dataService.insertFromFile(databaseId, tableId, data);
+        dataService.insertCsv(databaseId, tableId, data);
+        return ResponseEntity.accepted()
+                .build();
+    }
+
+    @Transactional
+    @PostMapping
+    @ApiOperation(value = "Insert values", notes = "Insert Data into a Table in the database from AMQP endpoint")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Updated the table."),
+            @ApiResponse(code = 400, message = "The form contains invalid data."),
+            @ApiResponse(code = 401, message = "Not authorized to update tables."),
+            @ApiResponse(code = 404, message = "The table is not found in database."),
+            @ApiResponse(code = 415, message = "The file provided is not in csv format"),
+            @ApiResponse(code = 422, message = "The csv was not processible."),
+    })
+    public ResponseEntity<?> insertFromTuple(@PathVariable("id") Long databaseId,
+                                    @PathVariable("tableId") Long tableId,
+                                    @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
+            TableMalformedException {
+        final Table table = Table.builder()
+                .id(tableId)
+                .database(Database.builder()
+                        .id(databaseId)
+                        .build())
+                .build();
+        dataService.insert(table, data);
         return ResponseEntity.accepted()
                 .build();
     }

@@ -52,13 +52,17 @@ public class Table {
     @Column(nullable = false)
     private String internalName;
 
+    @ToString.Include
+    @Column(nullable = false, updatable = false)
+    private String topic;
+
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;
 
     @ToString.Include
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "table")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
     private List<TableColumn> columns;
 
     @Column(nullable = false, updatable = false)

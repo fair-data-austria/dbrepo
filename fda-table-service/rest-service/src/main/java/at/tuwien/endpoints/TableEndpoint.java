@@ -3,23 +3,20 @@ package at.tuwien.endpoints;
 import at.tuwien.api.database.table.*;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
-import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.service.AmqpService;
 import at.tuwien.service.TableService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,11 +27,13 @@ import java.util.stream.Collectors;
 public class TableEndpoint {
 
     private final TableService tableService;
+    private final AmqpService amqpService;
     private final TableMapper tableMapper;
 
     @Autowired
-    public TableEndpoint(TableService tableService, TableMapper tableMapper) {
+    public TableEndpoint(TableService tableService, AmqpService amqpService, TableMapper tableMapper) {
         this.tableService = tableService;
+        this.amqpService = amqpService;
         this.tableMapper = tableMapper;
     }
 
@@ -47,7 +46,7 @@ public class TableEndpoint {
     })
     public ResponseEntity<List<TableBriefDto>> findAll(@PathVariable("id") Long databaseId)
             throws DatabaseNotFoundException {
-        final List<Table> tables = tableService.findAll(databaseId);
+        final List<Table> tables = tableService.findAllForDatabaseId(databaseId);
         return ResponseEntity.ok(tables.stream()
                 .map(tableMapper::tableToTableBriefDto)
                 .collect(Collectors.toList()));
@@ -68,8 +67,9 @@ public class TableEndpoint {
     public ResponseEntity<TableBriefDto> create(@PathVariable("id") Long databaseId,
                                                 @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException,
-            ArbitraryPrimaryKeysException, TableMalformedException {
+            ArbitraryPrimaryKeysException, TableMalformedException, AmqpException {
         final Table table = tableService.createTable(databaseId, createDto);
+        amqpService.createQueue(table);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
     }

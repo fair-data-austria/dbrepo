@@ -4,14 +4,13 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableDto;
-import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.TableEndpoint;
-import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import at.tuwien.service.TableService;
-import com.opencsv.exceptions.CsvException;
+import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,13 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.ResourceUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +32,12 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class TableEndpointUnitTest extends BaseUnitTest {
+
+    @MockBean
+    private Channel channel;
+
+    @MockBean
+    private ReadyConfig readyConfig;
 
     @MockBean
     private TableService tableService;
@@ -53,7 +53,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void findAll_succeeds() throws DatabaseNotFoundException {
-        when(tableService.findAll(DATABASE_1_ID))
+        when(tableService.findAllForDatabaseId(DATABASE_1_ID))
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
@@ -63,8 +63,9 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
+    @Disabled("only works in integration test")
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
+            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException, AmqpException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -99,44 +100,6 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         });
     }
 
-    @Disabled("not throwing")
-    @Test
-    public void create_notPostgres_fails() {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
-                .build();
-        final Database DATABASE_2 = DATABASE_1;
-        DATABASE_2.getContainer().getImage().setRepository("mariadb");
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        when(databaseRepository.findById(DATABASE_2.getId()))
-                .thenReturn(Optional.of(DATABASE_2));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableEndpoint.create(DATABASE_1_ID, request);
-        });
-    }
-
-    @Disabled("not throwing")
-    @Test
-    public void create_notSql_fails() throws TableNotFoundException, DatabaseNotFoundException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
-                .build();
-        when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
-                .thenReturn(TABLE_1);
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableEndpoint.create(DATABASE_1_ID, request);
-        });
-    }
-
     @Test
     public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException {
@@ -163,12 +126,6 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         assertThrows(TableNotFoundException.class, () -> {
             tableEndpoint.findById(DATABASE_1_ID, TABLE_1_ID);
         });
-    }
-
-    @Disabled("not throwing")
-    @Test
-    public void delete_notSql_fails() {
-
     }
 
     @Test

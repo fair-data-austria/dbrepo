@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ -f /ready ]; then
+  echo "service is ready and accepting connections"
+  exit 0
+fi
+exit 1

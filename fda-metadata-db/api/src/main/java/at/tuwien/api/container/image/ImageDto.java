@@ -28,6 +28,7 @@ public class ImageDto {
     @ApiModelProperty(required = true, example = "org.postgresql.Driver")
     private String driverClass;
 
+    @ToString.Exclude
     @NotBlank
     @ApiModelProperty(required = true)
     private String logo;

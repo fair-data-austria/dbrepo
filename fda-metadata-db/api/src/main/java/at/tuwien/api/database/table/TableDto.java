@@ -29,6 +29,10 @@ public class TableDto {
     private String internalName;
 
     @NotBlank
+    @ApiModelProperty(name = "topic name", example = "fda.c1.d1.t1")
+    private String topic;
+
+    @NotBlank
     @ApiModelProperty(name = "table description", example = "Predict next-day rain in Australia", notes = "https://www.kaggle.com/jsphyg/weather-dataset-rattle-package")
     private String description;
 

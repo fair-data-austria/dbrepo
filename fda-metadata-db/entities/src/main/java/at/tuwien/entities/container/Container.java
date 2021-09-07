@@ -5,6 +5,7 @@ import at.tuwien.entities.database.Database;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,9 +19,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Where(clause = "deleted is null")
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@SQLDelete(sql = "update mdb_container set deleted = NOW() where id = ?")
 @Table(name = "mdb_container")
 public class Container {
 
@@ -56,6 +59,13 @@ public class Container {
     private Integer port;
 
     @ToString.Include
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumns({
+            @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
+    })
+    private List<Database> databases;
+
+    @ToString.Include
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ContainerImage image;
 
@@ -66,5 +76,8 @@ public class Container {
     @Column
     @LastModifiedDate
     private Instant lastModified;
+
+    @Column
+    private Instant deleted;
 
 }

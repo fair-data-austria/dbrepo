@@ -28,14 +28,12 @@ mvn -f ./fda-metadata-db/pom.xml clean install > /dev/null 2>&1
 
 for service in $SERVICES; do
   echo "Testing ./fda-${service}-service"
-  sudo "./fda-${service}-service/rest-service/src/test/resources/integration-test.before" >/dev/null 2>&1
   RESULT=$(mvn -f "./fda-${service}-service/pom.xml" clean test verify | grep -o "FAILURE")
   if [[ $RESULT ]]; then
     echo -e "... \e[91mNOT OK\e[39m"
   else
     echo -e "... \e[92mOK\e[39m"
   fi
-  sudo "./fda-${service}-service/rest-service/src/test/resources/integration-test.after" >/dev/null 2>&1
 done
 
 # 3) Runtime

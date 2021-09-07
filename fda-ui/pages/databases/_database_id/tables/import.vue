@@ -219,7 +219,7 @@ export default {
         console.log(err)
         return
       }
-      const insertUrl = `/api/database/${this.$route.params.database_id}/table/${createResult.data.id}/data`
+      const insertUrl = `/api/database/${this.$route.params.database_id}/table/${createResult.data.id}/data/csv`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)

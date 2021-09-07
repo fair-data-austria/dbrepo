@@ -1,44 +1,35 @@
 # FROM node:lts as build
-FROM mcr.microsoft.com/playwright:v1.11.1-focal as build
+FROM node:14-alpine as build
 MAINTAINER Kirill Stytsenko <kirill.stytsenko@univie.ac.at>
+
+ENV NODE_ENV=production
 
 WORKDIR /app
 
-# python, make, g++ are needed by node-gyp
-# RUN apk add --no-cache build-base python3 > /dev/null
-RUN apt-get install make g++ python3 -y > /dev/null
+COPY ./package.json ./
 
-# Install Chromium dependencies - playwright
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  libnss3 \
-  libxss1 \
-  libasound2 \
-  fonts-noto-color-emoji \
-  libxtst6
+# Install npm dependencies
+RUN npm install > /dev/null 2>&1
 
-# Our app
+COPY ./nuxt.config.js ./
 COPY ./.env-docker ./.env
-COPY ./assets ./assets
 COPY ./ava.config.cjs ./
 COPY ./babel.config.js ./
+COPY ./assets ./assets
 COPY ./components ./components
 COPY ./lang ./lang
 COPY ./layouts ./layouts
-COPY ./nuxt.config.js ./
-COPY ./package.json ./
 COPY ./pages ./pages
 COPY ./plugins ./plugins
-COPY ./scripts ./scripts
 COPY ./server-middleware ./server-middleware
 COPY ./static ./static
 COPY ./store ./store
-COPY ./test ./test
 COPY ./yarn.lock ./
 
-# Install npm dependencies
-RUN yarn install --frozen-lockfile > /dev/null 2>&1
-
 RUN yarn build
+
+# Minimize image & cleanup
+RUN rm -rf /tmp/*
 
 EXPOSE 3000
 

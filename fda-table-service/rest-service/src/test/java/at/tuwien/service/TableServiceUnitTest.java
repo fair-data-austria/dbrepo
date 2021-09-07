@@ -3,11 +3,13 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.DatabaseRepository;
 import at.tuwien.repository.TableRepository;
 import com.opencsv.exceptions.CsvException;
+import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +34,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 public class TableServiceUnitTest extends BaseUnitTest {
 
+    @MockBean
+    private Channel channel;
+
+    @MockBean
+    private ReadyConfig readyConfig;
+
     @Autowired
     private TableService tableService;
 
@@ -54,7 +62,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
-        final List<Table> response = tableService.findAll(DATABASE_1_ID);
+        final List<Table> response = tableService.findAllForDatabaseId(DATABASE_1_ID);
         assertEquals(1, response.size());
         assertEquals(TABLE_1_ID, response.get(0).getId());
     }
@@ -66,7 +74,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.findAll(DATABASE_1_ID);
+            tableService.findAllForDatabaseId(DATABASE_1_ID);
         });
     }
 

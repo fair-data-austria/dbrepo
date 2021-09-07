@@ -15,6 +15,12 @@ import static java.time.temporal.ChronoUnit.HOURS;
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseUnitTest {
 
+    public final static String BROKER_NAME = "fda-broker-service";
+    public final static String BROKER_IP = "172.29.0.2";
+    public final static String BROKER_HOSTNAME = "fda-broker-service";
+    public final static String BROKER_IMAGE = "rabbitmq";
+    public final static String BROKER_TAG = "3-alpine";
+
     public final static Long IMAGE_1_ID = 1L;
     public final static String IMAGE_1_REPOSITORY = "postgres";
     public final static String IMAGE_1_TAG = "latest";
@@ -75,6 +81,7 @@ public abstract class BaseUnitTest {
     public final static String DATABASE_1_NAME = "Fundamentals SEC";
     public final static Boolean DATABASE_1_PUBLIC = false;
     public final static String DATABASE_1_INTERNALNAME = "sec";
+    public final static String DATABASE_1_EXCHANGE = "fda." + DATABASE_1_INTERNALNAME;
     public final static Instant DATABASE_1_CREATED = Instant.now().minus(1, HOURS);
     public final static Instant DATABASE_1_UPDATED = Instant.now();
 
@@ -82,12 +89,18 @@ public abstract class BaseUnitTest {
     public final static String DATABASE_2_NAME = "River Flow";
     public final static Boolean DATABASE_2_PUBLIC = false;
     public final static String DATABASE_2_INTERNALNAME = "river_flow";
+    public final static String DATABASE_2_EXCHANGE = "fda." + DATABASE_2_INTERNALNAME;
     public final static Instant DATABASE_2_CREATED = Instant.now().minus(1, HOURS);
     public final static Instant DATABASE_2_UPDATED = Instant.now();
 
+    public final static Long TABLE_1_ID = 1L;
+    public final static String TABLE_1_NAME = "NYSE";
+    public final static String TABLE_1_INTERNALNAME = "nyse";
+    public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNALNAME;
+
     public final static Long CONTAINER_1_ID = 1L;
     public final static String CONTAINER_1_HASH = "deadbeef";
-    public final static String CONTAINER_1_NAME = "u01";
+    public final static String CONTAINER_1_NAME = "fda-userdb-u01";
     public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(2, HOURS);
     public final static Instant CONTAINER_1_UPDATED = Instant.now();
@@ -95,7 +108,7 @@ public abstract class BaseUnitTest {
 
     public final static Long CONTAINER_2_ID = 2L;
     public final static String CONTAINER_2_HASH = "0ff1ce";
-    public final static String CONTAINER_2_NAME = "u02";
+    public final static String CONTAINER_2_NAME = "fda-userdb-u02";
     public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-u02";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(2, HOURS);
     public final static Instant CONTAINER_2_UPDATED = Instant.now();
@@ -160,8 +173,10 @@ public abstract class BaseUnitTest {
             .isPublic(DATABASE_1_PUBLIC)
             .container(CONTAINER_1)
             .created(DATABASE_1_CREATED)
+            .tables(List.of())
             .lastModified(DATABASE_1_UPDATED)
             .container(CONTAINER_1)
+            .exchange(DATABASE_1_EXCHANGE)
             .build();
 
     public final static Database DATABASE_2 = Database.builder()
@@ -171,13 +186,14 @@ public abstract class BaseUnitTest {
             .isPublic(DATABASE_2_PUBLIC)
             .container(CONTAINER_2)
             .created(DATABASE_2_CREATED)
+            .tables(List.of())
             .lastModified(DATABASE_2_UPDATED)
             .container(CONTAINER_2)
+            .exchange(DATABASE_2_EXCHANGE)
             .build();
 
     public final static List<String> IMAGE_1_ENV = List.of("POSTGRES_USER=postgres",
-            "POSTGRES_PASSWORD=postgres");
+            "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=" + DATABASE_1_INTERNALNAME);
 
-    public final static List<String> IMAGE_2_ENV = List.of("MARIADB_USER=mariadb",
-            "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb");
+    public final static List<String> IMAGE_2_ENV = List.of("MARIADB_ROOT_PASSWORD=mariadb");
 }

@@ -11,7 +11,7 @@ test('simple select', (t) => {
 test('select some columns', (t) => {
   const r = buildQuery({
     table: 'Table',
-    select: ['databases', 'bbb']
+    select: ['database', 'bbb']
   })
   t.is(r.sql, 'select "database", "bbb" from "Table"')
 })

@@ -11,19 +11,24 @@
       </v-alert>
       <v-form v-model="formValid" autocomplete="off">
         <v-text-field
-          id="dbname"
+          id="database"
           v-model="database"
+          name="database"
           label="Database Name"
           :rules="[v => !!v || $t('Required')]"
           required />
         <v-textarea
+          id="description"
           v-model="description"
+          name="description"
           rows="2"
           label="Database Description"
           :rules="[v => !!v || $t('Required')]"
           required />
         <v-select
+          id="engine"
           v-model="engine"
+          name="engine"
           label="Database Engine"
           :items="engines"
           item-text="label"
@@ -31,7 +36,9 @@
           return-object
           required />
         <v-checkbox
+          id="public"
           v-model="isPublic"
+          name="public"
           disabled
           label="Public" />
       </v-form>
