@@ -10,7 +10,8 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.repository.elastic.DatabaseRepository;
+import at.tuwien.repository.elastic.TableidxRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
@@ -34,14 +35,17 @@ public class TableService extends JdbcConnector {
 
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
+    private final TableidxRepository tableidxRepository;
     private final TableMapper tableMapper;
 
     @Autowired
     public TableService(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                        ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
+                        TableidxRepository tableidxRepository, ImageMapper imageMapper, TableMapper tableMapper,
+                        QueryMapper queryMapper) {
         super(imageMapper, tableMapper, queryMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
+        this.tableidxRepository = tableidxRepository;
         this.tableMapper = tableMapper;
     }
 
@@ -131,6 +135,8 @@ public class TableService extends JdbcConnector {
         }
         log.info("Created table {}", table.getId());
         log.debug("created table: {}", table);
+        /* save in table_index - elastic search */
+        tableidxRepository.save(table);
         return table;
     }
 
