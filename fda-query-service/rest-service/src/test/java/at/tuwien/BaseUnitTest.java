@@ -1,7 +1,11 @@
 package at.tuwien;
 
+import at.tuwien.api.container.image.ImageEnvItemDto;
+import at.tuwien.api.container.image.ImageEnvItemTypeDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
+import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -10,19 +14,49 @@ import org.springframework.test.context.TestPropertySource;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Random;
 
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseUnitTest {
 
-    public final Long IMAGE_1_ID = 1L;
-    public final String IMAGE_1_REPO = "postgres";
-    public final String IMAGE_1_TAG = "latest";
-    public final Integer IMAGE_1_PORT = 5432;
-    public final Instant IMAGE_1_CREATED = Instant.now();
-    public final Instant IMAGE_1_UPDATED = Instant.now();
+    public final static Long IMAGE_1_ID = 1L;
+    public final static String IMAGE_1_REPOSITORY = "postgres";
+    public final static String IMAGE_1_TAG = "13-alpine";
+    public final static String IMAGE_1_HASH = "83b40f2726e5";
+    public final static Integer IMAGE_1_PORT = 5432;
+    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.PostgreSQLDialect";
+    public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
+    public final static String IMAGE_1_JDBC = "postgresql";
+    public final static Long IMAGE_1_SIZE = 12000L;
+    public final static String IMAGE_1_LOGO = "AAAA";
+    public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
+    public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
+                    .key("POSTGRES_USER")
+                    .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .key("POSTGRES_PASSWORD")
+                    .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .build());
+    public final static ImageEnvItemDto[] IMAGE_1_ENV_DTO = List.of(ImageEnvItemDto.builder()
+                    .key("POSTGRES_USER")
+                    .value("postgres")
+                    .type(ImageEnvItemTypeDto.USERNAME)
+                    .build(),
+            ImageEnvItemDto.builder()
+                    .key("POSTGRES_PASSWORD")
+                    .value("postgres")
+                    .type(ImageEnvItemTypeDto.PASSWORD)
+                    .build())
+            .toArray(new ImageEnvItemDto[0]);
+    public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
+            "POSTGRES_PASSWORD=postgres");
 
     public final Long DATABASE_1_ID = 1L;
     public final String DATABASE_1_NAME = "Fundamentals SEC";
@@ -58,15 +92,22 @@ public abstract class BaseUnitTest {
     public final static Integer QUERY_1_RESULTNUMBER = 1;
     public final static String QUERY_1_RESULTHASH = DigestUtils.sha1Hex("c00lr3su1t");
 
-    public final ContainerImage IMAGE_1 = ContainerImage.builder()
+    public final static ContainerImage IMAGE_1 = ContainerImage.builder()
             .id(IMAGE_1_ID)
-            .repository(IMAGE_1_REPO)
+            .repository(IMAGE_1_REPOSITORY)
             .tag(IMAGE_1_TAG)
-            .created(IMAGE_1_CREATED)
+            .hash(IMAGE_1_HASH)
+            .jdbcMethod(IMAGE_1_JDBC)
+            .dialect(IMAGE_1_DIALECT)
+            .driverClass(IMAGE_1_DRIVER)
+            .containers(List.of())
+            .compiled(IMAGE_1_BUILT)
+            .size(IMAGE_1_SIZE)
+            .environment(IMAGE_1_ENV)
             .defaultPort(IMAGE_1_PORT)
-            .compiled(IMAGE_1_UPDATED)
+            .logo(IMAGE_1_LOGO)
             .build();
-
+    
     public final Container CONTAINER_1 = Container.builder()
             .id(CONTAINER_1_ID)
             .name(CONTAINER_1_NAME)

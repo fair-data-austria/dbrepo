@@ -43,5 +43,4 @@ public abstract class JdbcConnector {
         return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
     }
 
-    public abstract QueryResultDto reexecute(Long databaseId, Long queryId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException;
 }

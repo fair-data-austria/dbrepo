@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Pageable;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -161,8 +162,7 @@ public class QueryService extends JdbcConnector {
     }
 
 
-    @Override
-    public QueryResultDto reexecute(Long databaseId, Long queryId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+    public QueryResultDto reexecute(Long databaseId, Long queryId, Integer page, Integer size) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
         log.info("re-execute query with the id {}", queryId);
         DSLContext context = open(findDatabase(databaseId));
         //TODO Fix that import
@@ -173,7 +173,16 @@ public class QueryService extends JdbcConnector {
         Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
 
         query.append(t.toLocalDateTime().toString());
+        if(page != null && size != null) {
+            page = Math.abs(page);
+            size = Math.abs(size);
+            query.append("' LIMIT ");
+            query.append(size);
+            query.append(" OFFSET ");
+            query.append(page * size);
+        }
         query.append("';");
+
         log.debug(query.toString());
         ResultQuery<Record> resultQuery = context.resultQuery(query.toString());
         Result<Record> result = resultQuery.fetch();
@@ -182,4 +191,5 @@ public class QueryService extends JdbcConnector {
 
         return queryResultDto;
     }
+
 }

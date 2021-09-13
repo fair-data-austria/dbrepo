@@ -168,9 +168,4 @@ public class QueryStoreService extends JdbcConnector {
                 .fetchOne(0, int.class) == 1;
     }
 
-    //TODO Remove from here, is not necessary
-    @Override
-    public QueryResultDto reexecute(Long databaseId, Long queryId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
-        return null;
-    }
 }

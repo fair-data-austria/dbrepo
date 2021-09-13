@@ -14,14 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
@@ -63,11 +58,13 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> reexecute(@PathVariable Long id, @PathVariable Long queryId)
+    public ResponseEntity<QueryResultDto> reexecute(@PathVariable Long id, @PathVariable Long queryId, @RequestParam(name="page", required= false) Integer page, @RequestParam(name = "size", required = false) Integer size)
             throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
             JSQLParserException, QueryMalformedException, QueryStoreException {
-        final QueryResultDto response = queryService.reexecute(id, queryId);
+        final QueryResultDto response = queryService.reexecute(id, queryId, page, size);
         return ResponseEntity.ok(response);
     }
+
+
 
 }
