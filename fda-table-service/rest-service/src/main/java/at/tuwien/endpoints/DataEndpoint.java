@@ -89,9 +89,9 @@ public class DataEndpoint {
             @ApiResponse(code = 405, message = "The connection to the database was unsuccessful."),
     })
     public ResponseEntity<QueryResultDto> getAll(@PathVariable("id") Long databaseId,
-                                                 @PathVariable("tableId") Long tableId, @RequestParam(required = false) Timestamp timestamp) throws TableNotFoundException,
+                                                 @PathVariable("tableId") Long tableId, @RequestParam(required = false) Timestamp timestamp, @RequestParam(name="page", required= false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws TableNotFoundException,
             DatabaseNotFoundException, DatabaseConnectionException, ImageNotSupportedException {
-        final QueryResultDto data = dataService.selectAll(databaseId, tableId, timestamp);
+        final QueryResultDto data = dataService.selectAll(databaseId, tableId, timestamp, page, size);
         return ResponseEntity.ok(data);
     }
 

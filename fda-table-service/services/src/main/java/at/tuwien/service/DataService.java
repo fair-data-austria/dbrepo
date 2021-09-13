@@ -156,11 +156,11 @@ public class DataService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto selectAll(Long databaseId, Long tableId, Timestamp timestamp) throws TableNotFoundException,
+    public QueryResultDto selectAll(Long databaseId, Long tableId, Timestamp timestamp, Integer page, Integer size) throws TableNotFoundException,
             DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException {
         final QueryResultDto queryResult;
         try {
-            queryResult = selectAll(findById(databaseId, tableId), timestamp);
+            queryResult = selectAll(findById(databaseId, tableId), timestamp, page, size);
         } catch (SQLException e) {
             log.error("Could not find data: {}", e.getMessage());
             throw new DatabaseConnectionException(e);
