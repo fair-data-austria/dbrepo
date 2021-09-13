@@ -17,9 +17,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -33,6 +35,9 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
     @Autowired
     private QueryService queryService;
+
+    @Autowired
+    private QueryStoreService queryStoreService;
 
     @MockBean
     private DatabaseRepository databaseRepository;
@@ -62,12 +67,11 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void parse_notValidSyntax_fails() throws DatabaseNotFoundException {
-        when(queryService.findDatabase(DATABASE_1_ID))
-                .thenReturn(DATABASE_1);
+    public void execute_notValidSyntax_fails() throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
-
+        when(queryStoreService.exists(DATABASE_1))
+                .thenReturn(true);
 
         assertThrows(JSQLParserException.class, () -> {
             queryService.execute(DATABASE_1_ID, QUERY_1);
