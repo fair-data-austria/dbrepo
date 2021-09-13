@@ -53,7 +53,7 @@ public class QueryService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
+    public QueryResultDto execute(Long id, Query query, Integer page, Integer size) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
         Database database = findDatabase(id);
         if(database.getContainer().getImage().getDialect().equals("MARIADB")){
             if(!queryStoreService.exists(database)) {
@@ -62,7 +62,20 @@ public class QueryService extends JdbcConnector {
         }
         DSLContext context = open(database);
         //TODO Fix that import
-        ResultQuery<Record> resultQuery = context.resultQuery(parse(query,database).getQuery());
+        StringBuilder parsedQuery = new StringBuilder();
+        String q = parse(query, database).getQuery();
+        if(q.charAt(q.length()-1) == ';') {
+            parsedQuery.append(q.substring(0, q.length()-2));
+        } else {
+            parsedQuery.append(q);
+        }
+        parsedQuery.append(" LIMIT ");
+        parsedQuery.append(size);
+        parsedQuery.append(" OFFSET ");
+        parsedQuery.append(page * size);
+        parsedQuery.append(";");
+
+        ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
         Result<Record> result = resultQuery.fetch();
         QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
         log.debug("Result of the query is: \n {}", result.toString());
@@ -165,7 +178,6 @@ public class QueryService extends JdbcConnector {
     public QueryResultDto reexecute(Long databaseId, Long queryId, Integer page, Integer size) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
         log.info("re-execute query with the id {}", queryId);
         DSLContext context = open(findDatabase(databaseId));
-        //TODO Fix that import
         QueryResultDto savedQuery = queryStoreService.findOne(databaseId, queryId);
         StringBuilder query = new StringBuilder();
         query.append((String)savedQuery.getResult().get(0).get("query"));
