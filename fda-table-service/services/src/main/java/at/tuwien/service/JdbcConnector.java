@@ -89,15 +89,32 @@ public abstract class JdbcConnector {
         context.dropTable(table.getName());
     }
 
-    protected QueryResultDto selectAll(Table table, Timestamp timestamp) throws SQLException, ImageNotSupportedException {
+    protected QueryResultDto selectAll(Table table, Timestamp timestamp, Integer page, Integer size) throws SQLException, ImageNotSupportedException {
         if (table == null || table.getInternalName() == null) {
             log.error("Could not obtain the table internal name");
             throw new SQLException("Could not obtain the table internal name");
         }
         final DSLContext context = open(table.getDatabase());
         /* For versioning, but with jooq implementation better */
-        if(table.getDatabase().getContainer().getImage().getDialect().equals("MARIADB") && timestamp != null) {
-            return queryMapper.recordListToQueryResultDto(context.fetch("SELECT * from " + table.getInternalName() + " FOR SYSTEM_TIME AS OF TIMESTAMP'"+timestamp.toLocalDateTime()+"';"));
+        if(table.getDatabase().getContainer().getImage().getDialect().equals("MARIADB")) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("SELECT * FROM ");
+            stringBuilder.append( table.getInternalName());
+            if(timestamp != null) {
+                stringBuilder.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
+                stringBuilder.append(timestamp.toLocalDateTime());
+                stringBuilder.append("'");
+            }
+            if(page != null && size != null) {
+                page = Math.abs(page);
+                size = Math.abs(size);
+                stringBuilder.append(" LIMIT ");
+                stringBuilder.append(size);
+                stringBuilder.append(" OFFSET ");
+                stringBuilder.append(page * size);
+            }
+            stringBuilder.append(";");
+            return queryMapper.recordListToQueryResultDto(context.fetch(stringBuilder.toString()));
         } else {
             return queryMapper.recordListToQueryResultDto(context
                     .selectFrom(table.getInternalName())
