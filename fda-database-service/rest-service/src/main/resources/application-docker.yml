@@ -28,3 +28,5 @@ logging:
 eureka:
   instance.hostname: fda-database-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
+fda:
+  elastic.endpoint: fda-search-service:9200

@@ -1,6 +1,5 @@
 package at.tuwien.service;
 
-import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
@@ -10,8 +9,8 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.repository.DatabaseRepository;
-import at.tuwien.repository.TableRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.jpa.TableRepository;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -110,7 +109,7 @@ public class DataService extends JdbcConnector {
         if (data.getDelimiter() == null) {
             data.setDelimiter(',');
         }
-        if (!data.getCsvLocation().startsWith("test:")) {
+        if (!data.getCsvLocation().startsWith("test:")) { // todo: improve this?
             data.setCsvLocation("/tmp/" + data.getCsvLocation());
         } else {
             data.setCsvLocation(data.getCsvLocation().substring(5));
@@ -125,14 +124,24 @@ public class DataService extends JdbcConnector {
                 .withCSVParser(csvParser)
                 .build();
         final List<Map<String, Object>> records = new LinkedList<>();
+        List<String> headers = null;
         reader.readAll()
                 .forEach(x -> cells.add(Arrays.asList(x)));
-        log.debug("csv raw row size {}, cells raw size {}", reader.readAll().size(), cells.size());
+        log.trace("csv raw row size {}, cells raw size {}", reader.readAll().size(), cells.size());
+        /* get header */
+        if (data.getSkipHeader()) {
+            headers = cells.get(0);
+            log.debug("got headers {}", headers);
+        }
         /* map to the map-list structure */
         for (int i = (data.getSkipHeader() ? 1 : 0); i < cells.size(); i++) {
             final Map<String, Object> record = new HashMap<>();
             final List<String> row = cells.get(i);
             for (int j = 0; j < table.getColumns().size(); j++) {
+                /* detect if order is correct, we depend on the CsvParser library */
+                if (headers != null && table.getColumns().get(j).getInternalName().equals(headers.get(j))) {
+                    log.error("header out of sync, actual: {} but expected: {}", headers.get(j), table.getColumns().get(j).getInternalName());
+                }
                 record.put(table.getColumns().get(j).getInternalName(), row.get(j));
             }
             /* when the nullElement itself is null, nothing to do */
@@ -141,6 +150,10 @@ public class DataService extends JdbcConnector {
             }
             records.add(record);
         }
+        if (headers == null || headers.size() == 0) {
+            log.warn("No header check possible, possibly csv without header line or skipHeader=false provided");
+        }
+        log.debug("first row is {}", records.size() > 0 ? records.get(0) : null);
         return TableCsvDto.builder()
                 .data(records)
                 .build();
