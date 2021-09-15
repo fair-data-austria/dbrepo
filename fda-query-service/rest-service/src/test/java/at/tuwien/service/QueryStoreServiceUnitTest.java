@@ -3,7 +3,7 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
-import at.tuwien.repository.DatabaseRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
