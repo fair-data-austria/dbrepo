@@ -6,7 +6,7 @@ import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
-import at.tuwien.repository.DatabaseRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.*;
 import org.jooq.impl.DSL;

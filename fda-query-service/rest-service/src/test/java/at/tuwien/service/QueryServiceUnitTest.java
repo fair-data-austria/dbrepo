@@ -7,7 +7,6 @@ import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryMalformedException;
-import at.tuwien.repository.DatabaseRepository;
 import lombok.SneakyThrows;
 import net.sf.jsqlparser.JSQLParserException;
 import org.junit.jupiter.api.Test;
@@ -39,8 +38,6 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     @Autowired
     private QueryStoreService queryStoreService;
 
-    @MockBean
-    private DatabaseRepository databaseRepository;
 
 
 
@@ -68,8 +65,6 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
     //@Test
     public void execute_notValidSyntax_fails() throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
         when(queryStoreService.exists(DATABASE_1))
                 .thenReturn(true);
 
