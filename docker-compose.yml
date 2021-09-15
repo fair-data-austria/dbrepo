@@ -81,7 +81,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - 9092:9092
-    volumes: 
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       fda-discovery-service:
@@ -203,6 +203,20 @@ services:
       - 15672:15672
     volumes:
       - fda-broker-service-data:/var/lib/rabbitmq/
+
+  fda-search-service:
+    restart: always
+    container_name: fda-search-service
+    hostname: fda-search-service
+    image: elasticsearch:7.13.4
+    networks:
+      - fda-public
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+      - 9600:9600
 
   fda-ui:
     restart: on-failure

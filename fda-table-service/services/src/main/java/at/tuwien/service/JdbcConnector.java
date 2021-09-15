@@ -67,16 +67,20 @@ public abstract class JdbcConnector {
     }
 
     @Transactional
-    protected void insertCsv(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException {
-        if (data.getData().size() == 0) {
-            log.warn("No data to insert into table");
-            return;
+    protected void insertCsv(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException, TableMalformedException {
+        if (data.getData().size() == 0 || (data.getData().size() == 1 && data.getData().get(0).size() == 0)) {
+            log.warn("No data provided.");
+            throw new TableMalformedException("No data provided");
+        }
+        if (data.getData().get(0).size() != table.getColumns().size()) {
+            log.error("Provided columns differ from table columns found in metadata db.");
+            throw new TableMalformedException("Provided columns differ from table columns found in metadata db.");
         }
         final List<Field<?>> headers = tableMapper.tableToFieldList(table);
+        log.trace("first row received {}", data.getData().size() > 0 ? data.getData().get(0) : null);
         final DSLContext context = open(table.getDatabase());
         final List<InsertValuesStepN<Record>> statements = new LinkedList<>();
         for (List<Object> row : tableMapper.tableCsvDtoToObjectListList(data)) {
-            log.trace("insert row {}", row);
             statements.add(context.insertInto(table(table.getInternalName()), headers)
                     .values(row));
         }

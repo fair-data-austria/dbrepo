@@ -3,10 +3,9 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.image.ImageCreateDto;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
-import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.ImageRepository;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.jpa.ImageRepository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -67,13 +67,8 @@ public class DataEndpoint {
     public ResponseEntity<?> insertFromTuple(@PathVariable("id") Long databaseId,
                                     @PathVariable("tableId") Long tableId,
                                     @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
-            TableMalformedException {
-        final Table table = Table.builder()
-                .id(tableId)
-                .database(Database.builder()
-                        .id(databaseId)
-                        .build())
-                .build();
+            TableMalformedException, TableNotFoundException, DatabaseNotFoundException {
+        final Table table = dataService.findById(databaseId, tableId);
         dataService.insert(table, data);
         return ResponseEntity.accepted()
                 .build();
