@@ -105,13 +105,4 @@ public class QueryService {
     private String normalizeQuery(String query) {
         return query;
     }
-
-    private boolean checkValidity(String query) {
-        String queryparts[] = query.toLowerCase().split("from");
-        if (queryparts[0].contains("select")) {
-            //TODO add more checks
-            return true;
-        }
-        return false;
-    }
 }
