@@ -48,7 +48,7 @@ public class QueryStoreServiceUnitTest extends BaseUnitTest {
     } */
 
 
-    //@Test
+    @Test
     public void findAll_notFound_fails() {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.empty());
