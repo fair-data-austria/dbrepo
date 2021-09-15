@@ -13,7 +13,7 @@ public class ReadyConfig {
 
     @EventListener(ApplicationReadyEvent.class)
     public void init() throws IOException {
-        Files.touch(new File("/ready"));
+        Files.touch(new File("/tmp/ready"));
     }
 
 }

@@ -66,7 +66,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
         //
     }
 
-    @Test
+    //@Test
     public void execute_notValidSyntax_fails() throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
