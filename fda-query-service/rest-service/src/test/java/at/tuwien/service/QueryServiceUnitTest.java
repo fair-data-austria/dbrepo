@@ -69,7 +69,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(true);
 
         assertThrows(JSQLParserException.class, () -> {
-            queryService.execute(DATABASE_1_ID, QUERY_1, null, null);
+            queryService.execute(DATABASE_1_ID, QUERY_1);
         });
     }
 
