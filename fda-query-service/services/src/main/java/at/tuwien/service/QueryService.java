@@ -53,7 +53,7 @@ public class QueryService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto execute(Long id, Query query, Integer page, Integer size) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
+    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
         Database database = findDatabase(id);
         if(database.getContainer().getImage().getDialect().equals("MARIADB")){
             if(!queryStoreService.exists(database)) {
@@ -69,10 +69,6 @@ public class QueryService extends JdbcConnector {
         } else {
             parsedQuery.append(q);
         }
-        parsedQuery.append(" LIMIT ");
-        parsedQuery.append(size);
-        parsedQuery.append(" OFFSET ");
-        parsedQuery.append(page * size);
         parsedQuery.append(";");
 
         ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());

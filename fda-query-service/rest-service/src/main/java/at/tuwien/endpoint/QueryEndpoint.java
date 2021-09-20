@@ -43,10 +43,10 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> execute(@PathVariable Long id, @RequestBody ExecuteQueryDto dto,  @RequestParam(name="page", required= false) Integer page, @RequestParam(name = "size", required = false) Integer size)
+    public ResponseEntity<QueryResultDto> execute(@PathVariable Long id, @RequestBody ExecuteQueryDto dto)
             throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
             JSQLParserException, QueryMalformedException, QueryStoreException {
-        final QueryResultDto response = queryService.execute(id, queryMapper.queryDTOtoQuery(dto), page, size);
+        final QueryResultDto response = queryService.execute(id, queryMapper.queryDTOtoQuery(dto));
         return ResponseEntity.ok(response);
     }
 
