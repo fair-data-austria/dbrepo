@@ -176,20 +176,23 @@ public class QueryService extends JdbcConnector {
         DSLContext context = open(findDatabase(databaseId));
         QueryResultDto savedQuery = queryStoreService.findOne(databaseId, queryId);
         StringBuilder query = new StringBuilder();
+        query.append("SELECT * FROM (");
         query.append((String)savedQuery.getResult().get(0).get("query"));
         query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
         Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
 
         query.append(t.toLocalDateTime().toString());
+        query.append("') as  tab");
+
         if(page != null && size != null) {
             page = Math.abs(page);
             size = Math.abs(size);
-            query.append("' LIMIT ");
+            query.append(" LIMIT ");
             query.append(size);
             query.append(" OFFSET ");
             query.append(page * size);
         }
-        query.append("';");
+        query.append(";");
 
         log.debug(query.toString());
         ResultQuery<Record> resultQuery = context.resultQuery(query.toString());
