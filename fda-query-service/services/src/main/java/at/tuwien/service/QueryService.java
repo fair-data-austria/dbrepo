@@ -177,12 +177,30 @@ public class QueryService extends JdbcConnector {
         QueryResultDto savedQuery = queryStoreService.findOne(databaseId, queryId);
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM (");
-        query.append((String)savedQuery.getResult().get(0).get("query"));
-        query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
-        Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
+        String q = (String)savedQuery.getResult().get(0).get("query");
+        if(q.toLowerCase(Locale.ROOT).contains("where")) {
+            String[] split = q.toLowerCase(Locale.ROOT).split("where");
+            if(split.length > 2) {
+                //TODO FIX SUBQUERIES WITH MULTIPLE Wheres
+                throw new SQLException("Query Contains Subqueries, this will be supported in a future version");
+            } else {
+                query.append(split[0]);
+                query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
+                Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
+                query.append(t.toLocalDateTime().toString());
 
-        query.append(t.toLocalDateTime().toString());
-        query.append("') as  tab");
+                query.append("' WHERE");
+                query.append(split[1]);
+            }
+        } else {
+            query.append(q);
+            query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
+            Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
+
+            query.append(t.toLocalDateTime().toString());
+            query.append("') as  tab");
+        }
+
 
         if(page != null && size != null) {
             page = Math.abs(page);
