@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Environment ###
+.env
+
 ### Generated ###
 mapping.xml
 rest-service/src/main/java/at/tuwien/userdb/Table.java
