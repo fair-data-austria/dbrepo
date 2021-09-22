@@ -126,7 +126,7 @@ test-backend-table:
   stage: test-backend
   script:
     - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-table-service/pom.xml clean test verify"
+    - "mvn -f fda-table-service/pom.xml -DZENODO_API_KEY=${ZENODO_API_KEY} clean test verify"
     - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
     - cat ./fda-table-service/report/target/site/jacoco-aggregate/index.html
   needs:

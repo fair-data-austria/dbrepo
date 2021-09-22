@@ -8,14 +8,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriTemplateHandler;
 
+import javax.validation.constraints.NotNull;
+
 @Configuration
 public class ZenodoConfig {
 
     @Getter
+    @NotNull
     @Value("${zenodo.endpoint}")
     private String zenodoEndpoint;
 
     @Getter
+    @NotNull
     @Value("${zenodo.api_key}")
     private String zenodoApiKey;
 

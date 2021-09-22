@@ -34,9 +34,7 @@ public class ZenodoGateway {
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
-        if (response.getBody().length == 0) {
-            throw new ZenodoApiException("Endpoint returned empty body");
-        }
+        
         return Arrays.asList(response.getBody());
     }
 }
