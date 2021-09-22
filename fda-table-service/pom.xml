@@ -19,6 +19,8 @@
         <module>rest-service</module>
         <module>services</module>
         <module>report</module>
+        <module>gateway</module>
+        <module>api</module>
     </modules>
 
     <properties>

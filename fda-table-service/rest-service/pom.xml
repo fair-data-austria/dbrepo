@@ -19,6 +19,12 @@
             <artifactId>services</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>gateway</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
