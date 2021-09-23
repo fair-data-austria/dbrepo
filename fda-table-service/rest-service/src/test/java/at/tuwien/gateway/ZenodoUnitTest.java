@@ -74,4 +74,24 @@ public class ZenodoUnitTest extends BaseUnitTest {
         });
     }
 
+    @Test
+    public void createDeposit_succeed() throws ZenodoApiException, ZenodoAuthenticationException {
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), eq(null), eq(DepositDto.class), anyString()))
+                .thenReturn(ResponseEntity.ok(DEPOSIT_1_DTO));
+
+        /* test */
+        final DepositDto response = zenodoGateway.createDeposit();
+    }
+
+    @Test
+    public void createDeposit_noToken_fails() {
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), eq(null), eq(DepositDto.class), anyString()))
+                .thenReturn(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+
+        /* test */
+        assertThrows(ZenodoAuthenticationException.class, () -> {
+            zenodoGateway.createDeposit();
+        });
+    }
+
 }

@@ -1,5 +1,6 @@
 package at.tuwien.config;
 
+import at.tuwien.gateway.ZenodoTemplateInterceptor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -9,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriTemplateHandler;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Configuration
 public class ZenodoConfig {
@@ -27,9 +29,11 @@ public class ZenodoConfig {
     public RestTemplate zenodo() {
         DefaultUriTemplateHandler defaultUriTemplateHandler = new DefaultUriTemplateHandler();
         defaultUriTemplateHandler.setBaseUrl(zenodoEndpoint);
-        return new RestTemplateBuilder()
+        final RestTemplate template = new RestTemplateBuilder()
                 .uriTemplateHandler(defaultUriTemplateHandler)
                 .build();
+        template.setInterceptors(List.of(new ZenodoTemplateInterceptor()));
+        return template;
     }
 
 }
