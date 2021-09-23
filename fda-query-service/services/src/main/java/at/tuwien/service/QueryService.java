@@ -191,6 +191,7 @@ public class QueryService extends JdbcConnector {
 
                 query.append("' WHERE");
                 query.append(split[1]);
+                query.append(") as  tab");
             }
         } else {
             query.append(q);
@@ -221,4 +222,33 @@ public class QueryService extends JdbcConnector {
         return queryResultDto;
     }
 
+    @Transactional
+    public QueryResultDto save(Long id, Query query) throws SQLException, ImageNotSupportedException, DatabaseNotFoundException, QueryStoreException, JSQLParserException {
+        Database database = findDatabase(id);
+        if(database.getContainer().getImage().getDialect().equals("MARIADB")){
+            if(!queryStoreService.exists(database)) {
+                queryStoreService.create(id);
+            }
+        }
+        DSLContext context = open(database);
+        StringBuilder parsedQuery = new StringBuilder();
+        String q = parse(query, database).getQuery();
+        if(q.charAt(q.length()-1) == ';') {
+            parsedQuery.append(q.substring(0, q.length()-2));
+        } else {
+            parsedQuery.append(q);
+        }
+        parsedQuery.append(";");
+
+        ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
+        Result<Record> result = resultQuery.fetch();
+        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
+        log.debug("Result of the query is: \n {}", result.toString());
+
+        // Save the query in the store
+        boolean b = queryStoreService.saveQuery(database, query, queryResultDto);
+        log.debug("Save query returned code {}", b);
+        QueryResultDto savedQuery = queryStoreService.findLast(database.getId());
+        return savedQuery;
+    }
 }

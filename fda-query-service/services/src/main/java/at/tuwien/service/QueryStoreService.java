@@ -66,6 +66,17 @@ public class QueryStoreService extends JdbcConnector {
                 .fetch());
     }
 
+    public QueryResultDto findLast(Long databaseId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+        Database database = findDatabase(databaseId);
+        DSLContext context = open(database);
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM ");
+        sb.append(QUERYSTORENAME);
+        sb.append(" ORDER BY id desc LIMIT 1;");
+        return queryMapper.recordListToQueryResultDto(context
+                .fetch(sb.toString()));
+    }
+
     /**
      * Creates the querystore for a given database
      * @param databaseId

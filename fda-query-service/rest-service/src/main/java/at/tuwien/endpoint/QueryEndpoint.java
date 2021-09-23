@@ -1,6 +1,7 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
@@ -47,6 +48,21 @@ public class QueryEndpoint {
             throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
             JSQLParserException, QueryMalformedException, QueryStoreException {
         final QueryResultDto response = queryService.execute(id, queryMapper.queryDTOtoQuery(dto));
+        return ResponseEntity.ok(response);
+    }
+
+    @Transactional
+    @PutMapping("/save")
+    @ApiOperation(value = "saves a query without execution")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
+            @ApiResponse(code = 404, message = "The database does not exist."),
+            @ApiResponse(code = 405, message = "The container is not running."),
+            @ApiResponse(code = 409, message = "The container image is not supported."),})
+    public ResponseEntity<QueryResultDto> save(@PathVariable Long id, @RequestBody ExecuteQueryDto dto)
+            throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
+            JSQLParserException, QueryMalformedException, QueryStoreException {
+        final QueryResultDto response = queryService.save(id, queryMapper.queryDTOtoQuery(dto));
         return ResponseEntity.ok(response);
     }
 
