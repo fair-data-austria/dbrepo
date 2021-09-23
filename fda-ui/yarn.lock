@@ -1622,7 +1622,7 @@
     "webpack-node-externals" "^3.0.0"
     "webpackbar" "^4.0.0"
 
-"@nuxtjs/axios@^5.12.2":
+"@nuxtjs/axios@^5.13.6":
   "integrity" "sha512-XS+pOE0xsDODs1zAIbo95A0LKlilvJi8YW0NoXYuq3/jjxGgWDxizZ6Yx0AIIjZOoGsXJOPc0/BcnSEUQ2mFBA=="
   "resolved" "https://registry.npmjs.org/@nuxtjs/axios/-/axios-5.13.6.tgz"
   "version" "5.13.6"
@@ -8579,7 +8579,7 @@
     "ufo" "^0.7.7"
     "vue-i18n" "^8.25.0"
 
-"nuxt@^2.12.2":
+"nuxt@^2.15.8":
   "integrity" "sha512-ceK3qLg/Baj7J8mK9bIxqw9AavrF+LXqwYEreBdY/a4Sj8YV4mIvhqea/6E7VTCNNGvKT2sJ/TTJjtfQ597lTA=="
   "resolved" "https://registry.npmjs.org/nuxt/-/nuxt-2.15.8.tgz"
   "version" "2.15.8"
