@@ -89,7 +89,10 @@ export default {
       let res
       try {
         res = await this.$axios.get('/api/image/')
-        this.engines = res.data
+        this.engines = res.data.map((e) => {
+          e.disabled = (e.id !== 3)
+          return e
+        })
         console.debug('engines', this.engines)
       } catch (err) {
         this.$toast.error('Failed to fetch supported engines. Try reload the page.')

@@ -70,7 +70,7 @@
           </v-row>
           <v-row dense>
             <v-col>
-              <v-btn color="primary" :to="`/databases/${$route.params.database_id}/tables/${item.id}`" disabled>
+              <v-btn color="primary" :to="`/databases/${$route.params.database_id}/queries/${item.id}`">
                 <v-icon left>mdi-run</v-icon> Execute Again
               </v-btn>
             </v-col>
