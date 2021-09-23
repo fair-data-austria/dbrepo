@@ -5,12 +5,12 @@ import at.tuwien.config.ZenodoConfig;
 import at.tuwien.exception.ZenodoApiException;
 import at.tuwien.exception.ZenodoAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -36,5 +36,18 @@ public class ZenodoGateway {
         }
         
         return Arrays.asList(response.getBody());
+    }
+
+    public DepositDto createDeposit() throws ZenodoAuthenticationException, ZenodoApiException {
+        final ResponseEntity<DepositDto> response = zenodoRestTemplate.exchange("/api/deposit/depositions?access_token={token}",
+                HttpMethod.POST, null, DepositDto.class, zenodoConfig.getZenodoApiKey());
+        if (response.getStatusCode().is4xxClientError()) {
+            throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        }
+        if (response.getBody() == null) {
+            throw new ZenodoApiException("Endpoint returned null body");
+        }
+
+        return response.getBody();
     }
 }

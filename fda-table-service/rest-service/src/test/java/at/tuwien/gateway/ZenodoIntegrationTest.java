@@ -45,8 +45,13 @@ public class ZenodoIntegrationTest extends BaseUnitTest {
 
         /* test */
         final List<DepositDto> response = zenodoGateway.listDeposits();
-        assertEquals(1, response.size());
-        assertEquals(DEPOSIT_1_ID, response.get(0).getId());
+    }
+
+    @Test
+    public void createDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException {
+
+        /* test */
+        final DepositDto response = zenodoGateway.createDeposit();
     }
 
 }
