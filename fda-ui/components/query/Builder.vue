@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     async execute () {
-      const query = this.query.sql.replaceAll('"', '')
+      const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
         const res = await this.$axios.put(`/api/database/${this.$route.params.database_id}/query`, {

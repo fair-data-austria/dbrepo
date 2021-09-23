@@ -1,5 +1,5 @@
 const { format } = require('sql-formatter')
-const knex = require('knex')({ client: 'pg' })
+const knex = require('knex')({ client: 'mysql' })
 
 export function buildQuery ({ table, select, clauses }) {
   const builder = knex(table)
