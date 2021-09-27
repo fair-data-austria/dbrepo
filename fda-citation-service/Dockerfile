@@ -28,6 +28,6 @@ HEALTHCHECK --interval=25s --timeout=3s --retries=2 CMD service_ready
 
 COPY --from=build ./rest-service/target/rest-service-*.jar ./rest.jar
 
-EXPOSE 9094
+EXPOSE 9096
 
 ENTRYPOINT ["java", "-jar", "./rest.jar"]

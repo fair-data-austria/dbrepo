@@ -126,7 +126,7 @@ test-backend-table:
   stage: test-backend
   script:
     - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-table-service/pom.xml -DZENODO_API_KEY=${ZENODO_API_KEY} clean test verify"
+    - "mvn -f fda-table-service/pom.xml clean test verify"
     - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
     - cat ./fda-table-service/report/target/site/jacoco-aggregate/index.html
   needs:
@@ -141,6 +141,26 @@ test-backend-table:
     reports:
       junit:
         - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-citation:
+  stage: test-backend
+  script:
+    - "./fda-citation-service/rest-service/src/test/resources/integration-test.before"
+    - "mvn -f fda-citation-service/pom.xml -DZENODO_API_KEY=${ZENODO_API_KEY} clean test verify"
+    - "./fda-citation-service/rest-service/src/test/resources/integration-test.after"
+    - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
+  needs:
+    - build-metadata-db
+  dependencies:
+    - build-metadata-db
+  artifacts:
+    when: always
+    paths:
+      - fda-citation-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-citation-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
 
 deploy-all:
   stage: deploy
