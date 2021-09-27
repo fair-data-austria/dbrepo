@@ -33,6 +33,7 @@
         <jacoco.version>0.8.7</jacoco.version>
         <jooq.version>3.14.11</jooq.version>
         <opencsv.version>5.4</opencsv.version>
+        <javax-rs-api.version>2.1.1</javax-rs-api.version>
     </properties>
 
     <dependencies>
@@ -52,6 +53,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
             <version>${spring-cloud.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax-rs-api.version}</version>
         </dependency>
         <!-- Entities and API -->
         <dependency>
