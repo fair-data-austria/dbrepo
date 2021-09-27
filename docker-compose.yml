@@ -175,11 +175,9 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      ZENODO_API_KEY: "${ZENODO_API_KEY}"
     ports:
-      - 9094:9094
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /tmp:/tmp
+      - 9096:9096
     depends_on:
       fda-metadata-db:
         condition: service_healthy
@@ -237,6 +235,7 @@ services:
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - logger.level=WARN
     ports:
       - 9200:9200
       - 9600:9600
