@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fda-table-service</artifactId>
+        <artifactId>fda-citation-service</artifactId>
         <groupId>at.tuwien</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -13,7 +13,14 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>fda-table-service-services</name>
 
-    <dependencies />
+    <dependencies>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>api</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

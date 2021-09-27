@@ -4,16 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fda-table-service</artifactId>
+        <artifactId>fda-citation-service</artifactId>
         <groupId>at.tuwien</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>rest-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>fda-table-service-rest</name>
+    <artifactId>report</artifactId>
+    <name>fda-table-service-report</name>
+
+    <properties>
+        <jacoco.version>0.8.7</jacoco.version>
+    </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>at.tuwien</groupId>
+            <artifactId>rest-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>services</artifactId>
@@ -24,12 +32,15 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
                         <goals>
-                            <goal>repackage</goal><!-- to make it exuteable with $ java -jar ./app.jar -->
+                            <goal>report-aggregate</goal>
                         </goals>
                     </execution>
                 </executions>
