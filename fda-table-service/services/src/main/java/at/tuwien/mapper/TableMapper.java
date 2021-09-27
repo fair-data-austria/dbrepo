@@ -206,11 +206,20 @@ public interface TableMapper {
                 .collect(Collectors.toList());
     }
 
-    default List<List<Object>> tableCsvDtoToObjectListList(TableCsvDto data) {
-        return data.getData()
+    default List<List<Object>> tableCsvDtoToObjectListList(TableCsvDto data, List<Field<?>> headers) {
+        List<List<Object>> result = new ArrayList<>();
+        for (Map<String, Object> m : data.getData()) {
+            List<Object> r = new ArrayList<>();
+            for (int i = 0; i < headers.size(); i++) {
+                r.add(m.get(headers.get(i).toString()));
+            }
+            result.add(r);
+        }
+        return result;
+        /*return data.getData()
                 .stream()
                 .map((Function<Map<String, Object>, List<Object>>) stringObjectMap -> new ArrayList<>(stringObjectMap.values()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); */
     }
 
     default DataType<?> columnTypeDtoToDataType(TableCreateDto table, ColumnCreateDto data) {
