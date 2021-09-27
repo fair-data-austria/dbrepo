@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.sql.Timestamp;
 
 @Log4j2
 @CrossOrigin(origins = "*")
@@ -66,13 +67,8 @@ public class DataEndpoint {
     public ResponseEntity<?> insertFromTuple(@PathVariable("id") Long databaseId,
                                     @PathVariable("tableId") Long tableId,
                                     @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
-            TableMalformedException {
-        final Table table = Table.builder()
-                .id(tableId)
-                .database(Database.builder()
-                        .id(databaseId)
-                        .build())
-                .build();
+            TableMalformedException, TableNotFoundException, DatabaseNotFoundException {
+        final Table table = dataService.findById(databaseId, tableId);
         dataService.insert(table, data);
         return ResponseEntity.accepted()
                 .build();
@@ -88,10 +84,11 @@ public class DataEndpoint {
             @ApiResponse(code = 405, message = "The connection to the database was unsuccessful."),
     })
     public ResponseEntity<QueryResultDto> getAll(@PathVariable("id") Long databaseId,
-                                                 @PathVariable("tableId") Long tableId) throws TableNotFoundException,
+                                                 @PathVariable("tableId") Long tableId, @RequestParam(required = false) Timestamp timestamp, @RequestParam(name="page", required= false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws TableNotFoundException,
             DatabaseNotFoundException, DatabaseConnectionException, ImageNotSupportedException {
-        final QueryResultDto data = dataService.selectAll(databaseId, tableId);
+        final QueryResultDto data = dataService.selectAll(databaseId, tableId, timestamp, page, size);
         return ResponseEntity.ok(data);
     }
+
 
 }

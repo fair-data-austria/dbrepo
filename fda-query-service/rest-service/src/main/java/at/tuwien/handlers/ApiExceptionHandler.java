@@ -1,10 +1,8 @@
 package at.tuwien.handlers;
 
 import at.tuwien.api.error.ApiErrorDto;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.QueryMalformedException;
+import at.tuwien.exception.*;
+import net.sf.jsqlparser.JSQLParserException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,5 +53,26 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
+
+    @ExceptionHandler({JSQLParserException.class})
+    public ResponseEntity<Object> handle(JSQLParserException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(e.getLocalizedMessage())
+                .code("error.query.parsing")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
+    @ExceptionHandler({QueryStoreException.class})
+    public ResponseEntity<Object> handle(QueryStoreException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.CONFLICT)
+                .message(e.getLocalizedMessage())
+                .code("error.querystore.exists")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
 
 }

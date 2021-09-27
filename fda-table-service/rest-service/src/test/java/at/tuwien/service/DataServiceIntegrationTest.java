@@ -5,17 +5,19 @@ import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
-import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.DatabaseRepository;
-import at.tuwien.repository.ImageRepository;
-import at.tuwien.repository.TableRepository;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.jpa.ImageRepository;
+import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -24,25 +26,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
-import org.springframework.web.multipart.MultipartFile;
-import org.synchronoss.cloud.nio.multipart.Multipart;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ImportServiceIntegrationTest extends BaseUnitTest {
+public class DataServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -74,7 +71,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private DataService dataService;
 
-    private CreateContainerResponse request;
+    private CreateContainerResponse request1, request2;
 
     @Transactional
     @BeforeEach
@@ -90,19 +87,28 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .exec();
         imageRepository.save(IMAGE_1);
         /* create container */
-        request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+        request1 = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
                 .withEnv(IMAGE_1_ENVIRONMENT)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
                 .exec();
+        request2 = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+                .withEnv(IMAGE_3_ENVIRONMENT)
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(CONTAINER_3_INTERNALNAME)
+                .withIpv4Address(CONTAINER_3_IP)
+                .withHostName(CONTAINER_3_INTERNALNAME)
+                .exec();
         /* start container */
-        dockerClient.startContainerCmd(request.getId()).exec();
-        Thread.sleep(3000);
-        CONTAINER_1_HASH = request.getId();
+        dockerClient.startContainerCmd(request1.getId()).exec();
+        dockerClient.startContainerCmd(request2.getId()).exec();
+        Thread.sleep(5 * 1000);
+        CONTAINER_1_HASH = request1.getId();
         databaseRepository.save(DATABASE_1);
         databaseRepository.save(DATABASE_2);
+        databaseRepository.save(DATABASE_3); /* csv_02 */
     }
 
     @Transactional
@@ -113,7 +119,7 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .withShowAll(true)
                 .exec()
                 .forEach(container -> {
-                    System.out.println("DELETE CONTAINER " + Arrays.toString(container.getNames()));
+                    log.info("Delete container {}", Arrays.asList(container.getNames()));
                     try {
                         dockerClient.stopContainerCmd(container.getId()).exec();
                     } catch (NotModifiedException e) {
@@ -127,73 +133,122 @@ public class ImportServiceIntegrationTest extends BaseUnitTest {
                 .stream()
                 .filter(n -> n.getName().startsWith("fda"))
                 .forEach(network -> {
-                    System.out.println("DELETE NETWORK " + network.getName());
+                    log.info("Delete network {}", network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
     }
 
-    private void create_table() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, TableMalformedException {
-        final Table response = tableService.createTable(DATABASE_1_ID, TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
-                .build());
-    }
-
     @Test
-    @Disabled
     public void insertFromFile_succeeds() throws TableMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException,
             ArbitraryPrimaryKeysException, DataProcessingException, TableNotFoundException, FileStorageException {
-        create_table();
+        tableService.createTable(DATABASE_1_ID, TableCreateDto.builder()
+                .name(TABLE_1_NAME)
+                .description(TABLE_1_DESCRIPTION)
+                .columns(COLUMNS_CSV01)
+                .build());
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/weather-small.csv")
+                .csvLocation("test:src/test/resources/csv/csv_01.csv")
                 .build();
 
         /* test */
         dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
         final Optional<Table> response = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID);
         assertTrue(response.isPresent());
-        assertEquals(TABLE_1_ID, response.get().getId());
-        assertEquals(TABLE_1_NAME, response.get().getName());
-        assertEquals(TABLE_1_DESCRIPTION, response.get().getDescription());
+        assertEquals(TABLE_1, response.get());
+    }
+
+    @Test
+    public void insertFromFileCsv01_nonUnique_succeeds() throws TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException,
+            ArbitraryPrimaryKeysException, DataProcessingException, TableNotFoundException, FileStorageException {
+        COLUMNS_CSV01[0].setUnique(false);
+        tableService.createTable(DATABASE_1_ID, TableCreateDto.builder()
+                .name(TABLE_1_NAME)
+                .description(TABLE_1_DESCRIPTION)
+                .columns(COLUMNS_CSV01)
+                .build());
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(';')
+                .skipHeader(true)
+                .nullElement("NA")
+                .csvLocation("test:src/test/resources/csv/csv_01.csv")
+                .build();
+
+        /* test */
+        dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
+        final Optional<Table> response = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID);
+        assertTrue(response.isPresent());
+        assertEquals(TABLE_1, response.get());
+    }
+
+    @Test
+    @Disabled
+    public void insertFromFileCsv02_succeeds() throws TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException,
+            ArbitraryPrimaryKeysException, DataProcessingException, TableNotFoundException, FileStorageException {
+        tableService.createTable(DATABASE_3_ID, TableCreateDto.builder()
+                .name(TABLE_3_NAME)
+                .description(TABLE_3_DESCRIPTION)
+                .columns(COLUMNS_CSV02)
+                .build());
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(',')
+                .skipHeader(true)
+                .nullElement(null)
+                .csvLocation("test:src/test/resources/csv/csv_02.csv")
+                .build();
+
+        /* test */
+        dataService.insertCsv(DATABASE_3_ID, TABLE_3_ID, request);
+        final Optional<Table> response = tableRepository.findByDatabaseAndId(DATABASE_3, TABLE_3_ID);
+        assertTrue(response.isPresent());
+        assertArrayEquals(COLUMNS_CSV02, response.get().getColumns().toArray(new TableColumn[0]));
     }
 
     @Test
     public void insertFromFile_columnNumberDiffers_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
             ArbitraryPrimaryKeysException, DataProcessingException, TableMalformedException {
-        create_table();
+        tableService.createTable(DATABASE_1_ID, TableCreateDto.builder()
+                .name(TABLE_1_NAME)
+                .description(TABLE_1_DESCRIPTION)
+                .columns(COLUMNS_CSV01)
+                .build());
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/namen.csv")
+                .csvLocation("test:src/test/resources/csv/csv_09.csv")
                 .build();
 
         /* test */
         assertThrows(FileStorageException.class, () -> {
-            dataService.insertCsv(DATABASE_1_ID, TABLE_2_ID, request);
+            dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
     @Test
     public void insertFromFile_notRunning_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
             ArbitraryPrimaryKeysException, DataProcessingException, TableMalformedException {
-        create_table();
-        dockerClient.stopContainerCmd(request.getId()).exec();
+        tableService.createTable(DATABASE_1_ID, TableCreateDto.builder()
+                .name(TABLE_1_NAME)
+                .description(TABLE_1_DESCRIPTION)
+                .columns(COLUMNS_CSV01)
+                .build());
+        dockerClient.stopContainerCmd(CONTAINER_1_HASH).exec();
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/weather-small.csv")
+                .csvLocation("test:src/test/resources/csv/csv_01.csv")
                 .build();
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            dataService.insertCsv(DATABASE_1_ID, TABLE_2_ID, request);
+            dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 

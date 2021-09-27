@@ -9,8 +9,8 @@ import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ContainerMapper;
 import at.tuwien.mapper.ImageMapper;
-import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.ImageRepository;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.jpa.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -27,8 +27,6 @@ import org.springframework.util.SocketUtils;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.net.*;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;

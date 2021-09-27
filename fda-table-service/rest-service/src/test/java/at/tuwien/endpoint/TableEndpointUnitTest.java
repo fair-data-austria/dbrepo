@@ -7,8 +7,8 @@ import at.tuwien.api.database.table.TableDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.TableEndpoint;
 import at.tuwien.exception.*;
-import at.tuwien.repository.DatabaseRepository;
-import at.tuwien.repository.TableRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.TableService;
 import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.Disabled;
@@ -69,7 +69,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
+                .columns(COLUMNS_CSV01)
                 .build();
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
@@ -87,7 +87,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS5)
+                .columns(COLUMNS_CSV01)
                 .build();
         when(tableService.createTable(DATABASE_1_ID, request))
                 .thenAnswer(invocation -> {
