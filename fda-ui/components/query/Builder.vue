@@ -22,19 +22,30 @@
           @change="buildQuery" />
       </v-col>
     </v-row>
-    <QueryFilters
-      v-if="table"
-      v-model="clauses"
-      :columns="columnNames" />
+    <!--    <QueryFilters-->
+    <!--      v-if="table"-->
+    <!--      v-model="clauses"-->
+    <!--      :columns="columnNames" />-->
     <v-row v-if="query.formatted">
       <v-col>
         <highlightjs autodetect :code="query.formatted" />
       </v-col>
       <v-col cols="3" class="actions">
-        <v-btn class="execute" color="primary">
+        <v-btn class="execute" color="primary" @click="execute">
           <v-icon>mdi-refresh</v-icon>
           Execute
         </v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <p>Results</p>
+        <v-data-table
+          :headers="result.headers"
+          :items="result.rows"
+          :loading="loading"
+          :items-per-page="30"
+          class="elevation-1" />
       </v-col>
     </v-row>
   </div>
@@ -49,7 +60,12 @@ export default {
       tableDetails: null,
       query: {},
       select: [],
-      clauses: []
+      clauses: [],
+      result: {
+        headers: [],
+        rows: []
+      },
+      loading: false
     }
   },
   computed: {
@@ -80,6 +96,26 @@ export default {
     }
   },
   methods: {
+    async execute () {
+      const query = this.query.sql.replaceAll('`', '')
+      this.loading = true
+      try {
+        const res = await this.$axios.put(`/api/database/${this.$route.params.database_id}/query`, {
+          Query: query
+        })
+        console.debug('query result', res)
+        this.$toast.success('Successfully executed query')
+        this.loading = false
+        this.result.headers = this.select.map((s) => {
+          return { text: s.name, value: 'mdb_' + s.name, sortable: false }
+        })
+        this.result.rows = res.data.result
+      } catch (err) {
+        console.error('query execute', err)
+        this.$toast.error('Could not execute query')
+        this.loading = false
+      }
+    },
     async buildQuery () {
       if (!this.table) {
         return
@@ -87,7 +123,7 @@ export default {
       const url = '/server-middleware/query/build'
       const data = {
         table: this.table.internalName,
-        select: this.select.map(s => s.name),
+        select: this.select.map(s => 'mdb_' + s.name),
         clauses: this.clauses
       }
       try {

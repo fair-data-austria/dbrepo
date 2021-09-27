@@ -8,8 +8,8 @@ import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
-import at.tuwien.repository.DatabaseRepository;
-import at.tuwien.repository.ImageRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.jpa.ImageRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -17,7 +17,6 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.PortBinding;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang.SerializationUtils;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
@@ -32,12 +31,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.table;
 import static org.junit.jupiter.api.Assertions.*;
@@ -435,8 +432,8 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
             ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         final DSLContext context = open();
         final TableCreateDto TABLE_2_CREATE_DTO = instance();
-        final ColumnCreateDto[] columns = new ColumnCreateDto[]{COLUMNS5[0], COLUMNS5[1], COLUMNS5[2],
-                COLUMNS5[3], COLUMNS5[4], ColumnCreateDto.builder()
+        final ColumnCreateDto[] columns = new ColumnCreateDto[]{COLUMNS_CSV01[0], COLUMNS_CSV01[1], COLUMNS_CSV01[2],
+                COLUMNS_CSV01[3], COLUMNS_CSV01[4], ColumnCreateDto.builder()
                 .name("Gender")
                 .nullAllowed(false)
                 .primaryKey(false)

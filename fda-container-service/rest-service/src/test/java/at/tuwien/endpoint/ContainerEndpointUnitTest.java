@@ -5,7 +5,7 @@ import at.tuwien.api.container.*;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.ContainerEndpoint;
 import at.tuwien.exception.*;
-import at.tuwien.repository.ImageRepository;
+import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.service.ContainerService;
 import com.github.dockerjava.api.DockerClient;
 import org.junit.jupiter.api.Disabled;

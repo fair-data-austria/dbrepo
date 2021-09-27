@@ -75,6 +75,10 @@
             <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-elasticsearch</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
             <version>${mariadb.version}</version>
@@ -183,12 +187,6 @@
             <artifactId>swagger-codegen-maven-plugin</artifactId>
             <version>2.4.21</version>
         </dependency>
-        <!-- Gateway -->
-        <dependency>
-            <groupId>org.projectreactor</groupId>
-            <artifactId>reactor-spring</artifactId>
-            <version>1.0.1.RELEASE</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -203,6 +201,7 @@
                         <exclude>at/tuwien/exception/**/*</exclude>
                         <exclude>at/tuwien/utils/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>
+                        <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>**/FdaTableServiceApplication.class</exclude>
                         <exclude>**/JdbcConnector.class</exclude>
                     </excludes>

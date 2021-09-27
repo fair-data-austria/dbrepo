@@ -5,7 +5,7 @@ test('simple select', (t) => {
   const r = buildQuery({
     table: 'Table'
   })
-  t.is(r.sql, 'select * from "Table"')
+  t.is(r.sql, 'select * from `Table`')
 })
 
 test('select some columns', (t) => {
@@ -13,7 +13,7 @@ test('select some columns', (t) => {
     table: 'Table',
     select: ['database', 'bbb']
   })
-  t.is(r.sql, 'select "database", "bbb" from "Table"')
+  t.is(r.sql, 'select `database`, `bbb` from `Table`')
 })
 
 test('simple where clause', (t) => {
@@ -23,7 +23,7 @@ test('simple where clause', (t) => {
       { type: 'where', params: ['foo', '=', 42] }
     ]
   })
-  t.is(r.sql, 'select * from "Table" where "foo" = 42')
+  t.is(r.sql, 'select * from `Table` where `foo` = 42')
 })
 
 test('simple where clause with numeric string', (t) => {
@@ -33,7 +33,7 @@ test('simple where clause with numeric string', (t) => {
       { type: 'where', params: ['foo', '=', '42'] }
     ]
   })
-  t.is(r.sql, 'select * from "Table" where "foo" = 42')
+  t.is(r.sql, 'select * from `Table` where `foo` = 42')
 })
 
 test('simple where clause with non-numeric string', (t) => {
@@ -43,7 +43,7 @@ test('simple where clause with non-numeric string', (t) => {
       { type: 'where', params: ['foo', '=', 'bla'] }
     ]
   })
-  t.is(r.sql, 'select * from "Table" where "foo" = \'bla\'')
+  t.is(r.sql, 'select * from `Table` where `foo` = \'bla\'')
 })
 
 test('using unallowed operator', (t) => {
@@ -57,7 +57,7 @@ test('using unallowed operator', (t) => {
   t.is(r.error, 'The operator "UNKNOWN" is not permitted')
 })
 
-test('where clause with explicit "and"', (t) => {
+test('where clause with explicit `and`', (t) => {
   const r = buildQuery({
     table: 'Table',
     clauses: [
@@ -66,10 +66,10 @@ test('where clause with explicit "and"', (t) => {
       { type: 'where', params: ['bar', '=', 42] }
     ]
   })
-  t.is(r.sql, 'select * from "Table" where "foo" = 42 and "bar" = 42')
+  t.is(r.sql, 'select * from `Table` where `foo` = 42 and `bar` = 42')
 })
 
-test('where clause with implicit "and"', (t) => {
+test('where clause with implicit `and`', (t) => {
   const r = buildQuery({
     table: 'Table',
     clauses: [
@@ -78,10 +78,10 @@ test('where clause with implicit "and"', (t) => {
       { type: 'where', params: ['bar', '=', 42] }
     ]
   })
-  t.is(r.sql, 'select * from "Table" where "foo" = 42 and "bar" = 42')
+  t.is(r.sql, 'select * from `Table` where `foo` = 42 and `bar` = 42')
 })
 
-test('where clause with "or"', (t) => {
+test('where clause with `or`', (t) => {
   const r = buildQuery({
     table: 'Table',
     clauses: [
@@ -90,7 +90,7 @@ test('where clause with "or"', (t) => {
       { type: 'where', params: ['bar', '=', 42] }
     ]
   })
-  t.is(r.sql, 'select * from "Table" where "foo" = 42 or "bar" = 42')
+  t.is(r.sql, 'select * from `Table` where `foo` = 42 or `bar` = 42')
 })
 
 test('cast numeric strings to numbers', (t) => {

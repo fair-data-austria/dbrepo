@@ -9,50 +9,42 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.AmqpMapper;
 import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.mapper.ImageMapper;
-import at.tuwien.repository.ContainerRepository;
-import at.tuwien.repository.DatabaseRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.Channel;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
 @Log4j2
 @Service
 public class DatabaseService extends JdbcConnector {
 
-    private final static String AMQP_EXCHANGE = "fda";
-    private static final String AMQP_QUEUE_DATABASES = "fda.databases";
-
     private final ContainerRepository containerRepository;
     private final DatabaseRepository databaseRepository;
     private final DatabaseMapper databaseMapper;
-    private final ObjectMapper objectMapper;
     private final AmqpService amqpService;
     private final AmqpMapper amqpMapper;
-    private final Channel channel;
 
     @Autowired
     public DatabaseService(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
-                           ImageMapper imageMapper, DatabaseMapper databaseMapper, ObjectMapper objectMapper,
-                           AmqpService amqpService, AmqpMapper amqpMapper, Channel channel) {
+                           ImageMapper imageMapper, DatabaseMapper databaseMapper,
+                           AmqpService amqpService, AmqpMapper amqpMapper) {
         super(imageMapper, databaseMapper);
         this.containerRepository = containerRepository;
         this.databaseRepository = databaseRepository;
         this.databaseMapper = databaseMapper;
-        this.objectMapper = objectMapper;
         this.amqpService = amqpService;
         this.amqpMapper = amqpMapper;
-        this.channel = channel;
     }
 
     /**
@@ -62,7 +54,9 @@ public class DatabaseService extends JdbcConnector {
      */
     @Transactional
     public List<Database> findAll() {
-        return databaseRepository.findAll();
+        return StreamSupport.stream(databaseRepository.findAll()
+                .spliterator(), false)
+                .collect(Collectors.toList());
     }
 
     /**

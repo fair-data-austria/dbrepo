@@ -3,115 +3,252 @@ package at.tuwien.service;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.QueryMalformedException;
-import at.tuwien.repository.DatabaseRepository;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
+import at.tuwien.exception.*;
+import at.tuwien.mapper.ImageMapper;
+import at.tuwien.mapper.QueryMapper;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.ResultQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
+import java.awt.print.Pageable;
 import java.io.StringReader;
-import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+
+import static org.jooq.impl.DSL.constraint;
 
 @Log4j2
 @Service
-public class QueryService {
+public class QueryService extends JdbcConnector {
 
     private final DatabaseRepository databaseRepository;
-    private final PostgresService postgresService;
+    private final QueryStoreService queryStoreService;
+    private final QueryMapper queryMapper;
 
     @Autowired
-    public QueryService(DatabaseRepository databaseRepository, PostgresService postgresService) {
+    public QueryService(ImageMapper imageMapper, QueryMapper queryMapper, DatabaseRepository databaseRepository, QueryStoreService queryStoreService) {
+        super(imageMapper, queryMapper);
         this.databaseRepository = databaseRepository;
-        this.postgresService = postgresService;
+        this.queryStoreService = queryStoreService;
+        this.queryMapper = queryMapper;
     }
 
     @Transactional
-    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException {
-        return postgresService.getQueries(findDatabase(id));
-    }
-
-    public QueryResultDto executeStatement(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLFeatureNotSupportedException {
-        CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
-
-        Statement stmt = parserRealSql.parse(new StringReader(query.getQuery()));
+    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
         Database database = findDatabase(id);
-        if (stmt instanceof Select) {
-            Select selectStatement = (Select) stmt;
-            PlainSelect ps = (PlainSelect) selectStatement.getSelectBody();
-
-            List<SelectItem> selectitems = ps.getSelectItems();
-            System.out.println(ps.getFromItem().toString());
-            selectitems.stream().forEach(selectItem -> System.out.println(selectItem.toString()));
+        if(database.getContainer().getImage().getDialect().equals("MARIADB")){
+            if(!queryStoreService.exists(database)) {
+                queryStoreService.create(id);
+            }
+        }
+        DSLContext context = open(database);
+        //TODO Fix that import
+        StringBuilder parsedQuery = new StringBuilder();
+        String q = parse(query, database).getQuery();
+        if(q.charAt(q.length()-1) == ';') {
+            parsedQuery.append(q.substring(0, q.length()-2));
         } else {
-            throw new SQLFeatureNotSupportedException("SQL Query is not a SELECT statement - please only use SELECT statements");
+            parsedQuery.append(q);
         }
-        saveQuery(database, query, null);
+        parsedQuery.append(";");
 
-        return null;
+        ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
+        Result<Record> result = resultQuery.fetch();
+        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
+        log.debug("Result of the query is: \n {}", result.toString());
+
+        // Save the query in the store
+        boolean b = queryStoreService.saveQuery(database, query, queryResultDto);
+        log.debug("Save query returned code {}", b);
+        return queryResultDto;
     }
 
-    public void create(Long id) throws DatabaseConnectionException, ImageNotSupportedException, DatabaseNotFoundException {
-        postgresService.createQuerystore(findDatabase(id));
+    private Query parse(Query query, Database database) throws SQLException, ImageNotSupportedException, JSQLParserException {
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        query.setExecutionTimestamp(ts);
+        CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
+        Statement statement = parserRealSql.parse(new StringReader(query.getQuery()));
+        log.debug("Given query {}", query.getQuery());
+
+        if(statement instanceof Select) {
+            Select selectStatement = (Select) statement;
+            PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
+            List<SelectItem> selectItems = ps.getSelectItems();
+
+            //Parse all tables
+            List<FromItem> fromItems = new ArrayList<>();
+            fromItems.add(ps.getFromItem());
+            if(ps.getJoins() != null && ps.getJoins().size() > 0) {
+                for (Join j : ps.getJoins()) {
+                    if (j.getRightItem() != null) {
+                        fromItems.add(j.getRightItem());
+                    }
+                }
+            }
+            //Checking if all tables exist
+            List<TableColumn> allColumns = new ArrayList<>();
+            for(FromItem f : fromItems) {
+                boolean i = false;
+                log.debug("from item iterated through: {}", f);
+                for(Table t : database.getTables()) {
+                    if(f.toString().equals(t.getInternalName()) || f.toString().equals(t.getName())) {
+                        allColumns.addAll(t.getColumns());
+                        i=false;
+                        break;
+                    }
+                    i = true;
+                }
+                if(i) {
+                    throw new JSQLParserException("Table "+f.toString() + " does not exist");
+                }
+            }
+
+            //Checking if all columns exist
+            for(SelectItem s : selectItems) {
+                String select = s.toString();
+                if(select.trim().equals("*")) {
+                    log.debug("Please do not use * to query data");
+                    continue;
+                }
+                // ignore prefixes
+                if(select.contains(".")) {
+                    log.debug(select);
+                    select = select.split("\\.")[1];
+                }
+                boolean i = false;
+                for(TableColumn tc : allColumns ) {
+                    log.debug("{},{},{}", tc.getInternalName(), tc.getName(), s);
+                    if(select.equals(tc.getInternalName()) || select.toString().equals(tc.getName())) {
+                        i=false;
+                        break;
+                    }
+                    i = true;
+                }
+                if(i) {
+                    throw new JSQLParserException("Column "+s.toString() + " does not exist");
+                }
+            }
+            //TODO Future work
+            if(ps.getWhere() != null) {
+                Expression where = ps.getWhere();
+                log.debug("Where clause: {}", where);
+            }
+            return query;
+        }
+        else {
+            throw new JSQLParserException("SQL Query is not a SELECT statement - please only use SELECT statements");
+        }
+
     }
 
-    /* helper functions */
-
-    private Database findDatabase(Long id) throws DatabaseNotFoundException, ImageNotSupportedException {
-        final Optional<Database> database;
-        try {
-            database = databaseRepository.findById(id);
-        } catch (EntityNotFoundException e) {
-            log.error("database not found in metadata database");
-            throw new DatabaseNotFoundException("database not found in metadata database", e);
-        }
+    @Transactional
+    public Database findDatabase(Long id) throws DatabaseNotFoundException {
+        final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
             log.error("no database with this id found in metadata database");
             throw new DatabaseNotFoundException("database not found in metadata database");
         }
-        log.debug("retrieved db {}", database);
-        if (!database.get().getContainer().getImage().getRepository().equals("postgres")) {
-            log.error("Right now only PostgreSQL is supported!");
-            throw new ImageNotSupportedException("Currently only PostgreSQL is supported");
-        }
         return database.get();
     }
 
-    private Query saveQuery(Database database, Query query, QueryResultDto queryResult) {
-        //TODO in next sprint
-        String q = query.getQuery();
-        query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
-        query.setQueryNormalized(normalizeQuery(query.getQuery()));
-        query.setQueryHash(query.getQueryNormalized().hashCode() + "");
-        query.setResultHash(query.getQueryHash());
-        query.setResultNumber(0);
-        postgresService.saveQuery(database, query);
-        return null;
-    }
 
-    private String normalizeQuery(String query) {
-        return query;
-    }
+    public QueryResultDto reexecute(Long databaseId, Long queryId, Integer page, Integer size) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+        log.info("re-execute query with the id {}", queryId);
+        DSLContext context = open(findDatabase(databaseId));
+        QueryResultDto savedQuery = queryStoreService.findOne(databaseId, queryId);
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT * FROM (");
+        String q = (String)savedQuery.getResult().get(0).get("query");
+        if(q.toLowerCase(Locale.ROOT).contains("where")) {
+            String[] split = q.toLowerCase(Locale.ROOT).split("where");
+            if(split.length > 2) {
+                //TODO FIX SUBQUERIES WITH MULTIPLE Wheres
+                throw new SQLException("Query Contains Subqueries, this will be supported in a future version");
+            } else {
+                query.append(split[0]);
+                query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
+                Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
+                query.append(t.toLocalDateTime().toString());
 
-    private boolean checkValidity(String query) {
-        String queryparts[] = query.toLowerCase().split("from");
-        if (queryparts[0].contains("select")) {
-            //TODO add more checks
-            return true;
+                query.append("' WHERE");
+                query.append(split[1]);
+                query.append(") as  tab");
+            }
+        } else {
+            query.append(q);
+            query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
+            Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
+
+            query.append(t.toLocalDateTime().toString());
+            query.append("') as  tab");
         }
-        return false;
+
+
+        if(page != null && size != null) {
+            page = Math.abs(page);
+            size = Math.abs(size);
+            query.append(" LIMIT ");
+            query.append(size);
+            query.append(" OFFSET ");
+            query.append(page * size);
+        }
+        query.append(";");
+
+        log.debug(query.toString());
+        ResultQuery<Record> resultQuery = context.resultQuery(query.toString());
+        Result<Record> result = resultQuery.fetch();
+        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
+        log.debug(result.toString());
+
+        return queryResultDto;
+    }
+
+    @Transactional
+    public QueryResultDto save(Long id, Query query) throws SQLException, ImageNotSupportedException, DatabaseNotFoundException, QueryStoreException, JSQLParserException {
+        Database database = findDatabase(id);
+        if(database.getContainer().getImage().getDialect().equals("MARIADB")){
+            if(!queryStoreService.exists(database)) {
+                queryStoreService.create(id);
+            }
+        }
+        DSLContext context = open(database);
+        StringBuilder parsedQuery = new StringBuilder();
+        String q = parse(query, database).getQuery();
+        if(q.charAt(q.length()-1) == ';') {
+            parsedQuery.append(q.substring(0, q.length()-2));
+        } else {
+            parsedQuery.append(q);
+        }
+        parsedQuery.append(";");
+
+        ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
+        Result<Record> result = resultQuery.fetch();
+        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
+        log.debug("Result of the query is: \n {}", result.toString());
+
+        // Save the query in the store
+        boolean b = queryStoreService.saveQuery(database, query, queryResultDto);
+        log.debug("Save query returned code {}", b);
+        QueryResultDto savedQuery = queryStoreService.findLast(database.getId());
+        return savedQuery;
     }
 }
