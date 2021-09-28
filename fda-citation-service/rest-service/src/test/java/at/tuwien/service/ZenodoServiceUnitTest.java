@@ -7,9 +7,11 @@ import at.tuwien.exception.ZenodoApiException;
 import at.tuwien.exception.ZenodoAuthenticationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -38,56 +40,42 @@ public class ZenodoServiceUnitTest extends BaseUnitTest {
     private RestTemplate zenodoTemplate;
 
     @Test
-    public void listDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException {
+    public void listCitations_succeeds() throws ZenodoApiException, ZenodoAuthenticationException {
         when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(DepositDto[].class), anyString()))
-                .thenReturn(ResponseEntity.ok(new DepositDto[]{DEPOSIT_1_DTO}));
+                .thenReturn(ResponseEntity.ok(new DepositDto[]{DEPOSIT_1_RETURN_DTO}));
 
         /* test */
-        final List<DepositDto> response = zenodoService.listStoredCitations();
+        final List<DepositDto> response = zenodoService.listCitations();
         assertEquals(1, response.size());
-        assertEquals(DEPOSIT_1_ID, response.get(0).getId());
     }
 
     @Test
-    public void listDeposit_noToken_fails() {
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(DepositDto[].class), anyString()))
-                .thenReturn(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-
-        /* test */
-        assertThrows(ZenodoAuthenticationException.class, () -> {
-            zenodoService.listStoredCitations();
-        });
-    }
-
-    @Test
-    public void listDeposit_empty_fails() {
+    public void listCitations_empty_fails() {
         when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(DepositDto[].class), anyString()))
                 .thenReturn(ResponseEntity.ok().build());
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
-            zenodoService.listStoredCitations();
+            zenodoService.listCitations();
         });
     }
 
     @Test
-    public void createDeposit_succeed() throws ZenodoApiException, ZenodoAuthenticationException {
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), eq(null), eq(DepositDto.class), anyString()))
-                .thenReturn(ResponseEntity.ok(DEPOSIT_1_DTO));
+    public void storeCitation_succeed() throws ZenodoApiException, ZenodoAuthenticationException {
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), Mockito.<HttpEntity<String>>any(), eq(DepositDto.class), anyString()))
+                .thenReturn(ResponseEntity.status(HttpStatus.CREATED)
+                        .body(DEPOSIT_1_RETURN_DTO));
 
         /* test */
         final DepositDto response = zenodoService.storeCitation();
     }
 
     @Test
-    public void createDeposit_noToken_fails() {
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), eq(null), eq(DepositDto.class), anyString()))
-                .thenReturn(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    public void deleteCitation_succeeds() {
+    }
 
-        /* test */
-        assertThrows(ZenodoAuthenticationException.class, () -> {
-            zenodoService.storeCitation();
-        });
+    @Test
+    public void deleteCitation_noId_fails() {
     }
 
 }

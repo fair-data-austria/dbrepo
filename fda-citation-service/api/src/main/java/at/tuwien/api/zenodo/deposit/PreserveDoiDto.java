@@ -1,6 +1,5 @@
-package at.tuwien.api.zenodo;
+package at.tuwien.api.zenodo.deposit;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -12,7 +11,6 @@ public class PreserveDoiDto {
 
     private String doi;
 
-    @JsonProperty("recid")
-    private Long recId;
+    private Long recid;
 
 }
