@@ -1,22 +1,21 @@
 package at.tuwien.api.zenodo.deposit;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * @apiNote https://sandbox.zenodo.org/api/licenses/
  */
 public enum LicenseTypeDto {
 
-    BSD("bsd-license"),
-    CC_NC("cc-nc"),
-    CC_BY("cc-by");
+    @JsonProperty("bsd-license")
+    BSD,
 
-    private final String type;
+    @JsonProperty("cc-nc")
+    CC_NC,
 
-    LicenseTypeDto(final String type) {
-        this.type = type;
-    }
+    @JsonProperty("cc-by")
+    CC_BY,
 
-    @Override
-    public String toString() {
-        return type;
-    }
+    @JsonProperty("CC0-1.0")
+    CC0_1_0;
 }

@@ -1,0 +1,52 @@
+{
+  "conceptrecid": "926408",
+  "created": "2021-09-28T15:52:19.833120+00:00",
+  "doi": "",
+  "doi_url": "https://doi.org/",
+  "files": [],
+  "id": 926409,
+  "links": {
+    "bucket": "https://sandbox.zenodo.org/api/files/5e50707f-e9f2-4de7-aed1-28bd7ddcdff8",
+    "discard": "https://sandbox.zenodo.org/api/deposit/depositions/926409/actions/discard",
+    "edit": "https://sandbox.zenodo.org/api/deposit/depositions/926409/actions/edit",
+    "files": "https://sandbox.zenodo.org/api/deposit/depositions/926409/files",
+    "html": "https://sandbox.zenodo.org/deposit/926409",
+    "latest_draft": "https://sandbox.zenodo.org/api/deposit/depositions/926409",
+    "latest_draft_html": "https://sandbox.zenodo.org/deposit/926409",
+    "newversion": "https://sandbox.zenodo.org/api/deposit/depositions/926409/actions/newversion",
+    "publish": "https://sandbox.zenodo.org/api/deposit/depositions/926409/actions/publish",
+    "registerconceptdoi": "https://sandbox.zenodo.org/api/deposit/depositions/926409/actions/registerconceptdoi",
+    "self": "https://sandbox.zenodo.org/api/deposit/depositions/926409"
+  },
+  "metadata": {
+    "access_right": "open",
+    "creators": [
+      {
+        "affiliation": "TU Wien",
+        "name": "First1 Last1",
+        "orcid": "0000-0002-5713-0725"
+      },
+      {
+        "affiliation": "TU Graz",
+        "name": "First2 Last2",
+        "orcid": "0000-0002-2606-4059"
+      }
+    ],
+    "description": "The dataset contains 1000 records of ...",
+    "doi": "",
+    "license": "CC0-1.0",
+    "prereserve_doi": {
+      "doi": "10.5072/zenodo.926409",
+      "recid": 926409
+    },
+    "publication_date": "2021-09-28",
+    "title": "My super dataset",
+    "upload_type": "dataset"
+  },
+  "modified": "2021-09-28T15:52:20.135553+00:00",
+  "owner": 93513,
+  "record_id": 926409,
+  "state": "unsubmitted",
+  "submitted": false,
+  "title": "My super dataset"
+}

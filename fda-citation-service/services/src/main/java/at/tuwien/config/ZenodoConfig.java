@@ -4,6 +4,7 @@ import at.tuwien.exception.ZenodoAuthenticationException;
 import at.tuwien.utils.ZenodoTemplateInterceptor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Getter;
@@ -17,9 +18,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilderFactory;
 
 import javax.validation.constraints.NotNull;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.TimeZone;
 
 @Log4j2
 @Configuration
@@ -46,8 +45,6 @@ public class ZenodoConfig {
     public ObjectMapper objectMapper() {
         return new ObjectMapper()
                 .findAndRegisterModules()
-                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
-                .setTimeZone(TimeZone.getTimeZone(ZoneId.of("Europe/Vienna")))
                 .registerModule(new JavaTimeModule())
                 .registerModule(new Jdk8Module());
     }

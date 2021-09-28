@@ -1,22 +1,24 @@
 package at.tuwien.api.zenodo.deposit;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum ImageTypeDto {
 
-    FIGURE("figure"),
-    PLOT("plot"),
-    DRAWING("drawing"),
-    DIAGRAM("diagram"),
-    PHOTO("photo"),
-    OTHER("other");
+    @JsonProperty("figure")
+    FIGURE,
 
-    private final String type;
+    @JsonProperty("plot")
+    PLOT,
 
-    ImageTypeDto(final String type) {
-        this.type = type;
-    }
+    @JsonProperty("drawing")
+    DRAWING,
 
-    @Override
-    public String toString() {
-        return type;
-    }
+    @JsonProperty("diagram")
+    DIAGRAM,
+
+    @JsonProperty("photo")
+    PHOTO,
+
+    @JsonProperty("other")
+    OTHER;
 }

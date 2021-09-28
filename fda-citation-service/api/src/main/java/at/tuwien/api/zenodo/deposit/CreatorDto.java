@@ -1,6 +1,6 @@
 package at.tuwien.api.zenodo.deposit;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 @Getter
@@ -8,11 +8,9 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContributorDto {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class CreatorDto {
 
-    /**
-     * e.g. Rauber, Andreas
-     */
     private String name;
 
     private String affiliation;
