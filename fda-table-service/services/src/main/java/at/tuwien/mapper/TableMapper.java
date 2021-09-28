@@ -207,7 +207,7 @@ public interface TableMapper {
     }
 
     default List<List<Object>> tableCsvDtoToObjectListList(TableCsvDto data, List<Field<?>> headers) {
-        List<List<Object>> result = new ArrayList<>();
+       /* List<List<Object>> result = new ArrayList<>();
         for (Map<String, Object> m : data.getData()) {
             List<Object> r = new ArrayList<>();
             for (int i = 0; i < headers.size(); i++) {
@@ -215,11 +215,19 @@ public interface TableMapper {
             }
             result.add(r);
         }
-        return result;
-        /*return data.getData()
+        return result;*/
+        return data.getData()
                 .stream()
-                .map((Function<Map<String, Object>, List<Object>>) stringObjectMap -> new ArrayList<>(stringObjectMap.values()))
-                .collect(Collectors.toList()); */
+                .map((Function<Map<String, Object>, List<Object>>) stringObjectMap -> columnToObjectList(stringObjectMap, headers))
+                .collect(Collectors.toList());
+    }
+
+    default List<Object> columnToObjectList(Map<String,Object> m, List<Field<?>> headers) {
+        List<Object> r = new ArrayList<>();
+        for (int i = 0; i < headers.size(); i++) {
+            r.add(m.get(headers.get(i).toString()));
+        }
+        return r;
     }
 
     default DataType<?> columnTypeDtoToDataType(TableCreateDto table, ColumnCreateDto data) {

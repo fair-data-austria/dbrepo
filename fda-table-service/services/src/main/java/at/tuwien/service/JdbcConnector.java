@@ -68,7 +68,8 @@ public abstract class JdbcConnector {
 
     @Transactional
     protected void insertCsv(Table table, TableCsvDto data) throws SQLException, ImageNotSupportedException, TableMalformedException {
-        if (data.getData().size() == 0 || (data.getData().size() == 1 && data.getData().get(0).size() == 0)) {
+        log.debug(data.toString());
+        if (data.getData() != null && (data.getData().size() == 0 || (data.getData().size() == 1 && data.getData().get(0).size() == 0))) {
             log.warn("No data provided.");
             throw new TableMalformedException("No data provided");
         }
