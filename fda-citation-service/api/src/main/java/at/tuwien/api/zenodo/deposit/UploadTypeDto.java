@@ -1,26 +1,36 @@
 package at.tuwien.api.zenodo.deposit;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum UploadTypeDto {
 
-    PUBLICATION("publication"),
-    POSTER("poster"),
-    PRESENTATION("presentation"),
-    DATASET("dataset"),
-    IMAGE("image"),
-    VIDEO("video"),
-    SOFTWARE("software"),
-    LESSON("lesson"),
-    PHYSICAL_OBJECT("physicalobject"),
-    OTHER("other");
+    @JsonProperty("publication")
+    PUBLICATION,
 
-    private final String type;
+    @JsonProperty("poster")
+    POSTER,
 
-    UploadTypeDto(final String type) {
-        this.type = type;
-    }
+    @JsonProperty("presentation")
+    PRESENTATION,
 
-    @Override
-    public String toString() {
-        return type;
-    }
+    @JsonProperty("dataset")
+    DATASET,
+
+    @JsonProperty("image")
+    IMAGE,
+
+    @JsonProperty("video")
+    VIDEO,
+
+    @JsonProperty("software")
+    SOFTWARE,
+
+    @JsonProperty("lesson")
+    LESSON,
+
+    @JsonProperty("physicalobject")
+    PHYSICAL_OBJECT,
+
+    @JsonProperty("other")
+    OTHER;
 }

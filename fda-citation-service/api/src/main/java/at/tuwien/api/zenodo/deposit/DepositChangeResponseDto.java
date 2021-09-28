@@ -1,9 +1,11 @@
 package at.tuwien.api.zenodo.deposit;
 
 import at.tuwien.api.zenodo.files.FileDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -11,12 +13,13 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * TODO add created, modified, embargodate with +00:00 timezone
- */
-public class DepositDto {
+public class DepositChangeResponseDto {
 
-    private String description;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")
+    private Instant created;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")
+    private Instant modified;
 
     @JsonProperty("conceptrecid")
     private Long conceptRecId;
@@ -35,7 +38,7 @@ public class DepositDto {
     @JsonProperty("prereserve_doi")
     private Boolean prereserveDoi;
 
-    private ContributorDto[] contributors;
+    private CreatorDto[] contributors;
 
     private List<FileDto> files;
 

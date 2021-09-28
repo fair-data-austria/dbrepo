@@ -1,34 +1,60 @@
 package at.tuwien.api.zenodo.deposit;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum PublicationTypeDto {
 
-    ANNOTATION_COLLECTION("annotationcollection"),
-    BOOK("book"),
-    SECTION("section"),
-    CONFERENCE_PAPER("conferencepaper"),
-    DATA_MANAGEMENT_PLAN("datamanagementplan"),
-    ARTICLE("article"),
-    PATENT("patent"),
-    PREPRINT("preprint"),
-    PROJECT_DELIVERABLE("deliverable"),
-    PROJECT_MILESTONE("milestone"),
-    PROPOSAL("proposal"),
-    REPORT("report"),
-    SOFTWARE_DOCUMENTATION("softwaredocumentation"),
-    TAXONOMIC_TREATMENT("taxonomictreatment"),
-    TECHNICAL_NOTE("technicalnote"),
-    THESIS("thesis"),
-    WORKING_PAPER("workingpaper"),
-    OTHER("other");
+    @JsonProperty("annotationcollection")
+    ANNOTATION_COLLECTION,
 
-    private final String type;
+    @JsonProperty("book")
+    BOOK,
 
-    PublicationTypeDto(final String type) {
-        this.type = type;
-    }
+    @JsonProperty("section")
+    SECTION,
 
-    @Override
-    public String toString() {
-        return type;
-    }
+    @JsonProperty("conferencepaper")
+    CONFERENCE_PAPER,
+
+    @JsonProperty("datamanagementplan")
+    DATA_MANAGEMENT_PLAN,
+
+    @JsonProperty("article")
+    ARTICLE,
+
+    @JsonProperty("patent")
+    PATENT,
+
+    @JsonProperty("preprint")
+    PREPRINT,
+
+    @JsonProperty("deliverable")
+    PROJECT_DELIVERABLE,
+
+    @JsonProperty("milestone")
+    PROJECT_MILESTONE,
+
+    @JsonProperty("proposal")
+    PROPOSAL,
+
+    @JsonProperty("report")
+    REPORT,
+
+    @JsonProperty("softwaredocumentation")
+    SOFTWARE_DOCUMENTATION,
+
+    @JsonProperty("taxonomictreatment")
+    TAXONOMIC_TREATMENT,
+
+    @JsonProperty("technicalnote")
+    TECHNICAL_NOTE,
+
+    @JsonProperty("thesis")
+    THESIS,
+
+    @JsonProperty("workingpaper")
+    WORKING_PAPER,
+
+    @JsonProperty("other")
+    OTHER;
 }
