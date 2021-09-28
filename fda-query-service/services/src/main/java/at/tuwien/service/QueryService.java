@@ -110,7 +110,7 @@ public class QueryService extends JdbcConnector {
                 boolean i = false;
                 log.debug("from item iterated through: {}", f);
                 for(Table t : database.getTables()) {
-                    if(f.toString().equals(t.getInternalName()) || f.toString().equals(t.getName())) {
+                    if(f.toString().toLowerCase(Locale.ROOT).equals(t.getInternalName()) || f.toString().toLowerCase(Locale.ROOT).equals(t.getName())) {
                         allColumns.addAll(t.getColumns());
                         i=false;
                         break;
@@ -137,7 +137,7 @@ public class QueryService extends JdbcConnector {
                 boolean i = false;
                 for(TableColumn tc : allColumns ) {
                     log.debug("{},{},{}", tc.getInternalName(), tc.getName(), s);
-                    if(select.equals(tc.getInternalName()) || select.toString().equals(tc.getName())) {
+                    if(select.toLowerCase(Locale.ROOT).equals(tc.getInternalName()) || select.toLowerCase(Locale.ROOT).equals(tc.getName())) {
                         i=false;
                         break;
                     }
