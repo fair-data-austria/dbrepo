@@ -5,6 +5,7 @@ import at.tuwien.api.zenodo.deposit.DepositDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.ZenodoApiException;
 import at.tuwien.exception.ZenodoAuthenticationException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class ZenodoServiceIntegrationTest extends BaseUnitTest {
     public void listDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException {
 
         /* test */
-        final List<DepositDto> response = zenodoService.listStoredCitations();
+        zenodoService.listCitations();
     }
 
     @Test
@@ -40,6 +41,7 @@ public class ZenodoServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         final DepositDto response = zenodoService.storeCitation();
+        Assertions.assertNotNull(response.getId());
     }
 
 }

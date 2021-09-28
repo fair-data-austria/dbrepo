@@ -9,7 +9,9 @@ import java.util.List;
 
 @Service
 public interface CitationService {
-    List<DepositDto> listStoredCitations() throws ZenodoAuthenticationException, ZenodoApiException;
+    List<DepositDto> listCitations() throws ZenodoAuthenticationException, ZenodoApiException;
 
     DepositDto storeCitation() throws ZenodoAuthenticationException, ZenodoApiException;
+
+    DepositDto deleteCitation(Long id) throws ZenodoAuthenticationException, ZenodoApiException;
 }

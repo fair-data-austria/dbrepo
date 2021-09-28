@@ -1,4 +1,4 @@
-package at.tuwien.api.zenodo;
+package at.tuwien.api.zenodo.deposit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

@@ -25,30 +25,47 @@ public class ZenodoService implements CitationService {
     }
 
     @Override
-    public List<DepositDto> listStoredCitations() throws ZenodoAuthenticationException, ZenodoApiException {
+    public List<DepositDto> listCitations() throws ZenodoAuthenticationException, ZenodoApiException {
         final ResponseEntity<DepositDto[]> response = zenodoRestTemplate.exchange("/api/deposit/depositions?access_token={token}",
-                HttpMethod.GET, null, DepositDto[].class, zenodoConfig.getZenodoApiKey());
-        if (response.getStatusCode().is4xxClientError()) {
+                HttpMethod.GET, null, DepositDto[].class, zenodoConfig.getApiKey());
+        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
-        
         return Arrays.asList(response.getBody());
     }
 
     @Override
     public DepositDto storeCitation() throws ZenodoAuthenticationException, ZenodoApiException {
         final ResponseEntity<DepositDto> response = zenodoRestTemplate.exchange("/api/deposit/depositions?access_token={token}",
-                HttpMethod.POST, null, DepositDto.class, zenodoConfig.getZenodoApiKey());
-        if (response.getStatusCode().is4xxClientError()) {
+                HttpMethod.POST, new HttpEntity<>("{}"), DepositDto.class, zenodoConfig.getApiKey());
+        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
+        if (response.getBody().getState().equals("error")) {
+            throw new ZenodoApiException("Status returned error or is unknown");
+        }
+        return response.getBody();
+    }
 
+    @Override
+    public DepositDto deleteCitation(Long id) throws ZenodoAuthenticationException, ZenodoApiException {
+        final ResponseEntity<DepositDto> response = zenodoRestTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+                HttpMethod.POST, null, DepositDto.class, id, zenodoConfig.getApiKey());
+        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        }
+        if (response.getBody() == null) {
+            throw new ZenodoApiException("Endpoint returned null body");
+        }
+        if (response.getBody().getState().equals("error")) {
+            throw new ZenodoApiException("Status returned error or is unknown");
+        }
         return response.getBody();
     }
 }

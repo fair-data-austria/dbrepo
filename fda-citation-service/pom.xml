@@ -26,14 +26,9 @@
         <java.version>11</java.version>
         <spring-cloud.version>3.0.1</spring-cloud.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <docker.version>3.2.7</docker.version>
-        <testcontainers.version>1.15.2</testcontainers.version>
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <jooq.version>3.14.11</jooq.version>
-        <opencsv.version>5.4</opencsv.version>
-        <javax-rs-api.version>2.1.1</javax-rs-api.version>
     </properties>
 
     <dependencies>
@@ -53,11 +48,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
             <version>${spring-cloud.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>${javax-rs-api.version}</version>
         </dependency>
         <!-- Entities and API -->
         <dependency>
@@ -83,6 +73,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <!-- Zenodo -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-bom.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>
