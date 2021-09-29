@@ -50,12 +50,13 @@ public class ZenodoFileService implements FileService {
                     zenodoMapper.resourceToHttpEntity(data.getName(), resource), FileResponseDto.class, table.getDepositId(), zenodoConfig.getApiKey());
         } catch (IOException e) {
             throw new ZenodoApiException("Could not map file to byte array");
-        }
-        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+        } catch (HttpClientErrorException.Unauthorized e) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        } catch (HttpClientErrorException.BadRequest e) {
+            throw new ZenodoNotFoundException("Did not find the resource with this id");
         }
         if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
-            throw new ZenodoNotFoundException("Did not find the deposit with this id");
+            throw new ZenodoNotFoundException("Did not find the resource with this id");
         }
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
@@ -64,7 +65,7 @@ public class ZenodoFileService implements FileService {
     }
 
     @Override
-    public List<FileResponseDto> listAll(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException,
+    public List<FileResponseDto> listResources(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException,
             ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException {
         final Table table = getTable(tableId);
         final ResponseEntity<FileResponseDto[]> response;
@@ -72,18 +73,54 @@ public class ZenodoFileService implements FileService {
             response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/files?access_token={token}",
                     HttpMethod.GET, addHeaders(null), FileResponseDto[].class, table.getDepositId(), zenodoConfig.getApiKey());
         } catch (HttpClientErrorException.NotFound e) {
-            throw new ZenodoNotFoundException("Did not find the deposit with this id");
-        }
-        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            throw new ZenodoNotFoundException("Did not find the resoource with this id");
+        } catch (HttpClientErrorException.Unauthorized e) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
-        }
-        if (response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-            throw new ZenodoNotFoundException("Did not find the deposit with this id");
         }
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
         return Arrays.asList(response.getBody());
+    }
+
+    @Override
+    public FileResponseDto findResource(Long databaseId, Long tableId, String fileId)
+            throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException,
+            ZenodoApiException {
+        final Table table = getTable(tableId);
+        final ResponseEntity<FileResponseDto> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/files/{file_id}?access_token={token}",
+                    HttpMethod.GET, addHeaders(null), FileResponseDto.class, table.getDepositId(), fileId,
+                    zenodoConfig.getApiKey());
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ZenodoNotFoundException("Did not find the resoource with this ID");
+        } catch (HttpClientErrorException.Unauthorized e) {
+            throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        }
+        if (response.getBody() == null) {
+            throw new ZenodoApiException("Endpoint returned null body");
+        }
+        return response.getBody();
+    }
+
+    @Override
+    public void deleteResource(Long databaseId, Long tableId, String fileId)
+            throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException {
+        final Table table = getTable(tableId);
+        final ResponseEntity<String> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/files/{file_id}?access_token={token}",
+                    HttpMethod.DELETE, addHeaders(null), String.class, table.getDepositId(), fileId,
+                    zenodoConfig.getApiKey());
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ZenodoNotFoundException("Did not find the resource with this ID");
+        } catch (HttpClientErrorException.Unauthorized e) {
+            throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        }
+        if (!response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
+            throw new ZenodoApiException("Failed to delete the resource with this ID");
+        }
     }
 
     /**

@@ -31,7 +31,7 @@ public class FileEndpoint {
                                          @Valid @RequestParam("tableId") Long tableId)
             throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoApiException,
             ZenodoNotFoundException {
-        return fileService.listAll(databaseId, tableId);
+        return fileService.listResources(databaseId, tableId);
     }
 
 //    public FileResponseDto find(@Valid @RequestParam("id") Long databaseId,

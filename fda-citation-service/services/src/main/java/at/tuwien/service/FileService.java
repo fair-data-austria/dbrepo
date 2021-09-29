@@ -15,5 +15,11 @@ public interface FileService {
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoFileTooLargeException, MetadataDatabaseNotFoundException;
 
-    List<FileResponseDto> listAll(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException;
+    List<FileResponseDto> listResources(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException;
+
+    FileResponseDto findResource(Long databaseId, Long tableId, String fileId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException;
+
+    void deleteResource(Long databaseId, Long tableId, String fileId)
+            throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException,
+            ZenodoApiException;
 }

@@ -15,6 +15,8 @@ public class FileResponseDto {
 
     private Long filesize;
 
+    private Boolean locked;
+
     private String id;
 
     private FileLinksDto links;
