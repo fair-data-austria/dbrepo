@@ -44,7 +44,7 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
             ZenodoNotFoundException {
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
                 .metadata(METADATA_1)
-               .build();
+                .build();
         final DepositChangeResponseDto response = zenodoService.storeCitation();
 
         /* test */
