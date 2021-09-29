@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @Service
-public class ZenodoTemplateInterceptor implements ClientHttpRequestInterceptor {
+public class UploadTemplateInterceptor implements ClientHttpRequestInterceptor {
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
             throws IOException {
-        request.getHeaders().set("Content-Type", "application/json");
+        request.getHeaders().set("Content-Type", "multipart/form-data");
         request.getHeaders().set("Accept", "application/json");
         return execution.execute(request, body);
     }

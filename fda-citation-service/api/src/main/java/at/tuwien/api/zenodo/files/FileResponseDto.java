@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileDto {
+public class FileResponseDto {
 
     private String checksum;
 

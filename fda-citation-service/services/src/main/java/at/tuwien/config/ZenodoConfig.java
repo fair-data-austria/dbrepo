@@ -1,10 +1,9 @@
 package at.tuwien.config;
 
 import at.tuwien.exception.ZenodoAuthenticationException;
-import at.tuwien.utils.ZenodoTemplateInterceptor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import at.tuwien.utils.ApiTemplateInterceptor;
+import at.tuwien.utils.UploadTemplateInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Getter;
@@ -49,13 +48,23 @@ public class ZenodoConfig {
                 .registerModule(new Jdk8Module());
     }
 
-    @Bean
-    public RestTemplate zenodo() {
+    @Bean("apiTemplate")
+    public RestTemplate apiTemplate() {
         final UriBuilderFactory factory = new DefaultUriBuilderFactory(zenodoEndpoint);
         final RestTemplate template = new RestTemplateBuilder()
                 .uriTemplateHandler(factory)
                 .build();
-        template.setInterceptors(List.of(new ZenodoTemplateInterceptor()));
+        template.setInterceptors(List.of(new ApiTemplateInterceptor()));
+        return template;
+    }
+
+    @Bean("uploadTemplate")
+    public RestTemplate uploadTemplate() {
+        final UriBuilderFactory factory = new DefaultUriBuilderFactory(zenodoEndpoint);
+        final RestTemplate template = new RestTemplateBuilder()
+                .uriTemplateHandler(factory)
+                .build();
+        template.setInterceptors(List.of(new UploadTemplateInterceptor()));
         return template;
     }
 
