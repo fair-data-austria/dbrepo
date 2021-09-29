@@ -15,5 +15,5 @@ public interface FileService {
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoFileTooLargeException, MetadataDatabaseNotFoundException;
 
-    List<FileResponseDto> listAll(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException;
+    List<FileResponseDto> listAll(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException;
 }
