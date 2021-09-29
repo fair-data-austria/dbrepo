@@ -1,23 +1,70 @@
 package at.tuwien.endpoints;
 
+import at.tuwien.api.zenodo.deposit.DepositChangeRequestDto;
+import at.tuwien.api.zenodo.deposit.DepositChangeResponseDto;
+import at.tuwien.api.zenodo.deposit.DepositResponseDto;
+import at.tuwien.exception.MetadataDatabaseNotFoundException;
+import at.tuwien.exception.ZenodoApiException;
+import at.tuwien.exception.ZenodoAuthenticationException;
+import at.tuwien.exception.ZenodoNotFoundException;
 import at.tuwien.service.MetadataService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
+
 @Log4j2
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/database/{id}/table/{tableid}/metadata")
+@RequestMapping("/api/database/{id}/table/{tableid}/deposit/metadata")
 public class MetadataEndpoint {
 
-    private final MetadataService citationService;
+    private final MetadataService metadataService;
 
     @Autowired
-    public MetadataEndpoint(MetadataService citationService) {
-        this.citationService = citationService;
+    public MetadataEndpoint(MetadataService metadataService) {
+        this.metadataService = metadataService;
     }
 
+    @GetMapping
+    public List<DepositResponseDto> findAll(@Valid @RequestParam("id") Long databaseId,
+                                            @Valid @RequestParam("tableId") Long tableId) throws ZenodoApiException,
+            ZenodoAuthenticationException, MetadataDatabaseNotFoundException {
+        return metadataService.listCitations(databaseId, tableId);
+    }
 
+    @PostMapping
+    public DepositChangeResponseDto create(@Valid @RequestParam("id") Long databaseId,
+                                           @Valid @RequestParam("tableId") Long tableId) throws ZenodoApiException,
+            ZenodoAuthenticationException, MetadataDatabaseNotFoundException {
+        return metadataService.storeCitation(databaseId, tableId);
+    }
 
+    @GetMapping("/{fileId}")
+    public DepositResponseDto find(@Valid @RequestParam("id") Long databaseId,
+                                   @Valid @RequestParam("tableId") Long tableId)
+            throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoNotFoundException,
+            ZenodoAuthenticationException {
+        return metadataService.findCitation(databaseId, tableId);
+    }
+
+    @PutMapping("/{fileId}")
+    public DepositChangeResponseDto update(@Valid @RequestParam("id") Long databaseId,
+                                           @Valid @RequestParam("tableId") Long tableId,
+                                           @Valid @RequestBody DepositChangeRequestDto data)
+            throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoNotFoundException,
+            ZenodoAuthenticationException {
+        return metadataService.updateCitation(databaseId, tableId, data);
+    }
+
+    @DeleteMapping("/{fileId}")
+    public void delete(@Valid @RequestParam("id") Long databaseId,
+                       @Valid @RequestParam("tableId") Long tableId,
+                       @NotBlank @RequestParam("fileId") String fileId) throws MetadataDatabaseNotFoundException,
+            ZenodoApiException, ZenodoAuthenticationException {
+        metadataService.deleteCitation(databaseId, tableId);
+    }
 }

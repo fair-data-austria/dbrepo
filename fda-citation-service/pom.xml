@@ -29,6 +29,7 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
+        <javax-ws-rs.version>2.1.1</javax-ws-rs.version>
     </properties>
 
     <dependencies>
@@ -48,6 +49,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
             <version>${spring-cloud.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax-ws-rs.version}</version>
         </dependency>
         <!-- Entities and API -->
         <dependency>

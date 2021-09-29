@@ -6,6 +6,7 @@ import at.tuwien.api.zenodo.files.FileUploadDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.TableRepository;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -16,12 +17,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +52,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
     @Test
     public void createResource_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoAuthenticationException, ZenodoFileTooLargeException, MetadataDatabaseNotFoundException {
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
+                ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* mock */
         when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
@@ -75,7 +77,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void createResource_notExists_fails() throws IOException {
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
+                ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* mock */
         when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
@@ -98,7 +101,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void createResource_bodyEmpty_fails() throws IOException {
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
+                ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* mock */
         when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
