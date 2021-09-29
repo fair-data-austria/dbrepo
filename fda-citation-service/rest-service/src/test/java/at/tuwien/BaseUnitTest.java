@@ -3,6 +3,8 @@ package at.tuwien;
 import at.tuwien.api.zenodo.deposit.*;
 import at.tuwien.api.zenodo.files.FileResponseDto;
 import at.tuwien.api.zenodo.files.FileLinksDto;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.Table;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.test.context.TestPropertySource;
 
@@ -12,6 +14,10 @@ import java.util.List;
 
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseUnitTest {
+
+    public final static Long DATABASE_1_ID = 1L;
+
+    public final static Long TABLE_1_ID = 1L;
 
     public final static Long DEPOSIT_1_ID = 1L;
     public final static String DEPOSIT_1_TITLE = "Super cool document";
@@ -61,6 +67,16 @@ public abstract class BaseUnitTest {
 
     public final static String DEPOSIT_1_DOI = "10.5072/zenodo.542201";
     public final static Long DEPOSIT_1_REC_ID = 542201L;
+
+    public final static Table TABLE_1 = Table.builder()
+            .id(TABLE_1_ID)
+            .depositId(DEPOSIT_1_ID)
+            .build();
+
+    public final static Database DATABASE_1 = Database.builder()
+            .id(DATABASE_1_ID)
+            .tables(List.of(TABLE_1))
+            .build();
 
     public final static CreatorDto CREATOR_1 = CreatorDto.builder()
             .name(CREATOR_1_NAME)

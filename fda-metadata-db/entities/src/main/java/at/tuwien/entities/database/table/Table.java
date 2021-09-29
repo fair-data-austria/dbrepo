@@ -41,6 +41,10 @@ public class Table {
     private Long tdbid;
 
     @ToString.Include
+    @Column(nullable = true, name = "depId")
+    private Long depositId;
+
+    @ToString.Include
     @Column(nullable = false, name = "tname")
     private String name;
 

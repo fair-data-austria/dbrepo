@@ -1,4 +1,1 @@
 #!/bin/bash
-docker pull mariadb:latest
-docker pull mysql:latest
-docker pull postgres:latest
