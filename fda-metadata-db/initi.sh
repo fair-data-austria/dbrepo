@@ -192,7 +192,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		internal_name character varying(255) NOT NULL,
 		topic character varying(255) NOT NULL,
 		last_modified timestamp without time zone,
-		depId bigint UNIQUE,
+		dep_id bigint UNIQUE,
 		tName VARCHAR(50),
 		tDescription TEXT,
 		NumCols INTEGER,

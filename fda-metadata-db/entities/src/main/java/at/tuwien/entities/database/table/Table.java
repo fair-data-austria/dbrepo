@@ -41,7 +41,7 @@ public class Table {
     private Long tdbid;
 
     @ToString.Include
-    @Column(nullable = true, name = "depId")
+    @Column(nullable = true, name = "dep_id")
     private Long depositId;
 
     @ToString.Include
