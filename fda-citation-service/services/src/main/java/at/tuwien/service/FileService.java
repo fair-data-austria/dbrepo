@@ -4,6 +4,7 @@ import at.tuwien.api.zenodo.files.FileResponseDto;
 import at.tuwien.api.zenodo.files.FileUploadDto;
 import at.tuwien.exception.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.List;
@@ -25,7 +26,7 @@ public interface FileService {
      * @throws ZenodoFileTooLargeException       The file exceeds the capabilities
      * @throws MetadataDatabaseNotFoundException The deposit was not found on the metadata database
      */
-    FileResponseDto createResource(Long databaseId, Long tableId, FileUploadDto data, File resource)
+    FileResponseDto createResource(Long databaseId, Long tableId, FileUploadDto data, MultipartFile resource)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoFileTooLargeException, MetadataDatabaseNotFoundException;
 

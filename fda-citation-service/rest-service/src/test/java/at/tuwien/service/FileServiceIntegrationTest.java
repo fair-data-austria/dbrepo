@@ -8,27 +8,21 @@ import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.TableRepository;
-import org.junit.jupiter.api.Order;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -50,10 +44,11 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createResource_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoAuthenticationException, ZenodoFileTooLargeException, MetadataDatabaseNotFoundException {
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
+                ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation();
+        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto request = FileUploadDto.builder()
                 .name(FILE_1_NAME)
                 .build();
@@ -76,10 +71,11 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createResource_largeFile_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoAuthenticationException, ZenodoFileTooLargeException, MetadataDatabaseNotFoundException {
-        final File file = ResourceUtils.getFile("classpath:csv/weatherAUS.csv");
+        final MockMultipartFile file = new MockMultipartFile("weatherAUS.csv", FileUtils.readFileToByteArray(
+                ResourceUtils.getFile("classpath:csv/weatherAUS.csv")));
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation();
+        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto request = FileUploadDto.builder()
                 .name(FILE_2_NAME)
                 .build();
@@ -114,11 +110,12 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void listAll_succeeds() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoNotFoundException, ZenodoAuthenticationException, FileNotFoundException, ZenodoFileTooLargeException {
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+            ZenodoNotFoundException, ZenodoAuthenticationException, IOException, ZenodoFileTooLargeException {
+        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
+                ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation();
+        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto upload = FileUploadDto.builder()
                 .name(FILE_1_NAME)
                 .build();
@@ -143,11 +140,12 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void findResource_noContent_fails() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoFileTooLargeException, ZenodoNotFoundException, ZenodoAuthenticationException, FileNotFoundException {
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+            ZenodoFileTooLargeException, ZenodoNotFoundException, ZenodoAuthenticationException, IOException {
+        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
+                ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation();
+        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto upload = FileUploadDto.builder()
                 .name(FILE_1_NAME)
                 .build();
@@ -171,11 +169,12 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void deleteRessource_succeeds() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoFileTooLargeException, ZenodoNotFoundException, ZenodoAuthenticationException, FileNotFoundException {
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+            ZenodoFileTooLargeException, ZenodoNotFoundException, ZenodoAuthenticationException, IOException {
+        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
+                ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation();
+        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto upload = FileUploadDto.builder()
                 .name(FILE_1_NAME)
                 .build();

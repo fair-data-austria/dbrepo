@@ -2,31 +2,41 @@ package at.tuwien.service;
 
 import at.tuwien.api.zenodo.deposit.*;
 import at.tuwien.config.ZenodoConfig;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.exception.MetadataDatabaseNotFoundException;
 import at.tuwien.exception.ZenodoApiException;
 import at.tuwien.exception.ZenodoAuthenticationException;
 import at.tuwien.exception.ZenodoNotFoundException;
+import at.tuwien.repository.jpa.TableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ZenodoMetadataService implements MetadataService {
 
     private final RestTemplate apiTemplate;
     private final ZenodoConfig zenodoConfig;
+    private final TableRepository tableRepository;
 
     @Autowired
-    public ZenodoMetadataService(RestTemplate apiTemplate, ZenodoConfig zenodoConfig) {
+    public ZenodoMetadataService(RestTemplate apiTemplate, ZenodoConfig zenodoConfig, TableRepository tableRepository) {
         this.apiTemplate = apiTemplate;
         this.zenodoConfig = zenodoConfig;
+        this.tableRepository = tableRepository;
     }
 
     @Override
-    public List<DepositResponseDto> listCitations() throws ZenodoAuthenticationException, ZenodoApiException {
+    @Transactional
+    public List<DepositResponseDto> listCitations(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
+            ZenodoApiException {
         final ResponseEntity<DepositResponseDto[]> response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}",
                 HttpMethod.GET, addHeaders(null), DepositResponseDto[].class, zenodoConfig.getApiKey());
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
@@ -39,7 +49,10 @@ public class ZenodoMetadataService implements MetadataService {
     }
 
     @Override
-    public DepositChangeResponseDto storeCitation() throws ZenodoAuthenticationException, ZenodoApiException {
+    @Transactional
+    public DepositChangeResponseDto storeCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
+            ZenodoApiException, MetadataDatabaseNotFoundException {
+        final Table table = getTable(databaseId, tableId);
         final ResponseEntity<DepositChangeResponseDto> response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}",
                 HttpMethod.POST, addHeaders("{}"), DepositChangeResponseDto.class, zenodoConfig.getApiKey());
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
@@ -51,14 +64,20 @@ public class ZenodoMetadataService implements MetadataService {
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
+        table.setDepositId(response.getBody().getId());
+        tableRepository.save(table);
         return response.getBody();
     }
 
     @Override
-    public DepositChangeResponseDto updateCitation(Long id, DepositChangeRequestDto data) throws ZenodoAuthenticationException,
-            ZenodoApiException, ZenodoNotFoundException {
+    @Transactional
+    public DepositChangeResponseDto updateCitation(Long databaseId, Long tableId, DepositChangeRequestDto data)
+            throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
+            MetadataDatabaseNotFoundException {
+        final Table table = getTable(databaseId, tableId);
         final ResponseEntity<DepositChangeResponseDto> response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
-                HttpMethod.PUT, addHeaders(data), DepositChangeResponseDto.class, id, zenodoConfig.getApiKey());
+                HttpMethod.PUT, addHeaders(data), DepositChangeResponseDto.class, table.getDepositId(),
+                zenodoConfig.getApiKey());
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }
@@ -75,9 +94,32 @@ public class ZenodoMetadataService implements MetadataService {
     }
 
     @Override
-    public void deleteCitation(Long id) throws ZenodoAuthenticationException, ZenodoApiException {
+    @Transactional
+    public DepositResponseDto findCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
+            ZenodoApiException, ZenodoNotFoundException, MetadataDatabaseNotFoundException {
+        final Table table = getTable(databaseId, tableId);
+        final ResponseEntity<DepositResponseDto> response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+                HttpMethod.GET, addHeaders(null), DepositResponseDto.class, table.getDepositId(),
+                zenodoConfig.getApiKey());
+        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        }
+        if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+            throw new ZenodoNotFoundException("Could not get the citation.");
+        }
+        if (response.getBody() == null) {
+            throw new ZenodoApiException("Endpoint returned null body");
+        }
+        return response.getBody();
+    }
+
+    @Override
+    @Transactional
+    public void deleteCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException, ZenodoApiException,
+            MetadataDatabaseNotFoundException {
+        final Table table = getTable(databaseId, tableId);
         final ResponseEntity<String> response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
-                HttpMethod.DELETE, addHeaders(null), String.class, id, zenodoConfig.getApiKey());
+                HttpMethod.DELETE, addHeaders(null), String.class, table.getDepositId(), zenodoConfig.getApiKey());
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }
@@ -86,6 +128,33 @@ public class ZenodoMetadataService implements MetadataService {
         }
     }
 
+
+    /**
+     * Wrapper function to throw error when table with id was not found
+     *
+     * @param databaseId The database id
+     * @param tableId    The table id
+     * @return The table
+     * @throws MetadataDatabaseNotFoundException The error
+     */
+    @Transactional
+    protected Table getTable(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException {
+        final Database database = Database.builder()
+                .id(databaseId)
+                .build();
+        final Optional<Table> table = tableRepository.findByDatabaseAndId(database, tableId);
+        if (table.isEmpty()) {
+            throw new MetadataDatabaseNotFoundException("Failed to find table with this id");
+        }
+        return table.get();
+    }
+
+    /**
+     * Wrapper to add headers to all non-file upload requests
+     *
+     * @param body The request data
+     * @return The request with headers
+     */
     private HttpEntity<Object> addHeaders(Object body) {
         final HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
