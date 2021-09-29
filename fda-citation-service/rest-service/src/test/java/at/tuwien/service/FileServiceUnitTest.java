@@ -2,11 +2,10 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.zenodo.files.FileResponseDto;
+import at.tuwien.api.zenodo.files.FileUploadDto;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.exception.ZenodoApiException;
-import at.tuwien.exception.ZenodoAuthenticationException;
-import at.tuwien.exception.ZenodoFileTooLargeException;
-import at.tuwien.exception.ZenodoNotFoundException;
+import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.TableRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -24,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,21 +45,29 @@ public class FileServiceUnitTest extends BaseUnitTest {
     @MockBean
     private RestTemplate apiTemplate;
 
+    @MockBean
+    private TableRepository tableRepository;
+
     @Test
     public void createResource_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoFileTooLargeException {
+            ZenodoAuthenticationException, ZenodoFileTooLargeException, MetadataDatabaseNotFoundException {
+        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
 
         /* mock */
         when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
-                eq(FileResponseDto.class), anyLong(), anyString()))
+                eq(FileResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.OK)
                         .body(FILE_1));
+        when(tableRepository.findById(TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
 
         /* request */
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+        final FileUploadDto request = FileUploadDto.builder()
+                .name(FILE_1_NAME)
+                .build();
 
         /* test */
-        final FileResponseDto response = fileService.createResource(DEPOSIT_1_ID, FILE_1_NAME, file);
+        final FileResponseDto response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
         assertEquals(FILE_1_NAME, response.getFilename());
         assertEquals(FILE_1_CHECKSUM, response.getChecksum());
         assertEquals(FILE_1_SIZE, response.getFilesize());
@@ -67,19 +75,24 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void createResource_notExists_fails() throws IOException {
+        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
 
         /* mock */
         when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
-                eq(FileResponseDto.class), anyLong(), anyString()))
+                eq(FileResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .build());
+        when(tableRepository.findById(TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
 
         /* request */
-        final File file = ResourceUtils.getFile("classpath:csv/testdata.csv");
+        final FileUploadDto request = FileUploadDto.builder()
+                .name(FILE_1_NAME)
+                .build();
 
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
-            fileService.createResource(DEPOSIT_1_ID, FILE_1_NAME, file);
+            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
         });
     }
 

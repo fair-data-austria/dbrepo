@@ -20,6 +20,10 @@ public class TableDto {
     @ApiModelProperty(name = "table id", example = "1")
     private Long id;
 
+    @NotNull
+    @ApiModelProperty(name = "deposition id", example = "100")
+    private Long depositId;
+
     @NotBlank
     @ApiModelProperty(name = "table name", example = "Weather Australia")
     private String name;

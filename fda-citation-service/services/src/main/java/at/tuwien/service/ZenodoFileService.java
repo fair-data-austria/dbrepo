@@ -1,12 +1,12 @@
 package at.tuwien.service;
 
 import at.tuwien.api.zenodo.files.FileResponseDto;
+import at.tuwien.api.zenodo.files.FileUploadDto;
 import at.tuwien.config.ZenodoConfig;
-import at.tuwien.exception.ZenodoApiException;
-import at.tuwien.exception.ZenodoAuthenticationException;
-import at.tuwien.exception.ZenodoFileTooLargeException;
-import at.tuwien.exception.ZenodoNotFoundException;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.ZenodoMapper;
+import at.tuwien.repository.jpa.TableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -15,35 +15,37 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ZenodoFileService implements FileService {
 
     private final RestTemplate apiTemplate;
-    private final RestTemplate uploadTemplate;
     private final ZenodoConfig zenodoConfig;
     private final ZenodoMapper zenodoMapper;
+    private final TableRepository tableRepository;
 
     @Autowired
-    public ZenodoFileService(RestTemplate apiTemplate, RestTemplate uploadTemplate, ZenodoConfig zenodoConfig,
-                             ZenodoMapper zenodoMapper) {
+    public ZenodoFileService(RestTemplate apiTemplate, ZenodoConfig zenodoConfig, ZenodoMapper zenodoMapper,
+                             TableRepository tableRepository) {
         this.apiTemplate = apiTemplate;
-        this.uploadTemplate = uploadTemplate;
         this.zenodoConfig = zenodoConfig;
         this.zenodoMapper = zenodoMapper;
+        this.tableRepository = tableRepository;
     }
 
     @Override
-    public FileResponseDto createResource(Long id, String name, File resource)
+    public FileResponseDto createResource(Long databaseId, Long tableId, FileUploadDto data, File resource)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoFileTooLargeException {
+            ZenodoFileTooLargeException, MetadataDatabaseNotFoundException {
         if (resource.getTotalSpace() > 50_1000_1000_1000L) {
             throw new ZenodoFileTooLargeException("Only 50GB per file is allowed!");
         }
+        final Table table = getTable(tableId);
         final ResponseEntity<FileResponseDto> response;
         try {
-            response = uploadTemplate.postForEntity("/api/deposit/depositions/{deposit_id}/files?access_token={token}",
-                    zenodoMapper.resourceToHttpEntity(name, resource), FileResponseDto.class, id, zenodoConfig.getApiKey());
+            response = apiTemplate.postForEntity("/api/deposit/depositions/{deposit_id}/files?access_token={token}",
+                    zenodoMapper.resourceToHttpEntity(data.getName(), resource), FileResponseDto.class, table.getDepositId(), zenodoConfig.getApiKey());
         } catch (IOException e) {
             throw new ZenodoApiException("Could not map file to byte array");
         }
@@ -57,6 +59,30 @@ public class ZenodoFileService implements FileService {
             throw new ZenodoApiException("Endpoint returned null body");
         }
         return response.getBody();
+    }
+
+    @Override
+    public List<FileResponseDto> listAll(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException,
+            ZenodoAuthenticationException {
+//        final Table table = getTable(tableId);
+//        final ResponseEntity<FileResponseDto> response = apiTemplate.postForEntity("/api/deposit/depositions/{deposit_id}/files?access_token={token}",
+//                addHeaders(null), FileResponseDto.class, table.getDepositId(), zenodoConfig.getApiKey());
+        return List.of();
+    }
+
+    private Table getTable(Long tableId) throws MetadataDatabaseNotFoundException {
+        final Optional<Table> table = tableRepository.findById(tableId);
+        if (table.isEmpty()) {
+            throw new MetadataDatabaseNotFoundException("Failed to find table with this id");
+        }
+        return table.get();
+    }
+
+    private HttpEntity<Object> addHeaders(Object body) {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<>(body, headers);
     }
 
 }
