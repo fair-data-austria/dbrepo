@@ -10,10 +10,12 @@ import at.tuwien.repository.jpa.TableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,13 +65,34 @@ public class ZenodoFileService implements FileService {
 
     @Override
     public List<FileResponseDto> listAll(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException,
-            ZenodoAuthenticationException {
-//        final Table table = getTable(tableId);
-//        final ResponseEntity<FileResponseDto> response = apiTemplate.postForEntity("/api/deposit/depositions/{deposit_id}/files?access_token={token}",
-//                addHeaders(null), FileResponseDto.class, table.getDepositId(), zenodoConfig.getApiKey());
-        return List.of();
+            ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException {
+        final Table table = getTable(tableId);
+        final ResponseEntity<FileResponseDto[]> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/files?access_token={token}",
+                    HttpMethod.GET, addHeaders(null), FileResponseDto[].class, table.getDepositId(), zenodoConfig.getApiKey());
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ZenodoNotFoundException("Did not find the deposit with this id");
+        }
+        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        }
+        if (response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+            throw new ZenodoNotFoundException("Did not find the deposit with this id");
+        }
+        if (response.getBody() == null) {
+            throw new ZenodoApiException("Endpoint returned null body");
+        }
+        return Arrays.asList(response.getBody());
     }
 
+    /**
+     * Wrapper function to throw error when table with id was not found
+     *
+     * @param tableId The table id
+     * @return The table
+     * @throws MetadataDatabaseNotFoundException The error
+     */
     private Table getTable(Long tableId) throws MetadataDatabaseNotFoundException {
         final Optional<Table> table = tableRepository.findById(tableId);
         if (table.isEmpty()) {
@@ -78,6 +101,12 @@ public class ZenodoFileService implements FileService {
         return table.get();
     }
 
+    /**
+     * Wrapper to add headers to all non-file upload requests
+     *
+     * @param body The request data
+     * @return The request with headers
+     */
     private HttpEntity<Object> addHeaders(Object body) {
         final HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));

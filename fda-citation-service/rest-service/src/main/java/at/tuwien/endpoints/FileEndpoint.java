@@ -2,7 +2,9 @@ package at.tuwien.endpoints;
 
 import at.tuwien.api.zenodo.files.FileResponseDto;
 import at.tuwien.exception.MetadataDatabaseNotFoundException;
+import at.tuwien.exception.ZenodoApiException;
 import at.tuwien.exception.ZenodoAuthenticationException;
+import at.tuwien.exception.ZenodoNotFoundException;
 import at.tuwien.service.FileService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,8 @@ public class FileEndpoint {
     @GetMapping
     public List<FileResponseDto> listAll(@Valid @RequestParam("id") Long databaseId,
                                          @Valid @RequestParam("tableId") Long tableId)
-            throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException {
+            throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoApiException,
+            ZenodoNotFoundException {
         return fileService.listAll(databaseId, tableId);
     }
 

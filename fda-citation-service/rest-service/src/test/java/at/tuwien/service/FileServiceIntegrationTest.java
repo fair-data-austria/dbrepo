@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -89,6 +90,19 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
         assertEquals(FILE_2_NAME, response.getFilename());
         assertEquals(FILE_2_CHECKSUM, response.getChecksum());
         assertEquals(FILE_2_SIZE, response.getFilesize());
+    }
+
+    @Test
+    public void listAll_notFound_fails() {
+
+        /* mock */
+        when(tableRepository.findById(TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        assertThrows(ZenodoNotFoundException.class, () -> {
+            fileService.listAll(DATABASE_1_ID, TABLE_1_ID);
+        });
     }
 
 }
