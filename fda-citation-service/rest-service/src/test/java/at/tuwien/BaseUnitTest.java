@@ -1,7 +1,7 @@
 package at.tuwien;
 
 import at.tuwien.api.zenodo.deposit.*;
-import at.tuwien.api.zenodo.files.FileDto;
+import at.tuwien.api.zenodo.files.FileResponseDto;
 import at.tuwien.api.zenodo.files.FileLinksDto;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.test.context.TestPropertySource;
@@ -37,6 +37,11 @@ public abstract class BaseUnitTest {
     public final static String CREATOR_2_AFFIL = "TU Graz";
     public final static String CREATOR_2_ORCID = "0000-0002-2606-4059";
 
+    public final static String FILE_1_ID = "deadbeef-deafdeed";
+    public final static String FILE_1_NAME = "testdata-othername.csv";
+    public final static String FILE_1_CHECKSUM = "d393c7fa1240c18473133793f7901aaa";
+    public final static Long FILE_1_SIZE = 34614L;
+
     public final static Long DEPOSIT_2_ID = 2L;
     public final static String DEPOSIT_2_TITLE = "Test Document " + RandomStringUtils.randomAlphanumeric(10);
     public final static String DEPOSIT_2_DESCRIPTION = "Test Description " + RandomStringUtils.randomAlphanumeric(100);
@@ -45,12 +50,6 @@ public abstract class BaseUnitTest {
     public final static LicenseTypeDto DEPOSIT_2_LICENSE = LicenseTypeDto.CC_BY;
     public final static String DEPOSIT_2_STATE = "draft";
     public final static Boolean DEPOSIT_2_SUBMITTED = false;
-
-
-    public final static String FILE_1_CHECKSUM = "deadbeef";
-    public final static String FILE_1_NAME = "data.csv";
-    public final static String FILE_1_ID = "73d5674b-2bda-400c-844e-4eef309afe5e";
-    public final static Long FILE_1_SIZE = 3943498L;
 
     public final static String FILE_1_LINKS_DOWNLOAD = "http://localhost:5500/file/" + FILE_1_ID + "/download";
     public final static String FILE_1_LINKS_SELF = "http://localhost:5500/file/" + FILE_1_ID;
@@ -82,7 +81,7 @@ public abstract class BaseUnitTest {
             .self(FILE_1_LINKS_SELF)
             .build();
 
-    public final static FileDto FILE_1 = FileDto.builder()
+    public final static FileResponseDto FILE_1 = FileResponseDto.builder()
             .checksum(FILE_1_CHECKSUM)
             .filename(FILE_1_NAME)
             .id(FILE_1_ID)

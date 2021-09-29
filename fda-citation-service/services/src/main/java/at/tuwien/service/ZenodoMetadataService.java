@@ -16,18 +16,18 @@ import java.util.List;
 @Service
 public class ZenodoMetadataService implements MetadataService {
 
-    private final RestTemplate zenodoRestTemplate;
+    private final RestTemplate apiTemplate;
     private final ZenodoConfig zenodoConfig;
 
     @Autowired
-    public ZenodoMetadataService(RestTemplate zenodoRestTemplate, ZenodoConfig zenodoConfig) {
-        this.zenodoRestTemplate = zenodoRestTemplate;
+    public ZenodoMetadataService(RestTemplate apiTemplate, ZenodoConfig zenodoConfig) {
+        this.apiTemplate = apiTemplate;
         this.zenodoConfig = zenodoConfig;
     }
 
     @Override
     public List<DepositResponseDto> listCitations() throws ZenodoAuthenticationException, ZenodoApiException {
-        final ResponseEntity<DepositResponseDto[]> response = zenodoRestTemplate.exchange("/api/deposit/depositions?access_token={token}",
+        final ResponseEntity<DepositResponseDto[]> response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}",
                 HttpMethod.GET, null, DepositResponseDto[].class, zenodoConfig.getApiKey());
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
@@ -40,7 +40,7 @@ public class ZenodoMetadataService implements MetadataService {
 
     @Override
     public DepositChangeResponseDto storeCitation() throws ZenodoAuthenticationException, ZenodoApiException {
-        final ResponseEntity<DepositChangeResponseDto> response = zenodoRestTemplate.exchange("/api/deposit/depositions?access_token={token}",
+        final ResponseEntity<DepositChangeResponseDto> response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}",
                 HttpMethod.POST, new HttpEntity<>("{}"), DepositChangeResponseDto.class, zenodoConfig.getApiKey());
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
@@ -57,7 +57,7 @@ public class ZenodoMetadataService implements MetadataService {
     @Override
     public DepositChangeResponseDto updateCitation(Long id, DepositChangeRequestDto data) throws ZenodoAuthenticationException,
             ZenodoApiException, ZenodoNotFoundException {
-        final ResponseEntity<DepositChangeResponseDto> response = zenodoRestTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+        final ResponseEntity<DepositChangeResponseDto> response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
                 HttpMethod.PUT, new HttpEntity<>(data), DepositChangeResponseDto.class, id, zenodoConfig.getApiKey());
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
@@ -76,7 +76,7 @@ public class ZenodoMetadataService implements MetadataService {
 
     @Override
     public void deleteCitation(Long id) throws ZenodoAuthenticationException, ZenodoApiException {
-        final ResponseEntity<String> response = zenodoRestTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+        final ResponseEntity<String> response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
                 HttpMethod.DELETE, null, String.class, id, zenodoConfig.getApiKey());
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");

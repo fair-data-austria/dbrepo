@@ -1,6 +1,6 @@
 package at.tuwien.api.zenodo.deposit;
 
-import at.tuwien.api.zenodo.files.FileDto;
+import at.tuwien.api.zenodo.files.FileResponseDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -40,7 +40,7 @@ public class DepositChangeResponseDto {
 
     private CreatorDto[] contributors;
 
-    private List<FileDto> files;
+    private List<FileResponseDto> files;
 
     private Long id;
 
