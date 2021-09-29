@@ -42,6 +42,11 @@ public abstract class BaseUnitTest {
     public final static String FILE_1_CHECKSUM = "d393c7fa1240c18473133793f7901aaa";
     public final static Long FILE_1_SIZE = 34614L;
 
+    public final static String FILE_2_ID = "deadbeef-deafdeed";
+    public final static String FILE_2_NAME = "testdata-weather.csv";
+    public final static String FILE_2_CHECKSUM = "a65cf8b8719b1a65db4f361eeec18457";
+    public final static Long FILE_2_SIZE = 14094055L;
+
     public final static Long DEPOSIT_2_ID = 2L;
     public final static String DEPOSIT_2_TITLE = "Test Document " + RandomStringUtils.randomAlphanumeric(10);
     public final static String DEPOSIT_2_DESCRIPTION = "Test Description " + RandomStringUtils.randomAlphanumeric(100);

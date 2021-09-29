@@ -34,18 +34,20 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 public class MetadataServiceUnitTest extends BaseUnitTest {
 
-    @MockBean
-    private ReadyConfig readyConfig;
-
     @Autowired
     private ZenodoMetadataService zenodoService;
 
     @MockBean
-    private RestTemplate zenodoTemplate;
+    private ReadyConfig readyConfig;
+
+    @MockBean
+    private RestTemplate apiTemplate;
 
     @Test
     public void listCitations_succeeds() throws ZenodoApiException, ZenodoAuthenticationException {
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(DepositResponseDto[].class), anyString()))
+
+        /* mocks */
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(DepositResponseDto[].class), anyString()))
                 .thenReturn(ResponseEntity.ok(new DepositResponseDto[]{DEPOSIT_2}));
 
         /* test */
@@ -55,7 +57,9 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void listCitations_empty_fails() {
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(DepositResponseDto[].class), anyString()))
+
+        /* mocks */
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(DepositResponseDto[].class), anyString()))
                 .thenReturn(ResponseEntity.ok().build());
 
         /* test */
@@ -66,7 +70,9 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void storeCitation_succeed() throws ZenodoApiException, ZenodoAuthenticationException {
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), Mockito.<HttpEntity<String>>any(), eq(DepositChangeResponseDto.class), anyString()))
+
+        /* mocks */
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.POST), Mockito.<HttpEntity<String>>any(), eq(DepositChangeResponseDto.class), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED)
                         .body(DEPOSIT_1));
 
@@ -78,7 +84,9 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void deleteCitation_succeeds() throws ZenodoApiException, ZenodoAuthenticationException {
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), eq(null), eq(String.class), anyLong(), anyString()))
+
+        /* mocks */
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED)
                         .build());
 
@@ -88,7 +96,9 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void deleteCitation_fails() {
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), eq(null), eq(String.class), anyLong(), anyString()))
+
+        /* mocks */
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.OK)
                         .build());
 
@@ -101,12 +111,16 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     @Test
     public void updateCitation_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException {
+
+        /* mocks */
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositChangeRequestDto>>any(), eq(DepositChangeResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
+                .thenReturn(ResponseEntity.status(HttpStatus.OK)
+                        .body(DEPOSIT_1));
+
+        /* request */
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
                 .metadata(METADATA_1)
                 .build();
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositChangeRequestDto>>any(), eq(DepositChangeResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
-                .thenReturn(ResponseEntity.status(HttpStatus.OK)
-                        .body(DEPOSIT_1));
 
         /* test */
         zenodoService.updateCitation(DEPOSIT_1_ID, request);
@@ -114,14 +128,18 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void updateCitation_only1orcid_fails() {
+
+        /* mocks */
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositChangeRequestDto>>any(), eq(DepositChangeResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
+                .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .build());
+
+        /* request */
         final MetadataDto m = METADATA_1;
         m.getCreators()[1].setOrcid(null);
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
                 .metadata(m)
                 .build();
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositChangeRequestDto>>any(), eq(DepositChangeResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
-                .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .build());
 
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
@@ -131,12 +149,16 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void updateCitation_notExists_fails() {
+
+        /* mocks */
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositChangeRequestDto>>any(), eq(DepositChangeResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
+                .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .build());
+
+        /* request */
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
                 .metadata(METADATA_1)
                 .build();
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositChangeRequestDto>>any(), eq(DepositChangeResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
-                .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .build());
 
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
