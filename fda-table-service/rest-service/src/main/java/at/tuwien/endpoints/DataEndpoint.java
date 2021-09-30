@@ -5,7 +5,7 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
-import at.tuwien.service.impl.MariaDataService;
+import at.tuwien.service.DataService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -24,10 +24,10 @@ import java.sql.Timestamp;
 @RequestMapping("/api/database/{id}/table/{tableId}/data")
 public class DataEndpoint {
 
-    private final MariaDataService dataService;
+    private final DataService dataService;
 
     @Autowired
-    public DataEndpoint(MariaDataService dataService) {
+    public DataEndpoint(DataService dataService) {
         this.dataService = dataService;
     }
 

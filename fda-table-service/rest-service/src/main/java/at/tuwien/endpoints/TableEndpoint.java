@@ -4,6 +4,8 @@ import at.tuwien.api.database.table.*;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.service.MessageQueueService;
+import at.tuwien.service.TableService;
 import at.tuwien.service.impl.RabbitMqService;
 import at.tuwien.service.impl.TableServiceImpl;
 import io.swagger.annotations.ApiOperation;
@@ -26,12 +28,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/database/{id}")
 public class TableEndpoint {
 
-    private final TableServiceImpl tableService;
-    private final RabbitMqService amqpService;
+    private final TableService tableService;
+    private final MessageQueueService amqpService;
     private final TableMapper tableMapper;
 
     @Autowired
-    public TableEndpoint(TableServiceImpl tableService, RabbitMqService amqpService, TableMapper tableMapper) {
+    public TableEndpoint(TableService tableService, MessageQueueService amqpService, TableMapper tableMapper) {
         this.tableService = tableService;
         this.amqpService = amqpService;
         this.tableMapper = tableMapper;
