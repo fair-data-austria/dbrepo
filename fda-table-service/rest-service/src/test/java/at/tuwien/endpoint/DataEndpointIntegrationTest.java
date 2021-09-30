@@ -147,7 +147,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
 
         /* test */
         final ResponseEntity<?> response = dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
 
     @Test
