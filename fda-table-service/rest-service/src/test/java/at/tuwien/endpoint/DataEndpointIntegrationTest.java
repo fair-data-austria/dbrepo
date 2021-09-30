@@ -4,13 +4,11 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.*;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.DataEndpoint;
-import at.tuwien.endpoints.TableEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.repository.jpa.TableRepository;
-import at.tuwien.service.DataService;
-import at.tuwien.service.JdbcConnector;
+import at.tuwien.service.MariaDataService;
 import at.tuwien.service.TableService;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -21,7 +19,6 @@ import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +30,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.transaction.Transactional;
-import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -64,7 +59,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     private ImageRepository imageRepository;
 
     @Autowired
-    private DataService dataService;
+    private MariaDataService dataService;
 
     @Autowired
     private TableService tableService;
@@ -137,16 +132,22 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void insertFromTuple_succeeds() {
+    public void insertFromTuple_succeeds() throws TableNotFoundException, TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException {
+        final Map<String, Object> map = new LinkedHashMap<>() {{
+            put(COLUMN_1_NAME, 1L);
+            put(COLUMN_2_NAME, Instant.now());
+            put(COLUMN_3_NAME, 35.2);
+            put(COLUMN_4_NAME, "Sydney");
+            put(COLUMN_5_NAME, 10.2);
+        }};
         final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of(Map.of(COLUMN_1_NAME, 1L, COLUMN_2_NAME, Instant.now(), COLUMN_3_NAME, 35.2,
-                        COLUMN_4_NAME, "Sydney", COLUMN_5_NAME, 10.2)))
+                .data(List.of(map))
                 .build();
 
         /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
-        });
+        final ResponseEntity<?> response = dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test

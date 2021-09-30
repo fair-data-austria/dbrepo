@@ -69,7 +69,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
     private TableService tableService;
 
     @Autowired
-    private DataService dataService;
+    private MariaDataService dataService;
 
     private CreateContainerResponse request1, request2;
 

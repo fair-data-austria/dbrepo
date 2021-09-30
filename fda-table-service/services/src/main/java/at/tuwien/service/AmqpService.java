@@ -32,12 +32,12 @@ public class AmqpService {
     private static final String AMQP_EXCHANGE = "fda";
 
     private final Channel channel;
-    private final DataService dataService;
+    private final MariaDataService dataService;
     private final ObjectMapper objectMapper;
     private final TableRepository tableRepository;
 
     @Autowired
-    public AmqpService(Channel channel, DataService dataService, ObjectMapper objectMapper,
+    public AmqpService(Channel channel, MariaDataService dataService, ObjectMapper objectMapper,
                        TableRepository tableRepository) {
         this.channel = channel;
         this.dataService = dataService;
