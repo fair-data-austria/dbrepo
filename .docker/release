@@ -20,8 +20,8 @@ echo "Authentication required for user ${USER} at docker.io (docker hub)"
 docker login docker.io -u $USER
 
 # tag
-IMAGE=$(ls -d fda-*)
-for DIR in $IMAGE
+IMAGES=$(ls -d fda-*)
+for IMAGE in $IMAGES
 do
   echo "TAG ${DIR} (local) ${IMAGE}:latest (remote) ${USER}/${IMAGE}:${VERSION}"
   docker tag "${IMAGE}:latest" "${USER}/${IMAGE}:${VERSION}"
