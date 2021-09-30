@@ -13,6 +13,7 @@ import at.tuwien.service.impl.TableServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
@@ -26,8 +27,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.sql.SQLException;
 import java.util.Arrays;
 
+import static at.tuwien.config.DockerConfig.dockerClient;
+import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Log4j2
@@ -41,12 +46,6 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private ReadyConfig readyConfig;
-
-    @Autowired
-    private HostConfig hostConfig;
-
-    @Autowired
-    private DockerClient dockerClient;
 
     @Autowired
     private ImageRepository imageRepository;
@@ -63,12 +62,9 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private TableServiceImpl tableService;
 
-    private CreateContainerResponse request;
-
-    @Transactional
-    @BeforeEach
-    public void beforeEach() throws InterruptedException {
-        afterEach();
+    @BeforeAll
+    public static void beforeAll() throws InterruptedException, SQLException {
+        afterAll();
         /* create network */
         dockerClient.createNetworkCmd()
                 .withName("fda-userdb")
@@ -77,24 +73,23 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
-        imageRepository.save(IMAGE_1);
         /* create container */
-        request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
-                .withEnv(IMAGE_1_ENVIRONMENT)
+        final CreateContainerResponse container = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
+                .withEnv("POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=weather")
+                .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
+                        + ":/docker-entrypoint-initdb.d"))
                 .exec();
-        /* start container */
-        dockerClient.startContainerCmd(request.getId()).exec();
+        /* start */
+        dockerClient.startContainerCmd(container.getId()).exec();
         Thread.sleep(3000);
-        CONTAINER_1_HASH = request.getId();
-        databaseRepository.save(DATABASE_1);
     }
 
-    @AfterEach
-    public void afterEach() {
+    @AfterAll
+    public static void afterAll() {
         /* stop containers and remove them */
         dockerClient.listContainersCmd()
                 .withShowAll(true)
@@ -117,6 +112,14 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
                     log.info("Delete network {}", network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
+    }
+
+    @Transactional
+    @BeforeEach
+    public void beforeEach() {
+        TABLE_1.setDatabase(DATABASE_1);
+        imageRepository.save(IMAGE_1);
+        databaseRepository.save(DATABASE_1);
     }
 
     @Test

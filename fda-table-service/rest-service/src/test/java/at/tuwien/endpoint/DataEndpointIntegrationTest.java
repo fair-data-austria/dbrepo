@@ -13,13 +13,12 @@ import at.tuwien.service.impl.TableServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,9 +29,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.time.Instant;
 import java.util.*;
 
+import static at.tuwien.config.DockerConfig.dockerClient;
+import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,19 +52,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private HostConfig hostConfig;
-
-    @Autowired
-    private DockerClient dockerClient;
-
-    @Autowired
     private ImageRepository imageRepository;
-
-    @Autowired
-    private MariaDataService dataService;
-
-    @Autowired
-    private TableServiceImpl tableService;
 
     @Autowired
     private TableRepository tableRepository;
@@ -73,13 +63,9 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     @Autowired
     private DataEndpoint dataEndpoint;
 
-    private CreateContainerResponse request;
-
-    @Transactional
-    @BeforeEach
-    public void beforeEach() throws InterruptedException, TableMalformedException, ArbitraryPrimaryKeysException,
-            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
-        afterEach();
+    @BeforeAll
+    public static void beforeAll() throws InterruptedException {
+        afterAll();
         /* create network */
         dockerClient.createNetworkCmd()
                 .withName("fda-userdb")
@@ -88,25 +74,30 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
-        imageRepository.save(IMAGE_1);
-        /* create container */
-        request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
-                .withEnv(IMAGE_1_ENVIRONMENT)
+        final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
+                .withEnv("POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=weather")
+                .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
+                        + ":/docker-entrypoint-initdb.d"))
                 .exec();
         /* start container */
         dockerClient.startContainerCmd(request.getId()).exec();
         Thread.sleep(3000);
+    }
+
+    @Transactional
+    @BeforeEach
+    public void beforeEach() {
+        imageRepository.save(IMAGE_1);
         databaseRepository.save(DATABASE_1);
-        tableService.createTable(DATABASE_1_ID, TABLE_1_CREATE_DTO);
         tableRepository.save(TABLE_1);
     }
 
-    @AfterEach
-    public void afterEach() {
+    @AfterAll
+    public static void afterAll() {
         /* stop containers and remove them */
         dockerClient.listContainersCmd()
                 .withShowAll(true)
@@ -135,7 +126,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     public void insertFromTuple_succeeds() throws TableNotFoundException, TableMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException {
         final Map<String, Object> map = new LinkedHashMap<>() {{
-            put(COLUMN_1_NAME, 1L);
+            put(COLUMN_1_NAME, 4);
             put(COLUMN_2_NAME, Instant.now());
             put(COLUMN_3_NAME, 35.2);
             put(COLUMN_4_NAME, "Sydney");
@@ -172,18 +163,6 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
         assertThrows(TableMalformedException.class, () -> {
             dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
         });
-    }
-
-    @Test
-    public void getAll_succeeds() {
-
-        /* test */
-    }
-
-    @Test
-    public void getAll_fails() {
-
-        /* test */
     }
 
 }

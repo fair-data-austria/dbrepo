@@ -17,6 +17,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
@@ -32,7 +33,9 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Log4j2
@@ -97,7 +100,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
     }
 
     protected TableCsvDto readCsv(Table table, TableInsertDto data) throws IOException, CsvException,
-            ArrayIndexOutOfBoundsException {
+            ArrayIndexOutOfBoundsException, TableMalformedException {
         log.debug("insert into table {} with params {}", table, data);
         if (data.getDelimiter() == null) {
             data.setDelimiter(',');
@@ -110,7 +113,8 @@ public class MariaDataService extends JdbcConnector implements DataService {
         final CSVParser csvParser = new CSVParserBuilder()
                 .withSeparator(data.getDelimiter())
                 .build();
-        final MultipartFile multipartFile = new MockMultipartFile(data.getCsvLocation(), Files.readAllBytes(Paths.get(data.getCsvLocation())));
+        final MultipartFile multipartFile = new MockMultipartFile(data.getCsvLocation(),
+                Files.readAllBytes(Paths.get(data.getCsvLocation())));
         final Reader fileReader = new InputStreamReader(multipartFile.getInputStream());
         final List<List<String>> cells = new LinkedList<>();
         final CSVReader reader = new CSVReaderBuilder(fileReader)
@@ -126,11 +130,15 @@ public class MariaDataService extends JdbcConnector implements DataService {
             headers = cells.get(0);
             log.debug("got headers {}", headers);
         }
+        if (headers != null && headers.size() != table.getColumns().size()) {
+            throw new TableMalformedException("Header size is not the same as cell size, maybe wrong delimiter?");
+        }
         /* map to the map-list structure */
         for (int i = (data.getSkipHeader() ? 1 : 0); i < cells.size(); i++) {
             final Map<String, Object> record = new HashMap<>();
             final List<String> row = cells.get(i);
             for (int j = 0; j < table.getColumns().size(); j++) {
+                /* when no headers are available we cannot make safeness check */
                 /* detect if order is correct, we depend on the CsvParser library */
                 if (headers != null && table.getColumns().get(j).getInternalName().equals(headers.get(j))) {
                     log.error("header out of sync, actual: {} but expected: {}", headers.get(j), table.getColumns().get(j).getInternalName());
@@ -164,36 +172,37 @@ public class MariaDataService extends JdbcConnector implements DataService {
 
     @Override
     @Transactional
-    public QueryResultDto selectAll(Long databaseId, Long tableId, Timestamp timestamp, Integer page, Integer size) throws TableNotFoundException,
-            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException {
+    public QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, @NonNull Instant timestamp,
+                                    @NonNull Long page, @NonNull Long size) throws TableNotFoundException,
+            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException, TableMalformedException {
+        if (page < 0) {
+            throw new TableMalformedException("Page number cannot be lower than 0");
+        }
+        if (size <= 0) {
+            throw new TableMalformedException("Page number cannot be lower or equal to 0");
+        }
         final Table table = findById(databaseId, tableId);
         try {
-            if (table == null || table.getInternalName() == null) {
-                log.error("Could not obtain the table internal name");
-                throw new SQLException("Could not obtain the table internal name");
-            }
             final DSLContext context = open(table.getDatabase());
             /* For versioning, but with jooq implementation better */
             if (table.getDatabase().getContainer().getImage().getDialect().equals("MARIADB")) {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("SELECT * FROM ");
-                stringBuilder.append(table.getInternalName());
-                if (timestamp != null) {
-                    stringBuilder.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
-                    stringBuilder.append(timestamp.toLocalDateTime());
-                    stringBuilder.append("'");
-                }
-                if (page != null && size != null) {
-                    page = Math.abs(page);
-                    size = Math.abs(size);
-                    stringBuilder.append(" LIMIT ");
-                    stringBuilder.append(size);
-                    stringBuilder.append(" OFFSET ");
-                    stringBuilder.append(page * size);
-                }
-                stringBuilder.append(";");
+                log.debug("MariaDB image, can do pagination!");
+                StringBuilder stringBuilder = new StringBuilder()
+                        .append("SELECT * FROM ")
+                        .append(table.getInternalName());
+                stringBuilder.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                        .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
+                        .append("'");
+                page = Math.abs(page);
+                size = Math.abs(size);
+                stringBuilder.append(" LIMIT ")
+                        .append(size)
+                        .append(" OFFSET ")
+                        .append(page * size)
+                        .append(";");
                 return queryMapper.recordListToQueryResultDto(context.fetch(stringBuilder.toString()));
             } else {
+                log.debug("Not MariaDB, can only provide legacy pagination");
                 return queryMapper.recordListToQueryResultDto(context
                         .selectFrom(table.getInternalName())
                         .fetch());

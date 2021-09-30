@@ -5,8 +5,9 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
+import lombok.NonNull;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 public interface DataService {
 
@@ -47,7 +48,8 @@ public interface DataService {
     void insert(Table table, TableCsvDto data) throws ImageNotSupportedException, TableMalformedException;
 
     /**
-     * Select all data known in the database-table id tuple at a given time and return a page of specific size
+     * Select all data known in the database-table id tuple at a given time and return a page of specific size, using
+     * Instant to better abstract time concept (JDK 8) from SQL
      *
      * @param databaseId The database-table id tuple.
      * @param tableId    The database-table id tuple.
@@ -60,6 +62,7 @@ public interface DataService {
      * @throws ImageNotSupportedException  The image is not supported.
      * @throws DatabaseConnectionException The connection to the remote database was unsuccessful.
      */
-    QueryResultDto selectAll(Long databaseId, Long tableId, Timestamp timestamp, Integer page, Integer size) throws TableNotFoundException,
-            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException;
+    QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, @NonNull Instant timestamp,
+                             @NonNull Long page, @NonNull Long size) throws TableNotFoundException,
+            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException, TableMalformedException;
 }

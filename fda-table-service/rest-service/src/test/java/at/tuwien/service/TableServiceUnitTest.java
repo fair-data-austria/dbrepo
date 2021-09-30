@@ -133,7 +133,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
     public void readCsv_succeeds() throws IOException, CsvException {
         final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
         final TableInsertDto request = TableInsertDto.builder()
-                .delimiter(';')
+                .delimiter(',')
                 .skipHeader(true)
                 .nullElement("NA")
                 .build();
@@ -147,7 +147,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
     public void readCsv_nullElement_succeeds() throws IOException, CsvException {
         final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
         final TableInsertDto request = TableInsertDto.builder()
-                .delimiter(';')
+                .delimiter(',')
                 .skipHeader(true)
                 .nullElement(null)
                 .build();
@@ -161,7 +161,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
     public void readCsv_skipheader_succeeds() throws IOException, CsvException {
         final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
         final TableInsertDto request = TableInsertDto.builder()
-                .delimiter(';')
+                .delimiter(',')
                 .skipHeader(false)
                 .nullElement(null)
                 .build();
