@@ -3,10 +3,7 @@ package at.tuwien.endpoints;
 import at.tuwien.api.zenodo.deposit.DepositChangeRequestDto;
 import at.tuwien.api.zenodo.deposit.DepositChangeResponseDto;
 import at.tuwien.api.zenodo.deposit.DepositResponseDto;
-import at.tuwien.exception.MetadataDatabaseNotFoundException;
-import at.tuwien.exception.ZenodoApiException;
-import at.tuwien.exception.ZenodoAuthenticationException;
-import at.tuwien.exception.ZenodoNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.service.MetadataService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +29,14 @@ public class MetadataEndpoint {
     @GetMapping
     public List<DepositResponseDto> findAll(@Valid @RequestParam("id") Long databaseId,
                                             @Valid @RequestParam("tableId") Long tableId) throws ZenodoApiException,
-            ZenodoAuthenticationException, MetadataDatabaseNotFoundException {
+            ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
         return metadataService.listCitations(databaseId, tableId);
     }
 
     @PostMapping
     public DepositChangeResponseDto create(@Valid @RequestParam("id") Long databaseId,
                                            @Valid @RequestParam("tableId") Long tableId) throws ZenodoApiException,
-            ZenodoAuthenticationException, MetadataDatabaseNotFoundException {
+            ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
         return metadataService.storeCitation(databaseId, tableId);
     }
 
@@ -47,7 +44,7 @@ public class MetadataEndpoint {
     public DepositResponseDto find(@Valid @RequestParam("id") Long databaseId,
                                    @Valid @RequestParam("tableId") Long tableId)
             throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException {
+            ZenodoAuthenticationException, ZenodoUnavailableException {
         return metadataService.findCitation(databaseId, tableId);
     }
 
@@ -56,7 +53,7 @@ public class MetadataEndpoint {
                                            @Valid @RequestParam("tableId") Long tableId,
                                            @Valid @RequestBody DepositChangeRequestDto data)
             throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException {
+            ZenodoAuthenticationException, ZenodoUnavailableException {
         return metadataService.updateCitation(databaseId, tableId, data);
     }
 
@@ -64,7 +61,7 @@ public class MetadataEndpoint {
     public void delete(@Valid @RequestParam("id") Long databaseId,
                        @Valid @RequestParam("tableId") Long tableId,
                        @NotBlank @RequestParam("fileId") String fileId) throws MetadataDatabaseNotFoundException,
-            ZenodoApiException, ZenodoAuthenticationException {
+            ZenodoApiException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoUnavailableException {
         metadataService.deleteCitation(databaseId, tableId);
     }
 }

@@ -73,6 +73,9 @@
               <v-btn color="primary" :to="`/databases/${$route.params.database_id}/queries/${item.id}`">
                 <v-icon left>mdi-run</v-icon> Execute Again
               </v-btn>
+              <v-btn color="primary" :to="`/databases/${$route.params.database_id}/queries/${item.id}/metadata`">
+                <v-icon left>mdi-doi</v-icon> Issue DOI
+              </v-btn>
             </v-col>
           </v-row>
         </v-expansion-panel-content>

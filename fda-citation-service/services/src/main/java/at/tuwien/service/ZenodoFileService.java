@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +43,7 @@ public class ZenodoFileService implements FileService {
     @Transactional
     public FileResponseDto createResource(Long databaseId, Long tableId, FileUploadDto data, MultipartFile resource)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoFileTooLargeException, MetadataDatabaseNotFoundException {
+            ZenodoFileTooLargeException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
         if (resource.getSize() > 50_1000_1000_1000L) {
             throw new ZenodoFileTooLargeException("Only 50GB per file is allowed!");
         }
@@ -54,6 +54,8 @@ public class ZenodoFileService implements FileService {
                     zenodoMapper.resourceToHttpEntity(data.getName(), resource), FileResponseDto.class, table.getDepositId(), zenodoConfig.getApiKey());
         } catch (IOException e) {
             throw new ZenodoApiException("Could not map file to byte array");
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
         } catch (HttpClientErrorException.Unauthorized e) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         } catch (HttpClientErrorException.BadRequest e) {
@@ -71,12 +73,14 @@ public class ZenodoFileService implements FileService {
     @Override
     @Transactional
     public List<FileResponseDto> listResources(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException,
-            ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException {
+            ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException {
         final Table table = getTable(databaseId, tableId);
         final ResponseEntity<FileResponseDto[]> response;
         try {
             response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/files?access_token={token}",
                     HttpMethod.GET, addHeaders(null), FileResponseDto[].class, table.getDepositId(), zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
         } catch (HttpClientErrorException.NotFound e) {
             throw new ZenodoNotFoundException("Did not find the resoource with this id");
         } catch (HttpClientErrorException.Unauthorized e) {
@@ -92,13 +96,15 @@ public class ZenodoFileService implements FileService {
     @Transactional
     public FileResponseDto findResource(Long databaseId, Long tableId, String fileId)
             throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException,
-            ZenodoApiException {
+            ZenodoApiException, ZenodoUnavailableException {
         final Table table = getTable(databaseId, tableId);
         final ResponseEntity<FileResponseDto> response;
         try {
             response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/files/{file_id}?access_token={token}",
                     HttpMethod.GET, addHeaders(null), FileResponseDto.class, table.getDepositId(), fileId,
                     zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
         } catch (HttpClientErrorException.NotFound e) {
             throw new ZenodoNotFoundException("Did not find the resoource with this ID");
         } catch (HttpClientErrorException.Unauthorized e) {
@@ -113,13 +119,16 @@ public class ZenodoFileService implements FileService {
     @Override
     @Transactional
     public void deleteResource(Long databaseId, Long tableId, String fileId)
-            throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException {
+            throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException,
+            ZenodoApiException, ZenodoUnavailableException {
         final Table table = getTable(databaseId, tableId);
         final ResponseEntity<String> response;
         try {
             response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/files/{file_id}?access_token={token}",
                     HttpMethod.DELETE, addHeaders(null), String.class, table.getDepositId(), fileId,
                     zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
         } catch (HttpClientErrorException.NotFound e) {
             throw new ZenodoNotFoundException("Did not find the resource with this ID");
         } catch (HttpClientErrorException.Unauthorized e) {
@@ -134,7 +143,7 @@ public class ZenodoFileService implements FileService {
      * Wrapper function to throw error when table with id was not found
      *
      * @param databaseId The database id
-     * @param tableId The table id
+     * @param tableId    The table id
      * @return The table
      * @throws MetadataDatabaseNotFoundException The error
      */

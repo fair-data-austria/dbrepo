@@ -4,14 +4,13 @@ import at.tuwien.api.zenodo.deposit.*;
 import at.tuwien.config.ZenodoConfig;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.exception.MetadataDatabaseNotFoundException;
-import at.tuwien.exception.ZenodoApiException;
-import at.tuwien.exception.ZenodoAuthenticationException;
-import at.tuwien.exception.ZenodoNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.TableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
@@ -36,9 +35,14 @@ public class ZenodoMetadataService implements MetadataService {
     @Override
     @Transactional
     public List<DepositResponseDto> listCitations(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
-            ZenodoApiException {
-        final ResponseEntity<DepositResponseDto[]> response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}",
-                HttpMethod.GET, addHeaders(null), DepositResponseDto[].class, zenodoConfig.getApiKey());
+            ZenodoApiException, ZenodoUnavailableException {
+        final ResponseEntity<DepositResponseDto[]> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}",
+                    HttpMethod.GET, addHeaders(null), DepositResponseDto[].class, zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
+        }
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }
@@ -51,10 +55,15 @@ public class ZenodoMetadataService implements MetadataService {
     @Override
     @Transactional
     public DepositChangeResponseDto storeCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
-            ZenodoApiException, MetadataDatabaseNotFoundException {
+            ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
         final Table table = getTable(databaseId, tableId);
-        final ResponseEntity<DepositChangeResponseDto> response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}",
-                HttpMethod.POST, addHeaders("{}"), DepositChangeResponseDto.class, zenodoConfig.getApiKey());
+        final ResponseEntity<DepositChangeResponseDto> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}", HttpMethod.POST,
+                    addHeaders("{}"), DepositChangeResponseDto.class, zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
+        }
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }
@@ -73,11 +82,18 @@ public class ZenodoMetadataService implements MetadataService {
     @Transactional
     public DepositChangeResponseDto updateCitation(Long databaseId, Long tableId, DepositChangeRequestDto data)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            MetadataDatabaseNotFoundException {
+            MetadataDatabaseNotFoundException, ZenodoUnavailableException {
         final Table table = getTable(databaseId, tableId);
-        final ResponseEntity<DepositChangeResponseDto> response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
-                HttpMethod.PUT, addHeaders(data), DepositChangeResponseDto.class, table.getDepositId(),
-                zenodoConfig.getApiKey());
+        final ResponseEntity<DepositChangeResponseDto> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+                    HttpMethod.PUT, addHeaders(data), DepositChangeResponseDto.class, table.getDepositId(),
+                    zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
+        } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
+            throw new ZenodoNotFoundException("Could not get the citation.", e);
+        }
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }
@@ -96,11 +112,18 @@ public class ZenodoMetadataService implements MetadataService {
     @Override
     @Transactional
     public DepositResponseDto findCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
-            ZenodoApiException, ZenodoNotFoundException, MetadataDatabaseNotFoundException {
+            ZenodoApiException, ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
         final Table table = getTable(databaseId, tableId);
-        final ResponseEntity<DepositResponseDto> response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
-                HttpMethod.GET, addHeaders(null), DepositResponseDto.class, table.getDepositId(),
-                zenodoConfig.getApiKey());
+        final ResponseEntity<DepositResponseDto> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+                    HttpMethod.GET, addHeaders(null), DepositResponseDto.class, table.getDepositId(),
+                    zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
+        } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
+            throw new ZenodoNotFoundException("Could not get the citation.", e);
+        }
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }
@@ -116,10 +139,17 @@ public class ZenodoMetadataService implements MetadataService {
     @Override
     @Transactional
     public void deleteCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException, ZenodoApiException,
-            MetadataDatabaseNotFoundException {
+            MetadataDatabaseNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException {
         final Table table = getTable(databaseId, tableId);
-        final ResponseEntity<String> response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
-                HttpMethod.DELETE, addHeaders(null), String.class, table.getDepositId(), zenodoConfig.getApiKey());
+        final ResponseEntity<String> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+                    HttpMethod.DELETE, addHeaders(null), String.class, table.getDepositId(), zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
+        } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
+            throw new ZenodoNotFoundException("Could not get the citation.", e);
+        }
         if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         }

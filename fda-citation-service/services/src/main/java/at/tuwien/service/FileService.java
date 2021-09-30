@@ -28,7 +28,7 @@ public interface FileService {
      */
     FileResponseDto createResource(Long databaseId, Long tableId, FileUploadDto data, MultipartFile resource)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoFileTooLargeException, MetadataDatabaseNotFoundException;
+            ZenodoFileTooLargeException, MetadataDatabaseNotFoundException, ZenodoUnavailableException;
 
     /**
      * List all files known to a deposit number (through the database-table id pair)
@@ -41,7 +41,7 @@ public interface FileService {
      * @throws ZenodoNotFoundException           The deposit id was not found on the remote server
      * @throws MetadataDatabaseNotFoundException The deposit was not found on the metadata database
      */
-    List<FileResponseDto> listResources(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException;
+    List<FileResponseDto> listResources(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException;
 
     /**
      * Find a file for a deposit (through the database-table id pair) by id
@@ -55,7 +55,7 @@ public interface FileService {
      * @throws ZenodoNotFoundException           The deposit id was not found on the remote server
      * @throws ZenodoApiException                Something other went wrong
      */
-    FileResponseDto findResource(Long databaseId, Long tableId, String fileId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException;
+    FileResponseDto findResource(Long databaseId, Long tableId, String fileId) throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException;
 
     /**
      * Delete a file based on the database-table id pair by id
@@ -70,5 +70,5 @@ public interface FileService {
      */
     void deleteResource(Long databaseId, Long tableId, String fileId)
             throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoNotFoundException,
-            ZenodoApiException;
+            ZenodoApiException, ZenodoUnavailableException;
 }
