@@ -3,11 +3,13 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.zenodo.deposit.*;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Optional;
-
-import static org.mockito.Mockito.when;
+import javax.transaction.Transactional;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -29,20 +29,26 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private ZenodoMetadataService zenodoService;
 
-    @MockBean
+    @Autowired
     private TableRepository tableRepository;
 
-    final Database DATABASE_1 = Database.builder()
-            .id(DATABASE_1_ID)
-            .build();
+    @Autowired
+    private ContainerRepository containerRepository;
+
+    @Autowired
+    private DatabaseRepository databaseRepository;
+
+    @BeforeEach
+    @Transactional
+    public void beforeEach() {
+        containerRepository.save(CONTAINER_1);
+        databaseRepository.save(DATABASE_1);
+        tableRepository.save(TABLE_1);
+    }
 
     @Test
     public void listDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoUnavailableException {
-
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         zenodoService.listCitations(DATABASE_1_ID, TABLE_1_ID);
@@ -52,10 +58,6 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     public void createDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             MetadataDatabaseNotFoundException, ZenodoUnavailableException {
 
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
         /* test */
         final DepositChangeResponseDto response = zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         Assertions.assertNotNull(response.getId());
@@ -64,19 +66,9 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void updateDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
-
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
         final DepositChangeResponseDto deposit = zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
                 .metadata(METADATA_1)
-                .build();
-
-        /* mock */
-        final Table TABLE_1 = Table.builder()
-                .id(TABLE_1_ID)
-                .depositId(deposit.getId())
                 .build();
 
         /* test */

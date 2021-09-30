@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>report</artifactId>
-    <name>fda-table-service-report</name>
+    <name>fda-citation-service-report</name>
 
     <properties>
         <jacoco.version>0.8.7</jacoco.version>
