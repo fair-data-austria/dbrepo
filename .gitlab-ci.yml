@@ -18,7 +18,6 @@ stages:
   - build
   - test-frontend
   - test-backend
-  - deploy
 
 build-docker:
   stage: build
@@ -161,35 +160,3 @@ test-backend-citation:
     reports:
       junit:
         - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
-
-deploy-images:
-  stage: deploy
-  only:
-    - tags
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-  script:
-    - "VERSION=$(echo $CI_COMMIT_TAG | grep -o '[0-9].[0-9].[0-9]')"
-    - "echo $VERSION"
-    - "docker login -u fairdataaustria -p ${DOCKER_REGISTRY_PASSWORD}"
-    - "docker tag fda-metadata-db fairdataaustria/fda-metadata-db:$VERSION"
-    - "docker tag fda-analyse-service fairdataaustria/fda-analyse-service:$VERSION"
-    - "docker tag fda-broker-service fairdataaustria/fda-broker-service:$VERSION"
-    - "docker tag fda-citation-service fairdataaustria/fda-citation-service:$VERSION"
-    - "docker tag fda-container-service fairdataaustria/fda-container-service:$VERSION"
-    - "docker tag fda-database-service fairdataaustria/fda-database-service:$VERSION"
-    - "docker tag fda-discovery-service fairdataaustria/fda-discovery-service:$VERSION"
-    - "docker tag fda-gateway-service fairdataaustria/fda-gateway-service:$VERSION"
-    - "docker tag fda-query-service fairdataaustria/fda-query-service:$VERSION"
-    - "docker tag fda-table-service fairdataaustria/fda-table-service:$VERSION"
-    - "docker tag fda-ui fairdataaustria/fda-ui:$VERSION"
-    - "docker push fairdataaustria/fda-metadata-db:$VERSION"
-    - "docker push fairdataaustria/fda-analyse-service:$VERSION"
-    - "docker push fairdataaustria/fda-broker-service:$VERSION"
-    - "docker push fairdataaustria/fda-citation-service:$VERSION"
-    - "docker push fairdataaustria/fda-container-service:$VERSION"
-    - "docker push fairdataaustria/fda-discovery-service:$VERSION"
-    - "docker push fairdataaustria/fda-database-service:$VERSION"
-    - "docker push fairdataaustria/fda-gateway-service:$VERSION"
-    - "docker push fairdataaustria/fda-query-service:$VERSION"
-    - "docker push fairdataaustria/fda-table-service:$VERSION"
