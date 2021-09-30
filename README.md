@@ -6,7 +6,7 @@
 
 ## Install
 
-Obtain the newest
+Obtain the newest images from [Docker Hub](https://hub.docker.com/search?q=fairdataaustria).
 
 ## Build
 
