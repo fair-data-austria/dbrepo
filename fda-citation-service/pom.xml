@@ -155,8 +155,7 @@
                         <exclude>at/tuwien/utils/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>
                         <exclude>at/tuwien/handlers/**/*</exclude>
-                        <exclude>**/FdaTableServiceApplication.class</exclude>
-                        <exclude>**/JdbcConnector.class</exclude>
+                        <exclude>**/FdaCitationServiceApplication.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>

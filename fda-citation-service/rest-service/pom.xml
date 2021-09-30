@@ -11,7 +11,7 @@
 
     <artifactId>rest-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-table-service-rest</name>
+    <name>fda-citation-service-rest</name>
 
     <dependencies>
         <dependency>

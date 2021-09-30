@@ -17,10 +17,10 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 @EnableElasticsearchRepositories(basePackages = {"at.tuwien.repository.elastic"})
 @EnableJpaRepositories(basePackages = {"at.tuwien.repository.jpa"})
 @EntityScan(basePackages = {"at.tuwien.entities"})
-public class FdaTableServiceApplication {
+public class FdaCitationServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FdaTableServiceApplication.class, args);
+        SpringApplication.run(FdaCitationServiceApplication.class, args);
     }
 
 }

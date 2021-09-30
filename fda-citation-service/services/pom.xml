@@ -11,7 +11,7 @@
 
     <artifactId>services</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-table-service-services</name>
+    <name>fda-citation-service-services</name>
 
     <dependencies>
         <dependency>
