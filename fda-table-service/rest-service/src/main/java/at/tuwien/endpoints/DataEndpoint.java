@@ -1,13 +1,11 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.amqp.TupleDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
-import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
-import at.tuwien.service.DataService;
+import at.tuwien.service.MariaDataService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -26,10 +24,10 @@ import java.sql.Timestamp;
 @RequestMapping("/api/database/{id}/table/{tableId}/data")
 public class DataEndpoint {
 
-    private final DataService dataService;
+    private final MariaDataService dataService;
 
     @Autowired
-    public DataEndpoint(DataService dataService) {
+    public DataEndpoint(MariaDataService dataService) {
         this.dataService = dataService;
     }
 
