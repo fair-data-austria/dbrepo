@@ -4,6 +4,10 @@
 
 # FAIR Data Austria Database Repository
 
+## Install
+
+Obtain the newest
+
 ## Build
 
 Everything is handled by compose, just build it by running:

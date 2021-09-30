@@ -164,28 +164,32 @@ test-backend-citation:
 
 deploy-images:
   stage: deploy
+  only:
+    - tags
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
-    - when: manual
   script:
-    - docker tag fda-metadata-db dbrepo.ossdip.at/fda-metadata-db:latest
-    - docker tag fda-analyse-service dbrepo.ossdip.at/fda-analyse-service:latest
-    - docker tag fda-broker-service dbrepo.ossdip.at/fda-broker-service:latest
-    - docker tag fda-citation-service dbrepo.ossdip.at/fda-citation-service:latest
-    - docker tag fda-container-service dbrepo.ossdip.at/fda-container-service:latest
-    - docker tag fda-database-service dbrepo.ossdip.at/fda-database-service:latest
-    - docker tag fda-discovery-service dbrepo.ossdip.at/fda-discovery-service:latest
-    - docker tag fda-gateway-service dbrepo.ossdip.at/fda-gateway-service:latest
-    - docker tag fda-query-service dbrepo.ossdip.at/fda-query-service:latest
-    - docker tag fda-table-service dbrepo.ossdip.at/fda-table-service:latest
-    - docker tag fda-ui dbrepo.ossdip.at/fda-ui:latest
-    - docker push dbrepo.ossdip.at/fda-metadata-db:latest
-    - docker push dbrepo.ossdip.at/fda-analyse-service:latest
-    - docker push dbrepo.ossdip.at/fda-broker-service:latest
-    - docker push dbrepo.ossdip.at/fda-citation-service:latest
-    - docker push dbrepo.ossdip.at/fda-container-service:latest
-    - docker push dbrepo.ossdip.at/fda-discovery-service:latest
-    - docker push dbrepo.ossdip.at/fda-database-service:latest
-    - docker push dbrepo.ossdip.at/fda-gateway-service:latest
-    - docker push dbrepo.ossdip.at/fda-query-service:latest
-    - docker push dbrepo.ossdip.at/fda-table-service:latest
+    - "VERSION=$(echo $CI_COMMIT_TAG | grep -o '[0-9].[0-9].[0-9]')"
+    - "echo $VERSION"
+    - "docker login -u fairdataaustria -p ${DOCKER_REGISTRY_PASSWORD}"
+    - "docker tag fda-metadata-db fairdataaustria/fda-metadata-db:$VERSION"
+    - "docker tag fda-analyse-service fairdataaustria/fda-analyse-service:$VERSION"
+    - "docker tag fda-broker-service fairdataaustria/fda-broker-service:$VERSION"
+    - "docker tag fda-citation-service fairdataaustria/fda-citation-service:$VERSION"
+    - "docker tag fda-container-service fairdataaustria/fda-container-service:$VERSION"
+    - "docker tag fda-database-service fairdataaustria/fda-database-service:$VERSION"
+    - "docker tag fda-discovery-service fairdataaustria/fda-discovery-service:$VERSION"
+    - "docker tag fda-gateway-service fairdataaustria/fda-gateway-service:$VERSION"
+    - "docker tag fda-query-service fairdataaustria/fda-query-service:$VERSION"
+    - "docker tag fda-table-service fairdataaustria/fda-table-service:$VERSION"
+    - "docker tag fda-ui fairdataaustria/fda-ui:$VERSION"
+    - "docker push fairdataaustria/fda-metadata-db:$VERSION"
+    - "docker push fairdataaustria/fda-analyse-service:$VERSION"
+    - "docker push fairdataaustria/fda-broker-service:$VERSION"
+    - "docker push fairdataaustria/fda-citation-service:$VERSION"
+    - "docker push fairdataaustria/fda-container-service:$VERSION"
+    - "docker push fairdataaustria/fda-discovery-service:$VERSION"
+    - "docker push fairdataaustria/fda-database-service:$VERSION"
+    - "docker push fairdataaustria/fda-gateway-service:$VERSION"
+    - "docker push fairdataaustria/fda-query-service:$VERSION"
+    - "docker push fairdataaustria/fda-table-service:$VERSION"
