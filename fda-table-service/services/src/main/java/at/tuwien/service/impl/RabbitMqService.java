@@ -7,6 +7,7 @@ import at.tuwien.exception.AmqpException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.service.DataService;
 import at.tuwien.service.MessageQueueService;
 import at.tuwien.service.impl.MariaDataService;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -34,12 +35,12 @@ public class RabbitMqService implements MessageQueueService {
     private static final String AMQP_EXCHANGE = "fda";
 
     private final Channel channel;
-    private final MariaDataService dataService;
+    private final DataService dataService;
     private final ObjectMapper objectMapper;
     private final TableRepository tableRepository;
 
     @Autowired
-    public RabbitMqService(Channel channel, MariaDataService dataService, ObjectMapper objectMapper,
+    public RabbitMqService(Channel channel, DataService dataService, ObjectMapper objectMapper,
                            TableRepository tableRepository) {
         this.channel = channel;
         this.dataService = dataService;
@@ -99,14 +100,14 @@ public class RabbitMqService implements MessageQueueService {
     public void createUserConsumer(Table table) throws IOException {
         channel.basicConsume(table.getTopic(), true, (consumerTag, response) -> {
             try {
-                dataService.insertCsv(table, objectMapper.readValue(response.getBody(), TableCsvDto.class));
+                dataService.insert(table, objectMapper.readValue(response.getBody(), TableCsvDto.class));
             } catch (JsonParseException | MismatchedInputException e) {
                 log.warn("Could not parse AMQP payload {}", e.getMessage());
                 /* ignore */
             } catch (ConnectException e) {
                 log.warn("Could not redirect AMQP payload {}", e.getMessage());
                 /* ignore */
-            } catch (SQLException | ImageNotSupportedException | DataAccessException | TableMalformedException e) {
+            } catch (ImageNotSupportedException | DataAccessException | TableMalformedException e) {
                 log.warn("Could not insert AMQP payload {}", e.getMessage());
                 /* ignore */
             }

@@ -5,13 +5,21 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
-import com.opencsv.exceptions.CsvException;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 
 public interface DataService {
+
+    /**
+     * Find a table by database-table id pair
+     *
+     * @param databaseId The database-table id pair.
+     * @param tableId    The database-table id pair.
+     * @return The table.
+     * @throws TableNotFoundException    The table was not found.
+     * @throws DatabaseNotFoundException The database was not found.
+     */
+    Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException;
 
     /**
      * Insert data from a file into a table of a database

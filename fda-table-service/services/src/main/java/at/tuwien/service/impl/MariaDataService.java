@@ -52,6 +52,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
         this.databaseRepository = databaseRepository;
     }
 
+    @Override
     @Transactional
     public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException {
         final Optional<Table> table = tableRepository.findByDatabaseAndId(findDatabase(databaseId), tableId);
