@@ -2,6 +2,7 @@ package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.*;
+import at.tuwien.config.PostgresConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.DataEndpoint;
 import at.tuwien.exception.*;
@@ -30,6 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.transaction.Transactional;
 import java.io.File;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 
@@ -124,7 +126,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insertFromTuple_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
+            DatabaseNotFoundException, ImageNotSupportedException, SQLException {
         final Map<String, Object> map = new LinkedHashMap<>() {{
             put(COLUMN_1_NAME, 4);
             put(COLUMN_2_NAME, Instant.now());
@@ -136,16 +138,22 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .data(List.of(map))
                 .build();
 
+        /* mock */
+        PostgresConfig.clearDatabase();
+
         /* test */
         final ResponseEntity<?> response = dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
 
     @Test
-    public void insertFromTuple_empty_fails() {
+    public void insertFromTuple_empty_fails() throws SQLException {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of())
                 .build();
+
+        /* mock */
+        PostgresConfig.clearDatabase();
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -154,15 +162,51 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void insertFromTuple_empty2_fails() {
+    public void insertFromTuple_empty2_fails() throws SQLException {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of(Map.of()))
                 .build();
+
+        /* mock */
+        PostgresConfig.clearDatabase();
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
             dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
         });
+    }
+
+    @Test
+    public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, SQLException {
+        final TableInsertDto request = TableInsertDto.builder()
+                .delimiter(',')
+                .skipHeader(true)
+                .nullElement("NA")
+                .csvLocation("test:src/test/resources/csv/csv_01.csv")
+                .build();
+
+        /* mock */
+        PostgresConfig.clearDatabase();
+
+        /* test */
+        final ResponseEntity<?> response = dataEndpoint.insertFromFile(DATABASE_1_ID, TABLE_1_ID, request);
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+    }
+
+    @Test
+    public void getAll_succeeds() throws TableNotFoundException, TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException, SQLException, DatabaseConnectionException {
+        final Instant timestamp = Instant.now();
+        final Long page = 0L;
+        final Long size = 1L;
+
+        /* mock */
+        PostgresConfig.clearDatabase();
+
+        /* test */
+        final ResponseEntity<?> response = dataEndpoint.getAll(DATABASE_1_ID, TABLE_1_ID, timestamp, page, size);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
 }
