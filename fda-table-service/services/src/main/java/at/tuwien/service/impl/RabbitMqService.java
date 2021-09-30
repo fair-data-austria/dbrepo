@@ -1,4 +1,4 @@
-package at.tuwien.service;
+package at.tuwien.service.impl;
 
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
@@ -7,6 +7,8 @@ import at.tuwien.exception.AmqpException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.service.MessageQueueService;
+import at.tuwien.service.impl.MariaDataService;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -27,7 +29,7 @@ import java.util.List;
 
 @Log4j2
 @Service
-public class AmqpService {
+public class RabbitMqService implements MessageQueueService {
 
     private static final String AMQP_EXCHANGE = "fda";
 
@@ -37,8 +39,8 @@ public class AmqpService {
     private final TableRepository tableRepository;
 
     @Autowired
-    public AmqpService(Channel channel, MariaDataService dataService, ObjectMapper objectMapper,
-                       TableRepository tableRepository) {
+    public RabbitMqService(Channel channel, MariaDataService dataService, ObjectMapper objectMapper,
+                           TableRepository tableRepository) {
         this.channel = channel;
         this.dataService = dataService;
         this.objectMapper = objectMapper;
@@ -50,6 +52,7 @@ public class AmqpService {
      *
      * @throws IOException Exchange or queue was not declarable.
      */
+    @Override
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void init() throws IOException {
@@ -61,6 +64,7 @@ public class AmqpService {
         }
     }
 
+    @Override
     public void createQueue(Table table) throws AmqpException {
         try {
             create(table);
@@ -72,47 +76,27 @@ public class AmqpService {
         }
     }
 
-    public void createExchange(Database database) throws AmqpException {
-        try {
-            create(database);
-            log.info("Created exchange {}", database.getExchange());
-        } catch (IOException e) {
-            log.error("Could not create exchange and consumer: {}", e.getMessage());
-            throw new AmqpException("Could not create exchange and consumer", e);
-        }
-    }
-
+    @Override
     @Transactional
-    protected void create(Database database) throws IOException {
+    public void create(Database database) throws IOException {
         channel.exchangeDeclare(database.getExchange(), BuiltinExchangeType.FANOUT, true);
         log.debug("declare fanout exchange {}", database.getExchange());
         channel.exchangeBind(database.getExchange(), AMQP_EXCHANGE, database.getExchange());
         log.debug("bind exchange {} to {}", database.getExchange(), AMQP_EXCHANGE);
     }
 
+    @Override
     @Transactional
-    protected void create(Table table) throws IOException {
+    public void create(Table table) throws IOException {
         channel.queueDeclare(table.getTopic(), true, false, false, null);
         log.debug("declare queue {}", table.getTopic());
         channel.queueBind(table.getTopic(), table.getDatabase().getExchange(), table.getTopic());
         log.debug("bind queue {} to {}", table.getTopic(), table.getDatabase().getExchange());
     }
 
-    private void delete(Database database) throws IOException {
-        channel.exchangeDelete(database.getExchange());
-        log.debug("delete exchange {}", database.getExchange());
-        for (Table table : database.getTables()) {
-            delete(table);
-        }
-    }
-
-    private void delete(Table table) throws IOException {
-        channel.queueDelete(table.getTopic());
-        log.debug("delete queue {}", table.getTopic());
-    }
-
+    @Override
     @Transactional
-    protected void createUserConsumer(Table table) throws IOException {
+    public void createUserConsumer(Table table) throws IOException {
         channel.basicConsume(table.getTopic(), true, (consumerTag, response) -> {
             try {
                 dataService.insertCsv(table, objectMapper.readValue(response.getBody(), TableCsvDto.class));

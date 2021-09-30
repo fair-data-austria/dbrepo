@@ -8,8 +8,8 @@ import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.repository.jpa.TableRepository;
-import at.tuwien.service.MariaDataService;
-import at.tuwien.service.TableService;
+import at.tuwien.service.impl.MariaDataService;
+import at.tuwien.service.impl.TableServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -62,7 +62,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     private MariaDataService dataService;
 
     @Autowired
-    private TableService tableService;
+    private TableServiceImpl tableService;
 
     @Autowired
     private TableRepository tableRepository;

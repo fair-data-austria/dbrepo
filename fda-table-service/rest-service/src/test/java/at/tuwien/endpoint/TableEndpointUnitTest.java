@@ -9,7 +9,7 @@ import at.tuwien.endpoints.TableEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
-import at.tuwien.service.TableService;
+import at.tuwien.service.impl.TableServiceImpl;
 import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @MockBean
-    private TableService tableService;
+    private TableServiceImpl tableService;
 
     @MockBean
     private TableRepository tableRepository;

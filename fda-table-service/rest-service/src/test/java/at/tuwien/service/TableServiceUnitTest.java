@@ -8,6 +8,7 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.service.impl.TableServiceImpl;
 import com.opencsv.exceptions.CsvException;
 import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,7 +42,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private TableService tableService;
+    private TableServiceImpl tableService;
 
     @MockBean
     private DatabaseRepository databaseRepository;

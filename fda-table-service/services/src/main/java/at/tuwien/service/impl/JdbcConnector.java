@@ -1,4 +1,4 @@
-package at.tuwien.service;
+package at.tuwien.service.impl;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
@@ -11,6 +11,7 @@ import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.service.DatabaseConnector;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.*;
 import org.jooq.Record;
