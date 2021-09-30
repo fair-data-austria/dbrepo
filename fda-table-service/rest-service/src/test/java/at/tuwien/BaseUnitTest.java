@@ -1,5 +1,7 @@
 package at.tuwien;
 
+import at.tuwien.api.container.image.ImageEnvItemDto;
+import at.tuwien.api.container.image.ImageEnvItemTypeDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
@@ -27,14 +29,9 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String DATABASE_1_EXCHANGE = "fda." + DATABASE_1_INTERNALNAME;
 
     public final static Long DATABASE_2_ID = 2L;
-    public final static String DATABASE_2_NAME = "RIVER";
-    public final static String DATABASE_2_INTERNALNAME = "river";
+    public final static String DATABASE_2_NAME = "Weather";
+    public final static String DATABASE_2_INTERNALNAME = "weather";
     public final static String DATABASE_2_EXCHANGE = "fda." + DATABASE_2_INTERNALNAME;
-
-    public final static Long DATABASE_3_ID = 3L;
-    public final static String DATABASE_3_NAME = "Csv Table";
-    public final static String DATABASE_3_INTERNALNAME = "csv_table";
-    public final static String DATABASE_3_EXCHANGE = "fda." + DATABASE_3_INTERNALNAME;
 
     public final static Long TABLE_1_ID = 1L;
     public final static String TABLE_1_NAME = "Weather AUS";
@@ -43,16 +40,10 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNALNAME;
 
     public final static Long TABLE_2_ID = 2L;
-    public final static String TABLE_2_NAME = "Weather AT";
-    public final static String TABLE_2_INTERNALNAME = "weather_at";
-    public final static String TABLE_2_DESCRIPTION = "River Data";
+    public final static String TABLE_2_NAME = "Weather AUS";
+    public final static String TABLE_2_INTERNALNAME = "weather_aus";
+    public final static String TABLE_2_DESCRIPTION = "Weather in the world";
     public final static String TABLE_2_TOPIC = DATABASE_2_EXCHANGE + "." + TABLE_2_INTERNALNAME;
-
-    public final static Long TABLE_3_ID = 3L;
-    public final static String TABLE_3_NAME = "Csv Table";
-    public final static String TABLE_3_INTERNALNAME = "csv_table";
-    public final static String TABLE_3_DESCRIPTION = "CSV Is Nice";
-    public final static String TABLE_3_TOPIC = DATABASE_3_EXCHANGE + "." + TABLE_3_INTERNALNAME;
 
     public final static Long COLUMN_1_ID = 1L;
     public final static Integer COLUMN_1_ORDINALPOS = 0;
@@ -131,6 +122,18 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Long IMAGE_1_SIZE = 12000L;
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
 
+    public final static Long IMAGE_2_ID = 2L;
+    public final static String IMAGE_2_REPOSITORY = "mariadb";
+    public final static String IMAGE_2_TAG = "latest";
+    public final static String IMAGE_2_HASH = "d6a5e003eae42397f7ee4589e9f21e231d3721ac131970d2286bd616e7f55bb4\n";
+    public final static String IMAGE_2_DIALECT = "MARIADB";
+    public final static String IMAGE_2_DRIVER = "org.mariadb.jdbc.Driver";
+    public final static String IMAGE_2_JDBC = "mariadb";
+    public final static String IMAGE_2_LOGO = "AAAA";
+    public final static Integer IMAGE_2_PORT = 3306;
+    public final static Long IMAGE_2_SIZE = 12000L;
+    public final static Instant IMAGE_2_BUILT = Instant.now().minus(40, HOURS);
+
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("POSTGRES_USER")
                     .value("postgres")
@@ -147,11 +150,26 @@ public abstract class BaseUnitTest extends CsvUnitTest {
                     .type(ContainerImageEnvironmentItemType.DATABASE)
                     .build());
 
-    public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
-            "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=" + DATABASE_1_INTERNALNAME);
-
-    public final static List<String> IMAGE_3_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
-            "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=" + DATABASE_3_INTERNALNAME);
+    public final static List<ContainerImageEnvironmentItem> IMAGE_2_ENV = List.of(ContainerImageEnvironmentItem.builder()
+                    .key("UZERNAME")
+                    .value("root")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .key("MARIADB_USER")
+                    .value("mariadb")
+                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .key("MARIADB_PASSWORD")
+                    .value("mariadb")
+                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .key("MARIADB_ROOT_PASSWORD")
+                    .value("mariadb")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .build());
 
     public final static ContainerImage IMAGE_1 = ContainerImage.builder()
             .id(IMAGE_1_ID)
@@ -168,8 +186,23 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .logo(IMAGE_1_LOGO)
             .build();
 
+    public final static ContainerImage IMAGE_2 = ContainerImage.builder()
+            .id(IMAGE_2_ID)
+            .repository(IMAGE_2_REPOSITORY)
+            .tag(IMAGE_2_TAG)
+            .hash(IMAGE_2_HASH)
+            .compiled(IMAGE_2_BUILT)
+            .dialect(IMAGE_2_DIALECT)
+            .jdbcMethod(IMAGE_2_JDBC)
+            .driverClass(IMAGE_2_DRIVER)
+            .size(IMAGE_2_SIZE)
+            .environment(IMAGE_2_ENV)
+            .defaultPort(IMAGE_2_PORT)
+            .logo(IMAGE_2_LOGO)
+            .build();
+
     public final static Long CONTAINER_1_ID = 1L;
-    public static String CONTAINER_1_HASH = "deadbeef";
+    public final static String CONTAINER_1_HASH = "deadbeef";
     public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
     public final static String CONTAINER_1_NAME = "u01";
     public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
@@ -178,16 +211,11 @@ public abstract class BaseUnitTest extends CsvUnitTest {
 
     public final static Long CONTAINER_2_ID = 2L;
     public final static String CONTAINER_2_HASH = "deadbeef";
+    public final static ContainerImage CONTAINER_2_IMAGE = IMAGE_2;
     public final static String CONTAINER_2_NAME = "u02";
-    public final static String CONTAINER_2_INTERNALNAME = "not3x1st1ng";
+    public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-u02";
+    public final static String CONTAINER_2_IP = "172.28.0.6";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
-    
-    public final static Long CONTAINER_3_ID = 3L;
-    public final static String CONTAINER_3_HASH = "deadbeef";
-    public final static String CONTAINER_3_NAME = "u02";
-    public final static String CONTAINER_3_IP = "172.28.0.6";
-    public final static String CONTAINER_3_INTERNALNAME = "fda-userdb-u02";
-    public final static Instant CONTAINER_3_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Container CONTAINER_1 = Container.builder()
             .id(CONTAINER_1_ID)
@@ -202,18 +230,9 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .id(CONTAINER_2_ID)
             .name(CONTAINER_2_NAME)
             .internalName(CONTAINER_2_INTERNALNAME)
-            .image(CONTAINER_1_IMAGE)
+            .image(CONTAINER_2_IMAGE)
             .hash(CONTAINER_2_HASH)
             .containerCreated(CONTAINER_2_CREATED)
-            .build();
-
-    public final static Container CONTAINER_3 = Container.builder()
-            .id(CONTAINER_3_ID)
-            .name(CONTAINER_3_NAME)
-            .internalName(CONTAINER_3_INTERNALNAME)
-            .image(CONTAINER_1_IMAGE)
-            .hash(CONTAINER_3_HASH)
-            .containerCreated(CONTAINER_3_CREATED)
             .build();
 
     public final static List<TableColumn> TABLE_1_COLUMNS = List.of(TableColumn.builder()
@@ -294,15 +313,15 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .topic(TABLE_1_TOPIC)
             .build();
 
-    public final static Table TABLE_3 = Table.builder()
-            .id(TABLE_3_ID)
+    public final static Table TABLE_2 = Table.builder()
+            .id(TABLE_2_ID)
             .created(Instant.now())
-            .internalName(TABLE_3_INTERNALNAME)
-            .description(TABLE_3_DESCRIPTION)
-            .name(TABLE_3_NAME)
+            .internalName(TABLE_2_INTERNALNAME)
+            .description(TABLE_2_DESCRIPTION)
+            .name(TABLE_2_NAME)
             .lastModified(Instant.now())
-            .tdbid(DATABASE_3_ID)
-            .topic(TABLE_3_TOPIC)
+            .tdbid(DATABASE_2_ID)
+            .topic(TABLE_2_TOPIC)
             .build();
 
     public final static Database DATABASE_1 = Database.builder()
@@ -315,18 +334,6 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .tables(List.of(TABLE_1))
             .internalName(DATABASE_1_INTERNALNAME)
             .exchange(DATABASE_1_EXCHANGE)
-            .build();
-
-    public final static Database DATABASE_3 = Database.builder()
-            .id(DATABASE_3_ID)
-            .created(Instant.now().minus(1, HOURS))
-            .lastModified(Instant.now())
-            .isPublic(false)
-            .name(DATABASE_3_NAME)
-            .container(CONTAINER_3)
-            .tables(List.of(TABLE_3))
-            .internalName(DATABASE_3_INTERNALNAME)
-            .exchange(DATABASE_3_EXCHANGE)
             .build();
 
     /* no connection */
@@ -378,12 +385,6 @@ public abstract class BaseUnitTest extends CsvUnitTest {
                     .primaryKey(COLUMN_5_PRIMARY)
                     .unique(COLUMN_5_UNIQUE)
                     .build()};
-
-    public final static TableCreateDto TABLE_1_CREATE_DTO = TableCreateDto.builder()
-            .name(TABLE_1_NAME)
-            .description(TABLE_1_DESCRIPTION)
-            .columns(COLUMNS_CSV01)
-            .build();
 
     public final static TableCreateDto TABLE_2_CREATE_DTO = TableCreateDto.builder()
             .name(TABLE_2_NAME)

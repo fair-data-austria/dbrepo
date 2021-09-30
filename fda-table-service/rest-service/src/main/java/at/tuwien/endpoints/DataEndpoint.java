@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Log4j2
 @CrossOrigin(origins = "*")
@@ -43,8 +43,8 @@ public class DataEndpoint {
             @ApiResponse(code = 422, message = "The csv was not processible."),
     })
     public ResponseEntity<?> insertFromFile(@PathVariable("id") Long databaseId,
-                                           @PathVariable("tableId") Long tableId,
-                                           @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
+                                            @PathVariable("tableId") Long tableId,
+                                            @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException {
         dataService.insertCsv(databaseId, tableId, data);
         return ResponseEntity.accepted()
@@ -63,8 +63,8 @@ public class DataEndpoint {
             @ApiResponse(code = 422, message = "The csv was not processible."),
     })
     public ResponseEntity<?> insertFromTuple(@PathVariable("id") Long databaseId,
-                                    @PathVariable("tableId") Long tableId,
-                                    @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
+                                             @PathVariable("tableId") Long tableId,
+                                             @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
             TableMalformedException, TableNotFoundException, DatabaseNotFoundException {
         final Table table = dataService.findById(databaseId, tableId);
         dataService.insert(table, data);
@@ -82,8 +82,12 @@ public class DataEndpoint {
             @ApiResponse(code = 405, message = "The connection to the database was unsuccessful."),
     })
     public ResponseEntity<QueryResultDto> getAll(@PathVariable("id") Long databaseId,
-                                                 @PathVariable("tableId") Long tableId, @RequestParam(required = false) Timestamp timestamp, @RequestParam(name="page", required= false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws TableNotFoundException,
-            DatabaseNotFoundException, DatabaseConnectionException, ImageNotSupportedException {
+                                                 @PathVariable("tableId") Long tableId,
+                                                 @RequestParam(required = false) Instant timestamp,
+                                                 @RequestParam(name = "page", required = false) Long page,
+                                                 @RequestParam(name = "size", required = false) Long size)
+            throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
+            ImageNotSupportedException, TableMalformedException {
         final QueryResultDto data = dataService.selectAll(databaseId, tableId, timestamp, page, size);
         return ResponseEntity.ok(data);
     }

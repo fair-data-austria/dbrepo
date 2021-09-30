@@ -36,6 +36,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 
+import static at.tuwien.config.DockerConfig.dockerClient;
+import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.jooq.impl.DSL.table;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,12 +52,6 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private ReadyConfig readyConfig;
-
-    @Autowired
-    private HostConfig hostConfig;
-
-    @Autowired
-    private DockerClient dockerClient;
 
     @Autowired
     private Properties postgresProperties;
@@ -77,11 +73,11 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
         afterEach();
         /* create container */
         final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
-                .withEnv(IMAGE_1_ENVIRONMENT)
                 .withHostConfig(hostConfig.withNetworkMode("bridge"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withPortBindings(PortBinding.parse("5433:5432"))
                 .withHostName(CONTAINER_1_INTERNALNAME)
+                .withEnv("POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=weather")
                 .exec();
         /* start container */
         dockerClient.startContainerCmd(request.getId())

@@ -47,7 +47,8 @@ public abstract class JdbcConnector implements DatabaseConnector {
     public DSLContext open(Database database) throws SQLException, ImageNotSupportedException {
         final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
         log.info("Attempt to connect to '{}'", url);
-        final Connection connection = DriverManager.getConnection(url, imageMapper.containerImageToProperties(database.getContainer().getImage()));
+        final Properties properties = imageMapper.containerImageToProperties(database.getContainer().getImage());
+        final Connection connection = DriverManager.getConnection(url, properties);
         return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
     }
 

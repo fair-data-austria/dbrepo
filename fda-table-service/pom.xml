@@ -210,6 +210,7 @@
                         <exclude>at/tuwien/config/**/*</exclude>
                         <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>**/FdaTableServiceApplication.class</exclude>
+                        <exclude>**/RabbitMqService.class</exclude>
                         <exclude>**/JdbcConnector.class</exclude>
                     </excludes>
                 </configuration>
