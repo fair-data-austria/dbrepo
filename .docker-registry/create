@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ $# -ne 2 ]; then
+  echo "USAGE: ./create username password"
+  exit 1
+fi
+
+docker run \
+  --entrypoint htpasswd \
+  httpd:2 -Bbn $1 $2 > auth/htpasswd
