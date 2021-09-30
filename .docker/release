@@ -23,12 +23,7 @@ docker login docker.io -u $USER
 IMAGE=$(ls -d fda-*)
 for DIR in $IMAGE
 do
-#  CHECK=$(docker images "${USER}/${IMAGE}:${VERSION}" -q)
-#  if [ ! -z $CHECK ]; then
-#    echo "CHECK ${DIR}: tag ${USER}/${IMAGE}:${VERSION} already exists locally"
-#    exit 3
-#  fi
-  echo "TAG ${DIR}"
-  docker tag ${IMAGE}:latest ${USER}/${IMAGE}:${VERSION}
-  docker push ${USER}/${IMAGE}:${VERSION}
+  echo "TAG ${DIR} (local) ${IMAGE}:latest (remote) ${USER}/${IMAGE}:${VERSION}"
+  docker tag "${IMAGE}:latest" "${USER}/${IMAGE}:${VERSION}"
+  docker push "${USER}/${IMAGE}:${VERSION}"
 done
