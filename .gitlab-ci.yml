@@ -162,9 +162,30 @@ test-backend-citation:
       junit:
         - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
 
-deploy-all:
+deploy-images:
   stage: deploy
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - when: manual
   script:
-    - docker-compose down
-    - docker-compose up -d
-    - docker-compose down
+    - docker tag fda-metadata-db dbrepo.ossdip.at/fda-metadata-db:latest
+    - docker tag fda-analyse-service dbrepo.ossdip.at/fda-analyse-service:latest
+    - docker tag fda-broker-service dbrepo.ossdip.at/fda-broker-service:latest
+    - docker tag fda-citation-service dbrepo.ossdip.at/fda-citation-service:latest
+    - docker tag fda-container-service dbrepo.ossdip.at/fda-container-service:latest
+    - docker tag fda-database-service dbrepo.ossdip.at/fda-database-service:latest
+    - docker tag fda-discovery-service dbrepo.ossdip.at/fda-discovery-service:latest
+    - docker tag fda-gateway-service dbrepo.ossdip.at/fda-gateway-service:latest
+    - docker tag fda-query-service dbrepo.ossdip.at/fda-query-service:latest
+    - docker tag fda-table-service dbrepo.ossdip.at/fda-table-service:latest
+    - docker tag fda-ui dbrepo.ossdip.at/fda-ui:latest
+    - docker push dbrepo.ossdip.at/fda-metadata-db:latest
+    - docker push dbrepo.ossdip.at/fda-analyse-service:latest
+    - docker push dbrepo.ossdip.at/fda-broker-service:latest
+    - docker push dbrepo.ossdip.at/fda-citation-service:latest
+    - docker push dbrepo.ossdip.at/fda-container-service:latest
+    - docker push dbrepo.ossdip.at/fda-discovery-service:latest
+    - docker push dbrepo.ossdip.at/fda-database-service:latest
+    - docker push dbrepo.ossdip.at/fda-gateway-service:latest
+    - docker push dbrepo.ossdip.at/fda-query-service:latest
+    - docker push dbrepo.ossdip.at/fda-table-service:latest
