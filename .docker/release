@@ -10,15 +10,8 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-# check tag exists
-TAG=$(git tag -n | awk '{print $1}' | grep -o "^v${VERSION}\$")
-if [ -z $TAG ]; then
-  echo "FAIL: could not find version 'v${VERSION}' in git tags"
-  exit 2
-fi
-
 # build
-git checkout ${VERSION}
+git checkout master
 docker-compose build fda-metadata-db
 docker-compose build --parallel
 
