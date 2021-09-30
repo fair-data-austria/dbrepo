@@ -1,4 +1,4 @@
-package at.tuwien.service;
+package at.tuwien.service.impl;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
@@ -11,6 +11,7 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.service.DataService;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;

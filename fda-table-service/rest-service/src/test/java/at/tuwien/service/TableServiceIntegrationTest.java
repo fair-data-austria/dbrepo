@@ -9,6 +9,7 @@ import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.service.impl.TableServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -60,7 +61,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     private TableRepository tableRepository;
 
     @Autowired
-    private TableService tableService;
+    private TableServiceImpl tableService;
 
     private CreateContainerResponse request;
 
