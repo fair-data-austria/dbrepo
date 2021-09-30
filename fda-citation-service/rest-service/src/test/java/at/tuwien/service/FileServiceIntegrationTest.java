@@ -5,11 +5,13 @@ import at.tuwien.api.zenodo.deposit.DepositChangeResponseDto;
 import at.tuwien.api.zenodo.files.FileResponseDto;
 import at.tuwien.api.zenodo.files.FileUploadDto;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,26 +19,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ResourceUtils;
 
-import java.io.FileNotFoundException;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class FileServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private ReadyConfig readyConfig;
 
-    @MockBean
+    @Autowired
     private TableRepository tableRepository;
+
+    @Autowired
+    private ContainerRepository containerRepository;
+
+    @Autowired
+    private DatabaseRepository databaseRepository;
 
     @Autowired
     private ZenodoFileService fileService;
@@ -44,9 +52,13 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private ZenodoMetadataService metadataService;
 
-    final Database DATABASE_1 = Database.builder()
-            .id(DATABASE_1_ID)
-            .build();
+    @BeforeEach
+    @Transactional
+    public void beforeEach() {
+        containerRepository.save(CONTAINER_1);
+        databaseRepository.save(DATABASE_1);
+        tableRepository.save(TABLE_1);
+    }
 
     @Test
     public void createResource_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
@@ -55,20 +67,10 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
         final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
                 ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
         /* request */
         final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto request = FileUploadDto.builder()
                 .name(FILE_1_NAME)
-                .build();
-
-        /* mock */
-        final Table TABLE_1 = Table.builder()
-                .id(TABLE_1_ID)
-                .depositId(deposit.getId())
                 .build();
 
         /* test */
@@ -86,20 +88,10 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
         final MockMultipartFile file = new MockMultipartFile("weatherAUS.csv", FileUtils.readFileToByteArray(
                 ResourceUtils.getFile("classpath:csv/weatherAUS.csv")));
 
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
         /* request */
         final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto request = FileUploadDto.builder()
                 .name(FILE_2_NAME)
-                .build();
-
-        /* mock */
-        final Table TABLE_1 = Table.builder()
-                .id(TABLE_1_ID)
-                .depositId(deposit.getId())
                 .build();
 
         /* test */
@@ -111,13 +103,6 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void listAll_notFound_fails() {
-        final Table TABLE_1 = Table.builder()
-                .id(-1L)
-                .build();
-
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
@@ -132,24 +117,12 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
         final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
                 ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
         /* request */
         final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto upload = FileUploadDto.builder()
                 .name(FILE_1_NAME)
                 .build();
-        final Table TABLE_1 = Table.builder()
-                .id(TABLE_1_ID)
-                .depositId(deposit.getId())
-                .build();
         final FileResponseDto fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, upload, file);
-
-        /* mock */
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         final List<FileResponseDto> listResponse = fileService.listResources(DATABASE_1_ID, TABLE_1_ID);
@@ -165,24 +138,12 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
         final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
                 ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
         /* request */
         final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto upload = FileUploadDto.builder()
                 .name(FILE_1_NAME)
                 .build();
-        final Table TABLE_1 = Table.builder()
-                .id(TABLE_1_ID)
-                .depositId(deposit.getId())
-                .build();
         final FileResponseDto fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, upload, file);
-
-        /* mock */
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         final FileResponseDto findResponse = fileService.findResource(DATABASE_1_ID, TABLE_1_ID, fileResponse.getId());
@@ -197,24 +158,12 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
         final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
                 ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
         /* request */
         final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto upload = FileUploadDto.builder()
                 .name(FILE_1_NAME)
                 .build();
-        final Table TABLE_1 = Table.builder()
-                .id(TABLE_1_ID)
-                .depositId(deposit.getId())
-                .build();
         final FileResponseDto fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, upload, file);
-
-        /* mock */
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, fileResponse.getId());

@@ -3,6 +3,10 @@ package at.tuwien;
 import at.tuwien.api.zenodo.deposit.*;
 import at.tuwien.api.zenodo.files.FileResponseDto;
 import at.tuwien.api.zenodo.files.FileLinksDto;
+import at.tuwien.entities.container.Container;
+import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
+import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import org.apache.commons.lang.RandomStringUtils;
@@ -12,12 +16,21 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static java.time.temporal.ChronoUnit.HOURS;
+
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseUnitTest {
 
     public final static Long DATABASE_1_ID = 1L;
+    public final static String DATABASE_1_NAME = "Test Database";
+    public final static String DATABASE_1_INTERNAL_NAME = "test_dataase";
+    public final static String DATABASE_1_EXCHANGE = "fda." + DATABASE_1_INTERNAL_NAME;
+    public final static Boolean DATABASE_1_PUBLIC = true;
 
     public final static Long TABLE_1_ID = 1L;
+    public final static String TABLE_1_NAME = "Rainfall";
+    public final static String TABLE_1_INTERNAL_NAME = "rainfall";
+    public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNAL_NAME;
 
     public final static Long DEPOSIT_1_ID = 1L;
     public final static String DEPOSIT_1_TITLE = "Super cool document";
@@ -68,14 +81,78 @@ public abstract class BaseUnitTest {
     public final static String DEPOSIT_1_DOI = "10.5072/zenodo.542201";
     public final static Long DEPOSIT_1_REC_ID = 542201L;
 
-    public final static Table TABLE_1 = Table.builder()
-            .id(TABLE_1_ID)
-            .depositId(DEPOSIT_1_ID)
+    public final static Long IMAGE_1_ID = 1L;
+    public final static String IMAGE_1_REPOSITORY = "postgres";
+    public final static String IMAGE_1_TAG = "13-alpine";
+    public final static String IMAGE_1_HASH = "83b40f2726e5";
+    public final static Integer IMAGE_1_PORT = 5432;
+    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.PostgreSQLDialect";
+    public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
+    public final static String IMAGE_1_JDBC = "postgresql";
+    public final static Long IMAGE_1_SIZE = 12000L;
+    public final static String IMAGE_1_LOGO = "AAAA";
+    public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
+    public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
+                    .key("POSTGRES_USER")
+                    .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .key("POSTGRES_PASSWORD")
+                    .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .build());
+
+    public final static ContainerImage IMAGE_1 = ContainerImage.builder()
+            .id(IMAGE_1_ID)
+            .repository(IMAGE_1_REPOSITORY)
+            .tag(IMAGE_1_TAG)
+            .hash(IMAGE_1_HASH)
+            .jdbcMethod(IMAGE_1_JDBC)
+            .dialect(IMAGE_1_DIALECT)
+            .driverClass(IMAGE_1_DRIVER)
+            .containers(List.of())
+            .compiled(IMAGE_1_BUILT)
+            .size(IMAGE_1_SIZE)
+            .environment(IMAGE_1_ENV)
+            .defaultPort(IMAGE_1_PORT)
+            .logo(IMAGE_1_LOGO)
+            .build();
+
+    public final static Long CONTAINER_1_ID = 1L;
+    public final static String CONTAINER_1_HASH = "deadbeef";
+    public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
+    public final static String CONTAINER_1_NAME = "fda-userdb-u01";
+    public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
+    public final static String CONTAINER_1_DATABASE = "univie";
+    public final static String CONTAINER_1_IP = "172.28.0.5";
+    public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
+
+    public final static Container CONTAINER_1 = Container.builder()
+            .id(CONTAINER_1_ID)
+            .name(CONTAINER_1_NAME)
+            .internalName(CONTAINER_1_INTERNALNAME)
+            .image(CONTAINER_1_IMAGE)
+            .hash(CONTAINER_1_HASH)
+            .containerCreated(CONTAINER_1_CREATED)
             .build();
 
     public final static Database DATABASE_1 = Database.builder()
             .id(DATABASE_1_ID)
-            .tables(List.of(TABLE_1))
+            .name(DATABASE_1_NAME)
+            .isPublic(DATABASE_1_PUBLIC)
+            .internalName(DATABASE_1_INTERNAL_NAME)
+            .exchange(DATABASE_1_EXCHANGE)
+            .tables(List.of())
+            .build();
+
+    public final static Table TABLE_1 = Table.builder()
+            .id(TABLE_1_ID)
+            .name(TABLE_1_NAME)
+            .internalName(TABLE_1_INTERNAL_NAME)
+            .topic(TABLE_1_TOPIC)
+            .tdbid(DATABASE_1_ID)
+            .depositId(DEPOSIT_1_ID)
             .build();
 
     public final static CreatorDto CREATOR_1 = CreatorDto.builder()
