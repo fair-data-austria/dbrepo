@@ -93,7 +93,7 @@ export default {
           needsContainer: true
         }
       ],
-      title: 'FAIR Data Repository'
+      title: 'FAIR Data Austria — Database Repository'
     }
   },
   computed: {

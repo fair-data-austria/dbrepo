@@ -3,11 +3,9 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.zenodo.deposit.*;
 import at.tuwien.config.ReadyConfig;
+import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.exception.MetadataDatabaseNotFoundException;
-import at.tuwien.exception.ZenodoApiException;
-import at.tuwien.exception.ZenodoAuthenticationException;
-import at.tuwien.exception.ZenodoNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.TableRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,8 +32,17 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
+    final Database DATABASE_1 = Database.builder()
+            .id(DATABASE_1_ID)
+            .build();
+
     @Test
-    public void listDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException {
+    public void listDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
+            ZenodoUnavailableException {
+
+        /* mock */
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         zenodoService.listCitations(DATABASE_1_ID, TABLE_1_ID);
@@ -43,7 +50,11 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void createDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
-            MetadataDatabaseNotFoundException {
+            MetadataDatabaseNotFoundException, ZenodoUnavailableException {
+
+        /* mock */
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         final DepositChangeResponseDto response = zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
@@ -52,7 +63,11 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void updateDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
-            ZenodoNotFoundException, MetadataDatabaseNotFoundException {
+            ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
+
+        /* mock */
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
         final DepositChangeResponseDto deposit = zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
                 .metadata(METADATA_1)
@@ -63,8 +78,6 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
                 .id(TABLE_1_ID)
                 .depositId(deposit.getId())
                 .build();
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         final DepositChangeResponseDto response2 = zenodoService.updateCitation(DATABASE_1_ID, TABLE_1_ID, request);

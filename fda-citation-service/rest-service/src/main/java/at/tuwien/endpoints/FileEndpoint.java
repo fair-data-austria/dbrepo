@@ -30,7 +30,7 @@ public class FileEndpoint {
     public List<FileResponseDto> listAll(@Valid @RequestParam("id") Long databaseId,
                                          @Valid @RequestParam("tableId") Long tableId)
             throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoApiException,
-            ZenodoNotFoundException {
+            ZenodoNotFoundException, ZenodoUnavailableException {
         return fileService.listResources(databaseId, tableId);
     }
 
@@ -39,7 +39,7 @@ public class FileEndpoint {
                                 @Valid @RequestParam("tableId") Long tableId,
                                 @NotBlank @RequestParam("fileId") String fileId)
             throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException {
+            ZenodoAuthenticationException, ZenodoUnavailableException {
         return fileService.findResource(databaseId, tableId, fileId);
     }
 
@@ -49,7 +49,7 @@ public class FileEndpoint {
                                   @Valid @RequestParam("data") FileUploadDto data,
                                   @Valid @RequestParam("file") MultipartFile file)
             throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoFileTooLargeException,
-            ZenodoNotFoundException, ZenodoAuthenticationException {
+            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException {
         return fileService.createResource(databaseId, tableId, data, file);
     }
 
