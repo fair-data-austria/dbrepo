@@ -1,7 +1,10 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.api.zenodo.deposit.DepositChangeRequestDto;
 import at.tuwien.api.zenodo.deposit.DepositChangeResponseDto;
+import at.tuwien.api.zenodo.deposit.MetadataDto;
+import at.tuwien.api.zenodo.deposit.UploadTypeDto;
 import at.tuwien.api.zenodo.files.FileResponseDto;
 import at.tuwien.api.zenodo.files.FileUploadDto;
 import at.tuwien.config.ReadyConfig;
@@ -63,20 +66,20 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
     public void createResource_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoAuthenticationException, ZenodoFileTooLargeException, MetadataDatabaseNotFoundException,
             ZenodoUnavailableException {
+        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
                 ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto request = FileUploadDto.builder()
                 .name(FILE_1_NAME)
                 .build();
 
         /* test */
-        final FileResponseDto response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
-        assertEquals(FILE_1_NAME, response.getFilename());
-        assertEquals(FILE_1_CHECKSUM, response.getChecksum());
-        assertEquals(FILE_1_SIZE, response.getFilesize());
+        final FileResponseDto response2 = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
+        assertEquals(FILE_1_NAME, response2.getFilename());
+        assertEquals(FILE_1_CHECKSUM, response2.getChecksum());
+        assertEquals(FILE_1_SIZE, response2.getFilesize());
     }
 
     @Test

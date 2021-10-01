@@ -158,6 +158,29 @@ public class ZenodoMetadataService implements MetadataService {
         }
     }
 
+    @Override
+    @Transactional
+    public DepositChangeResponseDto publishCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException, ZenodoApiException,
+            MetadataDatabaseNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException {
+        final Table table = getTable(databaseId, tableId);
+        final ResponseEntity<DepositChangeResponseDto> response;
+        try {
+            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/actions/publish?access_token={token}",
+                    HttpMethod.POST, addHeaders(null), DepositChangeResponseDto.class, table.getDepositId(), zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
+        } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
+            throw new ZenodoNotFoundException("Could not get the citation.", e);
+        }
+        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        }
+        if (!response.getStatusCode().equals(HttpStatus.ACCEPTED)) {
+            throw new ZenodoApiException("Could not publish the deposit");
+        }
+        return response.getBody();
+    }
+
 
     /**
      * Wrapper function to throw error when table with id was not found
