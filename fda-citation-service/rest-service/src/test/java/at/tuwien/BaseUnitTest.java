@@ -44,17 +44,30 @@ public abstract class BaseUnitTest {
     public final static Long DEPOSIT_1_CONCEPT_RECORD_ID = 143L;
     public final static Long DEPOSIT_1_OWNER = 144L;
 
-    public final static String METADATA_1_TITLE = "My super dataset";
-    public final static UploadTypeDto METADATA_1_UPLOAD_TYPE = UploadTypeDto.DATASET;
-    public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
-
     public final static String CREATOR_1_NAME = "First1 Last1";
     public final static String CREATOR_1_AFFIL = "TU Wien";
     public final static String CREATOR_1_ORCID = "0000-0002-5713-0725";
 
+    public final static CreatorDto CREATOR_1 = CreatorDto.builder()
+            .name(CREATOR_1_NAME)
+            .affiliation(CREATOR_1_AFFIL)
+            .orcid(CREATOR_1_ORCID)
+            .build();
+
     public final static String CREATOR_2_NAME = "First2 Last2";
     public final static String CREATOR_2_AFFIL = "TU Graz";
     public final static String CREATOR_2_ORCID = "0000-0002-2606-4059";
+
+    public final static CreatorDto CREATOR_2 = CreatorDto.builder()
+            .name(CREATOR_2_NAME)
+            .affiliation(CREATOR_2_AFFIL)
+            .orcid(CREATOR_2_ORCID)
+            .build();
+
+    public final static String METADATA_1_TITLE = "My super dataset";
+    public final static UploadTypeDto METADATA_1_UPLOAD_TYPE = UploadTypeDto.DATASET;
+    public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
+    public final static CreatorDto[] METADATA_1_CREATORS = new CreatorDto[] {CREATOR_1, CREATOR_2};
 
     public final static String FILE_1_ID = "deadbeef-deafdeed";
     public final static String FILE_1_NAME = "testdata-othername.csv";
@@ -153,18 +166,6 @@ public abstract class BaseUnitTest {
             .topic(TABLE_1_TOPIC)
             .tdbid(DATABASE_1_ID)
             .depositId(DEPOSIT_1_ID)
-            .build();
-
-    public final static CreatorDto CREATOR_1 = CreatorDto.builder()
-            .name(CREATOR_1_NAME)
-            .affiliation(CREATOR_1_AFFIL)
-            .orcid(CREATOR_1_ORCID)
-            .build();
-
-    public final static CreatorDto CREATOR_2 = CreatorDto.builder()
-            .name(CREATOR_2_NAME)
-            .affiliation(CREATOR_2_AFFIL)
-            .orcid(CREATOR_2_ORCID)
             .build();
 
     public final static MetadataDto METADATA_1 = MetadataDto.builder()

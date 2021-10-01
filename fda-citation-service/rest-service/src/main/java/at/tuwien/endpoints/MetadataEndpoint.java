@@ -40,6 +40,14 @@ public class MetadataEndpoint {
         return metadataService.storeCitation(databaseId, tableId);
     }
 
+    @PutMapping
+    public DepositChangeResponseDto publish(@Valid @RequestParam("id") Long databaseId,
+                                            @Valid @RequestParam("tableId") Long tableId) throws ZenodoApiException,
+            ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
+            ZenodoNotFoundException {
+        return metadataService.publishCitation(databaseId, tableId);
+    }
+
     @GetMapping("/{fileId}")
     public DepositResponseDto find(@Valid @RequestParam("id") Long databaseId,
                                    @Valid @RequestParam("tableId") Long tableId)
