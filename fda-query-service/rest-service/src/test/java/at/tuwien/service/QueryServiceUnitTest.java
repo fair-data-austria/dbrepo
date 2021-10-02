@@ -64,7 +64,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     }
 
     //@Test
-    public void execute_notValidSyntax_fails() throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+    public void execute_notValidSyntax_fails() throws ImageNotSupportedException, DatabaseConnectionException {
         when(queryStoreService.exists(DATABASE_1))
                 .thenReturn(true);
 

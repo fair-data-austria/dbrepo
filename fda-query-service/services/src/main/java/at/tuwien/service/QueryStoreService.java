@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
@@ -9,7 +10,6 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.*;
-import org.jooq.impl.DSL;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -41,53 +40,76 @@ public class QueryStoreService extends JdbcConnector {
     }
 
     @Transactional
-    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException, DatabaseConnectionException, QueryMalformedException, SQLException, QueryStoreException {
-        Database database = findDatabase(id);
-        if(!exists(database)){
+    public List<Query> findAll(Long id) throws ImageNotSupportedException, DatabaseNotFoundException,
+            DatabaseConnectionException, QueryStoreException {
+        final Database database = findDatabase(id);
+        if (!exists(database)) {
             create(id);
         }
-        DSLContext context = open(database);
-        ResultQuery<org.jooq.Record> resultQuery = context.selectQuery();
-        Result<org.jooq.Record> result = resultQuery.fetch();
-        log.debug(result.toString());
+        final DSLContext context;
+        try {
+            context = open(database);
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException("Could not connect to remote container", e);
+        }
+        log.trace("select query {}", context.selectQuery()
+                .fetch()
+                .toString());
         return queryMapper.recordListToQueryList(context
-                .selectFrom(QUERYSTORENAME) //TODO Order after timestamps
+                .selectFrom(QUERYSTORENAME)
+                        .orderBy(field("execution_timestamp"))
                 .fetch());
     }
 
-    public QueryResultDto findOne(Long databaseId, Long queryId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+    @Transactional
+    public QueryDto findOne(Long databaseId, Long queryId) throws DatabaseNotFoundException,
+            ImageNotSupportedException, DatabaseConnectionException, QueryStoreException {
         Database database = findDatabase(databaseId);
-        DSLContext context = open(database);
-        ResultQuery<org.jooq.Record> resultQuery = context.selectQuery();
-        Result<org.jooq.Record> result = resultQuery.fetch();
-        log.debug(result.toString());
-        return queryMapper.recordListToQueryResultDto(context
-                .selectFrom(QUERYSTORENAME).where("id = "+ queryId)
-                .fetch());
+        final DSLContext context;
+        try {
+            context = open(database);
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException("Could not connect to remote container", e);
+        }
+        log.trace("select query {}", context.selectQuery()
+                .fetch()
+                .toString());
+        final List<org.jooq.Record> records = context
+                .selectFrom(QUERYSTORENAME).where(condition("id = " + queryId))
+                .fetch();
+        if (records.size() != 1) {
+            throw new QueryStoreException("Failed to get query from querystore");
+        }
+        return queryMapper.recordToQueryDto(records.get(0));
     }
 
-    public QueryResultDto findLast(Long databaseId) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
-        Database database = findDatabase(databaseId);
-        DSLContext context = open(database);
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM ");
-        sb.append(QUERYSTORENAME);
-        sb.append(" ORDER BY id desc LIMIT 1;");
+    protected QueryResultDto findLast(Long databaseId, Query query) throws DatabaseNotFoundException, SQLException,
+            ImageNotSupportedException {
+        final Database database = findDatabase(databaseId);
+        final DSLContext context = open(database);
+        final StringBuilder sb = new StringBuilder()
+                .append("SELECT * FROM ")
+                .append(QUERYSTORENAME)
+                .append(" ORDER BY id desc LIMIT 1;");
         return queryMapper.recordListToQueryResultDto(context
-                .fetch(sb.toString()));
+                .fetch(sb.toString()), query.getId());
     }
 
     /**
-     * Creates the querystore for a given database
-     * @param databaseId
-     * @throws ImageNotSupportedException
-     * @throws DatabaseNotFoundException
+     * Creates the query store on the remote container for a given datbabase id
+     *
+     * @param databaseId The database id
+     * @throws ImageNotSupportedException  The image is not supported
+     * @throws DatabaseNotFoundException   The database was not found in the metadata database
+     * @throws QueryStoreException         Some error with the query store
+     * @throws DatabaseConnectionException The connection to the remote container was not able to be established
      */
     @Transactional
-    public void create(Long databaseId) throws ImageNotSupportedException, DatabaseNotFoundException, QueryStoreException, SQLException {
-        log.info("Create QueryStore");
+    public void create(Long databaseId) throws ImageNotSupportedException, DatabaseNotFoundException,
+            QueryStoreException, DatabaseConnectionException {
         final Database database = findDatabase(databaseId);
-        if(exists(database)) {
+        log.info("Create query store in database {}", database);
+        if (exists(database)) {
             log.info("Querystore already exists");
             throw new QueryStoreException("Querystore already exists");
         }
@@ -113,36 +135,43 @@ public class QueryStoreService extends JdbcConnector {
         }
     }
 
-    public boolean saveQuery(Database database, Query query, QueryResultDto queryResult) throws SQLException, ImageNotSupportedException {
-        log.debug("Save Query");
-        String q = query.getQuery();
-
-
+    public Query saveQuery(Database database, Query query, QueryResultDto queryResult) throws ImageNotSupportedException, QueryStoreException {
+        log.debug("Save query {} into database {}", query, database);
+        // TODO map in mapper next iteration
         query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
         query.setQueryNormalized(normalizeQuery(query.getQuery()));
-        query.setQueryHash(query.getQueryNormalized().toLowerCase(Locale.ROOT).hashCode() + "");
+        query.setQueryHash(String.valueOf(query.getQueryNormalized().toLowerCase(Locale.ROOT).hashCode()));
         query.setResultHash(query.getQueryHash());
         query.setResultNumber(0);
-        query.setId(Long.valueOf(maxId(database))+1);
-        DSLContext context = open(database);
-        int success = context.insertInto(table(QUERYSTORENAME))
-                .columns(field("id"),
-                        field("doi"),
-                        field("query"),
-                        field("query_hash"),
-                        field("execution_timestamp"),
-                        field("result_hash"),
-                        field("result_number"))
-                .values(query.getId(), "doi/"+query.getId(), query.getQuery(), query.getQueryHash(), query.getExecutionTimestamp(), ""+queryResult.hashCode(), queryResult.getResult().size()).execute();
-        return success == 1 ? true : false;
+        try {
+            query.setId(Long.valueOf(maxId(database, query)) + 1); // FIXME
+            final DSLContext context = open(database);
+            int success = context.insertInto(table(QUERYSTORENAME))
+                    .columns(field("id"),
+                            field("doi"),
+                            field("query"),
+                            field("query_hash"),
+                            field("execution_timestamp"),
+                            field("result_hash"),
+                            field("result_number"))
+                    .values(query.getId(), "doi/" + query.getId(), query.getQuery(), query.getQueryHash(),
+                            query.getExecutionTimestamp(), "" + queryResult.hashCode(),
+                            queryResult.getResult().size()).execute();
+            if (success != 1) {
+                throw new QueryStoreException("Failed to insert record into query store");
+            }
+        } catch (SQLException e) {
+            throw new QueryStoreException("The mapped query is not valid SQL", e);
+        }
+        return query;
     }
 
-    public Integer maxId(Database database) throws SQLException, ImageNotSupportedException {
+    private Integer maxId(Database database, Query query) throws SQLException, ImageNotSupportedException {
         DSLContext context = open(database);
         QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(context
                 .selectFrom(QUERYSTORENAME).orderBy(field("id").desc()).limit(1)
-                .fetch());
-        if(queryResultDto.getResult() == null || queryResultDto.getResult().size() == 0) {
+                .fetch(), query.getId());
+        if (queryResultDto.getResult() == null || queryResultDto.getResult().size() == 0) {
             return 0;
         }
         return (Integer) queryResultDto.getResult().get(0).get("id");
@@ -152,6 +181,7 @@ public class QueryStoreService extends JdbcConnector {
         return query;
     }
 
+    @Deprecated
     private boolean checkValidity(String query) {
         String queryparts[] = query.toLowerCase().split("from");
         if (queryparts[0].contains("select")) {
@@ -162,7 +192,7 @@ public class QueryStoreService extends JdbcConnector {
     }
 
     @Transactional
-    public Database findDatabase(Long id) throws DatabaseNotFoundException {
+    protected Database findDatabase(Long id) throws DatabaseNotFoundException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
             log.error("no database with this id found in metadata database");
@@ -171,8 +201,13 @@ public class QueryStoreService extends JdbcConnector {
         return database.get();
     }
 
-    public boolean exists(Database database) throws SQLException, ImageNotSupportedException {
-        final DSLContext context = open(database);
+    protected boolean exists(Database database) throws ImageNotSupportedException, DatabaseConnectionException {
+        final DSLContext context;
+        try {
+            context = open(database);
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException("Could not connect to remote container", e);
+        }
         return context.select(count())
                 .from("information_schema.tables")
                 .where("table_name like '" + QUERYSTORENAME + "'")

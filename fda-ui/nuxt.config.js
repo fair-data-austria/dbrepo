@@ -5,7 +5,7 @@ import colors from 'vuetify/es5/util/colors'
 require('dotenv').config()
 
 if (!process.env.API) {
-  throw new Error(`Environment variable API_CONTAINER not defined.
+  throw new Error(`Environment variable API not defined.
 
 Have you passed env vars from docker-compose or defined them in your .env file?`)
 }

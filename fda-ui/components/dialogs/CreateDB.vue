@@ -162,7 +162,8 @@ export default {
         return
       }
       this.$toast.success(`Database "${res.data.name}" created.`)
-      this.$emit('refresh')
+      // this.$emit('refresh')
+      await this.$router.push(`/databases/${containerId}/info`)
     }
   }
 }

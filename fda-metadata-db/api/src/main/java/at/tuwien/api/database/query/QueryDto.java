@@ -1,5 +1,6 @@
 package at.tuwien.api.database.query;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,19 +16,25 @@ import java.sql.Timestamp;
 @Setter
 @Builder
 public class QueryDto {
+
     private Long id;
 
-    private Timestamp execution_timestamp;
+    @JsonProperty("execution_timestamp")
+    private Timestamp executionTimestamp;
 
     private String query;
 
     private String doi;
 
-    private String query_normalized;
+    @JsonProperty("query_normalized")
+    private String queryNormalized;
 
-    private String query_hash;
+    @JsonProperty("query_hash")
+    private String queryHash;
 
-    private String result_hash;
+    @JsonProperty("result_hash")
+    private String resultHash;
 
-    private Integer result_number;
+    @JsonProperty("result_number")
+    private Long resultNumber;
 }

@@ -62,7 +62,7 @@ public interface DataService {
      * @throws ImageNotSupportedException  The image is not supported.
      * @throws DatabaseConnectionException The connection to the remote database was unsuccessful.
      */
-    QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, @NonNull Instant timestamp,
-                             @NonNull Long page, @NonNull Long size) throws TableNotFoundException,
+    QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp,
+                             Long page, Long size) throws TableNotFoundException,
             DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException, TableMalformedException;
 }

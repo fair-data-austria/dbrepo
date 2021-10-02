@@ -4,22 +4,34 @@
 
 # FAIR Data Austria Database Repository
 
-## Install
-
-Obtain the newest
-
 ## Build
+
+Local development minimum requirements:
+
+- Ubuntu 18.04 LTS (Rocky Linux is also supported)
+- Apache Maven 3.0.0
+- OpenJDK 11.0.0
+- Docker Engine 20.10.0
+- Docker Compose 1.28.0
 
 Everything is handled by compose, just build it by running:
 
 ```bash
 docker-compose build
 ```
-Local development minimum requirements:
 
-- Ubuntu 18.04 LTS (RPM-based operating systems are also tested)
-- Apache Maven 3.0.0
-- OpenJDK 11.0.0
+## Run
+
+To use the citation service you need to provide a
+[Zenodo API token](https://zenodo.org/account/settings/applications/tokens/new/). Create a `.env` file at the project
+root. A sample file is available at `.env.example`
+
+```bash
+ZENODO_API_KEY=
+API=http://fda-gateway-service:9095
+```
+
+## Development
 
 The backend endpoints are accessible in the browser:
 
@@ -39,16 +51,7 @@ Other:
 - [Discovery Endpoint](http://localhost:9090/) (Eureka)
 - [Gateway Endpoint](http://localhost:9095/swagger-ui/) (Webflux)
 
-## Deployment
-
-Local deployment minimum versions:
-
-- Docker Engine 20.10.0
-- Docker Compose 1.28.0
-
-## Deployment
-
-The pipeline is set-up to build and test all commits. A commit to dev or master branch triggers additional jobs.
+## Contribute
 
 Contributions are always welcome and encouraged, simply fork the repository and
 contact [Andreas Rauber](http://www.ifs.tuwien.ac.at/~andi/).
