@@ -85,6 +85,11 @@ export default {
       ]
     }
   },
+  computed: {
+    databaseId () {
+      return this.$route.params.database_id
+    }
+  },
   mounted () {
     this.addColumn()
   },
@@ -140,10 +145,12 @@ export default {
         columns: this.columns
       }
       try {
-        const res = await this.$axios.post(`/api/database/${this.$route.params.database_id}/table`, data)
+        const res = await this.$axios.post(`/api/database/${this.databaseId}/table`, data)
         if (res.status === 201) {
           this.$toast.success('Table created.')
-          this.$root.$emit('table-create', res.data)
+          // this.$root.$emit('table-create', res.data)
+          const tableId = res.data.id
+          await this.$router.push(`/databases/${this.databaseId}/tables/${tableId}`)
         } else {
           this.$toast.error(`Could not create table: status ${res.status}`)
         }

@@ -31,10 +31,18 @@
         <highlightjs autodetect :code="query.formatted" />
       </v-col>
       <v-col cols="3" class="actions">
-        <v-btn class="execute" color="primary" @click="execute">
-          <v-icon>mdi-refresh</v-icon>
-          Execute
-        </v-btn>
+        <div>
+          <v-btn class="execute" color="primary" @click="execute">
+            <v-icon left>mdi-run</v-icon>
+            Execute
+          </v-btn>
+        </div>
+        <div>
+          <v-btn class="execute" color="secondary" @click="save">
+            <v-icon left>mdi-save</v-icon>
+            Save
+          </v-btn>
+        </div>
       </v-col>
     </v-row>
     <v-row>
@@ -48,6 +56,14 @@
           class="elevation-1" />
       </v-col>
     </v-row>
+    <v-row>
+      <v-col>
+        <v-btn v-if="queryId" color="primary" :to="`/databases/${databaseId}/queries/${queryId}`">
+          <v-icon left>mdi-fingerprint</v-icon>
+          Obtain Query DOI
+        </v-btn>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
@@ -58,6 +74,7 @@ export default {
       table: null,
       tables: [],
       tableDetails: null,
+      queryId: null,
       query: {},
       select: [],
       clauses: [],
@@ -75,6 +92,9 @@ export default {
     },
     columnNames () {
       return this.selectItems && this.selectItems.map(s => s.name)
+    },
+    databaseId () {
+      return this.$route.params.database_id
     }
   },
   watch: {
@@ -89,7 +109,7 @@ export default {
     // XXX same as in TableList
     try {
       const res = await this.$axios.get(
-        `/api/database/${this.$route.params.database_id}/table`)
+        `/api/database/${this.databaseId}/table`)
       this.tables = res.data
     } catch (err) {
       this.$toast.error('Could not list table.')
@@ -100,12 +120,13 @@ export default {
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
-        const res = await this.$axios.put(`/api/database/${this.$route.params.database_id}/query`, {
+        const res = await this.$axios.put(`/api/database/${this.databaseId}/query`, {
           Query: query
         })
         console.debug('query result', res)
         this.$toast.success('Successfully executed query')
         this.loading = false
+        this.queryId = res.data.id
         this.result.headers = this.select.map((s) => {
           return { text: s.name, value: 'mdb_' + s.name, sortable: false }
         })
@@ -113,6 +134,23 @@ export default {
       } catch (err) {
         console.error('query execute', err)
         this.$toast.error('Could not execute query')
+        this.loading = false
+      }
+    },
+    async save () {
+      const query = this.query.sql.replaceAll('`', '')
+      this.loading = true
+      try {
+        const res = await this.$axios.put(`/api/database/${this.databaseId}/save`, {
+          Query: query
+        })
+        console.debug('query result', res)
+        this.$toast.success('Successfully saved query')
+        this.loading = false
+        this.queryId = res.data.id
+      } catch (err) {
+        console.error('query save', err)
+        this.$toast.error('Could not save query')
         this.loading = false
       }
     },
@@ -138,7 +176,7 @@ export default {
     async loadColumns () {
       const tableId = this.table.id
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${tableId}`)
+        const res = await this.$axios.get(`/api/database/${this.databaseId}/table/${tableId}`)
         this.tableDetails = res.data
         this.buildQuery()
       } catch (err) {

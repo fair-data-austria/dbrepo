@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
@@ -23,18 +24,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.print.Pageable;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
-import static org.jooq.impl.DSL.constraint;
 
 @Log4j2
 @Service
@@ -53,51 +49,53 @@ public class QueryService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
-        Database database = findDatabase(id);
-        if(database.getContainer().getImage().getDialect().equals("MARIADB")){
-            if(!queryStoreService.exists(database)) {
+    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException,
+            JSQLParserException, SQLException, QueryStoreException, DatabaseConnectionException {
+        final Database database = findDatabase(id);
+        if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
+            if (!queryStoreService.exists(database)) {
                 queryStoreService.create(id);
             }
         }
-        DSLContext context = open(database);
+        final DSLContext context = open(database);
         //TODO Fix that import
-        StringBuilder parsedQuery = new StringBuilder();
-        String q = parse(query, database).getQuery();
-        if(q.charAt(q.length()-1) == ';') {
-            parsedQuery.append(q.substring(0, q.length()-2));
+        final StringBuilder parsedQuery = new StringBuilder();
+        final String q = parse(query, database).getQuery();
+        if (q.charAt(q.length() - 1) == ';') {
+            parsedQuery.append(q.substring(0, q.length() - 2));
         } else {
             parsedQuery.append(q);
         }
         parsedQuery.append(";");
 
-        ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
-        Result<Record> result = resultQuery.fetch();
-        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
+        final ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
+        final Result<Record> result = resultQuery.fetch();
+        final QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result, query.getId());
         log.debug("Result of the query is: \n {}", result.toString());
 
         // Save the query in the store
-        boolean b = queryStoreService.saveQuery(database, query, queryResultDto);
-        log.debug("Save query returned code {}", b);
+        final Query out = queryStoreService.saveQuery(database, query, queryResultDto);
+        queryResultDto.setId(out.getId());
+        log.debug("Save query {}", out);
         return queryResultDto;
     }
 
-    private Query parse(Query query, Database database) throws SQLException, ImageNotSupportedException, JSQLParserException {
+    private Query parse(Query query, Database database) throws JSQLParserException {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         query.setExecutionTimestamp(ts);
         CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
         Statement statement = parserRealSql.parse(new StringReader(query.getQuery()));
         log.debug("Given query {}", query.getQuery());
 
-        if(statement instanceof Select) {
+        if (statement instanceof Select) {
             Select selectStatement = (Select) statement;
-            PlainSelect ps = (PlainSelect)selectStatement.getSelectBody();
+            PlainSelect ps = (PlainSelect) selectStatement.getSelectBody();
             List<SelectItem> selectItems = ps.getSelectItems();
 
             //Parse all tables
             List<FromItem> fromItems = new ArrayList<>();
             fromItems.add(ps.getFromItem());
-            if(ps.getJoins() != null && ps.getJoins().size() > 0) {
+            if (ps.getJoins() != null && ps.getJoins().size() > 0) {
                 for (Join j : ps.getJoins()) {
                     if (j.getRightItem() != null) {
                         fromItems.add(j.getRightItem());
@@ -106,55 +104,54 @@ public class QueryService extends JdbcConnector {
             }
             //Checking if all tables exist
             List<TableColumn> allColumns = new ArrayList<>();
-            for(FromItem f : fromItems) {
+            for (FromItem f : fromItems) {
                 boolean i = false;
                 log.debug("from item iterated through: {}", f);
-                for(Table t : database.getTables()) {
-                    if(f.toString().equals(t.getInternalName()) || f.toString().equals(t.getName())) {
+                for (Table t : database.getTables()) {
+                    if (f.toString().equals(t.getInternalName()) || f.toString().equals(t.getName())) {
                         allColumns.addAll(t.getColumns());
-                        i=false;
+                        i = false;
                         break;
                     }
                     i = true;
                 }
-                if(i) {
-                    throw new JSQLParserException("Table "+f.toString() + " does not exist");
+                if (i) {
+                    throw new JSQLParserException("Table " + f.toString() + " does not exist");
                 }
             }
 
             //Checking if all columns exist
-            for(SelectItem s : selectItems) {
+            for (SelectItem s : selectItems) {
                 String select = s.toString();
-                if(select.trim().equals("*")) {
+                if (select.trim().equals("*")) {
                     log.debug("Please do not use * to query data");
                     continue;
                 }
                 // ignore prefixes
-                if(select.contains(".")) {
+                if (select.contains(".")) {
                     log.debug(select);
                     select = select.split("\\.")[1];
                 }
                 boolean i = false;
-                for(TableColumn tc : allColumns ) {
+                for (TableColumn tc : allColumns) {
                     log.debug("{},{},{}", tc.getInternalName(), tc.getName(), s);
-                    if(select.equals(tc.getInternalName()) || select.toString().equals(tc.getName())) {
-                        i=false;
+                    if (select.equals(tc.getInternalName()) || select.toString().equals(tc.getName())) {
+                        i = false;
                         break;
                     }
                     i = true;
                 }
-                if(i) {
-                    throw new JSQLParserException("Column "+s.toString() + " does not exist");
+                if (i) {
+                    throw new JSQLParserException("Column " + s.toString() + " does not exist");
                 }
             }
             //TODO Future work
-            if(ps.getWhere() != null) {
+            if (ps.getWhere() != null) {
                 Expression where = ps.getWhere();
                 log.debug("Where clause: {}", where);
             }
             return query;
-        }
-        else {
+        } else {
             throw new JSQLParserException("SQL Query is not a SELECT statement - please only use SELECT statements");
         }
 
@@ -170,85 +167,98 @@ public class QueryService extends JdbcConnector {
         return database.get();
     }
 
-
-    public QueryResultDto reexecute(Long databaseId, Long queryId, Integer page, Integer size) throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
+    /**
+     * Re-executes a query with given id in a database by given id, returns a result of size and offset
+     *
+     * @param databaseId The database id
+     * @param queryId    The query id
+     * @param page       The offset
+     * @param size       The size
+     * @return The result set
+     * @throws DatabaseNotFoundException   The database was not found in the metadata database
+     * @throws SQLException                The mapped query is not valid SQL
+     * @throws ImageNotSupportedException  The image is not supported
+     * @throws DatabaseConnectionException The remote container is not available right now
+     * @throws QueryStoreException         There was an error with the query store in the remote container
+     */
+    public QueryResultDto reexecute(Long databaseId, Long queryId, Integer page, Integer size)
+            throws DatabaseNotFoundException, ImageNotSupportedException,
+            QueryStoreException, QueryMalformedException, DatabaseConnectionException {
         log.info("re-execute query with the id {}", queryId);
-        DSLContext context = open(findDatabase(databaseId));
-        QueryResultDto savedQuery = queryStoreService.findOne(databaseId, queryId);
-        StringBuilder query = new StringBuilder();
+        final DSLContext context;
+        try {
+            context = open(findDatabase(databaseId));
+        } catch (SQLException e) {
+            throw new QueryStoreException("Could not establish connection to query store", e);
+        }
+        final QueryDto savedQuery = queryStoreService.findOne(databaseId, queryId);
+        final StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM (");
-        String q = (String)savedQuery.getResult().get(0).get("query");
-        if(q.toLowerCase(Locale.ROOT).contains("where")) {
+        final String q = savedQuery.getQuery();
+        if (q.toLowerCase(Locale.ROOT).contains("where")) {
             String[] split = q.toLowerCase(Locale.ROOT).split("where");
-            if(split.length > 2) {
+            if (split.length > 2) {
                 //TODO FIX SUBQUERIES WITH MULTIPLE Wheres
-                throw new SQLException("Query Contains Subqueries, this will be supported in a future version");
+                throw new QueryMalformedException("Query Contains Subqueries, this will be supported in a future version");
             } else {
-                query.append(split[0]);
-                query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
-                Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
-                query.append(t.toLocalDateTime().toString());
-
-                query.append("' WHERE");
-                query.append(split[1]);
-                query.append(") as  tab");
+                query.append(split[0])
+                        .append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                        .append(savedQuery.getExecutionTimestamp().toLocalDateTime().toString())
+                        .append("' WHERE")
+                        .append(split[1])
+                        .append(") as  tab");
             }
         } else {
-            query.append(q);
-            query.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'");
-            Timestamp t = (Timestamp)savedQuery.getResult().get(0).get("execution_timestamp");
-
-            query.append(t.toLocalDateTime().toString());
-            query.append("') as  tab");
+            query.append(q)
+                    .append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                    .append(savedQuery.getExecutionTimestamp().toLocalDateTime().toString())
+                    .append("') as  tab");
         }
 
-
-        if(page != null && size != null) {
+        if (page != null && size != null) {
             page = Math.abs(page);
             size = Math.abs(size);
-            query.append(" LIMIT ");
-            query.append(size);
-            query.append(" OFFSET ");
-            query.append(page * size);
+            query.append(" LIMIT ")
+                    .append(size)
+                    .append(" OFFSET ")
+                    .append(page * size);
         }
         query.append(";");
-
-        log.debug(query.toString());
-        ResultQuery<Record> resultQuery = context.resultQuery(query.toString());
-        Result<Record> result = resultQuery.fetch();
-        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
-        log.debug(result.toString());
-
-        return queryResultDto;
+        final Result<org.jooq.Record> result = context.resultQuery(query.toString())
+                .fetch();
+        log.debug("query string {}", query.toString());
+        log.trace("query result {}", result.toString());
+        return queryMapper.recordListToQueryResultDto(result, queryId);
     }
 
     @Transactional
-    public QueryResultDto save(Long id, Query query) throws SQLException, ImageNotSupportedException, DatabaseNotFoundException, QueryStoreException, JSQLParserException {
+    public QueryResultDto save(Long id, Query query) throws SQLException, ImageNotSupportedException,
+            DatabaseNotFoundException, QueryStoreException, JSQLParserException, DatabaseConnectionException {
         Database database = findDatabase(id);
-        if(database.getContainer().getImage().getDialect().equals("MARIADB")){
-            if(!queryStoreService.exists(database)) {
+        if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
+            if (!queryStoreService.exists(database)) {
                 queryStoreService.create(id);
             }
         }
-        DSLContext context = open(database);
-        StringBuilder parsedQuery = new StringBuilder();
-        String q = parse(query, database).getQuery();
-        if(q.charAt(q.length()-1) == ';') {
-            parsedQuery.append(q.substring(0, q.length()-2));
+        final DSLContext context = open(database);
+        final StringBuilder parsedQuery = new StringBuilder();
+        final String q = parse(query, database).getQuery();
+        if (q.charAt(q.length() - 1) == ';') {
+            parsedQuery.append(q.substring(0, q.length() - 2));
         } else {
             parsedQuery.append(q);
         }
         parsedQuery.append(";");
 
-        ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
-        Result<Record> result = resultQuery.fetch();
-        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result);
+        final ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
+        final Result<Record> result = resultQuery.fetch();
+        final QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result, query.getId());
         log.debug("Result of the query is: \n {}", result.toString());
 
         // Save the query in the store
-        boolean b = queryStoreService.saveQuery(database, query, queryResultDto);
-        log.debug("Save query returned code {}", b);
-        QueryResultDto savedQuery = queryStoreService.findLast(database.getId());
-        return savedQuery;
+        final Query out = queryStoreService.saveQuery(database, query, queryResultDto);
+        queryResultDto.setId(out.getId());
+        log.debug("Save query {}", out);
+        return queryStoreService.findLast(database.getId(), query);
     }
 }
