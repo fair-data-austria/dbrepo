@@ -196,6 +196,7 @@ services:
     container_name: fda-search-service
     hostname: fda-search-service
     image: elasticsearch:7.13.4
+    command: ["elasticsearch", "-Elogger.level=WARN"]
     networks:
       - fda-public
     environment:
