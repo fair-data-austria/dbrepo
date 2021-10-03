@@ -1,27 +1,99 @@
 <template>
   <div>
-    <v-card>
-      <v-card-title v-if="!loading">
-        Cite dataset for query #{{ queryId }}
-      </v-card-title>
-      <v-card-subtitle v-if="!loading">
-        Executed {{ query.execution_timestamp | date }}
-      </v-card-subtitle>
-      <v-card-text>
-        <pre>{{ query.query }}</pre>
-        TODO, metadata needed for doi
-      </v-card-text>
-    </v-card>
+    <v-form
+      ref="form"
+      lazy-validation>
+      <v-card>
+        <v-card-title v-if="!loading">
+          Cite Query No. {{ queryId }}
+        </v-card-title>
+        <v-card-subtitle v-if="!loading">
+          Executed {{ query.execution_timestamp }}
+        </v-card-subtitle>
+        <v-card-text>
+          <p>
+            This service allows researchers to publish their dataset on <a href="https://zenodo.org/">Zenodo.org</a>, a
+            open science preservation service provided by European Organization for Nuclear Research CERN with address
+            in Geneva, Switzerland. Note that once published, your dataset cannot be deleted anymore and a DOI is issued.
+          </p>
+          <v-alert
+            border="left"
+            color="amber lighten-4">
+            <pre>{{ query.query }}</pre>
+          </v-alert>
+          <v-select
+            :items="accessRights"
+            class="col-lg-4 col-md-6 pa-0"
+            label="Access Right"></v-select>
+          <v-text-field
+            v-model="title"
+            class="pa-0"
+            :rules="[rules.required]"
+            label="Query Title"
+            required></v-text-field>
+          <v-textarea
+            v-model="description"
+            class="pa-0"
+            :rules="[rules.required, rules.descriptionMin]"
+            label="Query Description"
+            counter
+            rows="2"
+            hint="Minimum 100 Characters"
+            required></v-textarea>
+        </v-card-text>
+      </v-card>
+      <v-btn color="blue-grey" class="mt-4 mb-4 white--text" x-small>
+        <v-icon left>mdi-plus</v-icon>
+        Add Author
+      </v-btn>
+      <v-card class="space">
+        <v-card-text>
+          <v-row>
+            <v-col
+              cols="12"
+              md="4">
+              <v-text-field
+                :rules="[rules.required]"
+                class="pa-0"
+                label="Firstname Surname"
+                required></v-text-field>
+            </v-col>
+            <v-col
+              cols="12"
+              md="4">
+              <v-text-field
+                :rules="[rules.required]"
+                class="pa-0"
+                label="Affiliation"
+                required></v-text-field>
+            </v-col>
+            <v-col
+              cols="12"
+              md="4">
+              <v-text-field
+                class="pa-0"
+                label="ORCiD"
+                required></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+      <v-btn color="primary" class="mt-4">
+        <v-icon left>mdi-publish</v-icon>
+        Publish
+      </v-btn>
+    </v-form>
   </div>
 </template>
 <script>
 export default {
   name: 'QueryDoiMetadata',
-  components: {
-  },
+  components: {},
   data () {
     return {
       loading: false,
+      title: null,
+      description: null,
       query: {
         hash: null,
         query: null,
@@ -29,6 +101,10 @@ export default {
         result_hash: null,
         result_number: null,
         doi: null
+      },
+      rules: {
+        required: value => !!value || 'Required',
+        descriptionMin: value => (value || '').length >= 100 || 'Minimum 100 characters'
       }
     }
   },
@@ -38,6 +114,9 @@ export default {
     },
     databaseId () {
       return this.$route.params.database_id
+    },
+    accessRights () {
+      return ['open']
     }
   },
   mounted () {

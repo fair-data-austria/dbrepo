@@ -32,12 +32,6 @@
               </v-btn>
               {{ item.name }}
             </td>
-            <!-- <td>
-                 {{ formatDate(item.Created) }}<br>
-                 <span class="color-grey">
-                 ({{ relativeDate(item.Created) }})
-                 </span>
-                 </td> -->
             <td>{{ item.description }}</td>
             <td>{{ item.engine }}</td>
             <td>{{ item.created }}</td>

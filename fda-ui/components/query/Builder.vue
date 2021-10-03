@@ -31,18 +31,14 @@
         <highlightjs autodetect :code="query.formatted" />
       </v-col>
       <v-col cols="3" class="actions">
-        <div>
-          <v-btn class="execute" color="primary" @click="execute">
-            <v-icon left>mdi-run</v-icon>
-            Execute
-          </v-btn>
-        </div>
-        <div>
-          <v-btn class="execute" color="secondary" @click="save">
-            <v-icon left>mdi-save</v-icon>
-            Save
-          </v-btn>
-        </div>
+        <v-btn class="execute" color="primary" @click="execute">
+          <v-icon left>mdi-run</v-icon>
+          Execute
+        </v-btn>
+        <div class="break"></div>
+        <v-btn class="execute" @click="save">
+          Save
+        </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -198,6 +194,12 @@ main.scss file from vuetify, because it paints it red */
 .actions {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0;
 }
 </style>

@@ -1,7 +1,9 @@
 <template>
   <div>
     <DBToolbar v-model="db" />
-    <TableList />
+    <v-tabs-items>
+      <TableList />
+    </v-tabs-items>
   </div>
 </template>
 <script>

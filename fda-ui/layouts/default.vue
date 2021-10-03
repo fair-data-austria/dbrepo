@@ -6,8 +6,7 @@
           v-for="(item, i) in filteredItems"
           :key="i"
           :to="item.to"
-          router
-          exact>
+          router>
           <v-list-item-action>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-action>
