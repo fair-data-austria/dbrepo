@@ -15,9 +15,9 @@
             <blockquote>
               <p>{{ description }}</p>
             </blockquote>
-            <p>
+            <span>
               Created {{ db.created }}
-            </p>
+            </span>
           </v-card-text>
         </v-card>
       </v-tab-item>

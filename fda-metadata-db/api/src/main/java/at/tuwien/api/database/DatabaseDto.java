@@ -2,6 +2,7 @@ package at.tuwien.api.database;
 
 import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.image.ImageDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
@@ -29,6 +30,7 @@ public class DatabaseDto {
     private String name;
 
     @NotBlank
+    @JsonProperty("internal_name")
     @ApiModelProperty(name = "database internal name", example = "weather_australia")
     private String internalName;
 

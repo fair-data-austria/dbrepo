@@ -1,14 +1,16 @@
 <template>
   <div v-if="db">
     <DBToolbar />
-    <v-card>
-      <v-card-title>
-        Database Administration
-      </v-card-title>
-      <v-card-text>
-        <v-btn outlined color="error" @click="dialogDelete = true">Delete</v-btn>
-      </v-card-text>
-    </v-card>
+    <v-tabs-items>
+      <v-card flat>
+        <v-card-title>
+          Database Administration
+        </v-card-title>
+        <v-card-text>
+          <v-btn outlined color="error" @click="dialogDelete = true">Delete</v-btn>
+        </v-card-text>
+      </v-card>
+    </v-tabs-items>
     <v-dialog v-model="dialogDelete" max-width="500">
       <v-card>
         <v-card-title class="headline">

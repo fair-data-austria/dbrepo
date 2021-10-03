@@ -174,13 +174,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
     @Transactional
     public QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp,
                                     Long page, Long size) throws TableNotFoundException,
-            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException, TableMalformedException {
-        if (page < 0) {
-            throw new TableMalformedException("Page number cannot be lower than 0");
-        }
-        if (size <= 0) {
-            throw new TableMalformedException("Page number cannot be lower or equal to 0");
-        }
+            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException {
         final Table table = findById(databaseId, tableId);
         try {
             final DSLContext context = open(table.getDatabase());
@@ -190,16 +184,18 @@ public class MariaDataService extends JdbcConnector implements DataService {
                 StringBuilder stringBuilder = new StringBuilder()
                         .append("SELECT * FROM ")
                         .append(table.getInternalName());
-                stringBuilder.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
-                        .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
-                        .append("'");
-                page = Math.abs(page);
-                size = Math.abs(size);
-                stringBuilder.append(" LIMIT ")
-                        .append(size)
-                        .append(" OFFSET ")
-                        .append(page * size)
-                        .append(";");
+                if (timestamp != null) {
+                    stringBuilder.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                            .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
+                            .append("'");
+                }
+                if (page != null && size != null) {
+                    stringBuilder.append(" LIMIT ")
+                            .append(size)
+                            .append(" OFFSET ")
+                            .append(page * size)
+                            .append(";");
+                }
                 return queryMapper.recordListToQueryResultDto(context.fetch(stringBuilder.toString()));
             } else {
                 log.debug("Not MariaDB, can only provide legacy pagination");
