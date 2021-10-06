@@ -1,20 +1,14 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.zenodo.deposit.DepositChangeRequestDto;
-import at.tuwien.api.zenodo.deposit.DepositChangeResponseDto;
-import at.tuwien.api.zenodo.deposit.MetadataDto;
-import at.tuwien.api.zenodo.deposit.UploadTypeDto;
-import at.tuwien.api.zenodo.files.FileResponseDto;
-import at.tuwien.api.zenodo.files.FileUploadDto;
+import at.tuwien.api.database.deposit.files.FileUploadDto;
 import at.tuwien.config.ReadyConfig;
+import at.tuwien.entities.database.query.File;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
-import at.tuwien.repository.jpa.ContainerRepository;
-import at.tuwien.repository.jpa.DatabaseRepository;
-import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.repository.jpa.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,121 +48,82 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private ZenodoMetadataService metadataService;
 
+    @Autowired
+    private FileRepository fileRepository;
+
+    @Autowired
+    private QueryRepository queryRepository;
+
     @BeforeEach
     @Transactional
     public void beforeEach() {
         containerRepository.save(CONTAINER_1);
         databaseRepository.save(DATABASE_1);
         tableRepository.save(TABLE_1);
+        queryRepository.save(QUERY_1);
     }
 
     @Test
-    public void createResource_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoFileTooLargeException, MetadataDatabaseNotFoundException,
-            ZenodoUnavailableException {
-        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
-                ResourceUtils.getFile("classpath:csv/testdata.csv")));
+    public void createResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
+            ZenodoAuthenticationException, MetadataDatabaseNotFoundException,
+            ZenodoUnavailableException, QueryNotFoundException {
 
-        /* request */
-        final FileUploadDto request = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
+        /* integrate */
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
-        final FileResponseDto response2 = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
-        assertEquals(FILE_1_NAME, response2.getFilename());
-        assertEquals(FILE_1_CHECKSUM, response2.getChecksum());
-        assertEquals(FILE_1_SIZE, response2.getFilesize());
+        final File response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
     }
 
     @Test
-    @Disabled("slow internet")
     public void createResource_largeFile_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoFileTooLargeException, MetadataDatabaseNotFoundException,
-            ZenodoUnavailableException {
+            ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
+            QueryNotFoundException {
         final MockMultipartFile file = new MockMultipartFile("weatherAUS.csv", FileUtils.readFileToByteArray(
                 ResourceUtils.getFile("classpath:csv/weatherAUS.csv")));
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         final FileUploadDto request = FileUploadDto.builder()
                 .name(FILE_2_NAME)
                 .build();
 
         /* test */
-        final FileResponseDto response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
-        assertEquals(FILE_2_NAME, response.getFilename());
-        assertEquals(FILE_2_CHECKSUM, response.getChecksum());
-        assertEquals(FILE_2_SIZE, response.getFilesize());
+        final File response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        assertEquals(FILE_1_ID, response.getId());
     }
 
     @Test
-    public void listAll_notFound_fails() {
+    public void listAll_succeeds() {
 
         /* test */
-        assertThrows(ZenodoNotFoundException.class, () -> {
-            fileService.listResources(DATABASE_1_ID, TABLE_1_ID);
-        });
-    }
-
-    @Test
-    public void listAll_succeeds() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoNotFoundException, ZenodoAuthenticationException, IOException, ZenodoFileTooLargeException,
-            ZenodoUnavailableException {
-        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
-                ResourceUtils.getFile("classpath:csv/testdata.csv")));
-
-        /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        final FileUploadDto upload = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
-        final FileResponseDto fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, upload, file);
-
-        /* test */
-        final List<FileResponseDto> listResponse = fileService.listResources(DATABASE_1_ID, TABLE_1_ID);
-        assertEquals(1, listResponse.size());
-        assertEquals(FILE_1_CHECKSUM, listResponse.get(0).getChecksum());
-        assertEquals(fileResponse.getId(), listResponse.get(0).getId());
+        final List<File> response = fileService.listResources();
+        assertEquals(1, response.size());
     }
 
     @Test
     public void findResource_noContent_fails() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoFileTooLargeException, ZenodoNotFoundException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, IOException {
-        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
-                ResourceUtils.getFile("classpath:csv/testdata.csv")));
+            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        final FileUploadDto upload = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
-        final FileResponseDto fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, upload, file);
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final File fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
 
         /* test */
-        final FileResponseDto findResponse = fileService.findResource(DATABASE_1_ID, TABLE_1_ID, fileResponse.getId());
-        assertEquals(FILE_1_CHECKSUM, findResponse.getChecksum());
+        final File findResponse = fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         assertEquals(fileResponse.getId(), findResponse.getId());
     }
 
     @Test
     public void deleteRessource_succeeds() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoFileTooLargeException, ZenodoNotFoundException, ZenodoAuthenticationException, IOException,
-            ZenodoUnavailableException {
-        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
-                ResourceUtils.getFile("classpath:csv/testdata.csv")));
+            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* request */
-        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        final FileUploadDto upload = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
-        final FileResponseDto fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, upload, file);
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final File fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
 
         /* test */
-        fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, fileResponse.getId());
+        fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
     }
 
 }

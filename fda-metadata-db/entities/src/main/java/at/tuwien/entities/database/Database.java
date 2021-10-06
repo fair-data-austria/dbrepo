@@ -25,7 +25,6 @@ import java.util.List;
 @Document(indexName = "databaseindex")
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @SQLDelete(sql = "update mdb_databases set deleted = NOW() where id = ?")
 @javax.persistence.Table(name = "mdb_databases")
 public class Database {

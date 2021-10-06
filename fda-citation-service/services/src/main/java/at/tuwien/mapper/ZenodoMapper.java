@@ -1,6 +1,12 @@
 package at.tuwien.mapper;
 
+import at.tuwien.api.database.deposit.DepositDto;
+import at.tuwien.api.database.deposit.DepositTzDto;
+import at.tuwien.api.database.query.QueryDto;
+import at.tuwien.entities.database.query.Query;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +16,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -32,5 +41,18 @@ public interface ZenodoMapper {
         bodyBuilder.part("name", name);
         return bodyBuilder.build();
     }
+
+    Query depositTzDtoToQuery(DepositTzDto data);
+
+    default Instant localDateTimeToInstant(LocalDateTime data) {
+        return data.toInstant(ZoneOffset.UTC);
+    }
+
+    @Mappings({
+            @Mapping(source = "created", target = "executionTimestamp"),
+            @Mapping(source = "metadata.prereserveDoi.doi", target = "doi"),
+            @Mapping(source = "recordId", target = "depositId"),
+    })
+    QueryDto depositChangeResponseDtoToQueryDto(DepositDto data);
 
 }

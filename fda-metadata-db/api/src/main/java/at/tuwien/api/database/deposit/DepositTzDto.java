@@ -1,6 +1,8 @@
-package at.tuwien.api.zenodo.deposit;
+package at.tuwien.api.database.deposit;
 
-import at.tuwien.api.zenodo.files.FileResponseDto;
+import at.tuwien.api.database.deposit.files.FileDto;
+import at.tuwien.api.database.deposit.metadata.CreatorDto;
+import at.tuwien.api.database.deposit.metadata.MetadataDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -13,7 +15,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepositChangeResponseDto {
+public class DepositTzDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")
     private Instant created;
@@ -40,7 +42,7 @@ public class DepositChangeResponseDto {
 
     private CreatorDto[] contributors;
 
-    private List<FileResponseDto> files;
+    private List<FileDto> files;
 
     private Long id;
 

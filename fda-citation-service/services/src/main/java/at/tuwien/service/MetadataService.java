@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
-import at.tuwien.api.zenodo.deposit.*;
+import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +17,8 @@ public interface MetadataService {
      * @param databaseId The database-table id pair
      * @param tableId    The database-table id pair
      * @return The deposists
-     * @throws ZenodoAuthenticationException Token invalid
-     * @throws ZenodoApiException            Something other went wrong
      */
-    List<DepositResponseDto> listCitations(Long databaseId, Long tableId) throws ZenodoAuthenticationException, ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException;
+    List<Query> listCitations(Long databaseId, Long tableId);
 
     /**
      * Create a new deposit
@@ -31,7 +30,7 @@ public interface MetadataService {
      * @throws ZenodoApiException            Something other went wrong
      * @throws ZenodoUnavailableException    The remote server is not available
      */
-    DepositChangeResponseDto storeCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
+    Query storeCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
             ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException;
 
     /**
@@ -39,6 +38,7 @@ public interface MetadataService {
      *
      * @param databaseId The database-table id pair
      * @param tableId    The database-table id pair
+     * @param queryId    The query id
      * @param data       The new metadata
      * @return The updated deposit
      * @throws ZenodoAuthenticationException Token invalid
@@ -46,15 +46,18 @@ public interface MetadataService {
      * @throws ZenodoNotFoundException       The deposit id was not found on the remote server
      * @throws ZenodoUnavailableException    The remote server is not available
      */
-    DepositChangeResponseDto updateCitation(Long databaseId, Long tableId, DepositChangeRequestDto data)
+    @Transactional
+    Query updateCitation(Long databaseId, Long tableId, Long queryId,
+                         DepositChangeRequestDto data)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            MetadataDatabaseNotFoundException, ZenodoUnavailableException;
+            ZenodoUnavailableException, QueryNotFoundException;
 
     /**
      * Find a deposit by database-table id pair
      *
      * @param databaseId The database-table id pair
      * @param tableId    The database-table id pair
+     * @param queryId    The query id
      * @return The deposit
      * @throws ZenodoAuthenticationException     Token invalid
      * @throws ZenodoApiException                Something other went wrong
@@ -62,29 +65,32 @@ public interface MetadataService {
      * @throws MetadataDatabaseNotFoundException The deposit id was not found in the metadata database
      * @throws ZenodoUnavailableException        The remote server is not available
      */
-    DepositResponseDto findCitation(Long databaseId, Long tableId)
+    Query findCitation(Long databaseId, Long tableId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            MetadataDatabaseNotFoundException, ZenodoUnavailableException;
+            MetadataDatabaseNotFoundException, ZenodoUnavailableException, QueryNotFoundException;
 
     /**
      * Delete a deposit from a given id
      *
      * @param databaseId The database-table id pair
      * @param tableId    The database-table id pair
+     * @param queryId    The query id
      * @throws ZenodoAuthenticationException     Token invalid
      * @throws ZenodoApiException                Something other went wrong
      * @throws MetadataDatabaseNotFoundException The deposit id was not found in the metadata database
      * @throws ZenodoUnavailableException        The remote server is not available
      * @throws ZenodoNotFoundException           The deposit was not found on the remote server
      */
-    void deleteCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException, ZenodoApiException,
-            MetadataDatabaseNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException;
+    void deleteCitation(Long databaseId, Long tableId, Long queryId) throws ZenodoAuthenticationException,
+            ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException,
+            QueryNotFoundException;
 
     /**
      * Publishes a deposit with database-table id pair
      *
      * @param databaseId The database-table id pair
      * @param tableId    The database-table id pair
+     * @param queryId    The query id
      * @return The deposit
      * @throws ZenodoAuthenticationException     Token invalid
      * @throws ZenodoApiException                Something other went wrong
@@ -92,6 +98,7 @@ public interface MetadataService {
      * @throws ZenodoUnavailableException        The remote server is not available
      * @throws ZenodoNotFoundException           The deposit was not found on the remote server
      */
-    DepositChangeResponseDto publishCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
-            ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException;
+    Query publishCitation(Long databaseId, Long tableId, Long queryId) throws ZenodoAuthenticationException,
+            ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException,
+            QueryNotFoundException;
 }

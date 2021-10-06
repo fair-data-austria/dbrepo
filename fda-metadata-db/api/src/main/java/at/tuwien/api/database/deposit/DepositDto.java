@@ -1,6 +1,8 @@
-package at.tuwien.api.zenodo.deposit;
+package at.tuwien.api.database.deposit;
 
-import at.tuwien.api.zenodo.files.FileResponseDto;
+import at.tuwien.api.database.deposit.files.FileDto;
+import at.tuwien.api.database.deposit.metadata.CreatorDto;
+import at.tuwien.api.database.deposit.metadata.MetadataDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -14,7 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepositResponseDto {
+public class DepositDto {
 
     /**
      * {@link Instant} without timezone seems broken
@@ -46,7 +48,7 @@ public class DepositResponseDto {
 
     private CreatorDto[] contributors;
 
-    private List<FileResponseDto> files;
+    private List<FileDto> files;
 
     private Long id;
 

@@ -1,14 +1,14 @@
 package at.tuwien.api.database.query;
 
+import at.tuwien.api.database.deposit.files.FileDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import javax.persistence.Column;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.time.Instant;
 
 
 @Data
@@ -17,14 +17,24 @@ import java.sql.Timestamp;
 @Builder
 public class QueryDto {
 
+    @NotNull
     private Long id;
 
     @JsonProperty("execution_timestamp")
-    private Timestamp executionTimestamp;
+    private Instant executionTimestamp;
 
+    @NotBlank
     private String query;
 
+    @NotBlank
+    private String title;
+
     private String doi;
+
+    @JsonProperty("deposit_id")
+    private Long depositId;
+
+    private FileDto file;
 
     @JsonProperty("query_normalized")
     private String queryNormalized;
@@ -37,4 +47,10 @@ public class QueryDto {
 
     @JsonProperty("result_number")
     private Long resultNumber;
+
+    @NotNull
+    private Instant created;
+
+    @NotNull
+    private Instant modified;
 }

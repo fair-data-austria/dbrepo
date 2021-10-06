@@ -1,61 +1,58 @@
 <template>
-  <div>
+  <div v-if="!loading">
+    <v-toolbar flat>
+      <v-btn id="zenodo-logo" class="mr-2" :style="`background-image:url(${zenodoLogo});`" disabled></v-btn>
+      <v-toolbar-title>Cite Query No. {{ queryId }}</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-toolbar-title>
+        <v-btn color="primary" :disabled="!valid" @click="submit()">
+          <v-icon left>mdi-publish</v-icon>
+          Publish
+        </v-btn>
+      </v-toolbar-title>
+    </v-toolbar>
     <v-form
       ref="form"
       v-model="valid"
       lazy-validation>
-      <v-btn color="primary" class="mb-4" :disabled="!valid" @click="submit()">
-        <v-icon left>mdi-publish</v-icon>
-        Publish
-      </v-btn>
-      <v-card>
-        <v-card-title v-if="!loading">
-          Cite Query No. {{ queryId }}
-        </v-card-title>
+      <v-card flat>
         <v-card-subtitle v-if="!loading">
           Executed {{ query.execution_timestamp }}
         </v-card-subtitle>
         <v-card-text>
-          <p>
-            This service allows researchers to publish their dataset on <a href="https://zenodo.org/">Zenodo.org</a>, a
-            open science preservation service provided by European Organization for Nuclear Research CERN with address
-            in Geneva, Switzerland. Note that once published, your dataset cannot be deleted anymore and a DOI is issued.
-          </p>
           <v-alert
             border="left"
-            class="mb-8"
+            class="mb-6"
             color="amber lighten-4">
             <pre>{{ query.query }}</pre>
           </v-alert>
           <v-select
+            v-model="data.metadata.access_right"
             :items="accessRights"
-            v-model="data.access"
-            class="col-lg-4 col-md-6 pa-0"
+            item-text="name"
+            item-value="value"
+            class="col-lg-6 col-md-8 pa-0"
             label="Access Right"></v-select>
           <v-text-field
-            v-model="data.title"
+            v-model="data.metadata.title"
             class="pa-0"
             :rules="[rules.required]"
             label="Query Title"
             required></v-text-field>
           <v-textarea
-            v-model="data.description"
+            v-model="data.metadata.description"
             class="pa-0 mt-4"
             :rules="[rules.required, rules.descriptionMin]"
             label="Query Description"
             counter
-            rows="2"
+            rows="4"
             hint="Minimum 100 Characters"
             required></v-textarea>
         </v-card-text>
       </v-card>
-      <v-btn color="blue-grey" class="mt-4 mb-4 white--text" @click="addAuthor()" x-small>
-        <v-icon left>mdi-plus</v-icon>
-        Add Author
-      </v-btn>
-      <v-card class="space">
+      <v-card class="space mt-4" flat>
         <v-card-text>
-          <v-row v-for="(author,i) in data.authors" :key="i">
+          <v-row v-for="(author,i) in data.metadata.creators" :key="i">
             <v-col
               cols="12"
               md="4">
@@ -94,6 +91,10 @@
           </v-row>
         </v-card-text>
       </v-card>
+      <v-btn color="blue-grey" class="mt-4 mb-4 white--text" @click="addAuthor()">
+        <v-icon left>mdi-plus</v-icon>
+        Add Author
+      </v-btn>
     </v-form>
   </div>
 </template>
@@ -106,14 +107,17 @@ export default {
       loading: false,
       valid: false,
       data: {
-        access: null,
-        title: null,
-        description: null,
-        authors: [{
-          name: null,
-          affiliation: null,
-          orcid: null
-        }]
+        metadata: {
+          access_right: null,
+          creators: [{
+            name: null,
+            affiliation: null,
+            orcid: null
+          }],
+          title: null,
+          description: null,
+          upload_type: 'DATASET'
+        }
       },
       query: {
         hash: null,
@@ -137,7 +141,10 @@ export default {
       return this.$route.params.database_id
     },
     accessRights () {
-      return ['open']
+      return [{ name: 'Open', value: 'OPEN' }]
+    },
+    zenodoLogo () {
+      return require('assets/img/zenodo-logo.png')
     }
   },
   mounted () {
@@ -159,14 +166,14 @@ export default {
       console.debug('form', this.data)
     },
     addAuthor () {
-      this.data.authors.push({
+      this.data.metadata.creators.push({
         name: null,
         affiliation: null,
         orcid: null
       })
     },
     removeAuthor (index) {
-      this.data.authors.splice(index, 1)
+      this.data.metadata.creators.splice(index, 1)
     }
   }
 }
@@ -183,5 +190,12 @@ main.scss file from vuetify, because it paints it red */
 .spacer {
   display: flex;
   flex: 0 1;
+}
+
+#zenodo-logo {
+  background-size: cover;
+  background-position: center center;
+  background-color: #0656b4;
+  width: 5rem;
 }
 </style>

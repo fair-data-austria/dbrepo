@@ -2,47 +2,51 @@ package at.tuwien.entities.database.query;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.Instant;
 
 @Data
+@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Query  {
+@javax.persistence.Table(name = "mdb_queries")
+public class Query {
 
-	@EqualsAndHashCode.Include
-	@ToString.Include
-	private Long id;
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @GeneratedValue(generator = "query-sequence")
+    @GenericGenerator(
+            name = "query-sequence",
+            strategy = "enhanced-sequence",
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_queries_seq")
+    )
+    private Long id;
 
-	@ToString.Include
-	private String doi;
+    @Column
+    private String doi;
 
-	@ToString.Include
-	private Timestamp executionTimestamp;
+    @Column
+    private String title;
 
-	@ToString.Include
-	private String query;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private File file;
 
-	@ToString.Include
-	private String queryNormalized;
+    @Column(name = "dep_id")
+    private Long depositId;
 
-	@ToString.Include
-	private String queryHash;
+    @Column
+    private Instant executionTimestamp;
 
-	@ToString.Include
-	private String resultHash;
+    @Column
+    private String resultHash;
 
-	@ToString.Include
-	private Integer resultNumber;
+    @Column
+    private Integer resultNumber;
 
 
 }
