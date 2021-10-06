@@ -1,29 +1,30 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.zenodo.deposit.*;
-import at.tuwien.api.zenodo.files.FileUploadDto;
+import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.api.database.deposit.metadata.MetadataDto;
+import at.tuwien.api.database.deposit.metadata.UploadTypeDto;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.jpa.QueryRepository;
 import at.tuwien.repository.jpa.TableRepository;
-import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.ResourceUtils;
 
 import javax.transaction.Transactional;
-import java.io.IOException;
-import java.util.Optional;
+import java.util.List;
+
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -47,20 +48,25 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private DatabaseRepository databaseRepository;
 
+    @Autowired
+    private QueryRepository queryRepository;
+
     @BeforeEach
     @Transactional
     public void beforeEach() {
         containerRepository.save(CONTAINER_1);
         databaseRepository.save(DATABASE_1);
         tableRepository.save(TABLE_1);
+        queryRepository.save(QUERY_1);
     }
 
     @Test
-    public void listDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, MetadataDatabaseNotFoundException {
+    @Transactional
+    public void listDeposit_succeeds() {
 
         /* test */
-        metadataService.listCitations(DATABASE_1_ID, TABLE_1_ID);
+        final List<Query> response = metadataService.listCitations(DATABASE_1_ID, TABLE_1_ID);
+        assertEquals(1, response.size());
     }
 
     @Test
@@ -68,47 +74,32 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
             MetadataDatabaseNotFoundException, ZenodoUnavailableException {
 
         /* test */
-        final DepositChangeResponseDto response = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        Assertions.assertNotNull(response.getId());
-        Assertions.assertNotNull(response.getMetadata().getPrereserveDoi().getDoi());
-        final Optional<Table> persistence = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID);
-        Assertions.assertTrue(persistence.isPresent());
-        Assertions.assertNotNull(persistence.get().getDepositId());
+        final Query response = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        assertNotNull(response.getId());
+        assertNotNull(response.getDoi());
     }
 
     @Test
     public void updateDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
-            ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
-        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
-                .metadata(METADATA_1)
-                .build();
+            ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
+            QueryNotFoundException {
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
-        final DepositChangeResponseDto response2 = metadataService.updateCitation(DATABASE_1_ID, TABLE_1_ID, request);
-        Assertions.assertNotNull(response2.getId());
-        Assertions.assertEquals(METADATA_1_TITLE, response2.getTitle());
-        Assertions.assertEquals(METADATA_1_TITLE, response2.getMetadata().getTitle());
-        Assertions.assertEquals(METADATA_1_DESCRIPTION, response2.getMetadata().getDescription());
-        final Optional<Table> persistence = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID);
-        Assertions.assertTrue(persistence.isPresent());
-        Assertions.assertNotNull(persistence.get().getDepositId());
+        final Query response = metadataService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, DEPOST_1_REQUEST);
+        assertNotNull(response.getId());
     }
 
     @Test
+    @Disabled
     public void publishDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
-            ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException, IOException,
-            ZenodoFileTooLargeException {
-        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
-                ResourceUtils.getFile("classpath:csv/testdata.csv")));
-        final DepositChangeResponseDto deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        final FileUploadDto request = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
-        fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
+            ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
+            QueryNotFoundException {
+        final Query query = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        fileService.createResource(DATABASE_1_ID, TABLE_1_ID, query.getId());
 
-        /* update */
-        final DepositChangeRequestDto request2 = DepositChangeRequestDto.builder()
+        /* integrate */
+        final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
                 .metadata(MetadataDto.builder()
                         .title(METADATA_1_TITLE)
                         .uploadType(UploadTypeDto.DATASET)
@@ -116,20 +107,13 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
                         .creators(METADATA_1_CREATORS)
                         .build())
                 .build();
-        final DepositChangeResponseDto response = metadataService.updateCitation(DATABASE_1_ID, TABLE_1_ID, request2);
+        metadataService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, request);
 
         /* test */
-        final DepositChangeResponseDto response2 = metadataService.publishCitation(DATABASE_1_ID, TABLE_1_ID);
-        Assertions.assertNotNull(response2.getId());
-        Assertions.assertTrue(response2.getSubmitted());
-        Assertions.assertEquals(METADATA_1_TITLE, response2.getTitle());
-        Assertions.assertEquals(METADATA_1_TITLE, response2.getMetadata().getTitle());
-        Assertions.assertEquals(METADATA_1_DESCRIPTION, response2.getMetadata().getDescription());
-        Assertions.assertNotNull(response2.getMetadata().getPrereserveDoi().getDoi());
-
-        final Optional<Table> persistence = tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID);
-        Assertions.assertTrue(persistence.isPresent());
-        Assertions.assertNotNull(persistence.get().getDepositId());
+        final Query response = metadataService.publishCitation(DATABASE_1_ID, TABLE_1_ID, query.getId());
+        assertNotNull(response.getId());
+        assertEquals(METADATA_1_TITLE, response.getTitle());
+        assertNotNull(response.getDoi());
     }
 
 }

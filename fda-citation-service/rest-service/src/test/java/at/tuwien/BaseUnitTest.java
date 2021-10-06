@@ -1,13 +1,21 @@
 package at.tuwien;
 
-import at.tuwien.api.zenodo.deposit.*;
-import at.tuwien.api.zenodo.files.FileResponseDto;
-import at.tuwien.api.zenodo.files.FileLinksDto;
+import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.api.database.deposit.DepositTzDto;
+import at.tuwien.api.database.deposit.files.FileDto;
+import at.tuwien.api.database.deposit.files.FileLinksDto;
+import at.tuwien.api.database.deposit.metadata.CreatorDto;
+import at.tuwien.api.database.deposit.metadata.LicenseTypeDto;
+import at.tuwien.api.database.deposit.metadata.MetadataDto;
+import at.tuwien.api.database.deposit.metadata.UploadTypeDto;
+import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.File;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.Table;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.test.context.TestPropertySource;
@@ -44,6 +52,12 @@ public abstract class BaseUnitTest {
     public final static Long DEPOSIT_1_CONCEPT_RECORD_ID = 143L;
     public final static Long DEPOSIT_1_OWNER = 144L;
 
+    public final static Long QUERY_1_ID = 1L;
+    public final static String QUERY_1_QUERY = "SELECT * FROM rainfall;";
+    public final static String QUERY_1_QUERY_NORMALIZED = "SELECT id,rainfall FROM rainfall;";
+    public final static String QUERY_1_HASH = "a5ddf5ac87b72173f75ccbd134ba1072";
+    public final static Instant QUERY_1_EXECUTION_TIMESTAMP = Instant.now();
+
     public final static String CREATOR_1_NAME = "First1 Last1";
     public final static String CREATOR_1_AFFIL = "TU Wien";
     public final static String CREATOR_1_ORCID = "0000-0002-5713-0725";
@@ -67,14 +81,24 @@ public abstract class BaseUnitTest {
     public final static String METADATA_1_TITLE = "My super dataset";
     public final static UploadTypeDto METADATA_1_UPLOAD_TYPE = UploadTypeDto.DATASET;
     public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
-    public final static CreatorDto[] METADATA_1_CREATORS = new CreatorDto[] {CREATOR_1, CREATOR_2};
+    public final static CreatorDto[] METADATA_1_CREATORS = new CreatorDto[]{CREATOR_1, CREATOR_2};
 
-    public final static String FILE_1_ID = "deadbeef-deafdeed";
+    public final static Long FILE_1_ID = 1L;
     public final static String FILE_1_NAME = "testdata-othername.csv";
     public final static String FILE_1_CHECKSUM = "d393c7fa1240c18473133793f7901aaa";
     public final static Long FILE_1_SIZE = 34614L;
 
-    public final static String FILE_2_ID = "deadbeef-deafdeed";
+    public final static File FILE_1 = File.builder()
+            .id(FILE_1_ID)
+            .build();
+
+    public final static Query QUERY_1 = Query.builder()
+            .id(QUERY_1_ID)
+            .executionTimestamp(QUERY_1_EXECUTION_TIMESTAMP)
+            .file(FILE_1)
+            .build();
+
+    public final static Long FILE_2_ID = 2L;
     public final static String FILE_2_NAME = "testdata-weather.csv";
     public final static String FILE_2_CHECKSUM = "a65cf8b8719b1a65db4f361eeec18457";
     public final static Long FILE_2_SIZE = 14094055L;
@@ -165,7 +189,6 @@ public abstract class BaseUnitTest {
             .internalName(TABLE_1_INTERNAL_NAME)
             .topic(TABLE_1_TOPIC)
             .tdbid(DATABASE_1_ID)
-            .depositId(DEPOSIT_1_ID)
             .build();
 
     public final static MetadataDto METADATA_1 = MetadataDto.builder()
@@ -180,7 +203,7 @@ public abstract class BaseUnitTest {
             .self(FILE_1_LINKS_SELF)
             .build();
 
-    public final static FileResponseDto FILE_1 = FileResponseDto.builder()
+    public final static FileDto FILE_1_DTO = FileDto.builder()
             .checksum(FILE_1_CHECKSUM)
             .filename(FILE_1_NAME)
             .id(FILE_1_ID)
@@ -188,7 +211,7 @@ public abstract class BaseUnitTest {
             .links(FILE_1_LINKS)
             .build();
 
-    public final static DepositChangeResponseDto DEPOSIT_1 = DepositChangeResponseDto.builder()
+    public final static DepositTzDto DEPOSIT_1 = DepositTzDto.builder()
             .id(DEPOSIT_1_ID)
             .created(DEPOSIT_1_CREATED)
             .modified(DEPOSIT_1_MODIFIED)
@@ -196,16 +219,24 @@ public abstract class BaseUnitTest {
             .state(DEPOSIT_1_STATE)
             .submitted(DEPOSIT_1_SUBMITTED)
             .recordId(DEPOSIT_1_RECORD_ID)
-            .files(List.of(FILE_1))
+            .files(List.of(FILE_1_DTO))
             .build();
 
-    public final static DepositResponseDto DEPOSIT_2 = DepositResponseDto.builder()
+    public final static DepositTzDto DEPOSIT_2 = DepositTzDto.builder()
             .id(DEPOSIT_1_ID)
             .title(DEPOSIT_1_TITLE)
             .state(DEPOSIT_1_STATE)
             .submitted(DEPOSIT_1_SUBMITTED)
             .recordId(DEPOSIT_1_RECORD_ID)
-            .files(List.of(FILE_1))
+            .files(List.of(FILE_1_DTO))
+            .build();
+
+    public final static ExecuteQueryDto QUERY_1_EXECUTE = ExecuteQueryDto.builder()
+            .query(QUERY_1_QUERY)
+            .build();
+
+    public final static DepositChangeRequestDto DEPOST_1_REQUEST = DepositChangeRequestDto.builder()
+            .metadata(METADATA_1)
             .build();
 
 }

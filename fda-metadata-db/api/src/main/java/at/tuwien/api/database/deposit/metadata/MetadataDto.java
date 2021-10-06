@@ -1,12 +1,10 @@
-package at.tuwien.api.zenodo.deposit;
+package at.tuwien.api.database.deposit.metadata;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.*;
 
-import java.time.Instant;
 import java.util.Date;
 
 @Getter

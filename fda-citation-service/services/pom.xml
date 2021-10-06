@@ -13,15 +13,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>fda-citation-service-services</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>at.tuwien</groupId>
-            <artifactId>api</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>

@@ -1,4 +1,4 @@
-package at.tuwien.api.zenodo.files;
+package at.tuwien.api.database.deposit.files;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileResponseDto {
+public class FileDto {
 
     private String checksum;
 
@@ -17,7 +17,7 @@ public class FileResponseDto {
 
     private Boolean locked;
 
-    private String id;
+    private Long id;
 
     private FileLinksDto links;
 

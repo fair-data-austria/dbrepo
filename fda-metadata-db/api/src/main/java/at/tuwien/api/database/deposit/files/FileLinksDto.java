@@ -1,4 +1,4 @@
-package at.tuwien.api.zenodo.files;
+package at.tuwien.api.database.deposit.files;
 
 import lombok.*;
 

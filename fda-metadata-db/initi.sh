@@ -22,6 +22,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	    NO MAXVALUE
 	    CACHE 1;
 
+	CREATE SEQUENCE public.mdb_files_seq
+	    START WITH 1
+	    INCREMENT BY 1
+	    NO MINVALUE
+	    NO MAXVALUE
+	    CACHE 1;
+
 	CREATE TABLE public.mdb_image_environment_item (
 	    id bigint NOT NULL DEFAULT nextval('mdb_image_environment_item_seq'),
 	    created timestamp without time zone NOT NULL,
@@ -156,6 +163,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE TABLE IF NOT EXISTS mdb_queries (
     ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
     execution_timestamp timestamp without time zone NOT NULL,
+		dep_id bigint NULL UNIQUE,
+    title character varying(255),
     query TEXT NOT NULL,
     query_normalized TEXT NOT NULL,
     query_hash character varying(255) NULL,
@@ -192,7 +201,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		internal_name character varying(255) NOT NULL,
 		topic character varying(255) NOT NULL,
 		last_modified timestamp without time zone,
-		dep_id bigint UNIQUE,
 		tName VARCHAR(50),
 		tDescription TEXT,
 		NumCols INTEGER,
@@ -219,6 +227,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		last_modified timestamp without time zone,
 		FOREIGN KEY (cDBID,tID) REFERENCES mdb_TABLES(tDBID,ID), 
 		PRIMARY KEY(cDBID, tID, ID)
+	);
+
+	CREATE TABLE IF NOT EXISTS mdb_files (
+		ID bigint DEFAULT nextval('mdb_files_seq'),
+		qID bigint NOT NULL,
+		FOREIGN KEY (qID) REFERENCES mdb_queries(ID),
+		PRIMARY KEY (ID)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS_ENUMS (

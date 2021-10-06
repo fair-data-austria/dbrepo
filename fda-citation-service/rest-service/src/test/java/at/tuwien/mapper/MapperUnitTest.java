@@ -1,8 +1,7 @@
 package at.tuwien.mapper;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.zenodo.deposit.DepositChangeResponseDto;
-import at.tuwien.api.zenodo.deposit.DepositResponseDto;
+import at.tuwien.api.database.deposit.DepositDto;
 import at.tuwien.config.ReadyConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
@@ -32,7 +31,7 @@ public class MapperUnitTest extends BaseUnitTest {
         final String json = FileUtils.readFileToString(ResourceUtils.getFile("classpath:zenodo-deposits-list.json"));
 
         /* test */
-        final DepositResponseDto[] response = objectMapper.readValue(json, DepositResponseDto[].class);
+        final DepositDto[] response = objectMapper.readValue(json, DepositDto[].class);
         assertEquals(10, response.length);
     }
 
@@ -41,7 +40,7 @@ public class MapperUnitTest extends BaseUnitTest {
         final String json = FileUtils.readFileToString(ResourceUtils.getFile("classpath:zenodo-deposits-store.json"));
 
         /* test */
-        final DepositChangeResponseDto response = objectMapper.readValue(json, DepositChangeResponseDto.class);
+        final DepositDto response = objectMapper.readValue(json, DepositDto.class);
         assertEquals(926290, response.getConceptRecId());
         assertEquals(0, response.getFiles().size());
         assertEquals(926291, response.getId());

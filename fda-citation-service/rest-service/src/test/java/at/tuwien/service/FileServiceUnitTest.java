@@ -1,11 +1,12 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.zenodo.files.FileResponseDto;
-import at.tuwien.api.zenodo.files.FileUploadDto;
+import at.tuwien.api.database.deposit.files.FileDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.File;
 import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.FileRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -32,8 +33,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -51,58 +51,44 @@ public class FileServiceUnitTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
+    @MockBean
+    private FileRepository fileRepository;
+
     final Database DATABASE_1 = Database.builder()
             .id(DATABASE_1_ID)
             .build();
 
     @Test
-    public void createResource_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoFileTooLargeException, MetadataDatabaseNotFoundException,
-            ZenodoUnavailableException {
-        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
-                ResourceUtils.getFile("classpath:csv/testdata.csv")));
+    public void createResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
+            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* mock */
         when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
-                eq(FileResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
+                eq(FileDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.OK)
-                        .body(FILE_1));
+                        .body(FILE_1_DTO));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
-        /* request */
-        final FileUploadDto request = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
-
         /* test */
-        final FileResponseDto response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
-        assertEquals(FILE_1_NAME, response.getFilename());
-        assertEquals(FILE_1_CHECKSUM, response.getChecksum());
-        assertEquals(FILE_1_SIZE, response.getFilesize());
+        final File response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        assertEquals(FILE_1_ID, response.getId());
     }
 
     @Test
-    public void createResource_unavailable_fails() throws IOException {
-        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
-                ResourceUtils.getFile("classpath:csv/testdata.csv")));
+    public void createResource_unavailable_fails() {
 
         /* mock */
         doThrow(ResourceAccessException.class)
                 .when(apiTemplate)
                 .postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
-                eq(FileResponseDto.class), eq(DEPOSIT_1_ID), anyString());
+                        eq(FileDto.class), eq(DEPOSIT_1_ID), anyString());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
-        /* request */
-        final FileUploadDto request = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
-
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
+            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -113,125 +99,61 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* mock */
         when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
-                eq(FileResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
+                eq(FileDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .build());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
-        /* request */
-        final FileUploadDto request = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
-
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
-            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
+            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         });
     }
 
     @Test
-    public void createResource_bodyEmpty_fails() throws IOException {
-        final MockMultipartFile file = new MockMultipartFile("testdata.csv", FileUtils.readFileToByteArray(
-                ResourceUtils.getFile("classpath:csv/testdata.csv")));
+    public void createResource_bodyEmpty_fails() {
 
         /* mock */
         when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
-                eq(FileResponseDto.class), eq(DEPOSIT_1_ID), anyString()))
+                eq(FileDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.accepted().body(null));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
-        /* request */
-        final FileUploadDto request = FileUploadDto.builder()
-                .name(FILE_1_NAME)
-                .build();
-
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
-            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, request, file);
+            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         });
     }
 
     @Test
-    public void listAll_succeeds() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException {
+    public void listAll_succeeds() {
 
         /* mock */
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileResponseDto[].class),
-                eq(DEPOSIT_1_ID), anyString()))
-                .thenReturn(ResponseEntity.ok().body(new FileResponseDto[]{FILE_1}));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
+        doReturn(List.of(FILE_1))
+                .when(fileRepository)
+                .findAll();
 
         /* test */
-        final List<FileResponseDto> response = fileService.listResources(DATABASE_1_ID, TABLE_1_ID);
+        final List<File> response = fileService.listResources();
         assertEquals(1, response.size());
     }
 
     @Test
-    public void listAll_unavailable_fails() {
+    public void findResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
+            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* mock */
-        doThrow(ResourceAccessException.class)
-                .when(apiTemplate)
-                .exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileResponseDto[].class),
-                eq(DEPOSIT_1_ID), anyString());
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(ZenodoUnavailableException.class, () -> {
-            fileService.listResources(DATABASE_1_ID, TABLE_1_ID);
-        });
-    }
-
-    @Test
-    public void listAll_noContent_fails() {
-
-        /* mock */
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileResponseDto[].class),
-                eq(DEPOSIT_1_ID), anyString()))
-                .thenReturn(ResponseEntity.ok().body(null));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(ZenodoApiException.class, () -> {
-            fileService.listResources(DATABASE_1_ID, TABLE_1_ID);
-        });
-    }
-
-    @Test
-    public void listAll_notFound_fails() {
-
-        /* mock */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(MetadataDatabaseNotFoundException.class, () -> {
-            fileService.listResources(DATABASE_1_ID, 9999L);
-        });
-    }
-
-    @Test
-    public void findResource_succeeds() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException {
-
-        /* mock */
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileResponseDto.class),
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
                 eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString()))
-                .thenReturn(ResponseEntity.ok().body(FILE_1));
+                .thenReturn(ResponseEntity.ok().body(FILE_1_DTO));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final FileResponseDto file = fileService.findResource(DATABASE_1_ID, TABLE_1_ID, FILE_1_ID);
+        final File file = fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         assertEquals(FILE_1_ID, file.getId());
-        assertEquals(FILE_1_NAME, file.getFilename());
-        assertEquals(FILE_1_SIZE, file.getFilesize());
-        assertEquals(FILE_1_CHECKSUM, file.getChecksum());
     }
 
     @Test
@@ -240,14 +162,14 @@ public class FileServiceUnitTest extends BaseUnitTest {
         /* mock */
         doThrow(ResourceAccessException.class)
                 .when(apiTemplate)
-                .exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileResponseDto.class),
-                eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString());
+                .exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
+                        eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, FILE_1_ID);
+            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -255,7 +177,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
     public void findResource_noContent_fails() {
 
         /* mock */
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileResponseDto.class),
+        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
                 eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString()))
                 .thenReturn(ResponseEntity.ok().body(null));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -263,7 +185,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
-            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, FILE_1_ID);
+            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -276,13 +198,13 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(MetadataDatabaseNotFoundException.class, () -> {
-            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, FILE_1_ID);
+            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         });
     }
 
     @Test
-    public void deleteResource_succeeds() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException {
+    public void deleteResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
+            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* mock */
         when(apiTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class),
@@ -292,7 +214,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, FILE_1_ID);
+        fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
     }
 
     @Test
@@ -302,13 +224,13 @@ public class FileServiceUnitTest extends BaseUnitTest {
         doThrow(ResourceAccessException.class)
                 .when(apiTemplate)
                 .exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class),
-                eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString());
+                        eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, FILE_1_ID);
+            fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -324,7 +246,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
-            fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, FILE_1_ID);
+            fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         });
     }
 

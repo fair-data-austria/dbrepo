@@ -1,4 +1,4 @@
-package at.tuwien.api.zenodo.deposit;
+package at.tuwien.api.database.deposit.files;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
