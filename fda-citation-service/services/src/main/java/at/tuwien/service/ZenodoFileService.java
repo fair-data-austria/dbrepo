@@ -6,27 +6,24 @@ import at.tuwien.config.ZenodoConfig;
 import at.tuwien.entities.database.query.File;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.FileMapper;
 import at.tuwien.mapper.ZenodoMapper;
 import at.tuwien.repository.jpa.FileRepository;
 import at.tuwien.repository.jpa.QueryRepository;
 import at.tuwien.repository.jpa.TableRepository;
+import com.opencsv.CSVWriter;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvBeanWriter;
-import org.supercsv.io.ICsvBeanWriter;
-import org.supercsv.prefs.CsvPreference;
 
 import javax.transaction.Transactional;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -37,22 +34,24 @@ import java.util.Optional;
 @Service
 public class ZenodoFileService implements FileService {
 
-    private final static String FILE_CSV_LOCATION = "/tmp/data.csv";
+    private final static String FILE_CSV_NAME = "data.csv";
+    private final static String FILE_CSV_LOCATION = "/tmp/" + FILE_CSV_NAME;
+    private final static Boolean FILE_CSV_QUOTES = false;
 
-    private final RestTemplate zenodoTemplate;
-    private final RestTemplate queryTemplate;
+    private final FileMapper fileMapper;
     private final ZenodoConfig zenodoConfig;
     private final ZenodoMapper zenodoMapper;
+    private final RestTemplate queryTemplate;
+    private final RestTemplate zenodoTemplate;
     private final FileRepository fileRepository;
     private final TableRepository tableRepository;
     private final QueryRepository queryRepository;
 
     @Autowired
-    public ZenodoFileService(@Qualifier("zenodoTemplate") RestTemplate zenodoTemplate,
-                             @Qualifier("queryTemplate") RestTemplate queryTemplate,
-                             ZenodoConfig zenodoConfig, ZenodoMapper zenodoMapper,
-                             FileRepository fileRepository, TableRepository tableRepository,
-                             QueryRepository queryRepository) {
+    public ZenodoFileService(FileMapper fileMapper, RestTemplate zenodoTemplate, RestTemplate queryTemplate,
+                             ZenodoConfig zenodoConfig, ZenodoMapper zenodoMapper, FileRepository fileRepository,
+                             TableRepository tableRepository, QueryRepository queryRepository) {
+        this.fileMapper = fileMapper;
         this.zenodoTemplate = zenodoTemplate;
         this.queryTemplate = queryTemplate;
         this.zenodoConfig = zenodoConfig;
@@ -65,7 +64,8 @@ public class ZenodoFileService implements FileService {
     @Override
     public File createResource(Long databaseId, Long tableId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException {
+            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException,
+            ZenodoFileException {
         final Query query = getQuery(queryId);
         final ResponseEntity<FileDto> response;
         try {
@@ -75,7 +75,7 @@ public class ZenodoFileService implements FileService {
         } catch (IOException e) {
             throw new ZenodoApiException("Could not map file to byte array");
         } catch (ResourceAccessException e) {
-            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
+            throw new ZenodoUnavailableException("Remote server is not accessible", e);
         } catch (HttpClientErrorException.Unauthorized e) {
             throw new ZenodoAuthenticationException("Token is missing or invalid.");
         } catch (HttpClientErrorException.BadRequest e) {
@@ -88,8 +88,7 @@ public class ZenodoFileService implements FileService {
             throw new ZenodoApiException("Endpoint returned null body");
         }
         log.info("Created file with id {}", response.getBody().getId());
-        final File file = File.builder().build();
-        return file;
+        return fileMapper.fileDtoToFile(response.getBody());
     }
 
     @Override
@@ -117,8 +116,7 @@ public class ZenodoFileService implements FileService {
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
-        final File file = File.builder().build();
-        return file;
+        return fileMapper.fileDtoToFile(response.getBody());
     }
 
     @Override
@@ -181,7 +179,7 @@ public class ZenodoFileService implements FileService {
      * @return The create multipart file
      */
     private MultipartFile getDataset(Long databaseId, Long tableId, Long queryId) throws QueryNotFoundException,
-            RemoteDatabaseException, TableServiceException {
+            RemoteDatabaseException, TableServiceException, ZenodoFileException {
         final ResponseEntity<QueryResultDto> response;
         try {
             response = queryTemplate.exchange("/api/database/{databaseId}/query/{queryId}/data", HttpMethod.GET,
@@ -195,7 +193,9 @@ public class ZenodoFileService implements FileService {
             throw new RemoteDatabaseException("Response body is null");
         }
         log.trace("retrieved result set from table service {}", response.getBody().getResult());
-        return writeFile(response.getBody());
+        final MultipartFile file = writeFile(response.getBody());
+        log.trace("mapped to file {}", file);
+        return file;
     }
 
     /**
@@ -204,33 +204,34 @@ public class ZenodoFileService implements FileService {
      * @param data the data set
      * @return The multipart file
      */
-    private MultipartFile writeFile(QueryResultDto data) throws TableServiceException {
+    private MultipartFile writeFile(QueryResultDto data) throws TableServiceException, ZenodoFileException {
         final String[] headers = data.getResult()
                 .get(0)
                 .keySet()
                 .toArray(new String[0]);
-        ICsvBeanWriter writer = null;
+        final CSVWriter writer;
         try {
-            writer = new CsvBeanWriter(new FileWriter(FILE_CSV_LOCATION), CsvPreference.STANDARD_PREFERENCE);
-            final CellProcessor[] processors = new CellProcessor[]{};
-            writer.writeHeader(headers);
-            for (Map<String, Object> row : data.getResult()) {
-                writer.write(row, headers, processors);
+            writer = new CSVWriter(new FileWriter(FILE_CSV_LOCATION));
+            writer.writeNext(headers, FILE_CSV_QUOTES);
+            for (Map<String, Object> cells : data.getResult()) {
+                final String[] row = cells.values()
+                        .stream()
+                        .map(String::valueOf)
+                        .toArray(String[]::new);
+                writer.writeNext(row, FILE_CSV_QUOTES);
             }
+            writer.close();
         } catch (IOException e) {
+            log.error("Failed to write csv");
             throw new TableServiceException("Failed to write csv", e);
-        } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException e) {
-                log.error("Could not close the writer");
-            }
         }
-        final java.io.File file = new java.io.File(FILE_CSV_LOCATION);
-        final MultipartFile multipartFile = new CommonsMultipartFile(new DiskFileItem("file", "text/plain", false, file.getName(),
-                (int) file.length(), file.getParentFile()));
+        final MultipartFile multipartFile;
+        try {
+            multipartFile = new MockMultipartFile(FILE_CSV_NAME, new FileInputStream(FILE_CSV_LOCATION));
+        } catch (IOException e) {
+            log.error("Failed to read generated csv from the query");
+            throw new ZenodoFileException("Failed to read generated csv from the query", e);
+        }
         log.debug("wrote multipart file {}", multipartFile.getName());
         return multipartFile;
     }

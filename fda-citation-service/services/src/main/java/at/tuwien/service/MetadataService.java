@@ -1,11 +1,11 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -46,11 +46,9 @@ public interface MetadataService {
      * @throws ZenodoNotFoundException       The deposit id was not found on the remote server
      * @throws ZenodoUnavailableException    The remote server is not available
      */
-    @Transactional
     Query updateCitation(Long databaseId, Long tableId, Long queryId,
-                         DepositChangeRequestDto data)
-            throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoUnavailableException, QueryNotFoundException;
+                            DepositChangeRequestDto data) throws ZenodoAuthenticationException, ZenodoApiException,
+            ZenodoNotFoundException, ZenodoUnavailableException, QueryNotFoundException;
 
     /**
      * Find a deposit by database-table id pair

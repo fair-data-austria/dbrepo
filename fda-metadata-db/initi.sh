@@ -165,7 +165,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     execution_timestamp timestamp without time zone NOT NULL,
 		deposit_id bigint NULL UNIQUE,
 		file_id bigint NULL,
-    title character varying(255),
+    title character varying(255) NOT NULL,
     doi character varying(255),
     query TEXT NOT NULL,
     query_normalized TEXT NOT NULL,

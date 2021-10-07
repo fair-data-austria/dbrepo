@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.transaction.Transactional;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class MetadataServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
@@ -83,18 +85,18 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     public void updateDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
             QueryNotFoundException {
-        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final Query query = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
-        final Query response = metadataService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, DEPOST_1_REQUEST);
+        final Query response = metadataService.updateCitation(DATABASE_1_ID, TABLE_1_ID, query.getId(), DEPOST_1_REQUEST);
         assertNotNull(response.getId());
     }
 
     @Test
-    @Disabled
+    @Disabled("something missing in query service")
     public void publishDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
-            QueryNotFoundException, RemoteDatabaseException, TableServiceException {
+            QueryNotFoundException, RemoteDatabaseException, TableServiceException, ZenodoFileException {
         final Query query = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         fileService.createResource(DATABASE_1_ID, TABLE_1_ID, query.getId());
 

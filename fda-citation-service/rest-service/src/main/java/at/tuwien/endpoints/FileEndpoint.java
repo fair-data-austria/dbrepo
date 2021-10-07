@@ -50,7 +50,8 @@ public class FileEndpoint {
                           @Valid @RequestParam("tableId") Long tableId,
                           @Valid @RequestParam("queryId") Long queryId)
             throws ZenodoApiException, ZenodoNotFoundException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException {
+            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException,
+            ZenodoFileException {
         return fileMapper.fileToFileDto(fileService.createResource(databaseId, tableId, queryId));
     }
 
