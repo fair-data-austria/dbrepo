@@ -11,7 +11,7 @@ test('create database', pageMacro, async (t, page) => {
   await page.go('/databases')
 
   // Click create new button
-  await page.click('button:has-text("Create Database")')
+  await page.click('button:has-text("Database")')
 
   // Fill database name
   await page.fill('input[name="database"]', database)

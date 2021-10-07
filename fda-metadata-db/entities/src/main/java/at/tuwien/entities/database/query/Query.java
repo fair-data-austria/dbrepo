@@ -46,7 +46,7 @@ public class Query {
     private String resultHash;
 
     @Column
-    private Integer resultNumber;
+    private Long resultNumber;
 
 
 }
