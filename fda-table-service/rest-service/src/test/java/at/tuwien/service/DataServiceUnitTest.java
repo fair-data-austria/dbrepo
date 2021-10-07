@@ -41,8 +41,6 @@ import static org.mockito.Mockito.*;
 @Log4j2
 public class DataServiceUnitTest extends BaseUnitTest {
 
-    private static CreateContainerResponse container;
-
     @MockBean
     private Channel channel;
 
@@ -70,7 +68,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .withEnableIpv6(false)
                 .exec();
         /* create container */
-        container = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+        final CreateContainerResponse container = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
