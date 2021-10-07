@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpEntity;
@@ -46,7 +47,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
     private ZenodoFileService fileService;
 
     @MockBean
-    private RestTemplate apiTemplate;
+    @Qualifier("zenodoTemplate")
+    private RestTemplate zenodoTemplate;
 
     @MockBean
     private TableRepository tableRepository;
@@ -60,10 +62,11 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void createResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException,
+            RemoteDatabaseException, TableServiceException {
 
         /* mock */
-        when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
+        when(zenodoTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
                 eq(FileDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.OK)
                         .body(FILE_1_DTO));
@@ -80,7 +83,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* mock */
         doThrow(ResourceAccessException.class)
-                .when(apiTemplate)
+                .when(zenodoTemplate)
                 .postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
                         eq(FileDto.class), eq(DEPOSIT_1_ID), anyString());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -98,7 +101,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 ResourceUtils.getFile("classpath:csv/testdata.csv")));
 
         /* mock */
-        when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
+        when(zenodoTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
                 eq(FileDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .build());
@@ -115,7 +118,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
     public void createResource_bodyEmpty_fails() {
 
         /* mock */
-        when(apiTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
+        when(zenodoTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
                 eq(FileDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.accepted().body(null));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -145,7 +148,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
             ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* mock */
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
                 eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString()))
                 .thenReturn(ResponseEntity.ok().body(FILE_1_DTO));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -161,7 +164,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* mock */
         doThrow(ResourceAccessException.class)
-                .when(apiTemplate)
+                .when(zenodoTemplate)
                 .exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
                         eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -177,7 +180,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
     public void findResource_noContent_fails() {
 
         /* mock */
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
                 eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString()))
                 .thenReturn(ResponseEntity.ok().body(null));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -207,7 +210,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
             ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* mock */
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class),
                 eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -222,7 +225,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* mock */
         doThrow(ResourceAccessException.class)
-                .when(apiTemplate)
+                .when(zenodoTemplate)
                 .exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class),
                         eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
@@ -238,7 +241,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
     public void deleteResource_wrongStatus_fails() {
 
         /* mock */
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class),
                 eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.OK).build());
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))

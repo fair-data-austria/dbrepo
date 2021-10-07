@@ -110,7 +110,7 @@ public class TableServiceImpl extends JdbcConnector implements TableService {
         /* create database in container */
         try {
             create(database, createDto);
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             log.error("Could not create table via JDBC: {}", e.getMessage());
             throw new DataProcessingException("could not create table", e);
         }

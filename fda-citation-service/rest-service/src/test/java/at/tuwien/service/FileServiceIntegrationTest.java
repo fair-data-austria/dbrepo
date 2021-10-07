@@ -66,7 +66,7 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
             ZenodoAuthenticationException, MetadataDatabaseNotFoundException,
-            ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException {
 
         /* integrate */
         final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
@@ -78,7 +78,7 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createResource_largeFile_succeeds() throws IOException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
-            QueryNotFoundException {
+            QueryNotFoundException, RemoteDatabaseException, TableServiceException {
         final MockMultipartFile file = new MockMultipartFile("weatherAUS.csv", FileUtils.readFileToByteArray(
                 ResourceUtils.getFile("classpath:csv/weatherAUS.csv")));
 
@@ -103,7 +103,8 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void findResource_noContent_fails() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException,
+            RemoteDatabaseException, TableServiceException {
 
         /* request */
         final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
@@ -116,7 +117,8 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void deleteRessource_succeeds() throws MetadataDatabaseNotFoundException, ZenodoApiException,
-            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException,
+            RemoteDatabaseException, TableServiceException {
 
         /* request */
         final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);

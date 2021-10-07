@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Log4j2
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/database/{id}/table/{tableid}/deposit/metadata")
+@RequestMapping("/api/database/{id}/table/{tableid}/metadata")
 public class MetadataEndpoint {
 
     private final QueryMapper queryMapper;

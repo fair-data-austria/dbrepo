@@ -36,7 +36,7 @@ public class Query {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private File file;
 
-    @Column(name = "dep_id")
+    @Column(name = "deposit_id")
     private Long depositId;
 
     @Column

@@ -94,7 +94,7 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     @Disabled
     public void publishDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
-            QueryNotFoundException {
+            QueryNotFoundException, RemoteDatabaseException, TableServiceException {
         final Query query = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
         fileService.createResource(DATABASE_1_ID, TABLE_1_ID, query.getId());
 

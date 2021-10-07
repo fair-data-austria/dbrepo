@@ -1,5 +1,6 @@
 package at.tuwien.service;
 
+import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.Database;
@@ -49,7 +50,7 @@ public class QueryService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException,
+    public QueryResultDto execute(Long id, ExecuteQueryDto data) throws ImageNotSupportedException, DatabaseNotFoundException,
             JSQLParserException, SQLException, QueryStoreException, DatabaseConnectionException {
         final Database database = findDatabase(id);
         if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
@@ -58,6 +59,7 @@ public class QueryService extends JdbcConnector {
             }
         }
         final DSLContext context = open(database);
+        final QueryDto query = queryMapper.executeQueryDtoToQueryDto(data);
         //TODO Fix that import
         final StringBuilder parsedQuery = new StringBuilder();
         final String q = parse(query, database).getQuery();
@@ -71,18 +73,17 @@ public class QueryService extends JdbcConnector {
         final ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
         final Result<Record> result = resultQuery.fetch();
         final QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result, query.getId());
-        log.debug("Result of the query is: \n {}", result.toString());
+        log.trace("Result of the query is: \n {}", result.toString());
 
         // Save the query in the store
-        final Query out = queryStoreService.saveQuery(database, query, queryResultDto);
+        final QueryDto out = queryStoreService.saveQuery(database, query, queryResultDto);
         queryResultDto.setId(out.getId());
-        log.debug("Save query {}", out);
+        log.info("Saved query {}", out);
         return queryResultDto;
     }
 
-    private Query parse(Query query, Database database) throws JSQLParserException {
-        Timestamp ts = new Timestamp(System.currentTimeMillis());
-        query.setExecutionTimestamp(ts);
+    private QueryDto parse(QueryDto query, Database database) throws JSQLParserException {
+        query.setExecutionTimestamp(query.getExecutionTimestamp());
         CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
         Statement statement = parserRealSql.parse(new StringReader(query.getQuery()));
         log.debug("Given query {}", query.getQuery());
@@ -203,7 +204,7 @@ public class QueryService extends JdbcConnector {
             } else {
                 query.append(split[0])
                         .append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
-                        .append(savedQuery.getExecutionTimestamp().toLocalDateTime().toString())
+                        .append(Timestamp.valueOf(savedQuery.getExecutionTimestamp().toString()))
                         .append("' WHERE")
                         .append(split[1])
                         .append(") as  tab");
@@ -211,7 +212,7 @@ public class QueryService extends JdbcConnector {
         } else {
             query.append(q)
                     .append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
-                    .append(savedQuery.getExecutionTimestamp().toLocalDateTime().toString())
+                    .append(Timestamp.valueOf(savedQuery.getExecutionTimestamp().toString()))
                     .append("') as  tab");
         }
 
@@ -227,20 +228,27 @@ public class QueryService extends JdbcConnector {
         final Result<org.jooq.Record> result = context.resultQuery(query.toString())
                 .fetch();
         log.debug("query string {}", query.toString());
-        log.trace("query result {}", result.toString());
+        log.trace("query result \n {}", result.toString());
         return queryMapper.recordListToQueryResultDto(result, queryId);
     }
 
     @Transactional
-    public QueryResultDto save(Long id, Query query) throws SQLException, ImageNotSupportedException,
-            DatabaseNotFoundException, QueryStoreException, JSQLParserException, DatabaseConnectionException {
-        Database database = findDatabase(id);
+    public QueryResultDto save(Long id, ExecuteQueryDto data) throws ImageNotSupportedException,
+            DatabaseNotFoundException, QueryStoreException, JSQLParserException, DatabaseConnectionException,
+            QueryMalformedException {
+        final Database database = findDatabase(id);
         if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
             if (!queryStoreService.exists(database)) {
                 queryStoreService.create(id);
             }
         }
-        final DSLContext context = open(database);
+        final QueryDto query = queryMapper.executeQueryDtoToQueryDto(data);
+        final DSLContext context;
+        try {
+            context = open(database);
+        } catch (SQLException e) {
+            throw new QueryMalformedException("Could not connect to the remote container database", e);
+        }
         final StringBuilder parsedQuery = new StringBuilder();
         final String q = parse(query, database).getQuery();
         if (q.charAt(q.length() - 1) == ';') {
@@ -253,12 +261,13 @@ public class QueryService extends JdbcConnector {
         final ResultQuery<Record> resultQuery = context.resultQuery(parsedQuery.toString());
         final Result<Record> result = resultQuery.fetch();
         final QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(result, query.getId());
-        log.debug("Result of the query is: \n {}", result.toString());
+        log.trace("Result of the query is: \n {}", result.toString());
 
         // Save the query in the store
-        final Query out = queryStoreService.saveQuery(database, query, queryResultDto);
+        final QueryDto out = queryStoreService.saveQuery(database, query, queryResultDto);
         queryResultDto.setId(out.getId());
         log.debug("Save query {}", out);
-        return queryStoreService.findLast(database.getId(), query);
+//        return queryStoreService.findLast(database.getId(), query); // FIXME mw: why query last entry when we set it in the line above?
+        return queryResultDto;
     }
 }

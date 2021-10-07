@@ -163,8 +163,10 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE TABLE IF NOT EXISTS mdb_queries (
     ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
     execution_timestamp timestamp without time zone NOT NULL,
-		dep_id bigint NULL UNIQUE,
+		deposit_id bigint NULL UNIQUE,
+		file_id bigint NULL,
     title character varying(255),
+    doi character varying(255),
     query TEXT NOT NULL,
     query_normalized TEXT NOT NULL,
     query_hash character varying(255) NULL,
@@ -230,10 +232,11 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_files (
-		ID bigint DEFAULT nextval('mdb_files_seq'),
-		qID bigint NOT NULL,
-		FOREIGN KEY (qID) REFERENCES mdb_queries(ID),
-		PRIMARY KEY (ID)
+		id bigint DEFAULT nextval('mdb_files_seq'),
+		ref_id varchar(255) NOT NULL,
+		query_id bigint NOT NULL,
+		FOREIGN KEY (query_id) REFERENCES mdb_queries(id),
+		PRIMARY KEY (id)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS_ENUMS (

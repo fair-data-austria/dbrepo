@@ -174,7 +174,14 @@ public class MariaDataService extends JdbcConnector implements DataService {
     @Transactional
     public QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp,
                                     Long page, Long size) throws TableNotFoundException,
-            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException {
+            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException,
+            TableMalformedException {
+        if (page != null && page < 0) {
+            throw new TableMalformedException("page cannot be lower than zero");
+        }
+        if (size != null && (size <= 0 || page == null)) {
+            throw new TableMalformedException("size cannot be lower than zero or page is null");
+        }
         final Table table = findById(databaseId, tableId);
         try {
             final DSLContext context = open(table.getDatabase());
