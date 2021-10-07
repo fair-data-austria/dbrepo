@@ -11,7 +11,6 @@ import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.service.DatabaseConnector;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
@@ -20,14 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
@@ -113,15 +109,9 @@ public abstract class JdbcConnector implements DatabaseConnector {
      *
      * @param word The word
      * @return True if it is reserved word
-     * @throws IOException Reserved word csv could not be read
      */
-    public Boolean isReserved(String word) throws IOException {
-        return FileUtils.readLines(new File(Objects.requireNonNull(
-                                this.getClass().getClassLoader().getResource("./reserved.csv")).getFile()),
-                        Charset.defaultCharset())
-                .stream()
-                .map(s -> s.toUpperCase(Locale.ENGLISH))
-                .anyMatch(s -> s.equals(word.toUpperCase(Locale.ENGLISH)));
+    public Boolean isReserved(String word) {
+        return false;
     }
 
 }

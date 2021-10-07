@@ -171,7 +171,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     query_normalized TEXT NOT NULL,
     query_hash character varying(255) NULL,
     result_hash character varying(255) NULL,
-    result_number INTEGER NULL,
+    result_number bigint NULL,
     created timestamp without time zone NOT NULL,
     last_modified timestamp without time zone,
     PRIMARY KEY(ID)

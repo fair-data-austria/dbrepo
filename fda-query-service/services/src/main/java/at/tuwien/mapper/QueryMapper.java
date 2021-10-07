@@ -9,9 +9,11 @@ import org.jooq.Record;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,9 @@ public interface QueryMapper {
 
     Query queryDtotoQuery(QueryDto data);
 
+    @Mappings({
+            @Mapping(source = "data.executionTimestamp", target = "executionTimestamp", qualifiedByName = "timezoned")
+    })
     QueryDto queryToQueryDto(Query data);
 
     @Mappings({
@@ -48,12 +53,12 @@ public interface QueryMapper {
 
     default QueryDto recordToQueryDto(Record data) {
         return QueryDto.builder()
-                .id(Long.parseLong(data.get("id").toString()))
-                .query((String) data.get("query"))
-                .queryHash((String) data.get("query_hash"))
-                .executionTimestamp(Instant.parse((String) data.get("execution_timestamp")))
-                .resultHash((String) data.get("result_hash"))
-                .resultNumber(Long.parseLong(data.get("result_number").toString()))
+                .id(Long.parseLong(String.valueOf(data.get("id"))))
+                .query(String.valueOf(data.get("query")))
+                .queryHash(String.valueOf(data.get("query_hash")))
+                .executionTimestamp(objectToInstant(data.get("execution_timestamp")))
+                .resultHash(String.valueOf(data.get("result_hash")))
+                .resultNumber(Long.parseLong(String.valueOf(data.get("result_number"))))
                 .build();
     }
 
@@ -62,13 +67,27 @@ public interface QueryMapper {
                 .getResult()
                 .stream()
                 .map(row -> Query.builder()
-                        .id((Long.valueOf((Integer) row.get("id"))))
-                        .resultHash((String) row.get("result_hash"))
-                        .resultNumber((Integer) row.get("result_number"))
-                        .executionTimestamp(Instant.parse((String) row.get("execution_timestamp")))
+                        .id(Long.valueOf(String.valueOf(row.get("id"))))
+                        .resultHash(String.valueOf(row.get("result_hash")))
+                        .resultNumber(Long.valueOf(String.valueOf(row.get("result_number"))))
+                        .executionTimestamp(objectToInstant(row.get("execution_timestamp")))
                         .build())
                 .collect(Collectors.toList());
     }
 
+    default Instant objectToInstant(Object data) {
+        final DateTimeFormatter formatter = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd HH:mm:ss.S")
+                .withZone(ZoneId.systemDefault());
+        return Instant.from(formatter.parse(String.valueOf(data)));
+    }
+
+    @Named("timezoned")
+    default Instant objectToInstantWithTimezone(Object data) {
+        final DateTimeFormatter formatter = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                .withZone(ZoneId.systemDefault());
+        return Instant.from(formatter.parse(String.valueOf(data)));
+    }
 
 }

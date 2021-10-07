@@ -19,6 +19,8 @@ import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -87,6 +89,7 @@ public class QueryStoreService extends JdbcConnector {
 
     /**
      * Creates the query store on the remote container for a given datbabase id
+     * mw: unfortunately we cannot provide a default sequence nextval for the id
      *
      * @param databaseId The database id
      * @throws ImageNotSupportedException  The image is not supported
@@ -146,7 +149,7 @@ public class QueryStoreService extends JdbcConnector {
                             field("result_hash"),
                             field("result_number"))
                     .values(sequence("seq_id").nextval(), "doi/" + query.getId(), query.getQuery(),
-                            query.getQueryHash(), query.getExecutionTimestamp(), "" + queryResult.hashCode(),
+                            query.getQueryHash(), LocalDateTime.ofInstant(query.getExecutionTimestamp(), ZoneId.of("Europe/Vienna")), "" + queryResult.hashCode(),
                             queryResult.getResult().size())
                     .execute();
             if (success != 1) {

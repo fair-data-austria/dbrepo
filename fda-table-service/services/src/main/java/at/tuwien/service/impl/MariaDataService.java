@@ -60,7 +60,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
     public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException {
         final Optional<Table> table = tableRepository.findByDatabaseAndId(findDatabase(databaseId), tableId);
         if (table.isEmpty()) {
-            log.error("table {} not found in database {}", tableId, databaseId);
+            log.error("Table {} not found in database {}", tableId, databaseId);
             throw new TableNotFoundException("table not found in database");
         }
         return table.get();
@@ -77,7 +77,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
             values = readCsv(table, data);
             log.debug("read {} rows from csv", values.getData().size());
         } catch (IOException | CsvException | ArrayIndexOutOfBoundsException e) {
-            log.error("failed to parse csv {}", e.getMessage());
+            log.error("Failed to parse csv {}", e.getMessage());
             throw new FileStorageException("failed to parse csv", e);
         }
         try {
@@ -93,7 +93,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
     protected Database findDatabase(Long id) throws DatabaseNotFoundException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
-            log.error("no database with this id found in metadata database");
+            log.error("No database with this id found in metadata database");
             throw new DatabaseNotFoundException("database not found in metadata database");
         }
         return database.get();
@@ -141,7 +141,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
                 /* when no headers are available we cannot make safeness check */
                 /* detect if order is correct, we depend on the CsvParser library */
                 if (headers != null && table.getColumns().get(j).getInternalName().equals(headers.get(j))) {
-                    log.error("header out of sync, actual: {} but expected: {}", headers.get(j), table.getColumns().get(j).getInternalName());
+                    log.error("Header out of sync, actual: {} but expected: {}", headers.get(j), table.getColumns().get(j).getInternalName());
                 }
                 record.put(table.getColumns().get(j).getInternalName(), row.get(j));
             }
@@ -165,7 +165,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
         try {
             insertCsv(table, data);
         } catch (SQLException e) {
-            log.error("could not insert data {}", e.getMessage());
+            log.error("Could not insert data {}", e.getMessage());
             throw new TableMalformedException("could not insert data", e);
         }
     }
