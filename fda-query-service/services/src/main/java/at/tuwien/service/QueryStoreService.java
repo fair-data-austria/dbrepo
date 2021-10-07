@@ -15,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -57,7 +59,7 @@ public class QueryStoreService extends JdbcConnector {
                 .toString());
         return queryMapper.recordListToQueryList(context
                 .selectFrom(QUERYSTORENAME)
-                        .orderBy(field("execution_timestamp"))
+                .orderBy(field("execution_timestamp"))
                 .fetch());
     }
 
@@ -83,18 +85,6 @@ public class QueryStoreService extends JdbcConnector {
         return queryMapper.recordToQueryDto(records.get(0));
     }
 
-    protected QueryResultDto findLast(Long databaseId, Query query) throws DatabaseNotFoundException, SQLException,
-            ImageNotSupportedException {
-        final Database database = findDatabase(databaseId);
-        final DSLContext context = open(database);
-        final StringBuilder sb = new StringBuilder()
-                .append("SELECT * FROM ")
-                .append(QUERYSTORENAME)
-                .append(" ORDER BY id desc LIMIT 1;");
-        return queryMapper.recordListToQueryResultDto(context
-                .fetch(sb.toString()), query.getId());
-    }
-
     /**
      * Creates the query store on the remote container for a given datbabase id
      *
@@ -116,14 +106,16 @@ public class QueryStoreService extends JdbcConnector {
         /* create database in container */
         try {
             final DSLContext context = open(database);
+            context.createSequence("seq_id")
+                    .execute();
             context.createTable(QUERYSTORENAME)
-                    .column("id", INTEGER)
+                    .column("id", BIGINT)
                     .column("doi", VARCHAR(255).nullable(false))
                     .column("query", VARCHAR(255).nullable(false))
                     .column("query_hash", VARCHAR(255))
                     .column("execution_timestamp", TIMESTAMP)
                     .column("result_hash", VARCHAR(255))
-                    .column("result_number", INTEGER)
+                    .column("result_number", BIGINT)
                     .constraints(
                             constraint("pk").primaryKey("id"),
                             constraint("uk").unique("doi")
@@ -135,16 +127,15 @@ public class QueryStoreService extends JdbcConnector {
         }
     }
 
-    public Query saveQuery(Database database, Query query, QueryResultDto queryResult) throws ImageNotSupportedException, QueryStoreException {
+    public QueryDto saveQuery(Database database, QueryDto query, QueryResultDto queryResult) throws ImageNotSupportedException, QueryStoreException {
         log.debug("Save query {} into database {}", query, database);
         // TODO map in mapper next iteration
-        query.setExecutionTimestamp(new Timestamp(System.currentTimeMillis()));
+        query.setExecutionTimestamp(Instant.now());
         query.setQueryNormalized(normalizeQuery(query.getQuery()));
         query.setQueryHash(String.valueOf(query.getQueryNormalized().toLowerCase(Locale.ROOT).hashCode()));
         query.setResultHash(query.getQueryHash());
-        query.setResultNumber(0);
+        query.setResultNumber(0L);
         try {
-            query.setId(Long.valueOf(maxId(database, query)) + 1); // FIXME
             final DSLContext context = open(database);
             int success = context.insertInto(table(QUERYSTORENAME))
                     .columns(field("id"),
@@ -154,9 +145,10 @@ public class QueryStoreService extends JdbcConnector {
                             field("execution_timestamp"),
                             field("result_hash"),
                             field("result_number"))
-                    .values(query.getId(), "doi/" + query.getId(), query.getQuery(), query.getQueryHash(),
-                            query.getExecutionTimestamp(), "" + queryResult.hashCode(),
-                            queryResult.getResult().size()).execute();
+                    .values(sequence("seq_id").nextval(), "doi/" + query.getId(), query.getQuery(),
+                            query.getQueryHash(), query.getExecutionTimestamp(), "" + queryResult.hashCode(),
+                            queryResult.getResult().size())
+                    .execute();
             if (success != 1) {
                 throw new QueryStoreException("Failed to insert record into query store");
             }
@@ -166,17 +158,7 @@ public class QueryStoreService extends JdbcConnector {
         return query;
     }
 
-    private Integer maxId(Database database, Query query) throws SQLException, ImageNotSupportedException {
-        DSLContext context = open(database);
-        QueryResultDto queryResultDto = queryMapper.recordListToQueryResultDto(context
-                .selectFrom(QUERYSTORENAME).orderBy(field("id").desc()).limit(1)
-                .fetch(), query.getId());
-        if (queryResultDto.getResult() == null || queryResultDto.getResult().size() == 0) {
-            return 0;
-        }
-        return (Integer) queryResultDto.getResult().get(0).get("id");
-    }
-
+    // FIXME mw: lel
     private String normalizeQuery(String query) {
         return query;
     }

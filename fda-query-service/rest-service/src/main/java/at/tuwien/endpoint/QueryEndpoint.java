@@ -20,13 +20,11 @@ import java.sql.SQLException;
 @RequestMapping("/api/database/{id}")
 public class QueryEndpoint {
 
-    private QueryService queryService;
-    private QueryMapper queryMapper;
+    private final QueryService queryService;
 
     @Autowired
-    public QueryEndpoint(QueryService queryService, QueryMapper queryMapper) {
+    public QueryEndpoint(QueryService queryService) {
         this.queryService = queryService;
-        this.queryMapper = queryMapper;
     }
 
     @Transactional
@@ -37,10 +35,11 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> execute(@PathVariable Long id, @RequestBody ExecuteQueryDto dto)
+    public ResponseEntity<QueryResultDto> execute(@PathVariable Long id,
+                                                  @RequestBody ExecuteQueryDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
             JSQLParserException, QueryStoreException, DatabaseConnectionException {
-        return ResponseEntity.ok(queryService.execute(id, queryMapper.queryDTOtoQuery(dto)));
+        return ResponseEntity.ok(queryService.execute(id, data));
     }
 
     @Transactional
@@ -51,10 +50,11 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> save(@PathVariable Long id, @RequestBody ExecuteQueryDto dto)
-            throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
-            JSQLParserException, QueryStoreException, DatabaseConnectionException {
-        return ResponseEntity.ok(queryService.save(id, queryMapper.queryDTOtoQuery(dto)));
+    public ResponseEntity<QueryResultDto> save(@PathVariable Long id,
+                                               @RequestBody ExecuteQueryDto data)
+            throws DatabaseNotFoundException, ImageNotSupportedException, JSQLParserException, QueryStoreException,
+            DatabaseConnectionException, QueryMalformedException {
+        return ResponseEntity.ok(queryService.save(id, data));
     }
 
     @Transactional

@@ -21,21 +21,20 @@ import org.springframework.web.client.RestTemplate;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ZenodoMetadataService implements MetadataService {
 
-    private final RestTemplate apiTemplate;
+    private final RestTemplate zenodoTemplate;
     private final ZenodoConfig zenodoConfig;
     private final ZenodoMapper zenodoMapper;
     private final TableRepository tableRepository;
     private final QueryRepository queryRepository;
 
     @Autowired
-    public ZenodoMetadataService(RestTemplate apiTemplate, ZenodoConfig zenodoConfig, ZenodoMapper zenodoMapper,
+    public ZenodoMetadataService(RestTemplate zenodoTemplate, ZenodoConfig zenodoConfig, ZenodoMapper zenodoMapper,
                                  TableRepository tableRepository, QueryRepository queryRepository) {
-        this.apiTemplate = apiTemplate;
+        this.zenodoTemplate = zenodoTemplate;
         this.zenodoConfig = zenodoConfig;
         this.zenodoMapper = zenodoMapper;
         this.tableRepository = tableRepository;
@@ -55,7 +54,7 @@ public class ZenodoMetadataService implements MetadataService {
         final Table table = getTable(databaseId, tableId);
         final ResponseEntity<DepositTzDto> response;
         try {
-            response = apiTemplate.exchange("/api/deposit/depositions?access_token={token}", HttpMethod.POST,
+            response = zenodoTemplate.exchange("/api/deposit/depositions?access_token={token}", HttpMethod.POST,
                     addHeaders("{}"), DepositTzDto.class, zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
             throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
@@ -84,7 +83,7 @@ public class ZenodoMetadataService implements MetadataService {
         }
         final ResponseEntity<DepositDto> response;
         try {
-            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+            response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
                     HttpMethod.PUT, addHeaders(data), DepositDto.class, metaQuery.get().getDepositId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
@@ -119,7 +118,7 @@ public class ZenodoMetadataService implements MetadataService {
         }
         final ResponseEntity<DepositDto> response;
         try {
-            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+            response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
                     HttpMethod.GET, addHeaders(null), DepositDto.class, metaQuery.get().getDepositId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
@@ -150,7 +149,7 @@ public class ZenodoMetadataService implements MetadataService {
         }
         final ResponseEntity<String> response;
         try {
-            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
+            response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
                     HttpMethod.DELETE, addHeaders(null), String.class, query.get().getDepositId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
@@ -177,7 +176,7 @@ public class ZenodoMetadataService implements MetadataService {
         }
         final ResponseEntity<DepositDto> response;
         try {
-            response = apiTemplate.exchange("/api/deposit/depositions/{deposit_id}/actions/publish?access_token={token}",
+            response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}/actions/publish?access_token={token}",
                     HttpMethod.POST, addHeaders(null), DepositDto.class, metaQuery.get().getDepositId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {

@@ -11,6 +11,7 @@ import at.tuwien.exception.TableMalformedException;
 import org.jooq.DSLContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
@@ -36,7 +37,7 @@ public interface DatabaseConnector {
      * @throws TableMalformedException       The resulting table by the mapper is malformed.
      */
     void create(Database database, TableCreateDto createDto) throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException;
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException, IOException;
 
     /**
      * Insert data inside a csv document into a table

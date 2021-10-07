@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpEntity;
@@ -42,7 +43,8 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @MockBean
-    private RestTemplate apiTemplate;
+    @Qualifier("zenodoTemplate")
+    private RestTemplate zenodoTemplate;
 
     @MockBean
     private TableRepository tableRepository;
@@ -71,7 +73,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         /* mocks */
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.POST), Mockito.<HttpEntity<String>>any(), eq(DepositTzDto.class),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), Mockito.<HttpEntity<String>>any(), eq(DepositTzDto.class),
                 anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED)
                         .body(DEPOSIT_1));
@@ -88,7 +90,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
         doThrow(ResourceAccessException.class)
-                .when(apiTemplate)
+                .when(zenodoTemplate)
                 .exchange(anyString(), eq(HttpMethod.POST), Mockito.<HttpEntity<String>>any(), eq(DepositTzDto.class),
                         anyString());
 
@@ -105,7 +107,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         /* mocks */
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(),
                 anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED)
                         .build());
@@ -121,7 +123,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
         doThrow(ResourceAccessException.class)
-                .when(apiTemplate)
+                .when(zenodoTemplate)
                 .exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(),
                         anyString());
 
@@ -137,7 +139,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         /* mocks */
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(),
                 anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.OK)
                         .build());
@@ -155,7 +157,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         /* mocks */
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(), eq(DepositTzDto.class),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(), eq(DepositTzDto.class),
                 eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.OK)
                         .body(DEPOSIT_1));
@@ -177,7 +179,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
         doThrow(ResourceAccessException.class)
-                .when(apiTemplate)
+                .when(zenodoTemplate)
                 .exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(), eq(DepositTzDto.class),
                         eq(DEPOSIT_1_ID), anyString());
 
@@ -198,7 +200,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         /* mocks */
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(), eq(DepositTzDto.class),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(), eq(DepositTzDto.class),
                 eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .build());
@@ -220,7 +222,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
         /* mocks */
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.empty());
-        when(apiTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(),
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(),
                 eq(DepositTzDto.class),
                 eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)

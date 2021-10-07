@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Log4j2
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/database/{id}/table/{tableid}/deposit/file")
+@RequestMapping("/api/database/{id}/table/{tableid}/file")
 public class FileEndpoint {
 
     private final FileMapper fileMapper;
@@ -50,7 +50,7 @@ public class FileEndpoint {
                           @Valid @RequestParam("tableId") Long tableId,
                           @Valid @RequestParam("queryId") Long queryId)
             throws ZenodoApiException, ZenodoNotFoundException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException {
         return fileMapper.fileToFileDto(fileService.createResource(databaseId, tableId, queryId));
     }
 

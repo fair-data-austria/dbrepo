@@ -144,19 +144,4 @@ public abstract class BaseUnitTest {
             .container(CONTAINER_2)
             .build();
 
-    public final Query QUERY_1 = Query.builder().query("ST * from t").build();
-
-    /*
-    public final Query QUERY_1 = Query.builder()
-            .id(QUERY_1_ID)
-            .created(QUERY_1_CREATED)
-            .lastModified(QUERY_1_UPDATED)
-            .query(QUERY_1_STATEMENT)
-            .executionTimestamp(QUERY_1_TIMESTAMP)
-            .queryHash(QUERY_1_HASH)
-            .queryNormalized(QUERY_1_NORMALIZED)
-            .resultHash(QUERY_1_RESULTHASH)
-            .resultNumber(QUERY_1_RESULTNUMBER)
-            .build();
-*/
 }

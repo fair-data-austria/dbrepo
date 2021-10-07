@@ -26,7 +26,7 @@ public interface FileService {
     @Transactional
     File createResource(Long databaseId, Long tableId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoUnavailableException, QueryNotFoundException;
+            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException;
 
     /**
      * List all files known to a deposit number (through the database-table id pair)
