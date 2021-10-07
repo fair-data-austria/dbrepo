@@ -2,6 +2,7 @@ package at.tuwien.mapper;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.deposit.DepositDto;
+import at.tuwien.api.database.deposit.DepositTzDto;
 import at.tuwien.config.ReadyConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
@@ -40,7 +41,7 @@ public class MapperUnitTest extends BaseUnitTest {
         final String json = FileUtils.readFileToString(ResourceUtils.getFile("classpath:zenodo-deposits-store.json"));
 
         /* test */
-        final DepositDto response = objectMapper.readValue(json, DepositDto.class);
+        final DepositTzDto response = objectMapper.readValue(json, DepositTzDto.class);
         assertEquals(926290, response.getConceptRecId());
         assertEquals(0, response.getFiles().size());
         assertEquals(926291, response.getId());

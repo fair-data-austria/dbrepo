@@ -1,6 +1,7 @@
 package at.tuwien;
 
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.api.database.deposit.DepositDto;
 import at.tuwien.api.database.deposit.DepositTzDto;
 import at.tuwien.api.database.deposit.files.FileDto;
 import at.tuwien.api.database.deposit.files.FileLinksDto;
@@ -9,6 +10,7 @@ import at.tuwien.api.database.deposit.metadata.LicenseTypeDto;
 import at.tuwien.api.database.deposit.metadata.MetadataDto;
 import at.tuwien.api.database.deposit.metadata.UploadTypeDto;
 import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
@@ -22,7 +24,9 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.time.temporal.ChronoUnit.HOURS;
 
@@ -53,6 +57,7 @@ public abstract class BaseUnitTest {
     public final static Long DEPOSIT_1_OWNER = 144L;
 
     public final static Long QUERY_1_ID = 1L;
+    public final static String QUERY_1_TITLE = "All Raindata";
     public final static String QUERY_1_QUERY = "SELECT * FROM rainfall;";
     public final static String QUERY_1_QUERY_NORMALIZED = "SELECT id,rainfall FROM rainfall;";
     public final static String QUERY_1_HASH = "a5ddf5ac87b72173f75ccbd134ba1072";
@@ -85,17 +90,24 @@ public abstract class BaseUnitTest {
 
     public final static Long FILE_1_ID = 1L;
     public final static String FILE_1_NAME = "testdata-othername.csv";
+    public final static String FILE_1_REF_ID = "6b3df619-eb55-427a-8ee2-9bef7c1ae189";
     public final static String FILE_1_CHECKSUM = "d393c7fa1240c18473133793f7901aaa";
     public final static Long FILE_1_SIZE = 34614L;
 
     public final static File FILE_1 = File.builder()
             .id(FILE_1_ID)
+            .refId(FILE_1_REF_ID)
             .build();
+
+    public final static String FILE_1_LINKS_DOWNLOAD = "http://localhost:5500/file/" + FILE_1_ID + "/download";
+    public final static String FILE_1_LINKS_SELF = "http://localhost:5500/file/" + FILE_1_ID;
 
     public final static Query QUERY_1 = Query.builder()
             .id(QUERY_1_ID)
+            .title(QUERY_1_TITLE)
             .executionTimestamp(QUERY_1_EXECUTION_TIMESTAMP)
             .file(FILE_1)
+            .depositId(DEPOSIT_1_ID)
             .build();
 
     public final static Long FILE_2_ID = 2L;
@@ -111,9 +123,6 @@ public abstract class BaseUnitTest {
     public final static LicenseTypeDto DEPOSIT_2_LICENSE = LicenseTypeDto.CC_BY;
     public final static String DEPOSIT_2_STATE = "draft";
     public final static Boolean DEPOSIT_2_SUBMITTED = false;
-
-    public final static String FILE_1_LINKS_DOWNLOAD = "http://localhost:5500/file/" + FILE_1_ID + "/download";
-    public final static String FILE_1_LINKS_SELF = "http://localhost:5500/file/" + FILE_1_ID;
 
     public final static String DEPOSIT_1_DOI = "10.5072/zenodo.542201";
     public final static Long DEPOSIT_1_REC_ID = 542201L;
@@ -222,17 +231,29 @@ public abstract class BaseUnitTest {
             .files(List.of(FILE_1_DTO))
             .build();
 
-    public final static DepositTzDto DEPOSIT_2 = DepositTzDto.builder()
-            .id(DEPOSIT_1_ID)
-            .title(DEPOSIT_1_TITLE)
-            .state(DEPOSIT_1_STATE)
-            .submitted(DEPOSIT_1_SUBMITTED)
-            .recordId(DEPOSIT_1_RECORD_ID)
-            .files(List.of(FILE_1_DTO))
-            .build();
-
     public final static ExecuteQueryDto QUERY_1_EXECUTE = ExecuteQueryDto.builder()
             .query(QUERY_1_QUERY)
+            .build();
+
+    public final static String COLUMN_1_INTERNAL_NAME = "id";
+    public final static String COLUMN_2_INTERNAL_NAME = "name";
+
+    public final static Map<String, Object> ROW_1 = new LinkedHashMap<>() {{
+        put(COLUMN_1_INTERNAL_NAME, 1L);
+        put(COLUMN_2_INTERNAL_NAME, "Foo");
+    }};
+    public final static Map<String, Object> ROW_2 = new LinkedHashMap<>() {{
+        put(COLUMN_1_INTERNAL_NAME, 2L);
+        put(COLUMN_2_INTERNAL_NAME, "Bar");
+    }};
+    public final static Map<String, Object> ROW_3 = new LinkedHashMap<>() {{
+        put(COLUMN_1_INTERNAL_NAME, 3L);
+        put(COLUMN_2_INTERNAL_NAME, "Baz");
+    }};
+
+    public final static QueryResultDto QUERY_1_RESULT = QueryResultDto.builder()
+            .id(QUERY_1_ID)
+            .result(List.of(ROW_1, ROW_2, ROW_3))
             .build();
 
     public final static DepositChangeRequestDto DEPOST_1_REQUEST = DepositChangeRequestDto.builder()

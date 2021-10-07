@@ -30,7 +30,7 @@ public class Query {
     @Column
     private String doi;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

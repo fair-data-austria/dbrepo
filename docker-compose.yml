@@ -123,8 +123,9 @@ services:
     build: ./fda-query-service
     image: fda-query-service
     networks:
-      - fda-public
-      - fda-userdb
+      fda-public:
+        ipv4_address: 172.29.0.5
+      fda-userdb:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:

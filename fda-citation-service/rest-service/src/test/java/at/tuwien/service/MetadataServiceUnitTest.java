@@ -2,11 +2,13 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.api.database.deposit.DepositDto;
 import at.tuwien.api.database.deposit.DepositTzDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.QueryRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,17 +48,18 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     private RestTemplate zenodoTemplate;
 
     @MockBean
-    private TableRepository tableRepository;
+    private QueryRepository queryRepository;
 
-    final Database DATABASE_1 = Database.builder()
-            .id(DATABASE_1_ID)
-            .build();
+    @MockBean
+    private TableRepository tableRepository;
 
     @Test
     public void listCitations_succeeds() {
 
         /* mocks */
         when(zenodoService.listCitations(DATABASE_1_ID, TABLE_1_ID))
+                .thenReturn(List.of(QUERY_1));
+        when(queryRepository.findAll())
                 .thenReturn(List.of(QUERY_1));
 
         /* test */
@@ -68,30 +70,36 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void storeCitation_succeed() throws ZenodoApiException, ZenodoAuthenticationException,
-            MetadataDatabaseNotFoundException, ZenodoUnavailableException {
+            ZenodoUnavailableException, MetadataDatabaseNotFoundException {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
+        when(queryRepository.save(Mockito.any()))
+                .thenReturn(QUERY_1);
+        when(tableRepository.findByDatabaseAndId(Database.builder().id(DATABASE_1_ID).build(), TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), Mockito.<HttpEntity<String>>any(), eq(DepositTzDto.class),
-                anyString()))
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.POST), Mockito.any(),
+                eq(DepositTzDto.class), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED)
                         .body(DEPOSIT_1));
 
         /* test */
         final Query response = zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        assertEquals(QUERY_1_ID, response.getExecutionTimestamp());
+        assertEquals(QUERY_1_ID, response.getId());
     }
 
     @Test
     public void storeCitation_unavailable_fails() {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
+        when(tableRepository.findByDatabaseAndId(Database.builder().id(DATABASE_1_ID).build(), TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
         doThrow(ResourceAccessException.class)
                 .when(zenodoTemplate)
-                .exchange(anyString(), eq(HttpMethod.POST), Mockito.<HttpEntity<String>>any(), eq(DepositTzDto.class),
+                .exchange(anyString(), eq(HttpMethod.POST), Mockito.any(), eq(DepositTzDto.class),
                         anyString());
 
         /* test */
@@ -101,14 +109,29 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
+    public void storeCitation_notFound_fails() {
+
+        /* mocks */
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
+        when(tableRepository.findByDatabaseAndId(Database.builder().id(DATABASE_1_ID).build(), TABLE_1_ID))
+                .thenReturn(Optional.empty());
+
+        /* test */
+        assertThrows(MetadataDatabaseNotFoundException.class, () -> {
+            zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        });
+    }
+
+    @Test
     public void deleteCitation_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(),
-                anyString()))
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(),
+                eq(String.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED)
                         .build());
 
@@ -120,12 +143,12 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     public void deleteCitation_unavailable_fails() {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
         doThrow(ResourceAccessException.class)
                 .when(zenodoTemplate)
-                .exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(),
-                        anyString());
+                .exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(),
+                        eq(String.class), eq(DEPOSIT_1_ID), anyString());
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
@@ -134,13 +157,30 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
+    public void deleteCitation_notFound_fails() {
+
+        /* mocks */
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.empty());
+        doThrow(ResourceAccessException.class)
+                .when(zenodoTemplate)
+                .exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(),
+                        eq(String.class), eq(DEPOSIT_1_ID), anyString());
+
+        /* test */
+        assertThrows(QueryNotFoundException.class, () -> {
+            zenodoService.deleteCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        });
+    }
+
+    @Test
     public void deleteCitation_fails() {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class), anyLong(),
-                anyString()))
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(),
+                eq(String.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.OK)
                         .build());
 
@@ -155,12 +195,11 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
             ZenodoNotFoundException, ZenodoUnavailableException, QueryNotFoundException {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(), eq(DepositTzDto.class),
-                eq(DEPOSIT_1_ID), anyString()))
-                .thenReturn(ResponseEntity.status(HttpStatus.OK)
-                        .body(DEPOSIT_1));
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.any(),
+                eq(DepositTzDto.class), eq(DEPOSIT_1_ID), anyString()))
+                .thenReturn(ResponseEntity.ok(DEPOSIT_1));
 
         /* request */
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
@@ -176,12 +215,12 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     public void updateCitation_unavailable_fails() {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
         doThrow(ResourceAccessException.class)
                 .when(zenodoTemplate)
-                .exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(), eq(DepositTzDto.class),
-                        eq(DEPOSIT_1_ID), anyString());
+                .exchange(anyString(), eq(HttpMethod.PUT), Mockito.any(),
+                        eq(DepositTzDto.class), eq(DEPOSIT_1_ID), anyString());
 
         /* request */
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
@@ -198,10 +237,10 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     public void updateCitation_notExists_fails() {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(), eq(DepositTzDto.class),
-                eq(DEPOSIT_1_ID), anyString()))
+        when(queryRepository.findById(QUERY_1_ID))
+                .thenReturn(Optional.of(QUERY_1));
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.any(),
+                eq(DepositTzDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .build());
 
@@ -220,11 +259,11 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     public void updateCitation_notFound_fails() {
 
         /* mocks */
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+
+        when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.empty());
-        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.<HttpEntity<DepositTzDto>>any(),
-                eq(DepositTzDto.class),
-                eq(DEPOSIT_1_ID), anyString()))
+        when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.PUT), Mockito.any(),
+                eq(DepositTzDto.class), eq(DEPOSIT_1_ID), anyString()))
                 .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .build());
 
@@ -234,7 +273,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        assertThrows(MetadataDatabaseNotFoundException.class, () -> {
+        assertThrows(QueryNotFoundException.class, () -> {
             zenodoService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, request);
         });
     }

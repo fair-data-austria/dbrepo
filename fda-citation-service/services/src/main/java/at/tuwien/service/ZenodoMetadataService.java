@@ -12,6 +12,7 @@ import at.tuwien.mapper.ZenodoMapper;
 import at.tuwien.repository.jpa.QueryRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -25,18 +26,19 @@ import java.util.Optional;
 @Service
 public class ZenodoMetadataService implements MetadataService {
 
-    private final RestTemplate zenodoTemplate;
     private final ZenodoConfig zenodoConfig;
     private final ZenodoMapper zenodoMapper;
+    private final RestTemplate zenodoTemplate;
     private final TableRepository tableRepository;
     private final QueryRepository queryRepository;
 
     @Autowired
-    public ZenodoMetadataService(RestTemplate zenodoTemplate, ZenodoConfig zenodoConfig, ZenodoMapper zenodoMapper,
-                                 TableRepository tableRepository, QueryRepository queryRepository) {
-        this.zenodoTemplate = zenodoTemplate;
+    public ZenodoMetadataService(@Qualifier("zenodoTemplate") RestTemplate zenodoTemplate, ZenodoConfig zenodoConfig,
+                                 ZenodoMapper zenodoMapper, TableRepository tableRepository,
+                                 QueryRepository queryRepository) {
         this.zenodoConfig = zenodoConfig;
         this.zenodoMapper = zenodoMapper;
+        this.zenodoTemplate = zenodoTemplate;
         this.tableRepository = tableRepository;
         this.queryRepository = queryRepository;
     }
@@ -50,8 +52,12 @@ public class ZenodoMetadataService implements MetadataService {
     @Override
     @Transactional
     public Query storeCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
-            ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
-        final Table table = getTable(databaseId, tableId);
+            ZenodoApiException, ZenodoUnavailableException, MetadataDatabaseNotFoundException {
+        final Optional<Table> table = tableRepository.findByDatabaseAndId(Database.builder().id(databaseId).build(),
+                tableId);
+        if (table.isEmpty()) {
+            throw new MetadataDatabaseNotFoundException("Table not found in the metadata database");
+        }
         final ResponseEntity<DepositTzDto> response;
         try {
             response = zenodoTemplate.exchange("/api/deposit/depositions?access_token={token}", HttpMethod.POST,
@@ -77,14 +83,14 @@ public class ZenodoMetadataService implements MetadataService {
                                 DepositChangeRequestDto data)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoUnavailableException, QueryNotFoundException {
-        final Optional<Query> metaQuery = queryRepository.findById(queryId);
-        if (metaQuery.isEmpty()) {
+        final Optional<Query> query = queryRepository.findById(queryId);
+        if (query.isEmpty()) {
             throw new QueryNotFoundException("Query not found in query store");
         }
-        final ResponseEntity<DepositDto> response;
+        final ResponseEntity<DepositTzDto> response;
         try {
             response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
-                    HttpMethod.PUT, addHeaders(data), DepositDto.class, metaQuery.get().getDepositId(),
+                    HttpMethod.PUT, addHeaders(data), DepositTzDto.class, query.get().getDepositId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
             throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
@@ -103,8 +109,7 @@ public class ZenodoMetadataService implements MetadataService {
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
-        final Query query = Query.builder().build();
-        return query;
+        return query.get();
     }
 
     @Override
@@ -112,14 +117,14 @@ public class ZenodoMetadataService implements MetadataService {
     public Query findCitation(Long databaseId, Long tableId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
             QueryNotFoundException, ZenodoUnavailableException {
-        final Optional<Query> metaQuery = queryRepository.findById(queryId);
-        if (metaQuery.isEmpty()) {
+        final Optional<Query> query = queryRepository.findById(queryId);
+        if (query.isEmpty()) {
             throw new QueryNotFoundException("Query not found in query store");
         }
         final ResponseEntity<DepositDto> response;
         try {
             response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}?access_token={token}",
-                    HttpMethod.GET, addHeaders(null), DepositDto.class, metaQuery.get().getDepositId(),
+                    HttpMethod.GET, addHeaders(null), DepositDto.class, query.get().getDepositId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
             throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
@@ -135,8 +140,7 @@ public class ZenodoMetadataService implements MetadataService {
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
-        final Query query = Query.builder().build();
-        return query;
+        return query.get();
     }
 
     @Override
@@ -170,14 +174,14 @@ public class ZenodoMetadataService implements MetadataService {
     public Query publishCitation(Long databaseId, Long tableId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, QueryNotFoundException,
             ZenodoUnavailableException, ZenodoNotFoundException {
-        final Optional<Query> metaQuery = queryRepository.findById(queryId);
-        if (metaQuery.isEmpty()) {
+        final Optional<Query> query = queryRepository.findById(queryId);
+        if (query.isEmpty()) {
             throw new QueryNotFoundException("Query not found in query store");
         }
         final ResponseEntity<DepositDto> response;
         try {
             response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}/actions/publish?access_token={token}",
-                    HttpMethod.POST, addHeaders(null), DepositDto.class, metaQuery.get().getDepositId(),
+                    HttpMethod.POST, addHeaders(null), DepositDto.class, query.get().getDepositId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
             throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
@@ -190,29 +194,7 @@ public class ZenodoMetadataService implements MetadataService {
         if (!response.getStatusCode().equals(HttpStatus.ACCEPTED)) {
             throw new ZenodoApiException("Could not publish the deposit");
         }
-        final Query query = Query.builder().build();
-        return query;
-    }
-
-
-    /**
-     * Wrapper function to throw error when table with id was not found
-     *
-     * @param databaseId The database id
-     * @param tableId    The table id
-     * @return The table
-     * @throws MetadataDatabaseNotFoundException The error
-     */
-    @Transactional
-    protected Table getTable(Long databaseId, Long tableId) throws MetadataDatabaseNotFoundException {
-        final Database database = Database.builder()
-                .id(databaseId)
-                .build();
-        final Optional<Table> table = tableRepository.findByDatabaseAndId(database, tableId);
-        if (table.isEmpty()) {
-            throw new MetadataDatabaseNotFoundException("Failed to find table with this id");
-        }
-        return table.get();
+        return query.get();
     }
 
     /**

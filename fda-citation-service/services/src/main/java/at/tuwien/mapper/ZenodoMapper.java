@@ -42,6 +42,10 @@ public interface ZenodoMapper {
         return bodyBuilder.build();
     }
 
+    @Mappings({
+            @Mapping(source = "data.metadata.prereserveDoi.doi", target = "doi"),
+            @Mapping(source = "data.id", target = "depositId")
+    })
     Query depositTzDtoToQuery(DepositTzDto data);
 
     default Instant localDateTimeToInstant(LocalDateTime data) {

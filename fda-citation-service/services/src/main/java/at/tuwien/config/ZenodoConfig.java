@@ -27,11 +27,6 @@ public class ZenodoConfig {
     @Value("${zenodo.endpoint}")
     private String zenodoEndpoint;
 
-    @Getter
-    @NotNull
-    @Value("${fda.query.endpoint}")
-    private String queryEndpoint;
-
     @NotNull
     @Value("${zenodo.api_key}")
     private String apiKey;
@@ -45,24 +40,9 @@ public class ZenodoConfig {
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper()
-                .findAndRegisterModules()
-                .registerModule(new JavaTimeModule())
-                .registerModule(new Jdk8Module());
-    }
-
-    @Bean
     public RestTemplate zenodoTemplate() {
         return new RestTemplateBuilder()
                 .uriTemplateHandler(new DefaultUriBuilderFactory(zenodoEndpoint))
-                .build();
-    }
-
-    @Bean
-    public RestTemplate queryTemplate() {
-        return new RestTemplateBuilder()
-                .uriTemplateHandler(new DefaultUriBuilderFactory(queryEndpoint))
                 .build();
     }
 
