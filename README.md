@@ -34,7 +34,6 @@ API=http://fda-gateway-service:9095
 Add to your `/etc/hosts` for executing the tests:
 
 ```bash
-172.29.0.5      fda-query-service
 172.29.0.6      fda-gateway-service
 ```
 

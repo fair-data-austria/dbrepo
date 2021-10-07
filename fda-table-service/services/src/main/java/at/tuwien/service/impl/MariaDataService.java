@@ -49,7 +49,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
     @Autowired
     public MariaDataService(DatabaseRepository databaseRepository, TableRepository tableRepository,
                             ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
-        super(imageMapper, tableMapper, queryMapper);
+        super(imageMapper, tableMapper);
         this.queryMapper = queryMapper;
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
@@ -215,6 +215,5 @@ public class MariaDataService extends JdbcConnector implements DataService {
             throw new DatabaseConnectionException(e);
         }
     }
-
 
 }

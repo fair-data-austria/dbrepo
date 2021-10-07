@@ -8,7 +8,6 @@ import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.ImageMapper;
-import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.service.DatabaseConnector;
 import lombok.extern.log4j.Log4j2;
@@ -18,6 +17,7 @@ import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -33,17 +33,16 @@ import java.util.stream.Collectors;
 import static org.jooq.impl.DSL.*;
 
 @Log4j2
+@Service
 public abstract class JdbcConnector implements DatabaseConnector {
 
     private final ImageMapper imageMapper;
     private final TableMapper tableMapper;
-    private final QueryMapper queryMapper;
 
     @Autowired
-    protected JdbcConnector(ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
+    protected JdbcConnector(ImageMapper imageMapper, TableMapper tableMapper) {
         this.imageMapper = imageMapper;
         this.tableMapper = tableMapper;
-        this.queryMapper = queryMapper;
     }
 
     @Override
@@ -116,12 +115,13 @@ public abstract class JdbcConnector implements DatabaseConnector {
      * @return True if it is reserved word
      * @throws IOException Reserved word csv could not be read
      */
-    private Boolean isReserved(String word) throws IOException {
+    public Boolean isReserved(String word) throws IOException {
         return FileUtils.readLines(new File(Objects.requireNonNull(
                                 this.getClass().getClassLoader().getResource("./reserved.csv")).getFile()),
                         Charset.defaultCharset())
                 .stream()
-                .anyMatch(word::contains);
+                .map(s -> s.toUpperCase(Locale.ENGLISH))
+                .anyMatch(s -> s.equals(word.toUpperCase(Locale.ENGLISH)));
     }
 
 }
