@@ -28,8 +28,7 @@ public class GatewayConfig {
                         .method("POST", "GET", "PUT", "DELETE")
                         .and()
                         .uri("lb://fda-query-service"))
-                .route("fda-citation-service", r -> r.path("/api/database/**/table/**/file/**",
-                                "/api/database/**/table/**/metadata/**")
+                .route("fda-citation-service", r -> r.path("/api/database/**/cite/**")
                         .and()
                         .method("POST", "GET", "PUT", "DELETE")
                         .and()

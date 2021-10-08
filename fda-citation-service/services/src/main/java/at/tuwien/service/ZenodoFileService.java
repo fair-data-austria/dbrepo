@@ -3,14 +3,15 @@ package at.tuwien.service;
 import at.tuwien.api.database.deposit.files.FileDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.config.ZenodoConfig;
+import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.File;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.FileMapper;
 import at.tuwien.mapper.ZenodoMapper;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.FileRepository;
 import at.tuwien.repository.jpa.QueryRepository;
-import at.tuwien.repository.jpa.TableRepository;
 import com.opencsv.CSVWriter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +46,12 @@ public class ZenodoFileService implements FileService {
     private final RestTemplate zenodoTemplate;
     private final FileRepository fileRepository;
     private final QueryRepository queryRepository;
+    private final DatabaseRepository databaseRepository;
 
     @Autowired
     public ZenodoFileService(FileMapper fileMapper, RestTemplate zenodoTemplate, RestTemplate queryTemplate,
                              ZenodoConfig zenodoConfig, ZenodoMapper zenodoMapper, FileRepository fileRepository,
-                             QueryRepository queryRepository) {
+                             QueryRepository queryRepository, DatabaseRepository databaseRepository) {
         this.fileMapper = fileMapper;
         this.zenodoTemplate = zenodoTemplate;
         this.queryTemplate = queryTemplate;
@@ -57,18 +59,20 @@ public class ZenodoFileService implements FileService {
         this.zenodoMapper = zenodoMapper;
         this.fileRepository = fileRepository;
         this.queryRepository = queryRepository;
+        this.databaseRepository = databaseRepository;
     }
 
     @Override
-    public File createResource(Long databaseId, Long tableId, Long queryId)
+    public File createResource(Long databaseId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
             ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException,
-            ZenodoFileException {
+            ZenodoFileException, MetadataDatabaseNotFoundException {
+        final Database database = find(databaseId);
         final Query query = getQuery(queryId);
         final ResponseEntity<FileDto> response;
         try {
             response = zenodoTemplate.postForEntity("/api/deposit/depositions/{deposit_id}/files?access_token={token}",
-                    zenodoMapper.resourceToHttpEntity(query.getTitle(), getDataset(databaseId, tableId, queryId)),
+                    zenodoMapper.resourceToHttpEntity(query.getTitle(), getDataset(databaseId, queryId)),
                     FileDto.class, query.getDepositId(), zenodoConfig.getApiKey());
         } catch (IOException e) {
             throw new ZenodoApiException("Could not map file to byte array");
@@ -95,9 +99,10 @@ public class ZenodoFileService implements FileService {
     }
 
     @Override
-    public File findResource(Long databaseId, Long tableId, Long queryId)
+    public File findResource(Long databaseId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoNotFoundException,
-            ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
+        final Database database = find(databaseId);
         final Query query = getQuery(queryId);
         if (query.getFiles().size() != 1) {
             log.error("Currently we only support one file");
@@ -122,8 +127,9 @@ public class ZenodoFileService implements FileService {
     }
 
     @Override
-    public void deleteResource(Long databaseId, Long tableId, Long queryId) throws ZenodoAuthenticationException,
-            ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException {
+    public void deleteResource(Long databaseId, Long queryId) throws ZenodoAuthenticationException,
+            ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
+        final Database database = find(databaseId);
         final Query query = getQuery(queryId);
         if (query.getFiles().size() != 1) {
             log.error("Currently we only support one file");
@@ -180,11 +186,10 @@ public class ZenodoFileService implements FileService {
      * Retrieve a result set from the Table Service and create a multipart file from it
      *
      * @param databaseId The database-table id pair
-     * @param tableId    The database-table id pair
      * @param queryId    The query id
      * @return The create multipart file
      */
-    private MultipartFile getDataset(Long databaseId, Long tableId, Long queryId) throws QueryNotFoundException,
+    private MultipartFile getDataset(Long databaseId, Long queryId) throws QueryNotFoundException,
             RemoteDatabaseException, TableServiceException, ZenodoFileException {
         final ResponseEntity<QueryResultDto> response;
         try {
@@ -202,6 +207,21 @@ public class ZenodoFileService implements FileService {
         final MultipartFile file = writeFile(response.getBody());
         log.trace("mapped to file {}", file);
         return file;
+    }
+
+    /**
+     * Find database by id in the metadata database
+     *
+     * @param id The id
+     * @return The database
+     * @throws MetadataDatabaseNotFoundException When not found
+     */
+    private Database find(Long id) throws MetadataDatabaseNotFoundException {
+        final Optional<Database> database = databaseRepository.findById(id);
+        if (database.isEmpty()) {
+            throw new MetadataDatabaseNotFoundException("Database not found in the metadata database");
+        }
+        return database.get();
     }
 
     /**

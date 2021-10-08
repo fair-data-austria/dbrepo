@@ -72,10 +72,10 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
             ZenodoFileException {
 
         /* integrate */
-        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID);
 
         /* test */
-        final File response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        final File response = fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
     }
 
     @Test
@@ -87,13 +87,13 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
                 ResourceUtils.getFile("classpath:csv/weatherAUS.csv")));
 
         /* request */
-        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID);
         final FileUploadDto request = FileUploadDto.builder()
                 .name(FILE_2_NAME)
                 .build();
 
         /* test */
-        final File response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        final File response = fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
         assertEquals(FILE_1_ID, response.getId());
     }
 
@@ -112,11 +112,11 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
             RemoteDatabaseException, TableServiceException, ZenodoFileException {
 
         /* request */
-        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        final File fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID);
+        final File fileResponse = fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
 
         /* test */
-        final File findResponse = fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        final File findResponse = fileService.findResource(DATABASE_1_ID, QUERY_1_ID);
         assertEquals(fileResponse.getId(), findResponse.getId());
     }
 
@@ -127,11 +127,11 @@ public class FileServiceIntegrationTest extends BaseUnitTest {
             RemoteDatabaseException, TableServiceException, ZenodoFileException {
 
         /* request */
-        final Query deposit = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        final File fileResponse = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        final Query deposit = metadataService.storeCitation(DATABASE_1_ID);
+        final File fileResponse = fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
 
         /* test */
-        fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        fileService.deleteResource(DATABASE_1_ID, QUERY_1_ID);
     }
 
 }

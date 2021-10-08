@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity;
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileBinaryRequestDto {

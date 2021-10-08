@@ -20,6 +20,9 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title v-text="title" />
       <v-spacer />
+      <v-btn color="primary" href="https://login.tuwien.ac.at/portal" class="mr-2">
+        <v-icon left>mdi-login</v-icon> TU Wien
+      </v-btn>
       <v-menu bottom offset-y left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn

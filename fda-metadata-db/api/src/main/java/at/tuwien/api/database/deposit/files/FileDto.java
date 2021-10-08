@@ -8,6 +8,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileDto {

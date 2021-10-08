@@ -6,11 +6,11 @@ import at.tuwien.api.database.deposit.DepositTzDto;
 import at.tuwien.config.ZenodoConfig;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
-import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ZenodoMapper;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.QueryRepository;
-import at.tuwien.repository.jpa.TableRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
@@ -23,41 +23,38 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service
 public class ZenodoMetadataService implements MetadataService {
 
     private final ZenodoConfig zenodoConfig;
     private final ZenodoMapper zenodoMapper;
     private final RestTemplate zenodoTemplate;
-    private final TableRepository tableRepository;
+    private final DatabaseRepository databaseRepository;
     private final QueryRepository queryRepository;
 
     @Autowired
     public ZenodoMetadataService(@Qualifier("zenodoTemplate") RestTemplate zenodoTemplate, ZenodoConfig zenodoConfig,
-                                 ZenodoMapper zenodoMapper, TableRepository tableRepository,
+                                 ZenodoMapper zenodoMapper, DatabaseRepository databaseRepository,
                                  QueryRepository queryRepository) {
         this.zenodoConfig = zenodoConfig;
         this.zenodoMapper = zenodoMapper;
         this.zenodoTemplate = zenodoTemplate;
-        this.tableRepository = tableRepository;
+        this.databaseRepository = databaseRepository;
         this.queryRepository = queryRepository;
     }
 
     @Override
     @Transactional
-    public List<Query> listCitations(Long databaseId, Long tableId) {
-        return queryRepository.findAll();
+    public List<Query> listCitations(Long databaseId) throws MetadataDatabaseNotFoundException {
+        return queryRepository.findByDatabase(find(databaseId));
     }
 
     @Override
     @Transactional
-    public Query storeCitation(Long databaseId, Long tableId) throws ZenodoAuthenticationException,
+    public Query storeCitation(Long databaseId) throws ZenodoAuthenticationException,
             ZenodoApiException, ZenodoUnavailableException, MetadataDatabaseNotFoundException {
-        final Optional<Table> table = tableRepository.findByDatabaseAndId(Database.builder().id(databaseId).build(),
-                tableId);
-        if (table.isEmpty()) {
-            throw new MetadataDatabaseNotFoundException("Table not found in the metadata database");
-        }
+        final Database database = find(databaseId);
         final ResponseEntity<DepositTzDto> response;
         try {
             response = zenodoTemplate.exchange("/api/deposit/depositions?access_token={token}", HttpMethod.POST,
@@ -74,16 +71,20 @@ public class ZenodoMetadataService implements MetadataService {
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
-        return queryRepository.save(zenodoMapper.depositTzDtoToQuery(response.getBody()));
+        final Query query = zenodoMapper.depositTzDtoToQuery(response.getBody());
+        log.info("Created query metadata id {} and doi {}", query.getId(), query.getDoi());
+        log.debug("Created query metadata {}", response.getBody());
+        return query;
     }
 
     @Override
     @Transactional
-    public Query updateCitation(Long databaseId, Long tableId, Long queryId,
+    public Query updateCitation(Long databaseId, Long queryId,
                                 DepositChangeRequestDto data)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoUnavailableException, QueryNotFoundException {
-        final Optional<Query> query = queryRepository.findById(queryId);
+            ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
+        final Database database = find(databaseId);
+        final Optional<Query> query = queryRepository.findByDatabaseAndId(database, queryId);
         if (query.isEmpty()) {
             throw new QueryNotFoundException("Query not found in query store");
         }
@@ -109,15 +110,18 @@ public class ZenodoMetadataService implements MetadataService {
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
+        log.info("Updated query metadata id {}", queryId);
+        log.debug("Updated query metadata {}", response.getBody());
         return query.get();
     }
 
     @Override
     @Transactional
-    public Query findCitation(Long databaseId, Long tableId, Long queryId)
+    public Query findCitation(Long databaseId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            QueryNotFoundException, ZenodoUnavailableException {
-        final Optional<Query> query = queryRepository.findById(queryId);
+            QueryNotFoundException, ZenodoUnavailableException, MetadataDatabaseNotFoundException {
+        final Database database = find(databaseId);
+        final Optional<Query> query = queryRepository.findByDatabaseAndId(database, queryId);
         if (query.isEmpty()) {
             throw new QueryNotFoundException("Query not found in query store");
         }
@@ -140,14 +144,16 @@ public class ZenodoMetadataService implements MetadataService {
         if (response.getBody() == null) {
             throw new ZenodoApiException("Endpoint returned null body");
         }
+        log.debug("Found query metadata {}", response.getBody());
         return query.get();
     }
 
     @Override
     @Transactional
-    public void deleteCitation(Long databaseId, Long tableId, Long queryId) throws ZenodoAuthenticationException, ZenodoApiException,
-            QueryNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException {
-        final Optional<Query> query = queryRepository.findById(queryId);
+    public void deleteCitation(Long databaseId, Long queryId) throws ZenodoAuthenticationException, ZenodoApiException,
+            QueryNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException, MetadataDatabaseNotFoundException {
+        final Database database = find(databaseId);
+        final Optional<Query> query = queryRepository.findByDatabaseAndId(database, queryId);
         if (query.isEmpty()) {
             throw new QueryNotFoundException("Query not found in query store");
         }
@@ -167,14 +173,17 @@ public class ZenodoMetadataService implements MetadataService {
         if (!response.getStatusCode().equals(HttpStatus.CREATED)) {
             throw new ZenodoApiException("Could not delete the deposit");
         }
+        log.info("Deleted query metadata id {}", queryId);
+        log.debug("Deleted query metadata {}", response.getBody());
     }
 
     @Override
     @Transactional
-    public Query publishCitation(Long databaseId, Long tableId, Long queryId)
+    public Query publishCitation(Long databaseId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, QueryNotFoundException,
-            ZenodoUnavailableException, ZenodoNotFoundException {
-        final Optional<Query> query = queryRepository.findById(queryId);
+            ZenodoUnavailableException, ZenodoNotFoundException, MetadataDatabaseNotFoundException {
+        final Database database = find(databaseId);
+        final Optional<Query> query = queryRepository.findByDatabaseAndId(database, queryId);
         if (query.isEmpty()) {
             throw new QueryNotFoundException("Query not found in query store");
         }
@@ -194,7 +203,24 @@ public class ZenodoMetadataService implements MetadataService {
         if (!response.getStatusCode().equals(HttpStatus.ACCEPTED)) {
             throw new ZenodoApiException("Could not publish the deposit");
         }
+        log.info("Published query metadata id {} and doi {}", queryId, query.get().getDoi());
+        log.debug("Published query metadata {}", response.getBody());
         return query.get();
+    }
+
+    /**
+     * Find database by id in the metadata database
+     *
+     * @param id The id
+     * @return The database
+     * @throws MetadataDatabaseNotFoundException When not found
+     */
+    private Database find(Long id) throws MetadataDatabaseNotFoundException {
+        final Optional<Database> database = databaseRepository.findById(id);
+        if (database.isEmpty()) {
+            throw new MetadataDatabaseNotFoundException("Database not found in the metadata database");
+        }
+        return database.get();
     }
 
     /**

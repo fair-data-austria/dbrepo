@@ -8,6 +8,7 @@ import java.net.URI;
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class LinksDto {
