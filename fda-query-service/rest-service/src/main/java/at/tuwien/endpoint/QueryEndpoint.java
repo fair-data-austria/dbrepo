@@ -1,77 +1,57 @@
 package at.tuwien.endpoint;
 
-import at.tuwien.api.database.query.ExecuteQueryDto;
-import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.query.QueryDto;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.QueryService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import net.sf.jsqlparser.JSQLParserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/database/{id}")
 public class QueryEndpoint {
 
+    private final QueryMapper queryMapper;
     private final QueryService queryService;
 
     @Autowired
-    public QueryEndpoint(QueryService queryService) {
+    public QueryEndpoint(QueryMapper queryMapper, QueryService queryService) {
+        this.queryMapper = queryMapper;
         this.queryService = queryService;
     }
 
-    @Transactional
-    @PutMapping("/query")
-    @ApiOperation(value = "executes a query")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
+    @GetMapping("/{queryId}")
+    @ApiOperation(value = "Find a query", notes = "Find a query")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "All queries are listed."),
+            @ApiResponse(code = 400, message = "Problem with reading the stored queries."),
             @ApiResponse(code = 404, message = "The database does not exist."),
-            @ApiResponse(code = 405, message = "The container is not running."),
-            @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> execute(@PathVariable Long id,
-                                                  @RequestBody ExecuteQueryDto data)
-            throws DatabaseNotFoundException, ImageNotSupportedException, SQLException,
-            JSQLParserException, QueryStoreException, DatabaseConnectionException {
-        return ResponseEntity.ok(queryService.execute(id, data));
+    })
+    public ResponseEntity<QueryDto> find(@PathVariable Long id, @PathVariable Long queryId)
+            throws QueryNotFoundException {
+        return ResponseEntity.ok(queryMapper.queryToQueryDto(queryService.findById(queryId)));
     }
 
-    @Transactional
-    @PutMapping("/save")
-    @ApiOperation(value = "saves a query without execution")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
+    @GetMapping
+    @ApiOperation(value = "List all queries", notes = "Lists all already executed queries")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "All queries are listed."),
+            @ApiResponse(code = 400, message = "Problem with reading the stored query."),
             @ApiResponse(code = 404, message = "The database does not exist."),
-            @ApiResponse(code = 405, message = "The container is not running."),
-            @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> save(@PathVariable Long id,
-                                               @RequestBody ExecuteQueryDto data)
-            throws DatabaseNotFoundException, ImageNotSupportedException, JSQLParserException, QueryStoreException,
-            DatabaseConnectionException, QueryMalformedException {
-        return ResponseEntity.ok(queryService.save(id, data));
-    }
-
-    @Transactional
-    @GetMapping("/query/{queryId}")
-    @ApiOperation(value = "re-executes a query")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Re-Execute a saved query and return the results"),
-            @ApiResponse(code = 404, message = "The database does not exist."),
-            @ApiResponse(code = 405, message = "The container is not running."),
-            @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> reexecute(@PathVariable Long id,
-                                                    @PathVariable Long queryId,
-                                                    @RequestParam(name = "page", required = false) Integer page,
-                                                    @RequestParam(name = "size", required = false) Integer size)
-            throws DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException,
-            QueryStoreException, QueryMalformedException {
-        return ResponseEntity.ok(queryService.reexecute(id, queryId, page, size));
+    })
+    public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) {
+        final List<Query> queries = queryService.findAll(id);
+        return ResponseEntity.ok(queries.stream()
+                .map(queryMapper::queryToQueryDto)
+                .collect(Collectors.toList()));
     }
 
 
