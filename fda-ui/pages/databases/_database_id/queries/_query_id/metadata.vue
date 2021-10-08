@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div>
     <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
     <v-toolbar flat>
       <v-btn id="zenodo-logo" class="mr-2" :style="`background-image:url(${zenodoLogo});`" disabled />
@@ -39,6 +39,7 @@
             v-model="data.metadata.title"
             class="pa-0"
             :rules="[rules.required]"
+            disabled
             label="Query Title"
             required />
           <v-textarea
@@ -111,15 +112,15 @@ export default {
       valid: false,
       data: {
         metadata: {
-          access_right: null,
+          access_right: 'open',
           creators: [{
             name: null,
             affiliation: null,
             orcid: null
           }],
           title: null,
-          description: null,
-          upload_type: 'DATASET'
+          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
+          upload_type: 'dataset'
         }
       },
       query: {
@@ -144,7 +145,12 @@ export default {
       return this.$route.params.query_id
     },
     accessRights () {
-      return [{ name: 'Open', value: 'OPEN' }]
+      return [
+        { name: 'Open', value: 'open', disabled: false },
+        { name: 'Closed', value: 'closed', disabled: true },
+        { name: 'Restricted', value: 'restricted', disabled: true },
+        { name: 'Embargoed', value: 'embargoed', disabled: true }
+      ]
     },
     zenodoLogo () {
       return require('assets/img/zenodo-logo.png')
@@ -163,6 +169,7 @@ export default {
         const res = await this.$axios.get(`/api/database/${this.databaseId}/metadata/query/${this.queryId}`)
         this.query = res.data
         console.debug('query data', res.data)
+        this.data.metadata.title = res.data.title
         this.loading = false
       } catch (err) {
         this.error = true
@@ -172,9 +179,28 @@ export default {
     async submit () {
       this.$refs.form.validate()
       console.debug('form', this.data)
-      this.loading = true
-      const res = await this.$axios.post(`/api/database/${this.databaseId}/cite/query/${this.queryId}`)
-      console.debug('create deposit', res.data)
+      try {
+        this.loading = true
+        this.error = false
+        const res = await this.$axios.post(`/api/database/${this.databaseId}/cite/metadata`)
+        console.debug('create deposit', res.data)
+        this.loading = false
+      } catch (err) {
+        this.error = true
+        console.error('create deposit', err)
+      }
+      try {
+        this.loading = true
+        this.error = false
+        const res = await this.$axios.put(`/api/database/${this.databaseId}/cite/metadata/${this.queryId}`, {
+          metadata: this.data.metadata
+        })
+        console.debug('update deposit', res.data)
+        this.loading = false
+      } catch (err) {
+        this.error = true
+        console.error('update deposit', err)
+      }
     },
     addAuthor () {
       this.data.metadata.creators.push({

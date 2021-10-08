@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Log4j2
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/database/{id}/table/{tableid}/file")
+@RequestMapping("/api/database/{id}/cite/file")
 public class FileEndpoint {
 
     private final FileMapper fileMapper;
@@ -28,44 +28,39 @@ public class FileEndpoint {
     }
 
     @GetMapping
-    public List<FileDto> listAll(@Valid @RequestParam("id") Long databaseId,
-                                 @Valid @RequestParam("tableId") Long tableId) {
+    public List<FileDto> listAll(@Valid @PathVariable("id") Long databaseId) {
         return fileService.listResources()
                 .stream()
                 .map(fileMapper::fileToFileDto)
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{fileId}")
-    public FileDto find(@Valid @RequestParam("id") Long databaseId,
-                        @Valid @RequestParam("tableId") Long tableId,
-                        @Valid @RequestParam("queryId") Long queryId)
+    @GetMapping("/{queryId}")
+    public FileDto find(@Valid @PathVariable("id") Long databaseId,
+                        @Valid @PathVariable("queryId") Long queryId)
             throws ZenodoApiException, ZenodoNotFoundException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, QueryNotFoundException {
-        return fileMapper.fileToFileDto(fileService.findResource(databaseId, tableId, queryId));
+            ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
+        return fileMapper.fileToFileDto(fileService.findResource(databaseId, queryId));
     }
 
-    @PostMapping("/{fileId}")
-    public FileDto create(@Valid @RequestParam("id") Long databaseId,
-                          @Valid @RequestParam("tableId") Long tableId,
-                          @Valid @RequestParam("queryId") Long queryId)
+    @PostMapping("/{queryId}")
+    public FileDto create(@Valid @PathVariable("id") Long databaseId,
+                          @Valid @PathVariable("queryId") Long queryId)
             throws ZenodoApiException, ZenodoNotFoundException, ZenodoAuthenticationException,
             ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException,
-            ZenodoFileException {
-        return fileMapper.fileToFileDto(fileService.createResource(databaseId, tableId, queryId));
+            ZenodoFileException, MetadataDatabaseNotFoundException {
+        return fileMapper.fileToFileDto(fileService.createResource(databaseId, queryId));
     }
 
-    @PutMapping("/{fileId}")
-    public FileDto update(@Valid @RequestParam("id") Long databaseId,
-                          @Valid @RequestParam("tableId") Long tableId,
-                          @Valid @RequestParam("queryId") Long queryId) {
+    @PutMapping("/{queryId}")
+    public FileDto update(@Valid @PathVariable("id") Long databaseId,
+                          @Valid @PathVariable("queryId") Long queryId) {
         return null;
     }
 
-    @DeleteMapping("/{fileId}")
-    public FileDto delete(@Valid @RequestParam("id") Long databaseId,
-                          @Valid @RequestParam("tableId") Long tableId,
-                          @Valid @RequestParam("queryId") Long queryId) {
+    @DeleteMapping("/{queryId}")
+    public FileDto delete(@Valid @PathVariable("id") Long databaseId,
+                          @Valid @PathVariable("queryId") Long queryId) {
         return null;
     }
 }

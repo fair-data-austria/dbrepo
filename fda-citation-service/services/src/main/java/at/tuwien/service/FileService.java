@@ -14,7 +14,6 @@ public interface FileService {
      * Upload a new file to a remote server for a given database-table id pair and metadata
      *
      * @param databaseId The database-table id paid
-     * @param tableId    The database-table id pair
      * @param queryId    The query id
      * @return The new file
      * @throws ZenodoAuthenticationException Token invalid
@@ -24,9 +23,9 @@ public interface FileService {
      * @throws QueryNotFoundException        The deposit was not found on the metadata database
      */
     @Transactional
-    File createResource(Long databaseId, Long tableId, Long queryId)
+    File createResource(Long databaseId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException, ZenodoFileException;
+            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException, ZenodoFileException, MetadataDatabaseNotFoundException;
 
     /**
      * List all files known to a deposit number (through the database-table id pair)
@@ -40,7 +39,6 @@ public interface FileService {
      * Find a file for a deposit (through the database-table id pair) by id
      *
      * @param databaseId The database-table id pair
-     * @param tableId    The database-table id pair
      * @param queryId    The query id
      * @return The file
      * @throws QueryNotFoundException        The deposit was not found on the metadata database
@@ -50,15 +48,14 @@ public interface FileService {
      * @throws ZenodoApiException            Something other went wrong
      */
     @Transactional
-    File findResource(Long databaseId, Long tableId, Long queryId)
+    File findResource(Long databaseId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoNotFoundException,
-            ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException;
+            ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException;
 
     /**
      * Delete a file based on the database-table id pair by id
      *
      * @param databaseId The database-table id pair
-     * @param tableId    The database-table id pair
      * @param queryId    The query id
      * @throws QueryNotFoundException        The deposit was not found on the metadata database
      * @throws ZenodoAuthenticationException Token invalid
@@ -67,6 +64,6 @@ public interface FileService {
      * @throws ZenodoApiException            Something other went wrong
      */
     @Transactional
-    void deleteResource(Long databaseId, Long tableId, Long queryId) throws ZenodoAuthenticationException,
-            ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException;
+    void deleteResource(Long databaseId, Long queryId) throws ZenodoAuthenticationException,
+            ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException;
 }

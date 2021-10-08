@@ -2,7 +2,6 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
-import at.tuwien.api.database.deposit.DepositDto;
 import at.tuwien.api.database.deposit.DepositTzDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.Database;
@@ -54,16 +53,16 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
     private TableRepository tableRepository;
 
     @Test
-    public void listCitations_succeeds() {
+    public void listCitations_succeeds() throws MetadataDatabaseNotFoundException {
 
         /* mocks */
-        when(zenodoService.listCitations(DATABASE_1_ID, TABLE_1_ID))
+        when(zenodoService.listCitations(DATABASE_1_ID))
                 .thenReturn(List.of(QUERY_1));
         when(queryRepository.findAll())
                 .thenReturn(List.of(QUERY_1));
 
         /* test */
-        final List<Query> response = zenodoService.listCitations(DATABASE_1_ID, TABLE_1_ID);
+        final List<Query> response = zenodoService.listCitations(DATABASE_1_ID);
         assertEquals(1, response.size());
         assertEquals(QUERY_1, response.get(0));
     }
@@ -85,7 +84,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
                         .body(DEPOSIT_1));
 
         /* test */
-        final Query response = zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final Query response = zenodoService.storeCitation(DATABASE_1_ID);
         assertEquals(QUERY_1_ID, response.getId());
     }
 
@@ -104,7 +103,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+            zenodoService.storeCitation(DATABASE_1_ID);
         });
     }
 
@@ -119,13 +118,14 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(MetadataDatabaseNotFoundException.class, () -> {
-            zenodoService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+            zenodoService.storeCitation(DATABASE_1_ID);
         });
     }
 
     @Test
     public void deleteCitation_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
-            ZenodoNotFoundException, ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoNotFoundException, ZenodoUnavailableException, QueryNotFoundException,
+            MetadataDatabaseNotFoundException {
 
         /* mocks */
         when(queryRepository.findById(QUERY_1_ID))
@@ -136,7 +136,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
                         .build());
 
         /* test */
-        zenodoService.deleteCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        zenodoService.deleteCitation(DATABASE_1_ID, QUERY_1_ID);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            zenodoService.deleteCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            zenodoService.deleteCitation(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -169,7 +169,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryNotFoundException.class, () -> {
-            zenodoService.deleteCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            zenodoService.deleteCitation(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -186,13 +186,13 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
-            zenodoService.deleteCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            zenodoService.deleteCitation(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
     @Test
     public void updateCitation_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
-            ZenodoNotFoundException, ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoNotFoundException, ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
 
         /* mocks */
         when(queryRepository.findById(QUERY_1_ID))
@@ -207,7 +207,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        final Query response = zenodoService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, request);
+        final Query response = zenodoService.updateCitation(DATABASE_1_ID, QUERY_1_ID, request);
         assertEquals(QUERY_1_ID, response.getId());
     }
 
@@ -229,7 +229,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            zenodoService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, request);
+            zenodoService.updateCitation(DATABASE_1_ID, QUERY_1_ID, request);
         });
     }
 
@@ -251,7 +251,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
-            zenodoService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, request);
+            zenodoService.updateCitation(DATABASE_1_ID, QUERY_1_ID, request);
         });
     }
 
@@ -274,7 +274,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryNotFoundException.class, () -> {
-            zenodoService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, request);
+            zenodoService.updateCitation(DATABASE_1_ID, QUERY_1_ID, request);
         });
     }
 

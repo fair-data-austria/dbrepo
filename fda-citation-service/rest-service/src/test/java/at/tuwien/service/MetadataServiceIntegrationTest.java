@@ -64,10 +64,10 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     @Transactional
-    public void listDeposit_succeeds() {
+    public void listDeposit_succeeds() throws MetadataDatabaseNotFoundException {
 
         /* test */
-        final List<Query> response = metadataService.listCitations(DATABASE_1_ID, TABLE_1_ID);
+        final List<Query> response = metadataService.listCitations(DATABASE_1_ID);
         assertEquals(1, response.size());
     }
 
@@ -76,7 +76,7 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
             MetadataDatabaseNotFoundException, ZenodoUnavailableException {
 
         /* test */
-        final Query response = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final Query response = metadataService.storeCitation(DATABASE_1_ID);
         assertNotNull(response.getId());
         assertNotNull(response.getDoi());
     }
@@ -85,10 +85,10 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     public void updateDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
             QueryNotFoundException {
-        final Query query = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
+        final Query query = metadataService.storeCitation(DATABASE_1_ID);
 
         /* test */
-        final Query response = metadataService.updateCitation(DATABASE_1_ID, TABLE_1_ID, query.getId(), DEPOST_1_REQUEST);
+        final Query response = metadataService.updateCitation(DATABASE_1_ID, query.getId(), DEPOST_1_REQUEST);
         assertNotNull(response.getId());
     }
 
@@ -97,8 +97,8 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     public void publishDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
             QueryNotFoundException, RemoteDatabaseException, TableServiceException, ZenodoFileException {
-        final Query query = metadataService.storeCitation(DATABASE_1_ID, TABLE_1_ID);
-        fileService.createResource(DATABASE_1_ID, TABLE_1_ID, query.getId());
+        final Query query = metadataService.storeCitation(DATABASE_1_ID);
+        fileService.createResource(DATABASE_1_ID, query.getId());
 
         /* integrate */
         final DepositChangeRequestDto request = DepositChangeRequestDto.builder()
@@ -109,10 +109,10 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
                         .creators(METADATA_1_CREATORS)
                         .build())
                 .build();
-        metadataService.updateCitation(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID, request);
+        metadataService.updateCitation(DATABASE_1_ID, QUERY_1_ID, request);
 
         /* test */
-        final Query response = metadataService.publishCitation(DATABASE_1_ID, TABLE_1_ID, query.getId());
+        final Query response = metadataService.publishCitation(DATABASE_1_ID, query.getId());
         assertNotNull(response.getId());
         assertEquals(METADATA_1_TITLE, response.getTitle());
         assertNotNull(response.getDoi());

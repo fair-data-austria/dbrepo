@@ -69,7 +69,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
     @Test
     public void createResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
             ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException,
-            RemoteDatabaseException, TableServiceException, ZenodoFileException {
+            RemoteDatabaseException, TableServiceException, ZenodoFileException, MetadataDatabaseNotFoundException {
 
         /* mock */
         when(zenodoTemplate.postForEntity(anyString(), Mockito.<MultiValueMap<String, HttpEntity<?>>>any(),
@@ -83,7 +83,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(ResponseEntity.ok(QUERY_1_RESULT));
 
         /* test */
-        final File response = fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        final File response = fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
         assertEquals(FILE_1_ID, response.getId());
     }
 
@@ -103,7 +103,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -122,7 +122,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
-            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -141,7 +141,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
-            fileService.createResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -162,7 +162,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void findResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException,
+            MetadataDatabaseNotFoundException {
 
         /* mock */
         when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.GET), Mockito.any(), eq(FileDto.class),
@@ -172,7 +173,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(QUERY_1));
 
         /* test */
-        final File file = fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        final File file = fileService.findResource(DATABASE_1_ID, QUERY_1_ID);
         assertEquals(FILE_1_ID, file.getId());
     }
 
@@ -189,7 +190,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.findResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -205,7 +206,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
-            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.findResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -222,7 +223,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
-            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.findResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -235,13 +236,14 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryNotFoundException.class, () -> {
-            fileService.findResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.findResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
     @Test
     public void deleteResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
+            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException,
+            MetadataDatabaseNotFoundException {
 
         /* mock */
         when(zenodoTemplate.exchange(anyString(), eq(HttpMethod.DELETE), Mockito.any(), eq(String.class),
@@ -251,7 +253,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(QUERY_1));
 
         /* test */
-        fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        fileService.deleteResource(DATABASE_1_ID, QUERY_1_ID);
     }
 
     @Test
@@ -267,7 +269,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
-            fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.deleteResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -283,7 +285,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
-            fileService.deleteResource(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+            fileService.deleteResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
