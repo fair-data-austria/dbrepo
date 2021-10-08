@@ -1,65 +1,89 @@
 <template>
   <div>
-    <v-row dense>
-      <v-col cols="6">
-        <v-select
-          v-model="table"
-          :items="tables"
-          item-text="name"
-          return-object
-          label="Table"
-          @change="loadColumns" />
-      </v-col>
-      <v-col cols="6">
-        <v-select
-          v-model="select"
-          item-text="name"
-          :disabled="!table"
-          :items="selectItems"
-          label="Columns"
-          return-object
-          multiple
-          @change="buildQuery" />
-      </v-col>
-    </v-row>
-    <!--    <QueryFilters-->
-    <!--      v-if="table"-->
-    <!--      v-model="clauses"-->
-    <!--      :columns="columnNames" />-->
-    <v-row v-if="query.formatted">
-      <v-col>
-        <highlightjs autodetect :code="query.formatted" />
-      </v-col>
-      <v-col cols="3" class="actions">
-        <v-btn class="execute" color="primary" @click="execute">
-          <v-icon left>mdi-run</v-icon>
-          Execute
-        </v-btn>
-        <div class="break"></div>
-        <v-btn class="execute" @click="save">
-          Save
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <p>Results</p>
-        <v-data-table
-          :headers="result.headers"
-          :items="result.rows"
-          :loading="loading"
-          :items-per-page="30"
-          class="elevation-1" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-btn v-if="queryId" color="primary" :to="`/databases/${databaseId}/queries/${queryId}`">
-          <v-icon left>mdi-fingerprint</v-icon>
-          Obtain Query DOI
-        </v-btn>
-      </v-col>
-    </v-row>
+    <v-form
+      ref="form"
+      v-model="valid"
+      lazy-validation>
+      <v-toolbar flat>
+        <v-toolbar-title>Create Query</v-toolbar-title>
+        <v-spacer />
+        <v-toolbar-title>
+          <v-btn :disabled="!valid" @click="save">
+            Save without execution
+          </v-btn>
+          <v-btn :disabled="!valid" color="primary" @click="execute">
+            <v-icon left>mdi-run</v-icon>
+            Execute
+          </v-btn>
+        </v-toolbar-title>
+      </v-toolbar>
+      <v-card flat>
+        <v-card-text>
+          <v-row class="mt-2">
+            <v-col cols="6">
+              <v-text-field
+                v-model="title"
+                :rules="[rules.required, rules.titleMin]"
+                class="pa-0"
+                label="Query Title"
+                required />
+            </v-col>
+          </v-row>
+          <v-row class="mt-2">
+            <v-col cols="6">
+              <v-select
+                v-model="table"
+                :rules="[rules.required]"
+                :items="tables"
+                item-text="name"
+                return-object
+                label="Table"
+                @change="loadColumns" />
+            </v-col>
+            <v-col cols="6">
+              <v-select
+                v-model="select"
+                :rules="[rules.required]"
+                item-text="name"
+                :disabled="!table"
+                :items="selectItems"
+                label="Columns"
+                return-object
+                multiple
+                @change="buildQuery" />
+            </v-col>
+          </v-row>
+          <!--    <QueryFilters-->
+          <!--      v-if="table"-->
+          <!--      v-model="clauses"-->
+          <!--      :columns="columnNames" />-->
+          <v-row v-if="query.formatted">
+            <v-col>
+              <highlightjs autodetect :code="query.formatted" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <p>Results</p>
+              <v-data-table
+                :headers="result.headers"
+                :items="result.rows"
+                :loading="loading"
+                :items-per-page="30"
+                class="elevation-1" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-btn v-if="queryId" color="primary" :to="`/databases/${databaseId}/queries/${queryId}`">
+                <v-icon left>mdi-fingerprint</v-icon>
+                Obtain Query DOI
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-form>
   </div>
 </template>
 
@@ -67,16 +91,24 @@
 export default {
   data () {
     return {
+      valid: false,
       table: null,
       tables: [],
+      title: null,
       tableDetails: null,
       queryId: null,
-      query: {},
+      query: {
+        sql: ''
+      },
       select: [],
       clauses: [],
       result: {
         headers: [],
         rows: []
+      },
+      rules: {
+        required: value => !!value || 'Required',
+        titleMin: value => (value || '').length >= 10 || 'Minimum 10 characters'
       },
       loading: false
     }
@@ -113,11 +145,13 @@ export default {
   },
   methods: {
     async execute () {
+      this.$refs.form.validate()
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
         const res = await this.$axios.put(`/api/database/${this.databaseId}/query`, {
-          Query: query
+          title: this.title,
+          query
         })
         console.debug('query result', res)
         this.$toast.success('Successfully executed query')
@@ -134,6 +168,7 @@ export default {
       }
     },
     async save () {
+      this.$refs.form.validate()
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
@@ -191,15 +226,4 @@ main.scss file from vuetify, because it paints it red */
   color: #657b83;
 }
 
-.actions {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.break {
-  flex-basis: 100%;
-  height: 0;
-}
 </style>

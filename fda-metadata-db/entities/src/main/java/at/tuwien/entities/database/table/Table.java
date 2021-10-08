@@ -1,6 +1,7 @@
 package at.tuwien.entities.database.table;
 
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -61,6 +62,9 @@ public class Table {
     @Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant created;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, mappedBy = "table")
+    private List<Query> queries;
 
     @Column
     @LastModifiedDate

@@ -1,9 +1,9 @@
 <template>
   <div v-if="!loading">
     <v-toolbar flat>
-      <v-btn id="zenodo-logo" class="mr-2" :style="`background-image:url(${zenodoLogo});`" disabled></v-btn>
+      <v-btn id="zenodo-logo" class="mr-2" :style="`background-image:url(${zenodoLogo});`" disabled />
       <v-toolbar-title>Cite Query No. {{ queryId }}</v-toolbar-title>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-toolbar-title>
         <v-btn color="primary" :disabled="!valid" @click="submit()">
           <v-icon left>mdi-publish</v-icon>
@@ -32,13 +32,13 @@
             item-text="name"
             item-value="value"
             class="col-lg-6 col-md-8 pa-0"
-            label="Access Right"></v-select>
+            label="Access Right" />
           <v-text-field
             v-model="data.metadata.title"
             class="pa-0"
             :rules="[rules.required]"
             label="Query Title"
-            required></v-text-field>
+            required />
           <v-textarea
             v-model="data.metadata.description"
             class="pa-0 mt-4"
@@ -47,7 +47,7 @@
             counter
             rows="4"
             hint="Minimum 100 Characters"
-            required></v-textarea>
+            required />
         </v-card-text>
       </v-card>
       <v-card class="space mt-4" flat>
@@ -61,7 +61,7 @@
                 :rules="[rules.required]"
                 class="pa-0"
                 label="Firstname Surname"
-                required></v-text-field>
+                required />
             </v-col>
             <v-col
               cols="12"
@@ -71,7 +71,7 @@
                 :rules="[rules.required]"
                 class="pa-0"
                 label="Affiliation"
-                required></v-text-field>
+                required />
             </v-col>
             <v-col
               cols="12"
@@ -80,7 +80,7 @@
                 v-model="author.orcid"
                 class="pa-0"
                 label="ORCiD"
-                required></v-text-field>
+                required />
             </v-col>
             <v-col
               v-if="i !== 0"

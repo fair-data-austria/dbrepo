@@ -57,8 +57,7 @@ services:
     build: ./fda-gateway-service
     image: fda-gateway-service
     networks:
-      fda-public:
-        ipv4_address: 172.29.0.6
+      - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
