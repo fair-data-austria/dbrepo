@@ -44,20 +44,18 @@ public class ZenodoFileService implements FileService {
     private final RestTemplate queryTemplate;
     private final RestTemplate zenodoTemplate;
     private final FileRepository fileRepository;
-    private final TableRepository tableRepository;
     private final QueryRepository queryRepository;
 
     @Autowired
     public ZenodoFileService(FileMapper fileMapper, RestTemplate zenodoTemplate, RestTemplate queryTemplate,
                              ZenodoConfig zenodoConfig, ZenodoMapper zenodoMapper, FileRepository fileRepository,
-                             TableRepository tableRepository, QueryRepository queryRepository) {
+                             QueryRepository queryRepository) {
         this.fileMapper = fileMapper;
         this.zenodoTemplate = zenodoTemplate;
         this.queryTemplate = queryTemplate;
         this.zenodoConfig = zenodoConfig;
         this.zenodoMapper = zenodoMapper;
         this.fileRepository = fileRepository;
-        this.tableRepository = tableRepository;
         this.queryRepository = queryRepository;
     }
 
@@ -101,10 +99,14 @@ public class ZenodoFileService implements FileService {
             throws ZenodoAuthenticationException, ZenodoNotFoundException,
             ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException {
         final Query query = getQuery(queryId);
+        if (query.getFiles().size() != 1) {
+            log.error("Currently we only support one file");
+            throw new QueryNotFoundException("Currently we only support one file");
+        }
         final ResponseEntity<FileDto> response;
         try {
             response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}/files/{file_id}?access_token={token}",
-                    HttpMethod.GET, addHeaders(null), FileDto.class, query.getDepositId(), query.getFile().getId(),
+                    HttpMethod.GET, addHeaders(null), FileDto.class, query.getDepositId(), query.getFiles().get(0).getId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
             throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
@@ -123,10 +125,14 @@ public class ZenodoFileService implements FileService {
     public void deleteResource(Long databaseId, Long tableId, Long queryId) throws ZenodoAuthenticationException,
             ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException {
         final Query query = getQuery(queryId);
+        if (query.getFiles().size() != 1) {
+            log.error("Currently we only support one file");
+            throw new QueryNotFoundException("Currently we only support one file");
+        }
         final ResponseEntity<String> response;
         try {
             response = zenodoTemplate.exchange("/api/deposit/depositions/{deposit_id}/files/{file_id}?access_token={token}",
-                    HttpMethod.DELETE, addHeaders(null), String.class, query.getDepositId(), query.getFile().getId(),
+                    HttpMethod.DELETE, addHeaders(null), String.class, query.getDepositId(), query.getFiles().get(0).getId(),
                     zenodoConfig.getApiKey());
         } catch (ResourceAccessException e) {
             throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
@@ -138,7 +144,7 @@ public class ZenodoFileService implements FileService {
         if (!response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
             throw new ZenodoApiException("Failed to delete the resource with this ID");
         }
-        log.info("Deleted file with id {}", query.getFile().getId());
+        log.info("Deleted file with id {}", query.getFiles().get(0).getId());
     }
 
     /**

@@ -1,5 +1,6 @@
 package at.tuwien.entities.database.query;
 
+import at.tuwien.entities.database.Database;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -34,11 +35,6 @@ public class Query {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Long qtid;
-
-    @Id
-    @EqualsAndHashCode.Include
-    @ToString.Include
     private Long qdbid;
 
     @Column
@@ -59,12 +55,11 @@ public class Query {
     @Column(name = "deposit_id", unique = true)
     private Long depositId;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumns({
-            @JoinColumn(name = "qdbid", referencedColumnName = "tdbid", insertable = false, updatable = false),
-            @JoinColumn(name = "qtid", referencedColumnName = "id", insertable = false, updatable = false)
+            @JoinColumn(name = "qdbid", referencedColumnName = "id", insertable = false, updatable = false)
     })
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    private at.tuwien.entities.database.table.Table table;
+    private Database database;
 
     @Column
     private Instant executionTimestamp;

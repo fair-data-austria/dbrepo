@@ -45,35 +45,37 @@ public class QueryStoreEndpoint {
                 .build();
     }
 
-    @PutMapping("/execute")
+    @PutMapping("/table/{tableId}/execute")
     @ApiOperation(value = "executes a query")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> execute(@PathVariable Long id,
+    public ResponseEntity<QueryResultDto> execute(@PathVariable("id") Long databaseId,
+                                                  @PathVariable Long tableId,
                                                   @RequestBody ExecuteQueryDto data)
             throws QueryStoreException, DatabaseConnectionException, QueryMalformedException, DatabaseNotFoundException,
             ImageNotSupportedException {
-        return ResponseEntity.ok(querystoreService.execute(id, data));
+        return ResponseEntity.ok(querystoreService.execute(databaseId, tableId, data));
     }
 
-    @PostMapping("/save")
+    @PostMapping("/table/{tableId}/save")
     @ApiOperation(value = "saves a query without execution")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
             @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryResultDto> save(@PathVariable Long id,
+    public ResponseEntity<QueryResultDto> save(@PathVariable("id") Long databaseId,
+                                               @PathVariable Long tableId,
                                                @RequestBody ExecuteQueryDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
             DatabaseConnectionException, QueryMalformedException {
-        return ResponseEntity.ok(querystoreService.save(id, data));
+        return ResponseEntity.ok(querystoreService.save(databaseId, tableId, data));
     }
 
-    @PutMapping("/execute/{queryId}")
+    @PutMapping("/table/{tableId}/execute/{queryId}")
     @ApiOperation(value = "re-executes a query")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Re-Execute a saved query and return the results"),
@@ -89,7 +91,7 @@ public class QueryStoreEndpoint {
         return ResponseEntity.ok(querystoreService.reexecute(id, queryId, page, size));
     }
 
-    @GetMapping("/query")
+    @GetMapping
     @ApiOperation(value = "List all queries", notes = "Lists all already executed queries")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All queries are listed."),
@@ -104,7 +106,7 @@ public class QueryStoreEndpoint {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/query/{queryId}")
+    @GetMapping("/{queryId}")
     @ApiOperation(value = "Find a query", notes = "Find a query")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All queries are listed."),

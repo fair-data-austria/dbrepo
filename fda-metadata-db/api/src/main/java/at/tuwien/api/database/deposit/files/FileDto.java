@@ -1,6 +1,9 @@
 package at.tuwien.api.database.deposit.files;
 
+import at.tuwien.api.database.query.QueryDto;
 import lombok.*;
+
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -9,16 +12,17 @@ import lombok.*;
 @AllArgsConstructor
 public class FileDto {
 
-    private String checksum;
-
-    private String filename;
-
-    private Long filesize;
-
-    private Boolean locked;
-
     private Long id;
 
-    private FileLinksDto links;
+    private Long fqid;
 
+    private Long fdbid;
+
+    private String refId;
+
+    private QueryDto query;
+
+    private Instant created;
+
+    private Instant lastModified;
 }

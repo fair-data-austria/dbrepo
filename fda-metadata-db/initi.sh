@@ -198,7 +198,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
     execution_timestamp timestamp without time zone,
 		deposit_id bigint NULL UNIQUE,
-		qtid bigint NOT NULL,
 		qdbid bigint NOT NULL,
     title character varying(255) NOT NULL,
     doi character varying(255),
@@ -209,20 +208,20 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     result_number bigint NULL,
     created timestamp without time zone NOT NULL,
     last_modified timestamp without time zone,
-		FOREIGN KEY (qdbid, qtid) REFERENCES mdb_TABLES(tDBID, ID),
-    PRIMARY KEY(qdbid, qtid, ID)
+		FOREIGN KEY (qdbid) REFERENCES mdb_DATABASES(ID),
+    PRIMARY KEY(qdbid, ID)
   );
 
 	CREATE TABLE IF NOT EXISTS mdb_files (
 		id bigint DEFAULT nextval('mdb_files_seq'),
-		ftid bigint NOT NULL,
 		fdbid bigint NOT NULL,
 		fqid bigint NOT NULL,
 		ref_id varchar(255) NOT NULL,
     created timestamp without time zone NOT NULL,
     last_modified timestamp without time zone,
-		FOREIGN KEY (fdbid, ftid, fqid) REFERENCES mdb_queries(qdbid, qtid, ID),
-		PRIMARY KEY (fdbid, ftid, fqid, id)
+		FOREIGN KEY (fdbid) REFERENCES mdb_DATABASES(ID),
+		FOREIGN KEY (fdbid, fqid) REFERENCES mdb_queries(qdbid, ID),
+		PRIMARY KEY (fdbid, fqid, id)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS ( 

@@ -33,11 +33,6 @@ public class File {
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Long ftid;
-
-    @Id
-    @EqualsAndHashCode.Include
-    @ToString.Include
     private Long fqid;
 
     @Id
@@ -50,7 +45,6 @@ public class File {
 
     @JoinColumns({
             @JoinColumn(name = "fdbid", referencedColumnName = "qdbid", insertable = false, updatable = false),
-            @JoinColumn(name = "ftid", referencedColumnName = "qtid", insertable = false, updatable = false),
             @JoinColumn(name = "fqid", referencedColumnName = "id", insertable = false, updatable = false)
     })
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,6 +1,7 @@
 package at.tuwien.api.database.query;
 
 import at.tuwien.api.database.deposit.files.FileDto;
+import at.tuwien.api.database.table.TableDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 
 
 @Data
@@ -19,6 +21,9 @@ public class QueryDto {
 
     @NotNull
     private Long id;
+
+    @NotNull
+    private Long qdbid;
 
     @JsonProperty("execution_timestamp")
     private Instant executionTimestamp;
@@ -34,7 +39,9 @@ public class QueryDto {
     @JsonProperty("deposit_id")
     private Long depositId;
 
-    private FileDto file;
+    private List<FileDto> files;
+
+    private TableDto table;
 
     @JsonProperty("query_normalized")
     private String queryNormalized;
@@ -52,5 +59,5 @@ public class QueryDto {
     private Instant created;
 
     @NotNull
-    private Instant modified;
+    private Instant lastModified;
 }

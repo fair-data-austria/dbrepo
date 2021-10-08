@@ -199,12 +199,12 @@ public class QueryStoreService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto execute(Long id, ExecuteQueryDto data) throws ImageNotSupportedException,
+    public QueryResultDto execute(Long databaseId, Long tableId, ExecuteQueryDto data) throws ImageNotSupportedException,
             DatabaseNotFoundException, QueryStoreException, DatabaseConnectionException, QueryMalformedException {
-        final Database database = findDatabase(id);
+        final Database database = findDatabase(databaseId);
         if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
             if (!exists(database)) {
-                create(id);
+                create(databaseId);
             }
         }
         final DSLContext context;
@@ -222,6 +222,7 @@ public class QueryStoreService extends JdbcConnector {
         final Query metaQuery = queryMapper.queryDtotoQuery(query);
         metaQuery.setExecutionTimestamp(null);
         metaQuery.setTitle(data.getTitle());
+        metaQuery.setQdbid(databaseId);
         final Query res = queryRepository.save(metaQuery);
         log.info("Saved executed query in metadata database id {}", res.getId());
 
@@ -314,13 +315,13 @@ public class QueryStoreService extends JdbcConnector {
     }
 
     @Transactional
-    public QueryResultDto save(Long id, ExecuteQueryDto data) throws ImageNotSupportedException,
+    public QueryResultDto save(Long databaseId, Long tableId, ExecuteQueryDto data) throws ImageNotSupportedException,
             DatabaseNotFoundException, QueryStoreException, DatabaseConnectionException,
             QueryMalformedException {
-        final Database database = findDatabase(id);
+        final Database database = findDatabase(databaseId);
         if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
             if (!exists(database)) {
-                create(id);
+                create(databaseId);
             }
         }
         final QueryDto query = queryMapper.executeQueryDtoToQueryDto(data);
@@ -337,6 +338,7 @@ public class QueryStoreService extends JdbcConnector {
         final Query metaQuery = queryMapper.queryDtotoQuery(query);
         metaQuery.setExecutionTimestamp(null);
         metaQuery.setTitle(data.getTitle());
+        metaQuery.setQdbid(databaseId);
         final Query res = queryRepository.save(metaQuery);
         log.info("Saved query in metadata database id {}", res.getId());
 

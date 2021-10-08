@@ -156,7 +156,6 @@ export default {
           await this.sleep(1000)
         }
       }
-      this.loading = false
       if (res.status !== 201) {
         this.$toast.error('Could not create database.')
         return

@@ -10,7 +10,4 @@ public class QueryKey implements Serializable {
     private Long id;
 
     private Long qdbid;
-
-    private Long qtid;
-
 }

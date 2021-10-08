@@ -10,13 +10,14 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/database/{id}")
+@RequestMapping("/api/database/{id}/metadata/query")
 public class QueryEndpoint {
 
     private final QueryMapper queryMapper;
@@ -28,6 +29,22 @@ public class QueryEndpoint {
         this.queryService = queryService;
     }
 
+    @GetMapping
+    @ApiOperation(value = "List all queries", notes = "Lists all known queries")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "All queries are listed."),
+            @ApiResponse(code = 400, message = "Problem with reading the stored query."),
+            @ApiResponse(code = 404, message = "The database does not exist."),
+    })
+    @Transactional
+    public ResponseEntity<List<QueryDto>> findAll(@PathVariable("id") Long databaseId)
+            throws DatabaseNotFoundException {
+        final List<Query> queries = queryService.findAll(databaseId);
+        return ResponseEntity.ok(queries.stream()
+                .map(queryMapper::queryToQueryDto)
+                .collect(Collectors.toList()));
+    }
+
     @GetMapping("/{queryId}")
     @ApiOperation(value = "Find a query", notes = "Find a query")
     @ApiResponses({
@@ -35,23 +52,11 @@ public class QueryEndpoint {
             @ApiResponse(code = 400, message = "Problem with reading the stored queries."),
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
-    public ResponseEntity<QueryDto> find(@PathVariable Long id, @PathVariable Long queryId)
+    @Transactional
+    public ResponseEntity<QueryDto> find(@PathVariable("id") Long databaseId,
+                                         @PathVariable("queryId") Long queryId)
             throws QueryNotFoundException {
-        return ResponseEntity.ok(queryMapper.queryToQueryDto(queryService.findById(queryId)));
-    }
-
-    @GetMapping
-    @ApiOperation(value = "List all queries", notes = "Lists all already executed queries")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "All queries are listed."),
-            @ApiResponse(code = 400, message = "Problem with reading the stored query."),
-            @ApiResponse(code = 404, message = "The database does not exist."),
-    })
-    public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) {
-        final List<Query> queries = queryService.findAll(id);
-        return ResponseEntity.ok(queries.stream()
-                .map(queryMapper::queryToQueryDto)
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok(queryMapper.queryToQueryDto(queryService.findById(databaseId, queryId)));
     }
 
 

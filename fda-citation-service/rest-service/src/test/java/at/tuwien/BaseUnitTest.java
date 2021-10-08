@@ -106,8 +106,9 @@ public abstract class BaseUnitTest {
             .id(QUERY_1_ID)
             .title(QUERY_1_TITLE)
             .executionTimestamp(QUERY_1_EXECUTION_TIMESTAMP)
-            .file(FILE_1)
+            .files(List.of(FILE_1))
             .depositId(DEPOSIT_1_ID)
+            .qdbid(DATABASE_1_ID)
             .build();
 
     public final static Long FILE_2_ID = 2L;
@@ -213,11 +214,9 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static FileDto FILE_1_DTO = FileDto.builder()
-            .checksum(FILE_1_CHECKSUM)
-            .filename(FILE_1_NAME)
             .id(FILE_1_ID)
-            .filesize(FILE_1_SIZE)
-            .links(FILE_1_LINKS)
+            .fqid(QUERY_1_ID)
+            .fdbid(DATABASE_1_ID)
             .build();
 
     public final static DepositTzDto DEPOSIT_1 = DepositTzDto.builder()

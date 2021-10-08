@@ -11,8 +11,6 @@ public class FileKey implements Serializable {
 
     private Long fdbid;
 
-    private Long ftid;
-
     private Long fqid;
 
 }

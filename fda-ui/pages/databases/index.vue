@@ -1,7 +1,10 @@
 <template>
   <div>
+    <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
     <v-toolbar flat>
-      <v-toolbar-title>Databases</v-toolbar-title>
+      <v-toolbar-title>
+        <span>Databases</span>
+      </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
         <v-btn color="primary" @click.stop="createDbDialog = true">
@@ -66,7 +69,13 @@ export default {
       createDbDialog: false,
       databases: [],
       loading: true,
+      error: false,
       iconSelect: mdiDatabaseArrowRightOutline
+    }
+  },
+  computed: {
+    loadingColor () {
+      return this.error ? 'red lighten-2' : 'primary'
     }
   },
   mounted () {
@@ -75,11 +84,17 @@ export default {
   methods: {
     async refresh () {
       this.createDbDialog = false
-      this.loading = true
-      const res = await this.$axios.get('/api/database/')
-      this.databases = res.data
-      this.loading = false
-      console.debug('databases', res.data)
+      try {
+        this.loading = true
+        const res = await this.$axios.get('/api/database/')
+        this.databases = res.data
+        this.loading = false
+        this.error = false
+        console.debug('databases', res.data)
+      } catch (err) {
+        console.error('databases', err)
+        this.error = true
+      }
     },
     trim (s) {
       return s.slice(0, 12)
