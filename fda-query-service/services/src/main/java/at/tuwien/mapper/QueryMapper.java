@@ -26,9 +26,6 @@ public interface QueryMapper {
 
     Query queryDtotoQuery(QueryDto data);
 
-    @Mappings({
-            @Mapping(source = "executionTimestamp", target = "executionTimestamp", qualifiedByName = "timezoned")
-    })
     QueryDto queryToQueryDto(Query data);
 
     @Mappings({
@@ -80,21 +77,7 @@ public interface QueryMapper {
         if (data == null) {
             return null;
         }
-        final DateTimeFormatter formatter = DateTimeFormatter
-                .ofPattern("yyyy-MM-dd HH:mm:ss.S")
-                .withZone(ZoneId.systemDefault());
-        return Instant.from(formatter.parse(String.valueOf(data)));
-    }
-
-    @Named("timezoned")
-    default Instant objectToInstantWithTimezone(Object data) {
-        if (data == null) {
-            return null;
-        }
-        final DateTimeFormatter formatter = DateTimeFormatter
-                .ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-                .withZone(ZoneId.systemDefault());
-        return Instant.from(formatter.parse(String.valueOf(data)));
+        return Instant.parse(data.toString());
     }
 
 }

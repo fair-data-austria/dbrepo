@@ -63,9 +63,6 @@ public class Table {
     @CreatedDate
     private Instant created;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, mappedBy = "table")
-    private List<Query> queries;
-
     @Column
     @LastModifiedDate
     private Instant lastModified;

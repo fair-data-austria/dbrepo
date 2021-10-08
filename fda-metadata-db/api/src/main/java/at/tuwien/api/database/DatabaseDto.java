@@ -2,6 +2,8 @@ package at.tuwien.api.database;
 
 import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.image.ImageDto;
+import at.tuwien.api.database.query.QueryDto;
+import at.tuwien.api.database.table.TableDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,6 +13,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -37,6 +40,14 @@ public class DatabaseDto {
     @NotBlank
     @ApiModelProperty(name = "database description", example = "Weather Australia 2009-2021")
     private String description;
+
+    @NotNull
+    @ApiModelProperty(name = "tables")
+    private List<TableDto> tables;
+
+    @NotNull
+    @ApiModelProperty(name = "queries")
+    private List<QueryDto> queries;
 
     @NotBlank
     @ApiModelProperty(name = "database exchange", example = "fda.c1.d1")

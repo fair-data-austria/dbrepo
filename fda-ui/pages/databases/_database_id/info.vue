@@ -34,11 +34,13 @@ export default {
   },
   data () {
     return {
-      tab: 0,
       loading: false
     }
   },
   computed: {
+    tab () {
+      return 0
+    },
     db () {
       return this.$store.state.db
     },
@@ -49,16 +51,24 @@ export default {
       return this.db.publisher === null ? '(no publisher)' : this.db.publisher
     }
   },
-  async mounted () {
-    try {
-      this.loading = true
-      const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
-      console.debug('database', res.data)
-      this.$store.commit('SET_DATABASE', res.data)
-      this.loading = false
-    } catch (err) {
-      this.$toast.error('Could not load database.')
-      this.loading = false
+  mounted () {
+    this.init()
+  },
+  methods: {
+    async init () {
+      if (this.db != null) {
+        return
+      }
+      try {
+        this.loading = true
+        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
+        console.debug('database', res.data)
+        this.$store.commit('SET_DATABASE', res.data)
+        this.loading = false
+      } catch (err) {
+        this.$toast.error('Could not load database.')
+        this.loading = false
+      }
     }
   }
 }

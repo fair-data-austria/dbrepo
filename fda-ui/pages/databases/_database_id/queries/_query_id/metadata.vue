@@ -1,5 +1,6 @@
 <template>
   <div v-if="!loading">
+    <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
     <v-toolbar flat>
       <v-btn id="zenodo-logo" class="mr-2" :style="`background-image:url(${zenodoLogo});`" disabled />
       <v-toolbar-title>Cite Query No. {{ queryId }}</v-toolbar-title>
@@ -21,6 +22,7 @@
         </v-card-subtitle>
         <v-card-text>
           <v-alert
+            v-if="query.query"
             border="left"
             class="mb-6"
             color="amber lighten-4">
@@ -105,6 +107,7 @@ export default {
   data () {
     return {
       loading: false,
+      error: false,
       valid: false,
       data: {
         metadata: {
@@ -134,17 +137,20 @@ export default {
     }
   },
   computed: {
-    queryId () {
-      return this.$route.params.query_id
-    },
     databaseId () {
       return this.$route.params.database_id
+    },
+    queryId () {
+      return this.$route.params.query_id
     },
     accessRights () {
       return [{ name: 'Open', value: 'OPEN' }]
     },
     zenodoLogo () {
       return require('assets/img/zenodo-logo.png')
+    },
+    loadingColor () {
+      return this.error ? 'red lighten-2' : 'primary'
     }
   },
   mounted () {
@@ -153,17 +159,22 @@ export default {
   methods: {
     async loadData () {
       try {
-        const res = await this.$axios.get(`/api/database/${this.databaseId}/querystore/${this.queryId}`)
+        this.loading = true
+        const res = await this.$axios.get(`/api/database/${this.databaseId}/metadata/query/${this.queryId}`)
         this.query = res.data
         console.debug('query data', res.data)
+        this.loading = false
       } catch (err) {
+        this.error = true
         this.$toast.error('Could not load table data.')
       }
-      this.loading = false
     },
-    submit () {
+    async submit () {
       this.$refs.form.validate()
       console.debug('form', this.data)
+      this.loading = true
+      const res = await this.$axios.post(`/api/database/${this.databaseId}/cite/query/${this.queryId}`)
+      console.debug('create deposit', res.data)
     },
     addAuthor () {
       this.data.metadata.creators.push({

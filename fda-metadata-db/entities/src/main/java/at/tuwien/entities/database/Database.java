@@ -1,6 +1,7 @@
 package at.tuwien.entities.database;
 
 import at.tuwien.entities.container.Container;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.Table;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -69,6 +70,10 @@ public class Database {
             @JoinColumn(name = "tdbid", referencedColumnName = "id", insertable = false, updatable = false)
     })
     private List<Table> tables;
+
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "database")
+    private List<Query> queries;
 
     @ToString.Include
     @Column(nullable = false)

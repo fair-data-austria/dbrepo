@@ -123,6 +123,9 @@ export default {
     },
     databaseId () {
       return this.$route.params.database_id
+    },
+    tableId () {
+      return this.table.id
     }
   },
   watch: {
@@ -139,6 +142,7 @@ export default {
       const res = await this.$axios.get(
         `/api/database/${this.databaseId}/table`)
       this.tables = res.data
+      console.debug('tables', this.tables)
     } catch (err) {
       this.$toast.error('Could not list table.')
     }
@@ -149,7 +153,7 @@ export default {
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
-        const res = await this.$axios.put(`/api/database/${this.databaseId}/query`, {
+        const res = await this.$axios.put(`/api/database/${this.databaseId}/store/table/${this.tableId}/execute`, {
           title: this.title,
           query
         })
@@ -172,7 +176,7 @@ export default {
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
-        const res = await this.$axios.put(`/api/database/${this.databaseId}/save`, {
+        const res = await this.$axios.put(`/api/database/${this.databaseId}/store/table/${this.tableId}/save`, {
           Query: query
         })
         console.debug('query result', res)

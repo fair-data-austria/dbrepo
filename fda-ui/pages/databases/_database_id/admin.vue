@@ -1,7 +1,7 @@
 <template>
   <div v-if="db">
     <DBToolbar />
-    <v-tabs-items>
+    <v-tabs-items v-model="tab">
       <v-card flat>
         <v-card-title>
           Database Administration
@@ -49,6 +49,9 @@ export default {
     }
   },
   computed: {
+    tab () {
+      return 3
+    },
     db () {
       return this.$store.state.db
     },
@@ -58,6 +61,9 @@ export default {
       }
       return this.confirm !== this.db.internalName
     }
+  },
+  mounted () {
+    this.init()
   },
   methods: {
     async deleteDatabase () {
@@ -69,6 +75,21 @@ export default {
         this.$toast.error('Could not delete database.')
       }
       this.dialogDelete = false
+    },
+    async init () {
+      if (this.db != null) {
+        return
+      }
+      try {
+        this.loading = true
+        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
+        console.debug('database', res.data)
+        this.$store.commit('SET_DATABASE', res.data)
+        this.loading = false
+      } catch (err) {
+        this.$toast.error('Could not load database.')
+        this.loading = false
+      }
     }
   }
 }
