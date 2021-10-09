@@ -40,13 +40,13 @@ public class Query {
     @Column
     private String doi;
 
-    @Column(nullable = false)
+    @Column
     private String title;
 
-    @Column(nullable = false)
+    @Column
     private String query;
 
-    @Column(nullable = false)
+    @Column
     private String queryNormalized;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "query")

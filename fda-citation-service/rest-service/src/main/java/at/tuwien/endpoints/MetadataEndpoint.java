@@ -38,11 +38,12 @@ public class MetadataEndpoint {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping
+    @PostMapping("/{queryId}")
     @Transactional
-    public QueryDto create(@Valid @PathVariable("id") Long databaseId) throws ZenodoApiException,
+    public QueryDto create(@Valid @PathVariable("id") Long databaseId,
+                           @Valid @PathVariable("queryId") Long queryId) throws ZenodoApiException,
             ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
-        return queryMapper.queryToQueryDto(metadataService.storeCitation(databaseId));
+        return queryMapper.queryToQueryDto(metadataService.storeCitation(databaseId, queryId));
     }
 
     @GetMapping("/{queryId}")
