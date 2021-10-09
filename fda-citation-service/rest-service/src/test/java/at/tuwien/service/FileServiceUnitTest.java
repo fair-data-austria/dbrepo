@@ -222,7 +222,7 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(QUERY_1));
 
         /* test */
-        assertThrows(ZenodoNotFoundException.class, () -> {
+        assertThrows(MetadataDatabaseNotFoundException.class, () -> {
             fileService.findResource(DATABASE_1_ID, QUERY_1_ID);
         });
     }

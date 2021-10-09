@@ -52,7 +52,7 @@ public class ZenodoMetadataService implements MetadataService {
 
     @Override
     @Transactional
-    public Query storeCitation(Long databaseId) throws ZenodoAuthenticationException,
+    public Query storeCitation(Long databaseId, Long queryId) throws ZenodoAuthenticationException,
             ZenodoApiException, ZenodoUnavailableException, MetadataDatabaseNotFoundException {
         final Database database = find(databaseId);
         final ResponseEntity<DepositTzDto> response;
@@ -72,9 +72,12 @@ public class ZenodoMetadataService implements MetadataService {
             throw new ZenodoApiException("Endpoint returned null body");
         }
         final Query query = zenodoMapper.depositTzDtoToQuery(response.getBody());
+        query.setQdbid(databaseId);
+        query.setDatabase(database);
+        query.setId(queryId);
         log.info("Created query metadata id {} and doi {}", query.getId(), query.getDoi());
         log.debug("Created query metadata {}", response.getBody());
-        return query;
+        return queryRepository.save(query);
     }
 
     @Override
@@ -85,8 +88,12 @@ public class ZenodoMetadataService implements MetadataService {
             ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
         final Database database = find(databaseId);
         final Optional<Query> query = queryRepository.findByDatabaseAndId(database, queryId);
+        log.debug("");
         if (query.isEmpty()) {
             throw new QueryNotFoundException("Query not found in query store");
+        }
+        if (query.get().getDepositId() == null) {
+            throw new QueryNotFoundException("Deposit ID is null");
         }
         final ResponseEntity<DepositTzDto> response;
         try {

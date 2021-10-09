@@ -12,6 +12,7 @@ import java.time.Instant;
 @Data
 @Entity
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @IdClass(FileKey.class)
@@ -21,7 +22,6 @@ public class File {
 
     @Id
     @EqualsAndHashCode.Include
-    @ToString.Include
     @GeneratedValue(generator = "files-sequence")
     @GenericGenerator(
             name = "files-sequence",
@@ -32,17 +32,16 @@ public class File {
 
     @Id
     @EqualsAndHashCode.Include
-    @ToString.Include
     private Long fqid;
 
     @Id
     @EqualsAndHashCode.Include
-    @ToString.Include
     private Long fdbid;
 
     @Column(name = "ref_id", nullable = false)
     private String refId;
 
+    @ToString.Exclude
     @JoinColumns({
             @JoinColumn(name = "fdbid", referencedColumnName = "qdbid", insertable = false, updatable = false),
             @JoinColumn(name = "fqid", referencedColumnName = "id", insertable = false, updatable = false)

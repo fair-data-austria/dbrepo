@@ -22,12 +22,13 @@ public interface MetadataService {
      * Create a new deposit
      *
      * @param databaseId The database-table id pair
+     * @param queryId The query id
      * @return The created deposit
      * @throws ZenodoAuthenticationException Token invalid
      * @throws ZenodoApiException            Something other went wrong
      * @throws ZenodoUnavailableException    The remote server is not available
      */
-    Query storeCitation(Long databaseId) throws ZenodoAuthenticationException,
+    Query storeCitation(Long databaseId, Long queryId) throws ZenodoAuthenticationException,
             ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException;
 
     /**

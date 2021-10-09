@@ -43,8 +43,9 @@ public interface ZenodoMapper {
     }
 
     @Mappings({
-            @Mapping(source = "data.metadata.prereserveDoi.doi", target = "doi"),
-            @Mapping(source = "data.id", target = "depositId")
+            @Mapping(source = "metadata.prereserveDoi.doi", target = "doi"),
+            @Mapping(source = "id", target = "depositId"),
+            @Mapping(ignore = true, target = "id")
     })
     Query depositTzDtoToQuery(DepositTzDto data);
 
