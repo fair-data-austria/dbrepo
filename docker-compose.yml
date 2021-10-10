@@ -115,6 +115,24 @@ services:
     logging:
       driver: json-file
 
+  fda-authentication-service:
+    restart: on-failure
+    container_name: fda-authentication-service
+    hostname: fda-authentication-service
+    build: ./fda-authentication-service
+    image: fda-authentication-service
+    networks:
+      - fda-public
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - 9097:9097
+    depends_on:
+      fda-gateway-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
   fda-query-service:
     restart: on-failure
     container_name: fda-query-service
