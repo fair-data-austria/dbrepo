@@ -13,3 +13,11 @@ logging:
 eureka:
   instance.hostname: fda-authentication-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
+fda:
+  identity.provider.url: https://idp.zid.tuwien.ac.at/saml2
+  saml:
+    audience: noidea
+    keystore:
+      location: /
+      alias: dbrepo
+      password: dbrepo
