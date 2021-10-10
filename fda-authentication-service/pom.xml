@@ -30,7 +30,7 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <spring-saml.version>2.0.0.M31</spring-saml.version>
+        <spring-saml.version>1.0.10.RELEASE</spring-saml.version>
     </properties>
 
     <dependencies>
@@ -130,6 +130,14 @@
             <version>${swagger.version}</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>Shibboleth</id>
+            <name>Shibboleth</name>
+            <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
