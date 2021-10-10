@@ -18,6 +18,6 @@ fda:
   saml:
     audience: noidea
     keystore:
-      location: ~/
+      location: ./dbrepo.jks
       alias: dbrepo
       password: dbrepo
