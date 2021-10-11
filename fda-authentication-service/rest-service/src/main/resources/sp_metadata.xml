@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+                     validUntil="2021-10-13T10:33:48Z"
+                     cacheDuration="PT604800S"
+                     entityID="at:tuwien:dbrepo:auth">
+    <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+        <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                     Location="http://localhost:9097/api/auth"
+                                     index="1" />
+
+    </md:SPSSODescriptor>
+    <md:ContactPerson contactType="technical">
+        <md:GivenName>Martin Weise</md:GivenName>
+        <md:EmailAddress>martin.weise@tuwien.ac.at</md:EmailAddress>
+    </md:ContactPerson>
+    <md:ContactPerson contactType="support">
+        <md:GivenName>Andreas Rauber</md:GivenName>
+        <md:EmailAddress>andreas.rauber@tuwien.ac.at</md:EmailAddress>
+    </md:ContactPerson>
+</md:EntityDescriptor>

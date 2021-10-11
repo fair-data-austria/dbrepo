@@ -16,6 +16,9 @@ eureka:
 fda:
   ready.path: /ready
   identity.provider:
+    discovery:
+      url: http://localhost:9097/context/saml/discovery
+      response: http://localhost:9097/context/saml/login
     metadata: https://idp.zid.tuwien.ac.at/saml2
     issuer:
     cert: /okta.crt

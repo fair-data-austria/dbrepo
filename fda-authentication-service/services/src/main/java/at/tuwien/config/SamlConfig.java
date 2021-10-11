@@ -1,6 +1,5 @@
 package at.tuwien.config;
 
-import at.tuwien.service.AuthenticationService;
 import at.tuwien.service.UserService;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -67,12 +66,6 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
         this.userService = userService;
     }
 
-    @Value("${fda.identity.provider.metadata}")
-    private String identityProviderUrl;
-
-    @Value("${fda.saml.audience}")
-    private String samlAudience;
-
     @Value("${fda.saml.keystore.location}")
     private String samlKeystoreLocation;
 
@@ -81,6 +74,15 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
 
     @Value("${fda.saml.keystore.password}")
     private String samlKeystorePassword;
+
+    @Value("${fda.identity.provider.metadata}")
+    private String identityProviderMetadataPath;
+
+    @Value("${fda.identity.provider.discovery.url}")
+    private String identityProviderDiscoveryUrl;
+
+    @Value("${fda.identity.provider.discovery.response}")
+    private String identityProviderDiscoveryResponseUrl;
 
     /* The filter is waiting for connections on URL suffixed with filterSuffix and presents SP metadata there */
     @Bean
@@ -224,19 +226,19 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     @Bean
     public FilterChainProxy samlFilter() throws Exception {
         List<SecurityFilterChain> chains = new ArrayList<>();
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/login/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/login/**"),
                 samlEntryPoint()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/logout/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/logout/**"),
                 samlLogoutFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/metadata/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/metadata/**"),
                 metadataDisplayFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SSO/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/SSO/**"),
                 samlWebSSOProcessingFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SSOHoK/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/SSOHoK/**"),
                 samlWebSSOHoKProcessingFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SingleLogout/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/SingleLogout/**"),
                 samlLogoutProcessingFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/discovery/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/discovery/**"),
                 samlDiscovery()));
         return new FilterChainProxy(chains);
     }
@@ -303,7 +305,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     @Bean
     public MetadataGenerator metadataGenerator() {
         final MetadataGenerator metadataGenerator = new MetadataGenerator();
-        metadataGenerator.setEntityId("com:vdenotaris:spring:sp");
+        metadataGenerator.setEntityId("at:tuwien:dbrepo:auth");
         metadataGenerator.setExtendedMetadata(extendedMetadata());
         metadataGenerator.setIncludeDiscoveryExtension(false);
         metadataGenerator.setKeyManager(keyManager());
@@ -323,21 +325,10 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     @Bean
     @Qualifier("idp-ssocircle")
     public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider() throws MetadataProviderException {
-        if (!identityProviderUrl.startsWith("http")) {
-            final FilesystemMetadataProvider filesystemMetadataProvider = new FilesystemMetadataProvider(
-                    new File(identityProviderUrl));
-            filesystemMetadataProvider.setParserPool(parserPool());
-            final ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(filesystemMetadataProvider,
-                    extendedMetadata());
-            extendedMetadataDelegate.setMetadataTrustCheck(true);
-            extendedMetadataDelegate.setMetadataRequireSignature(false);
-            backgroundTaskTimer.purge();
-            return extendedMetadataDelegate;
-        }
-        final HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-                this.backgroundTaskTimer, httpClient(), identityProviderUrl);
-        httpMetadataProvider.setParserPool(parserPool());
-        final ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(httpMetadataProvider,
+        final FilesystemMetadataProvider filesystemMetadataProvider = new FilesystemMetadataProvider(
+                new File(identityProviderMetadataPath));
+        filesystemMetadataProvider.setParserPool(parserPool());
+        final ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(filesystemMetadataProvider,
                 extendedMetadata());
         extendedMetadataDelegate.setMetadataTrustCheck(true);
         extendedMetadataDelegate.setMetadataRequireSignature(false);
@@ -357,7 +348,10 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     @Bean
     public ExtendedMetadata extendedMetadata() {
         ExtendedMetadata extendedMetadata = new ExtendedMetadata();
+        extendedMetadata.setLocal(true);
         extendedMetadata.setIdpDiscoveryEnabled(true);
+        extendedMetadata.setIdpDiscoveryURL(identityProviderDiscoveryUrl);
+        extendedMetadata.setIdpDiscoveryResponseURL(identityProviderDiscoveryResponseUrl);
         extendedMetadata.setSignMetadata(true);
         extendedMetadata.setEcpEnabled(true);
         return extendedMetadata;

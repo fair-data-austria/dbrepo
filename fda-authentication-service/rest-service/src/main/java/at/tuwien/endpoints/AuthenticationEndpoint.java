@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
@@ -34,28 +33,23 @@ public class AuthenticationEndpoint {
         this.metadataManager = metadataManager;
     }
 
-    @GetMapping
-    @ApiOperation(value = "Check user authentication", notes = "Check if the user is authenticated")
-    @ApiResponses({
-            @ApiResponse(code = 202, message = "User is authenticated."),
-            @ApiResponse(code = 401, message = "The user is not authenticated"),
-    })
-    public ResponseEntity<?> status() {
-        final Authentication auth = SecurityContextHolder.getContext()
-                .getAuthentication();
-        if (auth.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .build();
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .build();
-    }
-
-    @PostMapping
-    public String login() {
-        return "test";
-    }
-
+//    @GetMapping
+//    @ApiOperation(value = "Check user authentication", notes = "Check if the user is authenticated")
+//    @ApiResponses({
+//            @ApiResponse(code = 202, message = "User is authenticated."),
+//            @ApiResponse(code = 401, message = "The user is not authenticated"),
+//    })
+//    public ResponseEntity<?> status() {
+//        final Authentication auth = SecurityContextHolder.getContext()
+//                .getAuthentication();
+//        if (auth.isAuthenticated()) {
+//            return ResponseEntity.status(HttpStatus.ACCEPTED)
+//                    .build();
+//        }
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                .build();
+//    }
+//
     @RequestMapping(value = "/discovery", method = RequestMethod.GET)
     public String idpSelection(HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
