@@ -5,9 +5,7 @@ import at.tuwien.service.UserService;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
-import org.opensaml.saml2.metadata.provider.MetadataProvider;
-import org.opensaml.saml2.metadata.provider.MetadataProviderException;
+import org.opensaml.saml2.metadata.provider.*;
 import org.opensaml.xml.parse.ParserPool;
 import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.springframework.beans.factory.DisposableBean;
@@ -48,6 +46,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -68,7 +67,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
         this.userService = userService;
     }
 
-    @Value("${fda.identity.provider.url}")
+    @Value("${fda.identity.provider.metadata}")
     private String identityProviderUrl;
 
     @Value("${fda.saml.audience}")
@@ -207,7 +206,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     /* Processor */
     @Bean
     public SAMLProcessorImpl processor() {
-        Collection<SAMLBinding> bindings = new ArrayList<SAMLBinding>();
+        Collection<SAMLBinding> bindings = new ArrayList<>();
         bindings.add(httpRedirectDeflateBinding());
         bindings.add(httpPostBinding());
         bindings.add(artifactBinding(parserPool(), velocityEngine()));
@@ -224,7 +223,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
      */
     @Bean
     public FilterChainProxy samlFilter() throws Exception {
-        List<SecurityFilterChain> chains = new ArrayList<SecurityFilterChain>();
+        List<SecurityFilterChain> chains = new ArrayList<>();
         chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/login/**"),
                 samlEntryPoint()));
         chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/logout/**"),
@@ -324,11 +323,22 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     @Bean
     @Qualifier("idp-ssocircle")
     public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider() throws MetadataProviderException {
-        HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+        if (!identityProviderUrl.startsWith("http")) {
+            final FilesystemMetadataProvider filesystemMetadataProvider = new FilesystemMetadataProvider(
+                    new File(identityProviderUrl));
+            filesystemMetadataProvider.setParserPool(parserPool());
+            final ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(filesystemMetadataProvider,
+                    extendedMetadata());
+            extendedMetadataDelegate.setMetadataTrustCheck(true);
+            extendedMetadataDelegate.setMetadataRequireSignature(false);
+            backgroundTaskTimer.purge();
+            return extendedMetadataDelegate;
+        }
+        final HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
                 this.backgroundTaskTimer, httpClient(), identityProviderUrl);
         httpMetadataProvider.setParserPool(parserPool());
-        ExtendedMetadataDelegate extendedMetadataDelegate =
-                new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+        final ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(httpMetadataProvider,
+                extendedMetadata());
         extendedMetadataDelegate.setMetadataTrustCheck(true);
         extendedMetadataDelegate.setMetadataRequireSignature(false);
         backgroundTaskTimer.purge();
@@ -348,7 +358,6 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     public ExtendedMetadata extendedMetadata() {
         ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setIdpDiscoveryEnabled(true);
-        extendedMetadata.setSigningAlgorithm("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
         extendedMetadata.setSignMetadata(true);
         extendedMetadata.setEcpEnabled(true);
         return extendedMetadata;
