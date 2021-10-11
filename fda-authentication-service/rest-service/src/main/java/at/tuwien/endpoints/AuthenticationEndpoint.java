@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
@@ -50,17 +51,24 @@ public class AuthenticationEndpoint {
                 .build();
     }
 
+    @PostMapping
+    public String login() {
+        return "test";
+    }
+
     @RequestMapping(value = "/discovery", method = RequestMethod.GET)
     public String idpSelection(HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null)
+        if (auth == null) {
             log.debug("Current authentication instance from security context is null");
-        else
+        } else {
             log.debug("Current authentication instance from security context: {}", this.getClass().getSimpleName());
+        }
         if (auth == null || (auth instanceof AnonymousAuthenticationToken)) {
-            Set<String> idps = metadataManager.getIDPEntityNames();
-            for (String idp : idps)
+            final Set<String> idps = metadataManager.getIDPEntityNames();
+            for (String idp : idps) {
                 log.debug("Configured Identity Provider for SSO: {}", idp);
+            }
             return "pages/discovery";
         } else {
             log.warn("The current user is already logged.");

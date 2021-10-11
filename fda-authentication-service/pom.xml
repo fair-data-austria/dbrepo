@@ -25,12 +25,11 @@
         <java.version>11</java.version>
         <spring-cloud.version>3.0.1</spring-cloud.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <docker.version>3.2.7</docker.version>
-        <testcontainers.version>1.15.2</testcontainers.version>
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
         <spring-saml.version>1.0.10.RELEASE</spring-saml.version>
+        <javax-rs.version>2.1.1</javax-rs.version>
     </properties>
 
     <dependencies>
@@ -55,6 +54,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
             <version>${spring-cloud.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax-rs.version}</version>
         </dependency>
         <!-- Entity and API -->
         <dependency>
