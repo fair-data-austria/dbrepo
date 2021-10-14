@@ -9,4 +9,4 @@ use TU Wien SSO
 
 ## Development
 
-Context metadata for IdP: `http://localhost:9097/context/saml/metadata`
+Context metadata for IdP: `http://localhost:9097/saml/metadata`

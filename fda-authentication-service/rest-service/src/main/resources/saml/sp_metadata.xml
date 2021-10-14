@@ -1,15 +1,20 @@
 <?xml version="1.0"?>
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
-                     validUntil="2021-10-13T10:33:48Z"
+                     validUntil="2021-10-13T15:46:10Z"
                      cacheDuration="PT604800S"
                      entityID="at:tuwien:dbrepo:auth">
     <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
         <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                                     Location="http://localhost:9097/api/auth"
+                                     Location="https://dbrepo.ossdip.at/api/auth"
                                      index="1" />
 
     </md:SPSSODescriptor>
+    <md:Organization>
+        <md:OrganizationName xml:lang="en-US">Technische Universität Wien</md:OrganizationName>
+        <md:OrganizationDisplayName xml:lang="en-US">TU Wien</md:OrganizationDisplayName>
+        <md:OrganizationURL xml:lang="en-US">https://tuwien.ac.at</md:OrganizationURL>
+    </md:Organization>
     <md:ContactPerson contactType="technical">
         <md:GivenName>Martin Weise</md:GivenName>
         <md:EmailAddress>martin.weise@tuwien.ac.at</md:EmailAddress>
