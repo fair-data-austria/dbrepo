@@ -6,6 +6,7 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
+      metadata: ./rest-service/src/main/resources/saml/metadata.xml
       relyingparty:
         registration:
           okta-saml:
@@ -15,7 +16,14 @@ spring:
                 - certificate-location: "classpath:x509/okta.crt"
               singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
               singlesignon.sign-request: false
-server.port: 9097
+server:
+  port: 9097
+  ssl.enabled: true
+  ssl:
+    key-alias: dbrepo
+    key-store: classpath:saml/dbrepo.p12
+    key-store-password: dbrepo
+    key-store-type: pkcs12
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
@@ -26,13 +34,3 @@ eureka:
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
 fda:
   ready.path: ./ready
-  identity.provider:
-    metadata: ./rest-service/src/main/resources/idp_metadata.xml
-    discovery:
-      url: http://localhost:9097/context/saml/discovery
-      response: http://localhost:9097/context/saml/login
-  saml:
-    keystore:
-      location: ./dbrepo.jks
-      alias: dbrepo
-      password: dbrepo

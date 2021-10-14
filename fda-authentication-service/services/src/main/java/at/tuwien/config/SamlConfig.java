@@ -1,15 +1,15 @@
 package at.tuwien.config;
 
-import at.tuwien.service.UserService;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.*;
+import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
+import org.opensaml.saml2.metadata.provider.MetadataProvider;
+import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.xml.parse.ParserPool;
 import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -48,41 +48,25 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import java.io.File;
 import java.util.*;
 
-/**
- *
- */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SamlConfig extends WebSecurityConfigurerAdapter implements InitializingBean, DisposableBean {
 
-    private final UserService userService;
-
     private Timer backgroundTaskTimer;
     private MultiThreadedHttpConnectionManager multiThreadedHttpConnectionManager;
 
-    @Autowired
-    public SamlConfig(UserService userService) {
-        this.userService = userService;
-    }
+    @Value("${spring.security.saml2.metadata}")
+    private String serviceMetadataPath;
 
-    @Value("${fda.saml.keystore.location}")
+    @Value("${server.ssl.key-store}")
     private String samlKeystoreLocation;
 
-    @Value("${fda.saml.keystore.alias}")
+    @Value("${server.ssl.key-alias}")
     private String samlKeystoreAlias;
 
-    @Value("${fda.saml.keystore.password}")
+    @Value("${server.ssl.key-store-password}")
     private String samlKeystorePassword;
-
-    @Value("${fda.identity.provider.metadata}")
-    private String identityProviderMetadataPath;
-
-    @Value("${fda.identity.provider.discovery.url}")
-    private String identityProviderDiscoveryUrl;
-
-    @Value("${fda.identity.provider.discovery.response}")
-    private String identityProviderDiscoveryResponseUrl;
 
     /* The filter is waiting for connections on URL suffixed with filterSuffix and presents SP metadata there */
     @Bean
@@ -121,7 +105,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     /* Processing filter for WebSSO profile messages */
     @Bean
     public SAMLProcessingFilter samlWebSSOProcessingFilter() throws Exception {
-        SAMLProcessingFilter samlWebSSOProcessingFilter = new SAMLProcessingFilter();
+        final SAMLProcessingFilter samlWebSSOProcessingFilter = new SAMLProcessingFilter();
         samlWebSSOProcessingFilter.setAuthenticationManager(authenticationManager());
         samlWebSSOProcessingFilter.setAuthenticationSuccessHandler(successRedirectHandler());
         samlWebSSOProcessingFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
@@ -151,8 +135,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
         return logoutHandler;
     }
 
-    /* Filter processing incoming logout messages. First argument determines URL user will be redirected to after
-    successful global logout */
+    /* Filter processing incoming logout messages */
     @Bean
     public SAMLLogoutProcessingFilter samlLogoutProcessingFilter() {
         return new SAMLLogoutProcessingFilter(successLogoutHandler(),
@@ -217,39 +200,24 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
         return new SAMLProcessorImpl(bindings);
     }
 
-    /**
-     * Define the security filter chain in order to support SSO Auth by using SAML 2.0
-     *
-     * @return Filter chain proxy
-     * @throws Exception
-     */
+    /* Define the security filter chain in order to support SSO Auth by using SAML 2.0 */
     @Bean
     public FilterChainProxy samlFilter() throws Exception {
         List<SecurityFilterChain> chains = new ArrayList<>();
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/login/**"),
-                samlEntryPoint()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/logout/**"),
-                samlLogoutFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/metadata/**"),
-                metadataDisplayFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/SSO/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SSO/**"),
                 samlWebSSOProcessingFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/SSOHoK/**"),
-                samlWebSSOHoKProcessingFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/SingleLogout/**"),
-                samlLogoutProcessingFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/context/saml/discovery/**"),
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/discovery/**"),
                 samlDiscovery()));
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/login/**"),
+                samlEntryPoint()));
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/logout/**"),
+                samlLogoutFilter()));
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SingleLogout/**"),
+                samlLogoutProcessingFilter()));
         return new FilterChainProxy(chains);
     }
 
-    /**
-     * Returns the authentication manager currently used by Spring.
-     * It represents a bean definition with the aim allow wiring from
-     * other classes performing the Inversion of Control (IoC).
-     *
-     * @throws Exception
-     */
+    /* Returns the authentication manager currently used by Spring. */
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -258,9 +226,6 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
 
     /**
      * Defines the web based security configuration.
-     *
-     * @param http It allows configuring web based security for specific http requests.
-     * @throws Exception
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -282,9 +247,6 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
 
     /**
      * Sets a custom authentication provider.
-     *
-     * @param auth SecurityBuilder used to create an AuthenticationManager.
-     * @throws Exception
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -326,7 +288,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     @Qualifier("idp-ssocircle")
     public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider() throws MetadataProviderException {
         final FilesystemMetadataProvider filesystemMetadataProvider = new FilesystemMetadataProvider(
-                new File(identityProviderMetadataPath));
+                new File(serviceMetadataPath));
         filesystemMetadataProvider.setParserPool(parserPool());
         final ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(filesystemMetadataProvider,
                 extendedMetadata());
@@ -338,10 +300,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
 
     /* IDP Discovery Service */
     @Bean
-    public SAMLDiscovery samlDiscovery() {
-        SAMLDiscovery idpDiscovery = new SAMLDiscovery();
-        idpDiscovery.setIdpSelectionPath("/api/auth/discovery");
-        return idpDiscovery;
+    public SAMLDiscovery samlDiscovery() throws MetadataProviderException {
+        return new SAMLDiscovery();
     }
 
     /* Setup advanced info about metadata */
@@ -350,8 +310,6 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
         ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setLocal(true);
         extendedMetadata.setIdpDiscoveryEnabled(true);
-        extendedMetadata.setIdpDiscoveryURL(identityProviderDiscoveryUrl);
-        extendedMetadata.setIdpDiscoveryResponseURL(identityProviderDiscoveryResponseUrl);
         extendedMetadata.setSignMetadata(true);
         extendedMetadata.setEcpEnabled(true);
         return extendedMetadata;
@@ -360,23 +318,23 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     /* Entry point to initialize authentication, default values taken from properties file */
     @Bean
     public SAMLEntryPoint samlEntryPoint() {
-        SAMLEntryPoint samlEntryPoint = new SAMLEntryPoint();
+        final SAMLEntryPoint samlEntryPoint = new SAMLEntryPoint();
         samlEntryPoint.setDefaultProfileOptions(defaultWebSSOProfileOptions());
         return samlEntryPoint;
     }
 
     @Bean
     public WebSSOProfileOptions defaultWebSSOProfileOptions() {
-        WebSSOProfileOptions webSSOProfileOptions = new WebSSOProfileOptions();
+        final WebSSOProfileOptions webSSOProfileOptions = new WebSSOProfileOptions();
         webSSOProfileOptions.setIncludeScoping(false);
         return webSSOProfileOptions;
     }
 
     @Bean
     public KeyManager keyManager() {
-        DefaultResourceLoader loader = new DefaultResourceLoader();
-        Resource storeFile = loader.getResource(samlKeystoreLocation);
-        Map<String, String> passwords = new HashMap<>();
+        final DefaultResourceLoader loader = new DefaultResourceLoader();
+        final Resource storeFile = loader.getResource(samlKeystoreLocation);
+        final Map<String, String> passwords = new HashMap<>();
         passwords.put(samlKeystoreAlias, samlKeystorePassword);
         return new JKSKeyManager(storeFile, samlKeystorePassword, passwords, samlKeystoreAlias);
     }
@@ -429,8 +387,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
     /* SAML Authentication Provider responsible for validating of received SAML messages */
     @Bean
     public SAMLAuthenticationProvider samlAuthenticationProvider() {
-        SAMLAuthenticationProvider samlAuthenticationProvider = new SAMLAuthenticationProvider();
-        samlAuthenticationProvider.setUserDetails(userService);
+        final SAMLAuthenticationProvider samlAuthenticationProvider = new SAMLAuthenticationProvider();
+//        samlAuthenticationProvider.setUserDetails(userService);
         samlAuthenticationProvider.setForcePrincipalAsString(false);
         return samlAuthenticationProvider;
     }

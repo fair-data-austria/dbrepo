@@ -6,7 +6,7 @@ target/
 
 ### Generated ###
 ready
-*.jks
+*.pem
 
 ### STS ###
 .apt_generated
