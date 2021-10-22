@@ -4,7 +4,26 @@ spring:
     name: fda-authentication-service
   cloud:
     loadbalancer.ribbon.enabled: false
-server.port: 9097
+  security:
+    saml2:
+      metadata: ./rest-service/src/main/resources/saml/metadata.xml
+      relyingparty:
+        registration:
+          okta-saml:
+            identityprovider:
+              entity-id: https://www.okta.com/exk26nye6eBAomvJW5d7
+              verification.credentials:
+                - certificate-location: "classpath:x509/okta.crt"
+              singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
+              singlesignon.sign-request: false
+server:
+  port: 9097
+  ssl:
+    enabled: true
+    key-alias: dbrepo
+    key-store: /dbrepo.p12
+    key-store-password: dbrepo
+    key-store-type: pkcs12
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
@@ -15,13 +34,3 @@ eureka:
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
   ready.path: /ready
-  identity.provider:
-    metadata: https://idp.zid.tuwien.ac.at/saml2
-    issuer:
-    cert: /okta.crt
-  saml:
-    audience: noidea
-    keystore:
-      location: /dbrepo.jks
-      alias: dbrepo
-      password: dbrepo

@@ -18,8 +18,8 @@ spring:
               singlesignon.sign-request: false
 server:
   port: 9097
-  ssl.enabled: true
   ssl:
+    enabled: false
     key-alias: dbrepo
     key-store: classpath:saml/dbrepo.p12
     key-store-password: dbrepo

@@ -6,7 +6,8 @@
         <md:KeyDescriptor use="signing">
             <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
                 <ds:X509Data>
-                    <ds:X509Certificate>MIIDqDCCApCgAwIBAgIGAXxuFWkiMA0GCSqGSIb3DQEBCwUAMIGUMQswCQYDVQQGEwJVUzETMBEG
+                    <ds:X509Certificate>
+                        MIIDqDCCApCgAwIBAgIGAXxuFWkiMA0GCSqGSIb3DQEBCwUAMIGUMQswCQYDVQQGEwJVUzETMBEG
                         A1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzENMAsGA1UECgwET2t0YTEU
                         MBIGA1UECwwLU1NPUHJvdmlkZXIxFTATBgNVBAMMDGRldi0xMzk1MzkxNTEcMBoGCSqGSIb3DQEJ
                         ARYNaW5mb0Bva3RhLmNvbTAeFw0yMTEwMTEwNjQwMDlaFw0zMTEwMTEwNjQxMDlaMIGUMQswCQYD
@@ -36,9 +37,10 @@
     </md:IDPSSODescriptor>
     <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
-        <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                                     Location="http://localhost:9097/api/auth"
-                                     index="1" />
+        <md:AssertionConsumerService isDefault="true"
+                                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                     Location="https://dbrepo.ossdip.at:9097/api/auth"
+                                     index="0" />
 
     </md:SPSSODescriptor>
     <md:Organization>
