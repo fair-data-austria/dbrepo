@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,8 +45,10 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.util.ResourceUtils;
 
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 @Configuration
@@ -278,7 +281,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
         inititalize method on providers */
     @Bean
     @Qualifier("metadata")
-    public CachingMetadataManager metadata() throws MetadataProviderException {
+    public CachingMetadataManager metadata() throws MetadataProviderException, IOException {
         List<MetadataProvider> providers = new ArrayList<>();
         providers.add(ssoCircleExtendedMetadataProvider());
         return new CachingMetadataManager(providers);
@@ -286,12 +289,13 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
 
     @Bean
     @Qualifier("idp-ssocircle")
-    public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider() throws MetadataProviderException {
+    public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider() throws MetadataProviderException, IOException {
+        final DefaultResourceLoader loader = new DefaultResourceLoader();
         final FilesystemMetadataProvider filesystemMetadataProvider = new FilesystemMetadataProvider(
-                new File(serviceMetadataPath));
+                loader.getResource(serviceMetadataPath).getFile());
         filesystemMetadataProvider.setParserPool(parserPool());
-        final ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(filesystemMetadataProvider,
-                extendedMetadata());
+        final ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(
+                filesystemMetadataProvider, extendedMetadata());
         extendedMetadataDelegate.setMetadataTrustCheck(true);
         extendedMetadataDelegate.setMetadataRequireSignature(false);
         backgroundTaskTimer.purge();
@@ -300,7 +304,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter implements Initiali
 
     /* IDP Discovery Service */
     @Bean
-    public SAMLDiscovery samlDiscovery() throws MetadataProviderException {
+    public SAMLDiscovery samlDiscovery() {
         return new SAMLDiscovery();
     }
 

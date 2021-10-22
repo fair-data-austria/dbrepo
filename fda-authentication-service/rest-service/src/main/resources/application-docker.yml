@@ -6,7 +6,7 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
-      metadata: ./rest-service/src/main/resources/saml/metadata.xml
+      metadata: classpath:/saml/metadata.xml
       relyingparty:
         registration:
           okta-saml:
@@ -21,7 +21,7 @@ server:
   ssl:
     enabled: true
     key-alias: dbrepo
-    key-store: /dbrepo.p12
+    key-store: classpath:saml/dbrepo.p12
     key-store-password: dbrepo
     key-store-type: pkcs12
 logging:
