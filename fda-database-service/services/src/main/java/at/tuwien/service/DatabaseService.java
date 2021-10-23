@@ -11,6 +11,7 @@ import at.tuwien.mapper.DatabaseMapper;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.elastic.DatabaseidxRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,18 +32,21 @@ public class DatabaseService extends JdbcConnector {
 
     private final ContainerRepository containerRepository;
     private final DatabaseRepository databaseRepository;
+    private final DatabaseidxRepository databaseidxRepository;
     private final DatabaseMapper databaseMapper;
     private final AmqpService amqpService;
     private final AmqpMapper amqpMapper;
 
     @Autowired
     public DatabaseService(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
-                           ImageMapper imageMapper, DatabaseMapper databaseMapper,
+                           DatabaseidxRepository databaseidxRepository, ImageMapper imageMapper,
+                           DatabaseMapper databaseMapper,
                            AmqpService amqpService, AmqpMapper amqpMapper) {
         super(imageMapper, databaseMapper);
         this.containerRepository = containerRepository;
         this.databaseRepository = databaseRepository;
         this.databaseMapper = databaseMapper;
+        this.databaseidxRepository = databaseidxRepository;
         this.amqpService = amqpService;
         this.amqpMapper = amqpMapper;
     }
@@ -125,6 +129,8 @@ public class DatabaseService extends JdbcConnector {
         final Database out = databaseRepository.save(database);
         log.info("Created database {}", out.getId());
         log.debug("created database {}", out);
+        // save in database_index - elastic search
+        databaseidxRepository.save(database);
         return out;
     }
 
@@ -148,6 +154,8 @@ public class DatabaseService extends JdbcConnector {
         final Database out = databaseRepository.save(database);
         log.info("Updated database {}", out.getId());
         log.debug("updated database {}", out);
+        // save in database_index - elastic search
+        databaseidxRepository.save(database);
         return out;
     }
 
