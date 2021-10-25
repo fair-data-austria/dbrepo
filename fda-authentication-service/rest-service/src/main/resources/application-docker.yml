@@ -17,14 +17,14 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
-      metadata: classpath:/saml/metadata.xml
+      metadata: classpath:saml/metadata.xml
       relyingparty:
         registration:
           okta-saml:
             identityprovider:
               entity-id: https://www.okta.com/exk26nye6eBAomvJW5d7
               verification.credentials:
-                - certificate-location: "classpath:x509/okta.crt"
+                - certificate-location: "classpath:ssl/okta.crt"
               singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
               singlesignon.sign-request: false
 server:
@@ -32,7 +32,7 @@ server:
   ssl:
     enabled: true
     key-alias: dbrepo
-    key-store: classpath:saml/dbrepo.p12
+    key-store: classpath:ssl/dbrepo.p12
     key-store-password: dbrepo
     key-store-type: pkcs12
 logging:
