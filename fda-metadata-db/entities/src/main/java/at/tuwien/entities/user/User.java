@@ -16,62 +16,56 @@ import java.time.Instant;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(onlyExplicitlyIncluded = true)
+@ToString
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "mdb_users")
 public class User {
 
-	@Id
-	@EqualsAndHashCode.Include
-	@ToString.Include
-	@Column(name = "userid", columnDefinition = "numeric(19, 2)")
-	@GeneratedValue(generator = "user-sequence")
-	@GenericGenerator(
-			name = "user-sequence",
-			strategy = "enhanced-sequence",
-			parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_user_seq")
-	)
-	private Long id;
+    @Id
+    @EqualsAndHashCode.Include
+    @Column(name = "userid", columnDefinition = "numeric(19, 2)")
+    @GeneratedValue(generator = "user-sequence")
+    @GenericGenerator(
+            name = "user-sequence",
+            strategy = "enhanced-sequence",
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_user_seq")
+    )
+    private Long id;
 
-	@ToString.Include
-	@EqualsAndHashCode.Include
-	@Column(name = "tiss_id", unique = true)
-	private Long tissId;
+    @EqualsAndHashCode.Include
+    @Column(name = "tiss_id", unique = true)
+    private Long tissId;
 
-	@ToString.Include
-	@EqualsAndHashCode.Include
-	@Column(name = "oid", nullable = false)
-	private Long organizationid;
+    @EqualsAndHashCode.Include
+    @Column(name = "oid", nullable = false)
+    private Long organizationId;
 
-	@ToString.Include
-	@Column(name = "first_name", nullable = false)
-	private String firstname;
+    @EqualsAndHashCode.Include
+    @Column(name = "external_id", nullable = false, unique = true)
+    private String externalId;
 
-	@ToString.Include
-	@Column(name = "last_name", nullable = false)
-	private String lastname;
+    @Column(name = "first_name", nullable = false)
+    private String firstname;
 
-	@ToString.Include
-	@Column(name = "preceding_titles")
-	private String titlesBefore;
+    @Column(name = "last_name", nullable = false)
+    private String lastname;
 
-	@ToString.Include
-	@Column(name = "postpositioned_title")
-	private String titlesAfter;
+    @Column(name = "preceding_titles")
+    private String titlesBefore;
 
-	@ToString.Include
-	@Column(name = "main_email")
-	private String email;
+    @Column(name = "postpositioned_title")
+    private String titlesAfter;
 
+    @Column(name = "main_email")
+    private String email;
 
+    @Column(nullable = false, updatable = false)
+    @CreatedDate
+    private Instant created;
 
-	@Column(nullable = false, updatable = false)
-	@CreatedDate
-	private Instant created;
-
-	@Column
-	@LastModifiedDate
-	private Instant lastModified;
+    @Column
+    @LastModifiedDate
+    private Instant lastModified;
 
 }
