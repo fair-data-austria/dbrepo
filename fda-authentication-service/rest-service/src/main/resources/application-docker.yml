@@ -30,6 +30,7 @@ spring:
               singlesignon.sign-request: false
 server:
   port: 9097
+  name: dbrepo.ossdip.at
   ssl:
     enabled: true
     key-alias: dbrepo
