@@ -9,9 +9,9 @@ certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 		-m martin.weise@tuwien.ac.at --agree-tos
 
 # CONVERT PEM TO DER
-openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
-  -out /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.der
+openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
+  -out /etc/letsencrypt/live/dbrepo.ossdip.at/cert.der
 
 # IMPORT
 keytool -import -alias "${CERT_ALIAS}" -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
-  -file /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.der
+  -file /etc/letsencrypt/live/dbrepo.ossdip.at/cert.der
