@@ -19,6 +19,7 @@ spring:
   security:
     saml2:
       metadata: https://dev-13953915.okta.com/app/exk26nye6eBAomvJW5d7/sso/saml/metadata
+      base-url: https://localhost:9097
       relyingparty:
         registration:
           okta-saml:
