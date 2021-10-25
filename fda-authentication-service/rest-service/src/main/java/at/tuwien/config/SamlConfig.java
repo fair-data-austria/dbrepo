@@ -54,6 +54,12 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Value("${server.ssl.key-store}")
     private String samlKeystoreLocation;
 
+    @Value("${server.name}")
+    private String serverName;
+
+    @Value("${server.port}")
+    private String serverPort;
+
     @Value("${server.ssl.key-alias}")
     private String samlKeystoreAlias;
 
@@ -263,7 +269,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public SAMLContextProvider contextProvider() {
         final SAMLContextProviderLB contextProvider = new SAMLContextProviderLB();
         contextProvider.setScheme("https");
-        contextProvider.setServerName("localhost:9097");
+        contextProvider.setServerName(serverName);
         contextProvider.setContextPath("/");
         return contextProvider;
     }
@@ -271,7 +277,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public PortMapper portMapper() {
         final Map<String, String> portMappings = new HashMap<>();
-        portMappings.put("9097", "9097");
+        portMappings.put(serverPort, serverPort);
         final PortMapperImpl portMapper = new PortMapperImpl();
         portMapper.setPortMappings(portMappings);
         return portMapper;
