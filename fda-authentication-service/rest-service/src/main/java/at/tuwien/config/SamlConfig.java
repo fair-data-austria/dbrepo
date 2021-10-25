@@ -4,10 +4,10 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
+import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.xml.parse.StaticBasicParserPool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +39,6 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -49,7 +48,7 @@ import java.util.*;
 public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${spring.security.saml2.metadata}")
-    private String idpProviderMetadata;
+    private String idpProviderMetadataUrl;
 
     @Value("${server.ssl.key-store}")
     private String samlKeystoreLocation;
@@ -145,9 +144,9 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public ExtendedMetadataDelegate oktaExtendedMetadataProvider(FilesystemMetadataProvider filesystemMetadataProvider) {
-        filesystemMetadataProvider.setParserPool(parserPool());
-        ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(filesystemMetadataProvider, extendedMetadata());
+    public ExtendedMetadataDelegate oktaExtendedMetadataProvider() throws MetadataProviderException {
+        ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(pivotalTestMetadataProvider(),
+                extendedMetadata());
         extendedMetadataDelegate.setMetadataTrustCheck(false);
         extendedMetadataDelegate.setMetadataRequireSignature(false);
         return extendedMetadataDelegate;
@@ -240,11 +239,12 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilesystemMetadataProvider pivotalTestMetadataProvider() throws IOException, MetadataProviderException {
-        final DefaultResourceLoader loader = new DefaultResourceLoader();
-        final Resource storeFile = loader.getResource(idpProviderMetadata);
-        final File oktaMetadata = storeFile.getFile();
-        return new FilesystemMetadataProvider(oktaMetadata);
+    public MetadataProvider pivotalTestMetadataProvider() throws MetadataProviderException {
+        final Timer backgroundTaskTimer = new Timer(true);
+        final HTTPMetadataProvider provider = new HTTPMetadataProvider(backgroundTaskTimer, new HttpClient(),
+                idpProviderMetadataUrl);
+        provider.setParserPool(parserPool());
+        return provider;
     }
 
     @Bean

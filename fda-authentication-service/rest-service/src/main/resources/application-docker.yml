@@ -17,7 +17,7 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
-      metadata: classpath:saml/metadata.xml
+      metadata: https://dev-13953915.okta.com/app/exk26nye6eBAomvJW5d7/sso/saml/metadata
       relyingparty:
         registration:
           okta-saml:
