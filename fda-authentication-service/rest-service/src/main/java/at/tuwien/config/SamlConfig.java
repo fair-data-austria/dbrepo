@@ -3,7 +3,6 @@ package at.tuwien.config;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
@@ -39,7 +38,6 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.io.IOException;
 import java.util.*;
 
 @Configuration
@@ -49,6 +47,9 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${spring.security.saml2.metadata}")
     private String idpProviderMetadataUrl;
+
+    @Value("${spring.security.saml2.base-url}")
+    private String baseUrl;
 
     @Value("${server.ssl.key-store}")
     private String samlKeystoreLocation;
@@ -254,7 +255,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         metadataGenerator.setExtendedMetadata(extendedMetadata());
         metadataGenerator.setIncludeDiscoveryExtension(false);
         metadataGenerator.setKeyManager(keyManager());
-        metadataGenerator.setEntityBaseURL("https://localhost:9097");
+        metadataGenerator.setEntityBaseURL(baseUrl);
         return metadataGenerator;
     }
 
