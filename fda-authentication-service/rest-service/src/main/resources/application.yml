@@ -3,6 +3,7 @@ spring:
   application:
     name: fda-authentication-service
   cloud:
+    discovery.enabled: false
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
@@ -19,7 +20,7 @@ spring:
 server:
   port: 9097
   ssl:
-    enabled: false
+    enabled: true
     key-alias: dbrepo
     key-store: classpath:saml/dbrepo.p12
     key-store-password: dbrepo
