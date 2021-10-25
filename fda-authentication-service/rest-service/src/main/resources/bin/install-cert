@@ -2,6 +2,7 @@
 KEY_STORE_LOCATION="../ssl/dbrepo.p12"
 KEY_STORE_ALIAS="dbrepo"
 KEY_STORE_PASS="dbrepo"
+CERT_ALIAS="auth"
 
 # REQUEST
 certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
@@ -12,5 +13,5 @@ openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/fullchain.p
   -out /etc/letsencrypt/live/dbrepo.ossdip.at/fullchain.der
 
 # IMPORT
-keytool -import -alias "${KEY_STORE_ALIAS}" -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
+keytool -import -alias "${CERT_ALIAS}" -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
   -file /etc/letsencrypt/live/dbrepo.ossdip.at/fullchain.der
