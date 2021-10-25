@@ -36,3 +36,6 @@ test-frontend: build
 	npm --prefix ./fda-ui run test
 
 test: test-backend test-frontend
+
+install-cert:
+	sudo ./fda-authentication-service/rest-service/src/main/resources/bin/install-cert

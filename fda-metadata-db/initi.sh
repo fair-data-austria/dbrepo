@@ -113,6 +113,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE TABLE IF NOT EXISTS mdb_USERS (
 		UserID bigint PRIMARY KEY DEFAULT nextval('mdb_user_seq'),
+		external_id VARCHAR(255) UNIQUE NOT NULL,
 		TISS_ID bigint,
 		OID bigint,
 		First_name VARCHAR(50),

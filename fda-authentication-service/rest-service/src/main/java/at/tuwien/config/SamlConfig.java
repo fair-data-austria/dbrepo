@@ -92,7 +92,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public SAMLAuthenticationProvider samlAuthenticationProvider() {
-        SAMLAuthenticationProvider samlAuthenticationProvider = new SAMLAuthenticationProvider();
+        final SAMLAuthenticationProvider samlAuthenticationProvider = new SAMLAuthenticationProvider();
         samlAuthenticationProvider.setForcePrincipalAsString(false);
         return samlAuthenticationProvider;
     }
@@ -119,21 +119,21 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public WebSSOProfileOptions defaultWebSSOProfileOptions() {
-        WebSSOProfileOptions webSSOProfileOptions = new WebSSOProfileOptions();
+        final WebSSOProfileOptions webSSOProfileOptions = new WebSSOProfileOptions();
         webSSOProfileOptions.setIncludeScoping(false);
         return webSSOProfileOptions;
     }
 
     @Bean
     public SAMLEntryPoint samlEntryPoint() {
-        SAMLEntryPoint samlEntryPoint = new SAMLEntryPoint();
+        final SAMLEntryPoint samlEntryPoint = new SAMLEntryPoint();
         samlEntryPoint.setDefaultProfileOptions(defaultWebSSOProfileOptions());
         return samlEntryPoint;
     }
 
     @Bean
     public ExtendedMetadata extendedMetadata() {
-        ExtendedMetadata extendedMetadata = new ExtendedMetadata();
+        final ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setIdpDiscoveryEnabled(true);
         extendedMetadata.setSignMetadata(true);
         return extendedMetadata;
@@ -155,7 +155,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public CachingMetadataManager metadata(ExtendedMetadataDelegate extendedMetadataDelegate) throws MetadataProviderException {
-        List<MetadataProvider> providers = new ArrayList<>();
+        final List<MetadataProvider> providers = new ArrayList<>();
         providers.add(extendedMetadataDelegate);
         return new CachingMetadataManager(providers);
     }
@@ -167,19 +167,19 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public SAMLProcessingFilter samlWebSSOProcessingFilter() throws Exception {
-        SAMLProcessingFilter samlWebSSOProcessingFilter = new SAMLProcessingFilter();
+        final SAMLProcessingFilter samlWebSSOProcessingFilter = new SAMLProcessingFilter();
         samlWebSSOProcessingFilter.setAuthenticationManager(authenticationManager());
         return samlWebSSOProcessingFilter;
     }
 
     @Bean
     public MetadataGeneratorFilter metadataGeneratorFilter() {
-        return new MetadataGeneratorFilter(metadataGenerator(extendedMetadata()));
+        return new MetadataGeneratorFilter(metadataGenerator());
     }
 
     @Bean
     public SimpleUrlLogoutSuccessHandler successLogoutHandler() {
-        SimpleUrlLogoutSuccessHandler successLogoutHandler = new SimpleUrlLogoutSuccessHandler();
+        final SimpleUrlLogoutSuccessHandler successLogoutHandler = new SimpleUrlLogoutSuccessHandler();
         successLogoutHandler.setDefaultTargetUrl("/");
         return successLogoutHandler;
     }
@@ -196,7 +196,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public SAMLProcessorImpl processor() {
-        Collection<SAMLBinding> bindings = new ArrayList<>();
+        final Collection<SAMLBinding> bindings = new ArrayList<>();
         bindings.add(httpRedirectDeflateBinding());
         bindings.add(httpPostBinding());
         return new SAMLProcessorImpl(bindings);
@@ -204,7 +204,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public FilterChainProxy samlFilter() throws Exception {
-        List<SecurityFilterChain> chains = new ArrayList<>();
+        final List<SecurityFilterChain> chains = new ArrayList<>();
         chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/login/**"),
                 samlEntryPoint()));
         chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/metadata/**"),
@@ -218,29 +218,21 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public SAMLLogger samlLogger() {
-        SAMLDefaultLogger samlDefaultLogger = new SAMLDefaultLogger();
-        samlDefaultLogger.setLogMessages(true);
-        samlDefaultLogger.setLogErrors(true);
-        return samlDefaultLogger;
+        return new SAMLDefaultLogger();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .requiresChannel()
+        http.requiresChannel()
                 .anyRequest().requiresSecure();
-        http
-                .httpBasic()
+        http.httpBasic()
                 .authenticationEntryPoint(samlEntryPoint());
-        http
-                .csrf()
+        http.csrf()
                 .disable();
-        http
-                .addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
+        http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
                 .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
 
-        http
-                .authorizeRequests()
+        http.authorizeRequests()
                 .antMatchers("/saml/**").permitAll()
                 .antMatchers("/health").permitAll()
                 .antMatchers("/error").permitAll()
@@ -249,17 +241,17 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public FilesystemMetadataProvider pivotalTestMetadataProvider() throws IOException, MetadataProviderException {
-        DefaultResourceLoader loader = new DefaultResourceLoader();
-        Resource storeFile = loader.getResource(idpProviderMetadata);
-        File oktaMetadata = storeFile.getFile();
+        final DefaultResourceLoader loader = new DefaultResourceLoader();
+        final Resource storeFile = loader.getResource(idpProviderMetadata);
+        final File oktaMetadata = storeFile.getFile();
         return new FilesystemMetadataProvider(oktaMetadata);
     }
 
     @Bean
-    public MetadataGenerator metadataGenerator(ExtendedMetadata extendedMetadata) {
-        MetadataGenerator metadataGenerator = new MetadataGenerator();
+    public MetadataGenerator metadataGenerator() {
+        final MetadataGenerator metadataGenerator = new MetadataGenerator();
         metadataGenerator.setEntityId("at:tuwien");
-        metadataGenerator.setExtendedMetadata(extendedMetadata);
+        metadataGenerator.setExtendedMetadata(extendedMetadata());
         metadataGenerator.setIncludeDiscoveryExtension(false);
         metadataGenerator.setKeyManager(keyManager());
         metadataGenerator.setEntityBaseURL("https://localhost:9097");
@@ -268,7 +260,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public SAMLContextProvider contextProvider() {
-        SAMLContextProviderLB contextProvider = new SAMLContextProviderLB();
+        final SAMLContextProviderLB contextProvider = new SAMLContextProviderLB();
         contextProvider.setScheme("https");
         contextProvider.setServerName("localhost:9097");
         contextProvider.setContextPath("/");
@@ -277,9 +269,9 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PortMapper portMapper() {
-        Map<String, String> portMappings = new HashMap<>();
+        final Map<String, String> portMappings = new HashMap<>();
         portMappings.put("9097", "9097");
-        PortMapperImpl portMapper = new PortMapperImpl();
+        final PortMapperImpl portMapper = new PortMapperImpl();
         portMapper.setPortMappings(portMappings);
         return portMapper;
     }
