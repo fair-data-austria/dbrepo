@@ -15,12 +15,6 @@ COPY ./rest-service ./rest-service
 COPY ./services ./services
 COPY ./report ./report
 
-RUN rm -f ./rest-service/src/main/resources/saml/dbrepo.p12
-RUN keytool -genkey -keyalg RSA -alias 'dbrepo' \
-    -dname "cn=FAIR Data Austria, ou=Zentrum für Forschungsdaten, o=TU Wien, c=AT, l=Vienna, st=Austria" \
-    -storetype PKCS12 -keystore ./rest-service/src/main/resources/saml/dbrepo.p12 -storepass 'dbrepo' -validity 3650 \
-    -keysize 4096 > /dev/null 2>&1
-
 RUN mvn -q clean package -DskipTests
 
 ###### THIRD STAGE ######
