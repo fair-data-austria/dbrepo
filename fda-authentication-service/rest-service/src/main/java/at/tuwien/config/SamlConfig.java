@@ -269,7 +269,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public SAMLContextProvider contextProvider() {
         final SAMLContextProviderLB contextProvider = new SAMLContextProviderLB();
         contextProvider.setScheme("https");
-        contextProvider.setServerName(serverName);
+        contextProvider.setServerName(serverName + ":" + serverPort);
         contextProvider.setContextPath("/");
         return contextProvider;
     }
