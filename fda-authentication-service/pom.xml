@@ -30,6 +30,7 @@
         <jacoco.version>0.8.7</jacoco.version>
         <spring-saml.version>1.0.10.RELEASE</spring-saml.version>
         <javax-rs.version>2.1.1</javax-rs.version>
+        <opensaml.version>2.6.4</opensaml.version>
     </properties>
 
     <dependencies>
@@ -56,6 +57,18 @@
             <groupId>org.springframework.security.extensions</groupId>
             <artifactId>spring-security-saml2-core</artifactId>
             <version>${spring-saml.version}</version>
+            <exclusions>
+                <!-- override since 2.6.6 is not available anymore -->
+                <exclusion>
+                    <groupId>org.opensaml</groupId>
+                    <artifactId>opensaml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml</artifactId>
+            <version>${opensaml.version}</version>
         </dependency>
         <!-- Entity and API -->
         <dependency>
@@ -136,14 +149,6 @@
             <version>${swagger.version}</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>Shibboleth</id>
-            <name>Shibboleth</name>
-            <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
-        </repository>
-    </repositories>
 
     <build>
         <plugins>
