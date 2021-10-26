@@ -70,6 +70,11 @@
             <artifactId>opensaml</artifactId>
             <version>${opensaml.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.dentrassi.crypto</groupId>
+            <artifactId>pem-keystore</artifactId>
+            <version>2.2.0</version>
+        </dependency>
         <!-- Entity and API -->
         <dependency>
             <groupId>at.tuwien</groupId>

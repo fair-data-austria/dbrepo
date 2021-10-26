@@ -47,9 +47,3 @@ clean:
 	rm -f ./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.p12 || true
 
 test: test-backend test-frontend
-
-install-selfsigned:
-	cd ./fda-authentication-service && sudo ./rest-service/src/main/resources/bin/install-selfsigned-cert
-
-install:
-	cd ./fda-authentication-service && sudo ./rest-service/src/main/resources/bin/install-cert
