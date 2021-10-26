@@ -33,7 +33,7 @@ server:
   name: dbrepo.ossdip.at
   ssl:
     enabled: true
-    key-alias: auth
+    key-alias: dbrepo
     key-store: classpath:ssl/dbrepo.p12
     key-store-password: dbrepo
     key-store-type: pkcs12

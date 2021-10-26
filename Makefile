@@ -37,8 +37,5 @@ test-frontend: build
 
 test: test-backend test-frontend
 
-install-keystore:
-	cd ./fda-authentication-service && sudo ./rest-service/src/main/resources/bin/install-keystore
-
 install-cert:
 	cd ./fda-authentication-service && sudo ./rest-service/src/main/resources/bin/install-cert
