@@ -5,6 +5,6 @@ KEY_STORE_PASS="dbrepo"
 
 # GENERATE
 keytool -genkey -keyalg RSA -alias "${KEY_STORE_ALIAS}" -storetype PKCS12 \
-  -dname "cn=FAIR Data Austria, ou=Zentrum für Forschungsdaten, o=TU Wien, c=AT, l=Vienna, st=Austria" \
+  -dname "cn=FAIR Data Austria, ou=Zentrum für Forschungsdatenmanagement, o=TU Wien, c=AT, l=Vienna, st=Austria" \
   -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" -validity 3650 \
   -keysize 4096

@@ -6,7 +6,8 @@ target/
 
 ### Generated ###
 ready
-.p12
+*.p12
+*.key
 
 ### STS ###
 .apt_generated
