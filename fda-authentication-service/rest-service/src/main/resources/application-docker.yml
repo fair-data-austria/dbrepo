@@ -22,11 +22,16 @@ spring:
       relyingparty:
         registration:
           okta-saml:
+            signing:
+              credentials:
+                - private-key-location: "classpath:saml/saml_sign_priv.key"
+                  certificate-location: "classpath:saml/saml_sign_public.cer"
             identityprovider:
               entity-id: https://www.okta.com/exk26nye6eBAomvJW5d7
+              metadata-uri: https://dev-13953915.okta.com/app/exk26nye6eBAomvJW5d7/sso/saml/metadata
               verification.credentials:
                 - certificate-location: "classpath:ssl/okta.crt"
-              singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
+              sso-url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
               singlesignon.sign-request: true
 server:
   port: 9097

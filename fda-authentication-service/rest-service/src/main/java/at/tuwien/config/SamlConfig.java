@@ -237,7 +237,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
                 .disable();
         http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
                 .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
-
+        /* allow metadata and saml stuff */
         http.authorizeRequests()
                 .antMatchers("/saml/**").permitAll()
                 .antMatchers("/health").permitAll()
