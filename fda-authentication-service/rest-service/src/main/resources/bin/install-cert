@@ -7,7 +7,7 @@ KEY_STORE_PASS="dbrepo"
 certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 		-m martin.weise@tuwien.ac.at --agree-tos
 
-# IMPORT
-openssl pkcs12 -export -out "${KEY_STORE_LOCATION}" -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
-  -passout "pass:${KEY_STORE_PASS}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
-  -certfile /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem
+# CONVERT TO PKCS12
+openssl pkcs12 -export -in server.crt -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
+               -out "${KEY_STORE_LOCATION}" -name "${KEY_STORE_ALIAS}" \
+               -CAfile /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem -caname root
