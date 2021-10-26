@@ -8,9 +8,9 @@ certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 		-m martin.weise@tuwien.ac.at --agree-tos
 
 # PEM to CRT
-openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
+openssl x509 -outform pem -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
  -out /etc/letsencrypt/live/dbrepo.ossdip.at/cert.crt
-openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem \
+openssl x509 -outform pem -in /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem \
  -out /etc/letsencrypt/live/dbrepo.ossdip.at/chain.crt
 
 # PEM to KEY
@@ -18,7 +18,7 @@ openssl rsa -outform pem -inform pem -in /etc/letsencrypt/live/dbrepo.ossdip.at/
   -out /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.key
 
 # MAKE KEYSTORE
-openssl pkcs12 -export -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.crt \
- -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.key -chain \
- -passout "pass:${KEY_STORE_PASS}" -CAfile /etc/letsencrypt/live/dbrepo.ossdip.at/chain.crt \
+openssl pkcs12 -export -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
+ -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.key \
+ -passout "pass:${KEY_STORE_PASS}" \
  -name "${KEY_STORE_ALIAS}" -out "${KEY_STORE_LOCATION}"
