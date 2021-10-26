@@ -45,7 +45,6 @@ clean:
 	docker-compose down || true
 	docker volume rm $(docker volume ls -q) || true
 	rm -f ./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.p12 || true
-	rm -f /etc/letsencrypt/live/dbrepo.ossdip.at/*.der || true
 
 test: test-backend test-frontend
 
