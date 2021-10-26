@@ -10,7 +10,11 @@ certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 # CONVERT PEM TO DER
 openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem \
   -out /etc/letsencrypt/live/dbrepo.ossdip.at/chain.der
+openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
+  -out /etc/letsencrypt/live/dbrepo.ossdip.at/cert.der
 
 # CONVERT TO PKCS12
-keytool -import -alias "${KEY_STORE_ALIAS}" -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
+keytool -import -alias ca -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
   -file /etc/letsencrypt/live/dbrepo.ossdip.at/chain.der
+keytool -import -alias "${KEY_STORE_ALIAS}" -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
+  -file /etc/letsencrypt/live/dbrepo.ossdip.at/cert.der
