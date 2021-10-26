@@ -1,0 +1,9 @@
+#!/bin/bash
+KEY_STORE_LOCATION="./rest-service/src/main/resources/ssl/dbrepo.p12"
+KEY_STORE_ALIAS="dbrepo"
+KEY_STORE_PASS="dbrepo"
+
+# IMPORT
+openssl pkcs12 -export -out "${KEY_STORE_LOCATION}" -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
+  -passout "pass:${KEY_STORE_PASS}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
+  -certfile /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem

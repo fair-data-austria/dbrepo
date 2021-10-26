@@ -14,6 +14,3 @@ openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem \
 # IMPORT
 keytool -import -alias "${KEY_STORE_ALIAS}" -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
   -file /etc/letsencrypt/live/dbrepo.ossdip.at/chain.der
-#openssl pkcs12 -export -out "${KEY_STORE_LOCATION}" -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
-#  -passout "pass:${KEY_STORE_PASS}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
-#  -certfile /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem
