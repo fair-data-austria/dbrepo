@@ -3,7 +3,8 @@ KEY_STORE_LOCATION="./rest-service/src/main/resources/ssl/dbrepo.p12"
 KEY_STORE_ALIAS="dbrepo"
 KEY_STORE_PASS="dbrepo"
 
-# IMPORT
-openssl pkcs12 -export -out "${KEY_STORE_LOCATION}" -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
-  -passout "pass:${KEY_STORE_PASS}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
-  -certfile /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem
+# GENERATE
+keytool -genkey -keyalg RSA -alias "${KEY_STORE_ALIAS}" -storetype PKCS12 \
+  -dname "cn=FAIR Data Austria, ou=Zentrum für Forschungsdaten, o=TU Wien, c=AT, l=Vienna, st=Austria" \
+  -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" -validity 3650 \
+  -keysize 4096
