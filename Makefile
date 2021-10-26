@@ -38,6 +38,7 @@ test-frontend: build
 clean:
 	docker-compose down
 	docker volume rm $(docker volume ls -q)
+	rm -f ./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.p12
 
 test: test-backend test-frontend
 
