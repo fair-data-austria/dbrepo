@@ -39,9 +39,9 @@ server:
   ssl:
     enabled: true
     key-alias: dbrepo
-    key-store: classpath:ssl/dbrepo.p12
-    key-store-password: dbrepo
-    key-store-type: pkcs12
+    key-store: classpath:ssl/keystore.properties
+    key-store-password: empty
+    key-store-type: PEMCFG
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
