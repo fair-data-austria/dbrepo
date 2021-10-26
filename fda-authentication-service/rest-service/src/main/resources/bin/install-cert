@@ -14,7 +14,7 @@ openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem \
  -out /etc/letsencrypt/live/dbrepo.ossdip.at/chain.crt
 
 # PEM to KEY
-openssl rsa -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
+openssl rsa -outform pem -inform pem -in /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
   -out /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.key
 
 # MAKE KEYSTORE
