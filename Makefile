@@ -48,7 +48,7 @@ clean:
 
 test: test-backend test-frontend
 
-install-dummy:
+install-selfsigned:
 	cd ./fda-authentication-service && sudo ./rest-service/src/main/resources/bin/install-selfsigned-cert
 
 install:
