@@ -12,7 +12,7 @@ cat /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem /etc/letsencrypt/live/dbrepo
 
 # CONVERT TO PKCS12
 keytool -import -alias root -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
-  -trustcacerts -file /etc/letsencrypt/live/dbrepo.ossdip.at/fullchain.pem
+  -trustcacerts -file /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem
 keytool -import -alias "${KEY_STORE_ALIAS}" -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
   -trustcacerts -file /tmp/comb.pem
 
