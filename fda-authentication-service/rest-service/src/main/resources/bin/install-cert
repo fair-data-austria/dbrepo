@@ -7,14 +7,18 @@ KEY_STORE_PASS="dbrepo"
 certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 		-m martin.weise@tuwien.ac.at --agree-tos
 
-# COMBINE
-cat /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem > /tmp/comb.pem
+# PEM to CRT
+openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
+ -out /etc/letsencrypt/live/dbrepo.ossdip.at/cert.crt
+openssl x509 -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem \
+ -out /etc/letsencrypt/live/dbrepo.ossdip.at/chain.crt
 
-# CONVERT TO PKCS12
-keytool -import -alias root -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
-  -trustcacerts -file /etc/letsencrypt/live/dbrepo.ossdip.at/chain.pem
-keytool -import -alias "${KEY_STORE_ALIAS}" -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
-  -trustcacerts -file /tmp/comb.pem
+# PEM to KEY
+openssl rsa -outform der -in /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem \
+  -out /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.key
 
-# CLEAN
-rm -f /tmp/comb.pem
+# MAKE KEYSTORE
+openssl pkcs12 -export -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.crt \
+ -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.key -chain \
+ -passout "pass:${KEY_STORE_PASS}" -CAfile /etc/letsencrypt/live/dbrepo.ossdip.at/chain.crt \
+ -name "${KEY_STORE_ALIAS}" -out "${KEY_STORE_LOCATION}"
