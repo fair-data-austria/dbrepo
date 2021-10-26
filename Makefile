@@ -35,7 +35,11 @@ test-frontend: build
 	docker-compose up -d
 	npm --prefix ./fda-ui run test
 
+clean:
+	docker-compose down
+	docker volume rm $(docker volume ls -q)
+
 test: test-backend test-frontend
 
-install-cert:
+install:
 	cd ./fda-authentication-service && sudo ./rest-service/src/main/resources/bin/install-cert
