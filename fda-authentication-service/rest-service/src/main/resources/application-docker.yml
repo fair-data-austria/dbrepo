@@ -27,7 +27,7 @@ spring:
               verification.credentials:
                 - certificate-location: "classpath:ssl/okta.crt"
               singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
-              singlesignon.sign-request: false
+              singlesignon.sign-request: true
 server:
   port: 9097
   name: dbrepo.ossdip.at

@@ -35,7 +35,7 @@ test-frontend: build
 	docker-compose up -d
 	npm --prefix ./fda-ui run test
 
-run-backend: install build
+run-backend:
 	docker-compose up -d fda-container-service fda-database-service fda-query-service fda-table-service fda-authentication-service
 
 logs:

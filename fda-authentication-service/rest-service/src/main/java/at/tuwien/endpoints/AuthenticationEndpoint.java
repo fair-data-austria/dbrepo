@@ -36,7 +36,7 @@ public class AuthenticationEndpoint {
 
     @GetMapping("/info")
     public ResponseEntity<Object> info(Authentication authentication) {
-        return ResponseEntity.ok(authentication);
+        return ResponseEntity.ok(authentication.getName());
     }
 
     @GetMapping("/user")
