@@ -33,7 +33,7 @@ server:
   port: 9097
   name: dbrepo.ossdip.at
   ssl:
-    enabled: true
+    enabled: false
     key-alias: 1
     key-store: classpath:saml/dbrepo.p12
     key-store-password: dbrepo
