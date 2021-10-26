@@ -17,8 +17,6 @@ public class SamlUserDetailsService implements SAMLUserDetailsService {
     @Override
     public Object loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
         String id = credential.getNameID().getValue();
-        log.debug("login {}", credential.getAttributeAsString("tissID"));
-        log.debug("email {}", credential.getAttributeAsString("email"));
         /* right now we only support users */
         return new User(id, "empty", true, true, true, true, List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
