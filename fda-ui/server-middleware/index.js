@@ -26,16 +26,19 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
   // send path to analyse service
   let analysis
   try {
-    analysis = await fetch(`${process.env.API_ANALYSE}/determinedt`, {
+    // FIXME: find what the endpoint actually is called
+    console.log('FOO', `${process.env.API}/analyse/determinedt`)
+
+    analysis = await fetch(`${process.env.API}/analyse/determinedt/`, {
       method: 'post',
       body: JSON.stringify({ filepath: path }),
       headers: { 'Content-Type': 'application/json' }
     })
+    console.debug('analyzed', analysis)
     analysis = await analysis.json()
     analysis = JSON.parse(analysis)
-    console.debug('analyzed', analysis)
   } catch (error) {
-    return res.json({ success: false, error })
+    return res.json({ success: false, error, analysis })
   }
 
   // map messytables / CoMi's `determine_dt` column types to ours
