@@ -114,7 +114,6 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
         /* test */
         final ResponseEntity<ImageDto> response = imageEndpoint.findById(IMAGE_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(IMAGE_1_HASH, Objects.requireNonNull(response.getBody()).getHash());
     }
 
     @Test
