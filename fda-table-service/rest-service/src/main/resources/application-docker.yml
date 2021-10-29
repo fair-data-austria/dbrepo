@@ -31,6 +31,7 @@ eureka:
 fda:
   mapping.path: /root
   table.path: /root
+  elastic.endpoint: fda-search-service:9200
 zenodo:
   endpoint: https://sandbox.zenodo.org/
   api_key: "${ZENODO_API_KEY}"

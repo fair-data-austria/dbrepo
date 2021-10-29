@@ -8,6 +8,7 @@ import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
+import at.tuwien.repository.elastic.DatabaseidxRepository;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
@@ -46,6 +47,9 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
+
+    @MockBean
+    private DatabaseidxRepository databaseidxRepository;
 
     @Autowired
     private HostConfig hostConfig;
@@ -145,6 +149,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
         containerRepository.save(CONTAINER_2);
     }
 
+    @Transactional
     @AfterEach
     public void afterEach() {
         /* stop containers and remove them */
