@@ -23,24 +23,19 @@ spring:
       relyingparty:
         registration:
           okta-saml:
-            signing:
-              credentials:
-                - private-key-location: "classpath:saml/saml_sign_priv.key"
-                  certificate-location: "classpath:saml/saml_sign_public.cer"
             identityprovider:
               entity-id: http://www.okta.com/exk26nye6eBAomvJW5d7
-              metadata-uri: https://dev-13953915.okta.com/app/exk26nye6eBAomvJW5d7/sso/saml/metadata
               verification.credentials:
                 - certificate-location: "classpath:ssl/okta.crt"
-              sso-url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
+              singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
               singlesignon.sign-request: false
 server:
   port: 9097
-  name: localhost
+  name: dbrepo.ossdip.at
   ssl:
     enabled: true
-    key-alias: dbrepo
-    key-store: classpath:ssl/dbrepo.p12
+    key-alias: 1
+    key-store: classpath:saml/dbrepo.p12
     key-store-password: dbrepo
     key-store-type: pkcs12
   error:
