@@ -16,6 +16,11 @@ build-frontend-npm:
 	npm --prefix ./fda-ui install
 	npm --prefix ./fda-ui run build
 
+config: config-backend
+
+config-backend:
+	sudo ./fda-authentication-service/rest-service/src/main/resources/bin/install_cert
+
 build:
 	docker-compose build fda-metadata-db
 	docker-compose build --parallel
