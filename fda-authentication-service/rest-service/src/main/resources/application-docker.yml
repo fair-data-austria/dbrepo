@@ -17,7 +17,7 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
-      metadata: "classpath:saml/metadata.xml"
+      metadata: classpath:saml/metadata.xml
       base-url: https://dbrepo.ossdip.at:9097
       relyingparty:
         registration:
@@ -25,7 +25,7 @@ spring:
             identityprovider:
               entity-id: https://www.okta.com/exk26nye6eBAomvJW5d7
               verification.credentials:
-                - certificate-location: "classpath:ssl/okta.crt"
+                - certificate-location: classpath:ssl/okta.crt
               singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
               singlesignon.sign-request: false
 server:
