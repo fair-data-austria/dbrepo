@@ -35,7 +35,7 @@ server:
   ssl:
     enabled: true
     key-alias: 1
-    key-store: classpath:saml/dbrepo.p12
+    key-store: classpath:saml/dbrepo.jks
     key-store-password: dbrepo
     key-store-type: pkcs12
   error:
