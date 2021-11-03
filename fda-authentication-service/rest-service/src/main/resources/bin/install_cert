@@ -5,12 +5,15 @@ KEY_STORE_ALIAS="dbrepo"
 KEY_STORE_PASS="dbrepo"
 
 # REQUEST
-certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
+sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 		-m martin.weise@tuwien.ac.at --agree-tos
 
 # CONVERT PKCS12
-openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
+sudo openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
   -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem -passout "pass:${KEY_STORE_PASS}"
+
+# FIX PERMISSIONS
+sudo chown 1000:1000 "${CERT_STORE_LOCATION}"
 
 # IMPORT
 keytool -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
