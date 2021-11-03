@@ -17,7 +17,7 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
-      metadata: https://dev-13953915.okta.com/app/exk26nye6eBAomvJW5d7/sso/saml/metadata
+      metadata: "classpath:saml/metadata.xml"
       base-url: https://dbrepo.ossdip.at:9097
       relyingparty:
         registration:
@@ -33,7 +33,7 @@ server:
   name: dbrepo.ossdip.at
   ssl:
     enabled: true
-    key-alias: dbrepo
+    key-alias: 1
     key-store: classpath:ssl/dbrepo.jks
     key-store-password: dbrepo
     key-store-type: jks
