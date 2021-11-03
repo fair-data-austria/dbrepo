@@ -33,10 +33,10 @@ server:
   name: dbrepo.ossdip.at
   ssl:
     enabled: true
-    key-alias: 1
-    key-store: classpath:ssl/dbrepo.p12
+    key-alias: dbrepo
+    key-store: classpath:ssl/dbrepo.jks
     key-store-password: dbrepo
-    key-store-type: pkcs12
+    key-store-type: jks
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
