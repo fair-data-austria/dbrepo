@@ -50,7 +50,7 @@ import java.util.*;
 public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${spring.security.saml2.metadata}")
-    private String idpProviderMetadataFile;
+    private String idpProviderMetadata;
 
     @Value("${spring.security.saml2.base-url}")
     private String baseUrl;
@@ -250,11 +250,10 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public MetadataProvider pivotalTestMetadataProvider() throws MetadataProviderException, IOException {
-        final DefaultResourceLoader loader = new DefaultResourceLoader();
-        final Resource storeFile = loader.getResource(idpProviderMetadataFile);
-        final File oktaMetadata = storeFile.getFile();
-        final FilesystemMetadataProvider provider = new FilesystemMetadataProvider(oktaMetadata);
+    public MetadataProvider pivotalTestMetadataProvider() throws MetadataProviderException {
+        final Timer backgroundTaskTimer = new Timer(true);
+        final HTTPMetadataProvider provider = new HTTPMetadataProvider(backgroundTaskTimer, new HttpClient(),
+                idpProviderMetadata);
         provider.setParserPool(parserPool());
         return provider;
     }
