@@ -5,6 +5,10 @@ volumes:
   fda-broker-service-data:
 
 networks:
+  backend:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
   fda-public:
     name: fda-public
     driver: bridge
