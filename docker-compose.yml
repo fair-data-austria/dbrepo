@@ -67,8 +67,7 @@ services:
     ports:
       - 9095:9095
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
+      - fda-discovery-service
     logging:
       driver: json-file
 
@@ -88,12 +87,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-broker-service:
-        condition: service_healthy
-      fda-metadata-db:
-        condition: service_healthy
+      - fda-discovery-service
+      - fda-broker-service
+      - fda-metadata-db
     logging:
       driver: json-file
 
@@ -112,10 +108,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-metadata-db:
-        condition: service_healthy
+      - fda-discovery-service
+      - fda-metadata-db
     logging:
       driver: json-file
 
@@ -132,8 +126,7 @@ services:
     ports:
       - 9097:9097
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
+      - fda-discovery-service
     logging:
       driver: json-file
 
@@ -153,12 +146,9 @@ services:
     volumes:
       - /tmp:/tmp
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-container-service:
-        condition: service_healthy
-      fda-metadata-db:
-        condition: service_healthy
+      - fda-discovery-service
+      - fda-container-service
+      - fda-metadata-db
     logging:
       driver: json-file
 
@@ -180,12 +170,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
     depends_on:
-      fda-metadata-db:
-        condition: service_healthy
-      fda-discovery-service:
-        condition: service_healthy
-      fda-broker-service:
-        condition: service_healthy
+      - fda-metadata-db
+      - fda-discovery-service
+      - fda-broker-service
 
   fda-citation-service:
     restart: on-failure
@@ -201,12 +188,9 @@ services:
     ports:
       - 9096:9096
     depends_on:
-      fda-metadata-db:
-        condition: service_healthy
-      fda-discovery-service:
-        condition: service_healthy
-      fda-table-service:
-        condition: service_healthy
+      - fda-metadata-db
+      - fda-discovery-service
+      - fda-table-service
 
   fda-analyse-service:
     restart: on-failure
@@ -226,10 +210,8 @@ services:
       - /tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-database-service:
-        condition: service_healthy
+      - fda-discovery-service
+      - fda-database-service
     logging:
       driver: json-file
 
@@ -275,16 +257,11 @@ services:
     volumes:
       - /tmp:/tmp
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-container-service:
-        condition: service_healthy
-      fda-table-service:
-        condition: service_healthy
-      fda-query-service:
-        condition: service_healthy
-      fda-analyse-service:
-        condition: service_healthy
+      - fda-discovery-service
+      - fda-container-service
+      - fda-table-service
+      - fda-query-service
+      - fda-analyse-service
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
