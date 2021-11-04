@@ -10,7 +10,6 @@ config: config-backend
 build-backend-maven: config
 	mvn -f ./fda-metadata-db/pom.xml clean install
 	mvn -f ./fda-authentication-service/pom.xml clean package -DskipTests
-	mvn -f ./fda-broker-service/pom.xml clean package -DskipTests
 	mvn -f ./fda-citation-service/pom.xml clean package -DskipTests
 	mvn -f ./fda-container-service/pom.xml clean package -DskipTests
 	mvn -f ./fda-database-service/pom.xml clean package -DskipTests
@@ -33,13 +32,10 @@ build-frontend-npm:
 
 build: clean build-backend-maven build-backend-docker
 
-test-backend: test-backend-auth test-backend-broker test-backend-citation test-backend-container test-backend-database test-backend-discovery test-backend-gateway test-backend-query test-backend-table
+test-backend: test-backend-auth test-backend-citation test-backend-container test-backend-database test-backend-discovery test-backend-gateway test-backend-query test-backend-table
 
 test-backend-auth:
 	mvn -f ./fda-authentication-service/pom.xml clean test verify
-
-test-backend-broker:
-	mvn -f ./fda-broker-service/pom.xml clean test verify
 
 test-backend-citation:
 	mvn -f ./fda-citation-service/pom.xml clean test verify
