@@ -4,12 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fda-database-service</artifactId>
         <groupId>at.tuwien</groupId>
+        <artifactId>fda-database-service</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>report</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <name>fda-database-service-report</name>
 
     <properties>

@@ -6,8 +6,8 @@ COPY ./pom.xml ./
 
 RUN mvn -fn -B dependency:go-offline > /dev/null
 
-COPY ./discovery ./
-COPY ./report ./
+COPY ./discovery ./discovery
+COPY ./report ./report
 
 # Make sure it compiles
 RUN mvn -q clean package -DskipTests > /dev/null
@@ -20,6 +20,6 @@ RUN chmod +x /usr/bin/service_ready
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
 
-COPY --from=build ./target/fda-discovery-service-*.jar ./discovery.jar
+COPY --from=build ./discovery/target/discovery-*.jar ./discovery.jar
 
 ENTRYPOINT ["java", "-jar", "./discovery.jar"]

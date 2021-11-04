@@ -13,7 +13,7 @@ COPY ./entities ./entities
 RUN mvn -q clean package -DskipTests > /dev/null
 
 # Install to local repository
-RUN mvn clean install > /dev/null
+RUN mvn -q clean install > /dev/null
 
 ###### SECOND STAGE ######
 FROM postgres:latest as runtime

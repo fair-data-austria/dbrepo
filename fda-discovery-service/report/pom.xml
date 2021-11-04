@@ -12,10 +12,6 @@
     <artifactId>report</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fda-discovery-service-report</name>
-    <description>
-        This module is only intended for the pipeline coverage report. See the detailed report in the
-        respective modules
-    </description>
 
     <properties>
         <jacoco.version>0.8.7</jacoco.version>
