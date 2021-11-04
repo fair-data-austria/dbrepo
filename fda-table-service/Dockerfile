@@ -16,7 +16,8 @@ COPY ./services ./services
 COPY ./report ./report
 COPY ./api ./api
 
-RUN mvn -q clean package -DskipTests
+# Make sure it compiles
+RUN mvn clean package -DskipTests
 
 ###### THIRD STAGE ######
 FROM openjdk:11-jre-slim as runtime
