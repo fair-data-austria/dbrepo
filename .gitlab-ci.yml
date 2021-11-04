@@ -16,35 +16,24 @@ image: "docker/compose:latest"
 
 stages: 
   - build
-  - configure
   - test-frontend
   - test-backend
   - deploy
 
-build-docker:
+build-backend-maven:
   stage: build
   script:
-    - "docker image pull postgres:latest || true"
-    - "docker image pull mysql:latest || true"
-    - "docker image pull mariadb:latest || true"
-    - "docker image pull rabbitmq:3-alpine || true"
-    - "docker-compose down || true"
-    - "docker container stop $(docker container ls -aq) || true"
-    - "docker container rm $(docker container ls -aq) || true"
-    - "docker volume rm $(docker volume ls -q) || true"
-    - "docker-compose build"
+    - "make build-backend-maven"
 
-build-metadata-db:
+build-backend-docker:
   stage: build
   script:
-    - "mvn -f fda-metadata-db/pom.xml clean install" # local maven2 repository
+    - make build-backend-docker
 
-test-frontend-ui:
+test-frontend:
   stage: test-frontend
   script:
-    - "npm --prefix ./fda-ui install"
-    - "docker-compose up -d"
-    - "npm --prefix ./fda-ui run test"
+    - make test-frontend
   artifacts:
     when: always
     paths:
@@ -56,14 +45,12 @@ test-frontend-ui:
 test-backend-container:
   stage: test-backend
   script:
-    - "./fda-container-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-container-service/pom.xml clean test verify"
-    - "./fda-container-service/rest-service/src/test/resources/integration-test.after"
+    - make test-backend-container
     - cat ./fda-container-service/report/target/site/jacoco-aggregate/index.html
   needs:
-    - build-metadata-db
+    - build-backend-maven
   dependencies:
-    - build-metadata-db
+    - build-backend-maven
   artifacts:
     when: always
     paths:
@@ -76,14 +63,12 @@ test-backend-container:
 test-backend-database:
   stage: test-backend
   script:
-    - "./fda-database-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-database-service/pom.xml clean test verify"
-    - "./fda-database-service/rest-service/src/test/resources/integration-test.after"
+    - mvn -f fda-database-service/pom.xml clean test verify
     - cat ./fda-database-service/report/target/site/jacoco-aggregate/index.html
   needs:
-    - build-metadata-db
+    - build-backend-maven
   dependencies:
-    - build-metadata-db
+    - build-backend-maven
   artifacts:
     when: always
     paths:
@@ -96,24 +81,48 @@ test-backend-database:
 test-backend-discovery:
   stage: test-backend
   script:
-    - "mvn -f fda-discovery-service/pom.xml clean test verify"
+    - mvn -f fda-discovery-service/pom.xml clean test verify
+    - cat ./fda-discovery-service/report/target/site/jacoco-aggregate/index.html
+  needs:
+    - build-backend-maven
+  dependencies:
+    - build-backend-maven
+  artifacts:
+    when: always
+    paths:
+      - fda-discovery-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-discovery-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-discovery-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-gateway:
   stage: test-backend
   script:
-    - "mvn -f fda-gateway-service/pom.xml clean test verify"
+    - mvn -f fda-gateway-service/pom.xml clean test verify
+    - cat ./fda-gateway-service/report/target/site/jacoco-aggregate/index.html
+  needs:
+    - build-backend-maven
+  dependencies:
+    - build-backend-maven
+  artifacts:
+    when: always
+    paths:
+      - fda-gateway-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-gateway-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-gateway-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-query:
   stage: test-backend
   script:
-    - "./fda-query-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-query-service/pom.xml clean test verify"
-    - "./fda-query-service/rest-service/src/test/resources/integration-test.after"
+    - mvn -f fda-query-service/pom.xml clean test verify
     - cat ./fda-query-service/report/target/site/jacoco-aggregate/index.html
   needs:
-    - build-metadata-db
+    - build-backend-maven
   dependencies:
-    - build-metadata-db
+    - build-backend-maven
   artifacts:
     when: always
     paths:
@@ -126,14 +135,12 @@ test-backend-query:
 test-backend-table:
   stage: test-backend
   script:
-    - "./fda-table-service/rest-service/src/test/resources/integration-test.before"
-    - "mvn -f fda-table-service/pom.xml clean test verify"
-    - "./fda-table-service/rest-service/src/test/resources/integration-test.after"
+    - mvn -f fda-table-service/pom.xml clean test verify
     - cat ./fda-table-service/report/target/site/jacoco-aggregate/index.html
   needs:
-    - build-metadata-db
+    - build-backend-maven
   dependencies:
-    - build-metadata-db
+    - build-backend-maven
   artifacts:
     when: always
     paths:
@@ -146,14 +153,12 @@ test-backend-table:
 test-backend-citation:
   stage: test-backend
   script:
-    - ./fda-citation-service/rest-service/src/test/resources/integration-test.before
     - "ZENODO_API_KEY=${ZENODO_API_KEY} mvn -f fda-citation-service/pom.xml clean test verify"
-    - ./fda-citation-service/rest-service/src/test/resources/integration-test.after
     - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
   needs:
-    - build-metadata-db
+    - build-backend-maven
   dependencies:
-    - build-metadata-db
+    - build-backend-maven
   artifacts:
     when: always
     paths:
@@ -163,7 +168,7 @@ test-backend-citation:
       junit:
         - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
 
-configure:
-  stage: configure
+deploy-registry:
+  stage: deploy
   script:
-    - make configure
+    - make deploy
