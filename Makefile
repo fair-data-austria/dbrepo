@@ -2,7 +2,7 @@ REGISTRY=docker.ossdip.at
 
 all:
 
-config-backend:
+config-backend: clean-cert
 	./fda-authentication-service/rest-service/src/main/resources/bin/install_cert
 
 config-docker:
@@ -102,9 +102,11 @@ deploy: deploy-tag deploy-push
 logs:
 	docker-compose logs
 
-clean:
+clean-cert:
+	rm -f ./fda-authentication-service/rest-service/src/main/resources/ssl/cert.p12 ./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.jks || true
+
+clean: clean-cert
 	docker-compose down || true
 	docker container stop $(docker container ls -aq) || true
 	docker container rm $(docker container ls -aq) || true
 	docker volume rm $(docker volume ls -q) || true
-	rm -f ./fda-authentication-service/rest-service/src/main/resources/ssl/cert.p12 ./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.jks || true
