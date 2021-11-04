@@ -1,0 +1,18 @@
+version: "3.6"
+
+services:
+
+  fda-registry-service:
+    restart: on-failure
+    container_name: fda-registry-service
+    hostname: fda-registry-service
+    image: registry:2
+    volumes:
+      - /home/centos/registry/certs:/certs
+    ports:
+      - "443:443"
+      - "5000:5000"
+    environment:
+      REGISTRY_HTTP_ADDR: 0.0.0.0:443
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/fullchain.pem
+      REGISTRY_HTTP_TLS_KEY: /certs/privkey.pem
