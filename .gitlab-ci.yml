@@ -16,8 +16,10 @@ image: "docker/compose:latest"
 
 stages: 
   - build
+  - configure
   - test-frontend
   - test-backend
+  - deploy
 
 build-docker:
   stage: build
@@ -160,3 +162,8 @@ test-backend-citation:
     reports:
       junit:
         - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
+
+configure:
+  stage: configure
+  script:
+    - make configure

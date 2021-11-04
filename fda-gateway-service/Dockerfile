@@ -9,7 +9,7 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 COPY ./src ./src
 
 # Make sure it compiles
-RUN mvn clean package -DskipTests
+RUN mvn -q clean package -DskipTests > /dev/null
 
 ###### SECOND STAGE ######
 FROM openjdk:11-jre-slim as runtime

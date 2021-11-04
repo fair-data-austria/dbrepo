@@ -1,6 +1,6 @@
 all:
 
-build-backend-maven:
+build-backend-maven: config
 	mvn -f ./fda-metadata-db/pom.xml clean install
 	mvn -f ./fda-authentication-service/pom.xml clean package -DskipTests
 	mvn -f ./fda-broker-service/pom.xml clean package -DskipTests
@@ -23,7 +23,7 @@ config-backend:
 
 build:
 	docker-compose build fda-metadata-db
-	docker-compose build --parallel
+	docker-compose build
 
 test-backend:
 	mvn -f ./fda-authentication-service/pom.xml clean test verify

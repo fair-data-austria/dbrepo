@@ -10,7 +10,7 @@ COPY ./api ./api
 COPY ./entities ./entities
 
 # Make sure it compiles
-RUN mvn clean package -DskipTests
+RUN mvn -q clean package -DskipTests > /dev/null
 
 # Install to local repository
 RUN mvn clean install > /dev/null
