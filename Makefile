@@ -5,7 +5,13 @@ all:
 config-backend:
 	./fda-authentication-service/rest-service/src/main/resources/bin/install_cert
 
-config: config-backend
+config-docker:
+	docker image pull postgres:13.4-alpine || true
+	docker image pull mysql:8.0 || true
+	docker image pull mariadb:10.5 || true
+	docker image pull rabbitmq:3-alpine || true
+
+config: config-backend config-docker
 
 build-backend-maven: config
 	mvn -f ./fda-metadata-db/pom.xml clean install
@@ -19,10 +25,6 @@ build-backend-maven: config
 	mvn -f ./fda-table-service/pom.xml clean package -DskipTests
 
 build-backend-docker: config
-	docker image pull postgres:13.4-alpine || true
-	docker image pull mysql:8.0 || true
-	docker image pull mariadb:10.5 || true
-	docker image pull rabbitmq:3-alpine || true
 	docker-compose build fda-metadata-db
 	docker-compose build
 
@@ -37,13 +39,13 @@ test-backend: test-backend-auth test-backend-citation test-backend-container tes
 test-backend-auth:
 	mvn -f ./fda-authentication-service/pom.xml clean test verify
 
-test-backend-citation:
+test-backend-citation: config-docker
 	mvn -f ./fda-citation-service/pom.xml clean test verify
 
-test-backend-container:
+test-backend-container: config-docker
 	mvn -f ./fda-container-service/pom.xml clean test verify
 
-test-backend-database:
+test-backend-database: config-docker
 	mvn -f ./fda-database-service/pom.xml clean test verify
 
 test-backend-discovery:
@@ -52,10 +54,10 @@ test-backend-discovery:
 test-backend-gateway:
 	mvn -f ./fda-gateway-service/pom.xml clean test verify
 
-test-backend-query:
+test-backend-query: config-docker
 	mvn -f ./fda-query-service/pom.xml clean test verify
 
-test-backend-table:
+test-backend-table: config-docker
 	mvn -f ./fda-table-service/pom.xml clean test verify
 
 test-frontend: build
