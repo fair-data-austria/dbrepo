@@ -6,7 +6,7 @@ KEY_STORE_PASS="dbrepo"
 
 # REQUEST
 sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
-		-m martin.weise@tuwien.ac.at --agree-tos
+		-m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
 
 # CONVERT PKCS12
 sudo openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
