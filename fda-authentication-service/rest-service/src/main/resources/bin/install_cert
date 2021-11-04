@@ -13,7 +13,7 @@ sudo openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in /etc/letsencrypt/l
   -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem -passout "pass:${KEY_STORE_PASS}"
 
 # FIX PERMISSIONS
-sudo chown 1000:1000 "${CERT_STORE_LOCATION}"
+sudo chmod 644 "${CERT_STORE_LOCATION}"
 
 # IMPORT
 keytool -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
