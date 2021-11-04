@@ -6,7 +6,8 @@ COPY ./pom.xml ./
 
 RUN mvn -fn -B dependency:go-offline > /dev/null
 
-COPY ./src ./src
+COPY ./gateway ./gateway
+COPY ./report ./report
 
 # Make sure it compiles
 RUN mvn -q clean package -DskipTests > /dev/null
@@ -19,7 +20,7 @@ RUN chmod +x /usr/bin/service_ready
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
 
-COPY --from=build ./target/fda-gateway-service-*.jar ./gateway.jar
+COPY --from=build ./gateway/target/gateway-*.jar ./gateway.jar
 
 EXPOSE 9095
 
