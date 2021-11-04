@@ -49,6 +49,6 @@ logs:
 clean:
 	docker-compose down || true
 	docker volume rm $(docker volume ls -q) || true
-	rm -f ./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.p12 ./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.jks || true
+	rm -f ./fda-authentication-service/rest-service/src/main/resources/ssl/cert.p12 ./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.jks || true
 
 test: test-backend test-frontend
