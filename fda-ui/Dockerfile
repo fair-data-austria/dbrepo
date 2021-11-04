@@ -25,11 +25,14 @@ COPY ./server-middleware ./server-middleware
 COPY ./static ./static
 COPY ./store ./store
 COPY ./yarn.lock ./
+COPY ./service_ready ./
 
-RUN yarn build
+RUN yarn generate
 
 # Minimize image & cleanup
 RUN rm -rf /tmp/*
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
 
 EXPOSE 3000
 
