@@ -6,4 +6,4 @@ RUN chmod +x /usr/bin/service_ready
 
 COPY ./rabbitmq.conf /etc/rabbitmq/
 
-HEALTHCHECK --interval=25s --timeout=3s --retries=2 CMD service_ready
+HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
