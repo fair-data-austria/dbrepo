@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -f /tmp/ready ]; then
+if [ -f /ready ]; then
   echo "service is ready and accepting connections"
   exit 0
 fi
