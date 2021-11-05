@@ -276,7 +276,7 @@ services:
     networks:
       - fda-public
     ports:
-      - "3000:3000"
+      - "3000:80"
     volumes:
       - /tmp:/tmp
     depends_on:

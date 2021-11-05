@@ -29,11 +29,8 @@ COPY ./service_ready ./
 
 RUN yarn generate
 
-# Minimize image & cleanup
-RUN rm -rf /tmp/*
+FROM nginx:1.21-alpine as runtime
 
-HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
+COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 3000
-
-ENTRYPOINT ["yarn", "start"]
+#HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
