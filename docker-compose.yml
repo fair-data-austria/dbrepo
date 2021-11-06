@@ -28,7 +28,7 @@ services:
     restart: on-failure
     container_name: fda-metadata-db
     hostname: fda-metadata-db
-    build: ./fda-metadata-db/Dockerfile.${ENV:-dev}
+    build: ./fda-metadata-db
     image: fda-metadata-db
     networks:
       - fda-public
@@ -45,7 +45,7 @@ services:
     restart: on-failure
     container_name: fda-discovery-service
     hostname: fda-discovery-service
-    build: ./fda-discovery-service/Dockerfile.${ENV:-dev}
+    build: ./fda-discovery-service
     image: fda-discovery-service
     networks:
       - fda-public
@@ -58,7 +58,7 @@ services:
     restart: on-failure
     container_name: fda-gateway-service
     hostname: fda-gateway-service
-    build: ./fda-gateway-service/Dockerfile.${ENV:-dev}
+    build: ./fda-gateway-service
     image: fda-gateway-service
     networks:
       - fda-public
@@ -76,7 +76,7 @@ services:
     restart: on-failure
     container_name: fda-database-service
     hostname: fda-database-service
-    build: ./fda-database-service/Dockerfile.${ENV:-dev}
+    build: ./fda-database-service
     image: fda-database-service
     networks:
       - fda-userdb
@@ -101,7 +101,7 @@ services:
     restart: on-failure
     container_name: fda-container-service
     hostname: fda-container-service
-    build: ./fda-container-service/Dockerfile.${ENV:-dev}
+    build: ./fda-container-service
     image: fda-container-service
     networks:
       - fda-public
@@ -123,7 +123,9 @@ services:
     restart: on-failure
     container_name: fda-authentication-service
     hostname: fda-authentication-service
-    build: ./fda-authentication-service/Dockerfile.${ENV:-dev}
+    build:
+      context: ./fda-authentication-service
+      dockerfile: Dockerfile.${ENV:-dev}
     image: fda-authentication-service
     networks:
       - fda-public
@@ -141,7 +143,7 @@ services:
     restart: on-failure
     container_name: fda-query-service
     hostname: fda-query-service
-    build: ./fda-query-service/Dockerfile.${ENV:-dev}
+    build: ./fda-query-service
     image: fda-query-service
     networks:
       - fda-public
@@ -166,7 +168,7 @@ services:
     restart: on-failure
     container_name: fda-table-service
     hostname: fda-table-service
-    build: ./fda-table-service/Dockerfile.${ENV:-dev}
+    build: ./fda-table-service
     image: fda-table-service
     networks:
       - fda-public
@@ -191,7 +193,7 @@ services:
     restart: on-failure
     container_name: fda-citation-service
     hostname: fda-citation-service
-    build: ./fda-citation-service/Dockerfile.${ENV:-dev}
+    build: ./fda-citation-service
     image: fda-citation-service
     networks:
       - fda-public
@@ -212,7 +214,7 @@ services:
     restart: on-failure
     container_name: fda-analyse-service
     hostname: fda-analyse-service
-    build: ./fda-analyse-service/Dockerfile.${ENV:-dev}
+    build: ./fda-analyse-service
     image: fda-analyse-service
     networks:
       - fda-public
@@ -237,7 +239,7 @@ services:
     restart: on-failure
     container_name: fda-broker-service
     hostname: fda-broker-service
-    build: ./fda-broker-service/Dockerfile.${ENV:-dev}
+    build: ./fda-broker-service
     image: fda-broker-service
     networks:
       - fda-public
@@ -271,7 +273,9 @@ services:
     restart: on-failure
     container_name: fda-ui
     hostname: fda-ui
-    build: ./fda-ui/Dockerfile.${ENV:-dev}
+    build:
+      context: ./fda-ui
+      dockerfile: Dockerfile.${ENV:-dev}
     image: fda-ui
     networks:
       - fda-public

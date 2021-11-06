@@ -4,6 +4,11 @@ KEY_STORE_LOCATION="./fda-authentication-service/rest-service/src/main/resources
 KEY_STORE_ALIAS="dbrepo"
 KEY_STORE_PASS="dbrepo"
 
+if [ "$ENV" != "prod" ]; then
+  echo "WARN: environment must be prod"
+  exit 0
+fi
+
 # REQUEST
 sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 		-m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
