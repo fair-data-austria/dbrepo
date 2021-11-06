@@ -1,0 +1,41 @@
+# FROM node:lts as build
+FROM node:14-alpine as build
+MAINTAINER Kirill Stytsenko <kirill.stytsenko@univie.ac.at>
+
+ENV NODE_ENV=production
+
+ARG API
+
+WORKDIR /app
+
+COPY package.json ./
+
+# Install npm dependencies
+RUN npm install > /dev/null 2>&1
+
+COPY nuxt.config.js ./
+COPY .env-docker ./.env
+COPY ava.config.cjs ./
+COPY babel.config.js ./
+COPY assets ./assets
+COPY components ./components
+COPY lang ./lang
+COPY layouts ./layouts
+COPY pages ./pages
+COPY plugins ./plugins
+COPY server-middleware ./server-middleware
+COPY static ./static
+COPY store ./store
+COPY yarn.lock ./
+
+RUN yarn generate
+
+FROM nginx:1.21-alpine as runtime
+
+COPY --from=build /app/dist /usr/share/nginx/html
+
+COPY /etc/letsencrypt/live/docker.ossdip.at/fullchain.pem /etc/letsencrypt/live/docker.ossdip.at/
+COPY /etc/letsencrypt/live/docker.ossdip.at/privkey.pem /etc/letsencrypt/live/docker.ossdip.at/
+COPY service_ready ./
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD ./service_ready
