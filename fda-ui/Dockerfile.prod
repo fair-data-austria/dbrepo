@@ -4,29 +4,28 @@ MAINTAINER Kirill Stytsenko <kirill.stytsenko@univie.ac.at>
 
 ENV NODE_ENV=production
 
-ARG API
-
 WORKDIR /app
 
-COPY package.json ./
+COPY ./package.json ./
 
 # Install npm dependencies
 RUN npm install > /dev/null 2>&1
 
-COPY nuxt.config.js ./
-COPY .env-docker ./.env
-COPY ava.config.cjs ./
-COPY babel.config.js ./
-COPY assets ./assets
-COPY components ./components
-COPY lang ./lang
-COPY layouts ./layouts
-COPY pages ./pages
-COPY plugins ./plugins
-COPY server-middleware ./server-middleware
-COPY static ./static
-COPY store ./store
-COPY yarn.lock ./
+COPY ./nuxt.config.js ./
+COPY ./.env-docker ./.env
+COPY ./ava.config.cjs ./
+COPY ./babel.config.js ./
+COPY ./assets ./assets
+COPY ./components ./components
+COPY ./lang ./lang
+COPY ./layouts ./layouts
+COPY ./pages ./pages
+COPY ./plugins ./plugins
+COPY ./server-middleware ./server-middleware
+COPY ./static ./static
+COPY ./store ./store
+COPY ./yarn.lock ./
+COPY ./service_ready ./
 
 RUN yarn generate
 
