@@ -14,15 +14,15 @@ config-docker:
 config: config-backend config-docker
 
 build-backend-maven: config
-	mvn -f ./fda-metadata-db/pom.xml clean install
-	mvn -f ./fda-authentication-service/pom.xml clean package -DskipTests
-	mvn -f ./fda-citation-service/pom.xml clean package -DskipTests
-	mvn -f ./fda-container-service/pom.xml clean package -DskipTests
-	mvn -f ./fda-database-service/pom.xml clean package -DskipTests
-	mvn -f ./fda-discovery-service/pom.xml clean package -DskipTests
-	mvn -f ./fda-gateway-service/pom.xml clean package -DskipTests
-	mvn -f ./fda-query-service/pom.xml clean package -DskipTests
-	mvn -f ./fda-table-service/pom.xml clean package -DskipTests
+	mvn -f ./fda-metadata-db/pom.xml -q clean install > /dev/null
+	mvn -f ./fda-authentication-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-citation-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-container-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-database-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-discovery-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-gateway-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-query-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-table-service/pom.xml -q clean package -DskipTests > /dev/null
 
 build-backend-docker: config
 	docker-compose build fda-metadata-db
