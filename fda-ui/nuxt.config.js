@@ -69,7 +69,6 @@ export default {
 
   serverMiddleware: [
     { path: '/server-middleware', handler: path.resolve(__dirname, 'server-middleware/index.js') },
-    { handler: path.resolve(__dirname, 'server-middleware/ready.js') }
   ],
 
   vuetify: {
