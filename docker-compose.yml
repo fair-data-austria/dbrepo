@@ -123,9 +123,7 @@ services:
     restart: on-failure
     container_name: fda-authentication-service
     hostname: fda-authentication-service
-    build:
-      context: ./fda-authentication-service
-      dockerfile: Dockerfile.${ENV:-dev}
+    build: ./fda-authentication-service
     image: fda-authentication-service
     networks:
       - fda-public
@@ -275,9 +273,7 @@ services:
     restart: on-failure
     container_name: fda-ui
     hostname: fda-ui
-    build:
-      context: ./fda-ui
-      dockerfile: Dockerfile.${ENV:-dev}
+    build: ./fda-ui
     image: fda-ui
     networks:
       - fda-public
