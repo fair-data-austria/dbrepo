@@ -242,6 +242,7 @@ registry:
   stage: registry
 #  only:
 #    - master
+#    - dev
   needs:
     - build-backend-metadata
     - test-frontend
