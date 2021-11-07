@@ -33,8 +33,10 @@ FROM nginx:1.21-alpine as runtime
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-COPY /etc/letsencrypt/live/docker.ossdip.at/fullchain.pem /etc/letsencrypt/live/docker.ossdip.at/
-COPY /etc/letsencrypt/live/docker.ossdip.at/privkey.pem /etc/letsencrypt/live/docker.ossdip.at/
+VOLUME /tmp/certs
+
+COPY /certs/fullchain.pem /certs/
+COPY /certs/privkey.pem /certs/
 COPY service_ready ./
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD ./service_ready

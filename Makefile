@@ -13,7 +13,7 @@ config-docker:
 
 config: config-backend config-docker
 
-build-backend-maven: config
+build-backend: config
 	mvn -f ./fda-metadata-db/pom.xml -q clean install > /dev/null
 	mvn -f ./fda-authentication-service/pom.xml -q clean package -DskipTests > /dev/null
 	mvn -f ./fda-citation-service/pom.xml -q clean package -DskipTests > /dev/null
@@ -24,15 +24,16 @@ build-backend-maven: config
 	mvn -f ./fda-query-service/pom.xml -q clean package -DskipTests > /dev/null
 	mvn -f ./fda-table-service/pom.xml -q clean package -DskipTests > /dev/null
 
-build-backend-docker: config
+build-docker: config
 	docker-compose build fda-metadata-db
 	docker-compose build
 
-build-frontend-npm:
+build-frontend:
+	./fda-ui/install_cert
 	npm --prefix ./fda-ui install
 	npm --prefix ./fda-ui run build
 
-build: clean build-backend-maven build-backend-docker
+build: clean build-backend build-frontend build-docker
 
 test-backend: test-backend-auth test-backend-citation test-backend-container test-backend-database test-backend-discovery test-backend-gateway test-backend-query test-backend-table
 
