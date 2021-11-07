@@ -81,7 +81,7 @@ run: run-backend run-frontend
 deploy-registry: config-registry
 	docker-compose -f ./.gitlab-ci/docker-compose.yml up -d
 
-deploy-tag: config build-backend-docker
+deploy-tag: config
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service

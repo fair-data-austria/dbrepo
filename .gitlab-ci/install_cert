@@ -1,6 +1,6 @@
 #!/bin/bash
 CA_PATH="/etc/letsencrypt/live/docker.ossdip.at"
-CERT_PATH="/home/rocky/registry/certs/"
+CERT_PATH="/tmp/certs/"
 USER="rocky"
 
 if [ "$ENV" != "prod" ]; then
@@ -14,6 +14,7 @@ sudo certbot certonly --standalone --preferred-challenges http -d docker.ossdip.
 sudo cp "${CA_PATH}/fullchain.pem" "${CERT_PATH}"
 sudo cp "${CA_PATH}/privkey.pem" "${CERT_PATH}"
 
+mkdir -p "${CERT_PATH}"
 sudo chown -R "${USER}:docker" "${CERT_PATH}"
 
 ls -la "${CERT_PATH}"

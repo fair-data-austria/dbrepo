@@ -129,6 +129,8 @@ services:
     image: fda-authentication-service
     networks:
       - fda-public
+    volumes:
+      - /tmp:/tmp
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
