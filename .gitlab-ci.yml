@@ -244,7 +244,6 @@ registry:
 #    - master
 #    - dev
   needs:
-    - build-backend-metadata
     - test-frontend
     - test-backend-authentication
     - test-backend-citation
@@ -255,7 +254,6 @@ registry:
     - test-backend-query
     - test-backend-table
   dependencies:
-    - build-backend-metadata
     - test-frontend
     - test-backend-authentication
     - test-backend-citation
