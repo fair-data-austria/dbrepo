@@ -18,6 +18,7 @@ stages:
   - build
   - test-frontend
   - test-backend
+  - registry
   - deploy
 
 build-backend-maven:
@@ -173,7 +174,20 @@ test-backend-citation:
       junit:
         - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
 
-deploy-registry:
+registry:
+  stage: registry
+  needs:
+    - build-backend-docker
+  dependencies:
+    - build-backend-docker
+  script:
+    - make registry
+
+deploy:
   stage: deploy
+  needs:
+    - registry
+  dependencies:
+    - registry
   script:
     - make deploy

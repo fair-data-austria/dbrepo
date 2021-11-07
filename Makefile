@@ -16,7 +16,7 @@ config-docker:
 
 config: config-backend config-docker
 
-build-backend: config
+build-backend:
 	mvn -f ./fda-metadata-db/pom.xml -q clean install > /dev/null
 	mvn -f ./fda-authentication-service/pom.xml -q clean package -DskipTests > /dev/null
 	mvn -f ./fda-citation-service/pom.xml -q clean package -DskipTests > /dev/null
@@ -27,7 +27,7 @@ build-backend: config
 	mvn -f ./fda-query-service/pom.xml -q clean package -DskipTests > /dev/null
 	mvn -f ./fda-table-service/pom.xml -q clean package -DskipTests > /dev/null
 
-build-docker: config
+build-docker: config-docker
 	docker-compose build fda-metadata-db
 	docker-compose build
 
@@ -81,7 +81,7 @@ run: run-backend run-frontend
 deploy-registry: config-registry
 	docker-compose -f ./.gitlab-ci/docker-compose.yml up -d
 
-deploy-tag: config
+registry-tag: config
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service
@@ -92,7 +92,7 @@ deploy-tag: config
 	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service
 	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service
 
-deploy-push: deploy-tag
+registry-push: registry-tag
 	docker push ${REGISTRY}/fda-metadata-db
 	docker push ${REGISTRY}/fda-authentication-service
 	docker push ${REGISTRY}/fda-broker-service
@@ -103,7 +103,7 @@ deploy-push: deploy-tag
 	docker push ${REGISTRY}/fda-query-service
 	docker push ${REGISTRY}/fda-table-service
 
-deploy: deploy-tag deploy-push
+registry: registry-tag registry-push
 
 logs:
 	docker-compose logs
@@ -113,3 +113,6 @@ clean:
 	docker container stop $(docker container ls -aq) || true
 	docker container rm $(docker container ls -aq) || true
 	docker volume rm $(docker volume ls -q) || true
+
+deploy:
+	echo 1
