@@ -1,6 +1,6 @@
 #!/bin/bash
 CERT_LOCATION="/etc/letsencrypt/live/dbrepo.ossdip.at/"
-TEMP_LOCATION="/tmp/"
+TEMP_LOCATION="/tmp"
 CERT_NAME="chain.pem"
 PRIV_KEY_NAME="privkey.pem"
 USER="rocky"

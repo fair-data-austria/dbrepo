@@ -3,6 +3,11 @@ CA_PATH="/etc/letsencrypt/live/docker.ossdip.at"
 CERT_PATH="/home/rocky/registry/certs/"
 USER="rocky"
 
+if [ "$ENV" != "prod" ]; then
+  echo "WARN: environment must be prod"
+  exit 0
+fi
+
 sudo certbot certonly --standalone --preferred-challenges http -d docker.ossdip.at \
                 -m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
 
