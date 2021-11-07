@@ -8,7 +8,7 @@ services:
     hostname: fda-registry-service
     image: registry:2
     volumes:
-      - /home/centos/registry/certs:/certs
+      - /home/rocky/registry/certs:/certs
     ports:
       - "443:443"
       - "5000:5000"
