@@ -107,6 +107,7 @@ registry-tag: config build test
 	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service
 	docker tag fda-database-service:latest ${REGISTRY}/fda-database-service
 	docker tag fda-discovery-service:latest ${REGISTRY}/fda-discovery-service
+	docker tag fda-gateway-service:latest ${REGISTRY}/fda-gateway-service
 	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service
 	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service
 

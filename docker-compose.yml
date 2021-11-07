@@ -296,3 +296,5 @@ services:
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
+      NGINX_HOST: localhost
+      NGINX_PORT: 3000
