@@ -17,7 +17,7 @@ config-docker:
 config: config-backend config-docker
 
 build-backend-metadata:
-	mvn -f ./fda-metadata-db/pom.xml -q clean install > /dev/null
+	mvn -f ./fda-metadata-db/pom.xml clean install
 
 build-backend-authentication:
 	mvn -f ./fda-authentication-service/pom.xml -q clean package -DskipTests > /dev/null
