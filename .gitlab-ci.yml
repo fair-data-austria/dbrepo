@@ -23,46 +23,82 @@ stages:
 
 build-backend-metadata:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-metadata"
 
 build-backend-authentication:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-authentication"
 
 build-backend-citation:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-citation"
 
 build-backend-container:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-container"
 
 build-backend-database:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-database"
 
 build-backend-discovery:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-discovery"
 
 build-backend-gateway:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-gateway"
 
 build-backend-query:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-query"
 
 build-backend-table:
   stage: build
+  dependencies:
+    - build-backend-metadata
+  needs:
+    - build-backend-metadata
   script:
     - "make build-backend-table"
 
