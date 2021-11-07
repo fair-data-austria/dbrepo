@@ -1,4 +1,8 @@
 #!/bin/bash
+CERT_STORE_LOCATION="./fda-authentication-service/rest-service/src/main/resources/ssl/cert.p12"
+KEY_STORE_LOCATION="./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.jks"
+KEY_STORE_ALIAS="dbrepo"
+KEY_STORE_PASS="dbrepo"
 CERT_LOCATION="/etc/letsencrypt/live/dbrepo.ossdip.at/"
 TEMP_LOCATION="/tmp"
 CERT_NAME="chain.pem"
@@ -24,3 +28,15 @@ sudo chown "${USER}:${USER}" "${TEMP_LOCATION}/certs/${CERT_NAME}"
 sudo chown "${USER}:${USER}" "${TEMP_LOCATION}/certs/${PRIV_KEY_NAME}"
 chmod 600 "${TEMP_LOCATION}/certs/${CERT_NAME}"
 chmod 600 "${TEMP_LOCATION}/certs/${PRIV_KEY_NAME}"
+
+# CONVERT PKCS12
+sudo openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
+  -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem -passout "pass:${KEY_STORE_PASS}"
+
+# FIX PERMISSIONS
+sudo chmod 644 "${CERT_STORE_LOCATION}"
+
+# IMPORT
+keytool -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
+  -destkeystore "${KEY_STORE_LOCATION}" -srckeystore "${CERT_STORE_LOCATION}" -srcstoretype PKCS12 \
+  -srcstorepass "${KEY_STORE_PASS}" -alias 1
