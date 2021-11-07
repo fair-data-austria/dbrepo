@@ -22,3 +22,5 @@ sudo cp "${CERT_LOCATION}/${PRIV_KEY_NAME}" "${TEMP_LOCATION}/certs/"
 # FIX PERMISSIONS
 sudo chown "${USER}:${USER}" "${TEMP_LOCATION}/certs/${CERT_NAME}"
 sudo chown "${USER}:${USER}" "${TEMP_LOCATION}/certs/${PRIV_KEY_NAME}"
+chmod 600 "${TEMP_LOCATION}/certs/${CERT_NAME}"
+chmod 600 "${TEMP_LOCATION}/certs/${PRIV_KEY_NAME}"
