@@ -243,8 +243,8 @@ registry:
 #  only:
 #    - master
   needs:
-    - build-frontend
     - build-backend-metadata
+    - test-frontend
     - test-backend-authentication
     - test-backend-citation
     - test-backend-container
@@ -254,8 +254,8 @@ registry:
     - test-backend-query
     - test-backend-table
   dependencies:
-    - build-frontend
     - build-backend-metadata
+    - test-frontend
     - test-backend-authentication
     - test-backend-citation
     - test-backend-container
