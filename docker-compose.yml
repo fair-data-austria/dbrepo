@@ -283,6 +283,7 @@ services:
       - fda-public
     ports:
       - "443:443"
+      - "3000:3000"
     volumes:
       - /tmp:/tmp
     depends_on:
