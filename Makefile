@@ -5,13 +5,16 @@ all:
 config-backend: clean-cert
 	./fda-authentication-service/rest-service/src/main/resources/bin/install_cert
 
+config-frontend: clean-cert
+	./fda-ui/install_cert
+
 config-docker:
 	docker image pull postgres:13.4-alpine || true
 	docker image pull mysql:8.0 || true
 	docker image pull mariadb:10.5 || true
 	docker image pull rabbitmq:3-alpine || true
 
-config: config-backend config-docker
+config: config-backend config-docker config-frontend
 
 build-backend: config
 	mvn -f ./fda-metadata-db/pom.xml -q clean install > /dev/null
@@ -29,7 +32,6 @@ build-docker: config
 	docker-compose build
 
 build-frontend:
-	./fda-ui/install_cert
 	npm --prefix ./fda-ui install
 	npm --prefix ./fda-ui run build
 
