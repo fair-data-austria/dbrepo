@@ -23,12 +23,17 @@ stages:
 build-backend-maven:
   stage: build
   script:
-    - "make build-backend-maven"
+    - "make build-backend"
 
 build-backend-docker:
   stage: build
   script:
-    - make build-backend-docker
+    - make build-docker
+
+build-frontend-npm:
+  stage: build
+  script:
+    - make build-frontend
 
 test-frontend:
   stage: test-frontend

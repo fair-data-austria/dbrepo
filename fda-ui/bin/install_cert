@@ -1,0 +1,24 @@
+#!/bin/bash
+CERT_LOCATION="/etc/letsencrypt/live/dbrepo.ossdip.at/"
+TEMP_LOCATION="/tmp/"
+CERT_NAME="chain.pem"
+PRIV_KEY_NAME="privkey.pem"
+USER="rocky"
+
+if [ "$ENV" != "prod" ]; then
+  echo "WARN: environment must be prod"
+  exit 0
+fi
+
+# REQUEST
+sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
+		-m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
+
+# COPY
+mkdir -p "${TEMP_LOCATION}/certs"
+sudo cp "${CERT_LOCATION}/${CERT_NAME}" "${TEMP_LOCATION}/certs/"
+sudo cp "${CERT_LOCATION}/${PRIV_KEY_NAME}" "${TEMP_LOCATION}/certs/"
+
+# FIX PERMISSIONS
+sudo chown "${USER}:${USER}" "${TEMP_LOCATION}/certs/${CERT_NAME}"
+sudo chown "${USER}:${USER}" "${TEMP_LOCATION}/certs/${PRIV_KEY_NAME}"
