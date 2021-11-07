@@ -6,7 +6,7 @@ config-backend: clean-cert
 	./fda-authentication-service/rest-service/src/main/resources/bin/install_cert
 
 config-frontend: clean-cert
-	./fda-ui/install_cert
+	./fda-ui/bin/install_cert
 
 config-docker:
 	docker image pull postgres:13.4-alpine || true
