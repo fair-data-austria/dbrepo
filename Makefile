@@ -99,7 +99,7 @@ run: run-backend run-frontend
 deploy-registry: config-registry
 	docker-compose -f ./.gitlab-ci/docker-compose.yml up -d
 
-registry-tag: config
+registry-tag: config build test
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service
@@ -110,7 +110,7 @@ registry-tag: config
 	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service
 	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service
 
-registry-push: registry-tag
+registry-push: registry-tag registry-tag
 	docker push ${REGISTRY}/fda-metadata-db
 	docker push ${REGISTRY}/fda-authentication-service
 	docker push ${REGISTRY}/fda-broker-service
@@ -132,5 +132,5 @@ clean:
 	docker container rm $(docker container ls -aq) || true
 	docker volume rm $(docker volume ls -q) || true
 
-deploy:
-	echo 1
+deploy: registry
+	make deploy
