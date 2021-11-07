@@ -280,7 +280,7 @@ services:
     networks:
       - fda-public
     ports:
-      - "3000:3000"
+      - "443:443"
     volumes:
       - /tmp:/tmp
     depends_on:

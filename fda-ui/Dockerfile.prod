@@ -35,6 +35,8 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 VOLUME /tmp/certs
 
+EXPOSE 443
+
 COPY /certs/fullchain.pem /certs/
 COPY /certs/privkey.pem /certs/
 COPY service_ready ./
