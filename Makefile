@@ -16,16 +16,34 @@ config-docker:
 
 config: config-backend config-docker
 
-build-backend:
+build-backend-metadata:
 	mvn -f ./fda-metadata-db/pom.xml -q clean install > /dev/null
+
+build-backend-authentication:
 	mvn -f ./fda-authentication-service/pom.xml -q clean package -DskipTests > /dev/null
+
+build-backend-citation:
 	mvn -f ./fda-citation-service/pom.xml -q clean package -DskipTests > /dev/null
+
+build-backend-container:
 	mvn -f ./fda-container-service/pom.xml -q clean package -DskipTests > /dev/null
+
+build-backend-database:
 	mvn -f ./fda-database-service/pom.xml -q clean package -DskipTests > /dev/null
+
+build-backend-discovery:
 	mvn -f ./fda-discovery-service/pom.xml -q clean package -DskipTests > /dev/null
+
+build-backend-gateway:
 	mvn -f ./fda-gateway-service/pom.xml -q clean package -DskipTests > /dev/null
+
+build-backend-query:
 	mvn -f ./fda-query-service/pom.xml -q clean package -DskipTests > /dev/null
+
+build-backend-table:
 	mvn -f ./fda-table-service/pom.xml -q clean package -DskipTests > /dev/null
+
+build-backend: build-backend-metadata build-backend-authentication build-backend-citation build-backend-container build-backend-database build-backend-discovery build-backend-gateway build-backend-query build-backend-table
 
 build-docker: config-docker
 	docker-compose build fda-metadata-db
