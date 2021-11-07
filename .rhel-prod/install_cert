@@ -1,10 +1,9 @@
 #!/bin/bash
-CERT_STORE_LOCATION="./fda-authentication-service/rest-service/src/main/resources/ssl/cert.p12"
-KEY_STORE_LOCATION="./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.jks"
+CERT_STORE_LOCATION="/tmp/cert.p12"
+KEY_STORE_LOCATION="/tmp/dbrepo.jks"
 KEY_STORE_ALIAS="dbrepo"
 KEY_STORE_PASS="dbrepo"
 CERT_LOCATION="/etc/letsencrypt/live/dbrepo.ossdip.at/"
-TEMP_LOCATION="/tmp"
 CERT_NAME="chain.pem"
 PRIV_KEY_NAME="privkey.pem"
 USER="rocky"
@@ -19,15 +18,15 @@ sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.
 		-m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
 
 # COPY
-mkdir -p "${TEMP_LOCATION}/certs"
-sudo cp "${CERT_LOCATION}/${CERT_NAME}" "${TEMP_LOCATION}/certs/"
-sudo cp "${CERT_LOCATION}/${PRIV_KEY_NAME}" "${TEMP_LOCATION}/certs/"
+mkdir -p "/tmp/certs"
+sudo cp "${CERT_LOCATION}/${CERT_NAME}" "/tmp/certs/"
+sudo cp "${CERT_LOCATION}/${PRIV_KEY_NAME}" "/tmp/certs/"
 
 # FIX PERMISSIONS
-sudo chown "${USER}:${USER}" "${TEMP_LOCATION}/certs/${CERT_NAME}"
-sudo chown "${USER}:${USER}" "${TEMP_LOCATION}/certs/${PRIV_KEY_NAME}"
-chmod 600 "${TEMP_LOCATION}/certs/${CERT_NAME}"
-chmod 600 "${TEMP_LOCATION}/certs/${PRIV_KEY_NAME}"
+sudo chown "${USER}:${USER}" "/tmp/certs/${CERT_NAME}"
+sudo chown "${USER}:${USER}" "/tmp/certs/${PRIV_KEY_NAME}"
+chmod 600 "/tmp/certs/${CERT_NAME}"
+chmod 600 "/tmp/certs/${PRIV_KEY_NAME}"
 
 # CONVERT PKCS12
 sudo openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
