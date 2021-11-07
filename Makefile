@@ -77,25 +77,25 @@ run: run-backend run-frontend
 
 deploy-tag: config build-backend-docker
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db
-	docker tag authentication-service:latest ${REGISTRY}/authentication-service
-	docker tag broker-service:latest ${REGISTRY}/broker-service
-	docker tag citation-service:latest ${REGISTRY}/citation-service
-	docker tag container-service:latest ${REGISTRY}/container-service
-	docker tag database-service:latest ${REGISTRY}/database-service
-	docker tag discovery-service:latest ${REGISTRY}/discovery-service
-	docker tag query-service:latest ${REGISTRY}/query-service
-	docker tag table-service:latest ${REGISTRY}/table-service
+	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service
+	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service
+	docker tag fda-citation-service:latest ${REGISTRY}/fda-citation-service
+	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service
+	docker tag fda-database-service:latest ${REGISTRY}/fda-database-service
+	docker tag fda-discovery-service:latest ${REGISTRY}/fda-discovery-service
+	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service
+	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service
 
 deploy-push: deploy-tag
 	docker push ${REGISTRY}/fda-metadata-db
-	docker push ${REGISTRY}/authentication-service
-	docker push ${REGISTRY}/broker-service
-	docker push ${REGISTRY}/citation-service
-	docker push ${REGISTRY}/container-service
-	docker push ${REGISTRY}/database-service
-	docker push ${REGISTRY}/discovery-service
-	docker push ${REGISTRY}/query-service
-	docker push ${REGISTRY}/table-service
+	docker push ${REGISTRY}/fda-authentication-service
+	docker push ${REGISTRY}/fda-broker-service
+	docker push ${REGISTRY}/fda-citation-service
+	docker push ${REGISTRY}/fda-container-service
+	docker push ${REGISTRY}/fda-database-service
+	docker push ${REGISTRY}/fda-discovery-service
+	docker push ${REGISTRY}/fda-query-service
+	docker push ${REGISTRY}/fda-table-service
 
 deploy: deploy-tag deploy-push
 
