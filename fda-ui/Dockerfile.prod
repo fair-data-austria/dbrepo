@@ -38,7 +38,4 @@ COPY service_ready ./
 
 EXPOSE 443
 
-COPY /tmp/certs/fullchain.pem /certs/
-COPY /tmp/certs/privkey.pem /certs/
-
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD ./service_ready
