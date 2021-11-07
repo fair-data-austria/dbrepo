@@ -5,8 +5,8 @@ all:
 config-backend: clean-cert
 	./fda-authentication-service/rest-service/src/main/resources/bin/install_cert
 
-config-frontend: clean-cert
-	./fda-ui/bin/install_cert
+config-registry:
+	./.gitlab-ci/install_cert
 
 config-docker:
 	docker image pull postgres:13.4-alpine || true
@@ -14,7 +14,7 @@ config-docker:
 	docker image pull mariadb:10.5 || true
 	docker image pull rabbitmq:3-alpine || true
 
-config: config-backend config-docker config-frontend
+config: config-backend config-docker
 
 build-backend: config
 	mvn -f ./fda-metadata-db/pom.xml -q clean install > /dev/null
@@ -77,6 +77,9 @@ run-frontend:
 	docker-compose up -d fda-ui
 
 run: run-backend run-frontend
+
+deploy-registry: config-registry
+	docker-compose -f ./.gitlab-ci/docker-compose.yml up -d
 
 deploy-tag: config build-backend-docker
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db

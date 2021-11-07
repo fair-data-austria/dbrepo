@@ -1,6 +1,6 @@
 [![pipeline status](https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-services/badges/master/pipeline.svg)](https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-services/-/commits/master)
 [![coverage report](https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-services/badges/master/coverage.svg)](https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-services/-/commits/master)
-[![license](.gitlab/license.svg)](http://creativecommons.org/licenses/by/4.0/)
+[![license](.gitlab-ci/license.svg)](http://creativecommons.org/licenses/by/4.0/)
 
 # FAIR Data Austria Database Repository
 
