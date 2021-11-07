@@ -3,6 +3,7 @@ CERT_STORE_LOCATION="./fda-authentication-service/rest-service/src/main/resource
 KEY_STORE_LOCATION="./fda-authentication-service/rest-service/src/main/resources/ssl/dbrepo.jks"
 KEY_STORE_ALIAS="dbrepo"
 KEY_STORE_PASS="dbrepo"
+USER="rocky"
 
 if [ "$ENV" != "prod" ]; then
   echo "WARN: environment must be prod"
@@ -18,6 +19,7 @@ sudo openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in /etc/letsencrypt/l
   -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem -passout "pass:${KEY_STORE_PASS}"
 
 # FIX PERMISSIONS
+sudo chown -R "$USER":"$USER" /etc/letsencrypt/live/
 sudo chmod 644 "${CERT_STORE_LOCATION}"
 
 # IMPORT
