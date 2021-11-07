@@ -34,7 +34,6 @@ FROM nginx:1.21-alpine as runtime
 VOLUME /tmp/certs
 
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY ./nginx.conf /var/nginx/nginx.conf
 COPY ./service_ready ./
 
 EXPOSE 443
