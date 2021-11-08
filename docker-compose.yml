@@ -70,7 +70,9 @@ services:
         CI_JOB_STAGE: "${CI_JOB_STAGE}"
     image: fda-gateway-service
     networks:
-      - fda-public
+      fda-public:
+        aliases:
+          - fda-gateway-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -309,19 +311,18 @@ services:
       - "3000:3000"
     volumes:
       - /tmp:/tmp
-    depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-container-service:
-        condition: service_healthy
-      fda-table-service:
-        condition: service_healthy
-      fda-query-service:
-        condition: service_healthy
-      fda-analyse-service:
-        condition: service_healthy
+#    depends_on:
+#      fda-discovery-service:
+#        condition: service_healthy
+#      fda-container-service:
+#        condition: service_healthy
+#      fda-table-service:
+#        condition: service_healthy
+#      fda-query-service:
+#        condition: service_healthy
+#      fda-analyse-service:
+#        condition: service_healthy
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
-      NGINX_HOST: localhost
-      NGINX_PORT: 3000
+      NGINX_PORT: "${NGINX_PORT:-3000}"
