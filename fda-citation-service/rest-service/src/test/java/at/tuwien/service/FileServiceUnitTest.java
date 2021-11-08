@@ -7,6 +7,7 @@ import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.File;
 import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.FileRepository;
 import at.tuwien.repository.jpa.QueryRepository;
 import at.tuwien.repository.jpa.TableRepository;
@@ -57,14 +58,13 @@ public class FileServiceUnitTest extends BaseUnitTest {
     private TableRepository tableRepository;
 
     @MockBean
+    private DatabaseRepository databaseRepository;
+
+    @MockBean
     private QueryRepository queryRepository;
 
     @MockBean
     private FileRepository fileRepository;
-
-    final Database DATABASE_1 = Database.builder()
-            .id(DATABASE_1_ID)
-            .build();
 
     @Test
     public void createResource_succeeds() throws ZenodoApiException, ZenodoNotFoundException,
@@ -81,6 +81,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
         when(queryTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(QueryResultDto.class),
                 eq(DATABASE_1_ID), eq(QUERY_1_ID)))
                 .thenReturn(ResponseEntity.ok(QUERY_1_RESULT));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         final File response = fileService.createResource(DATABASE_1_ID, QUERY_1_ID);
@@ -100,6 +102,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
         when(queryTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(QueryResultDto.class),
                 eq(DATABASE_1_ID), eq(QUERY_1_ID)))
                 .thenReturn(ResponseEntity.ok(QUERY_1_RESULT));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
@@ -119,6 +123,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(ResponseEntity.ok(QUERY_1_RESULT));
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.of(QUERY_1));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         assertThrows(ZenodoNotFoundException.class, () -> {
@@ -138,6 +144,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(ResponseEntity.ok(QUERY_1_RESULT));
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.of(QUERY_1));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
@@ -171,6 +179,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(ResponseEntity.ok().body(FILE_1_DTO));
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.of(QUERY_1));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         final File file = fileService.findResource(DATABASE_1_ID, QUERY_1_ID);
@@ -187,6 +197,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
                         eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString());
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.of(QUERY_1));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
@@ -203,6 +215,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(ResponseEntity.ok().body(null));
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.of(QUERY_1));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
@@ -233,6 +247,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
         /* mock */
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.empty());
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         assertThrows(QueryNotFoundException.class, () -> {
@@ -251,6 +267,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.of(QUERY_1));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         fileService.deleteResource(DATABASE_1_ID, QUERY_1_ID);
@@ -266,6 +284,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
                         eq(DEPOSIT_1_ID), eq(FILE_1_ID), anyString());
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.of(QUERY_1));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         assertThrows(ZenodoUnavailableException.class, () -> {
@@ -282,6 +302,8 @@ public class FileServiceUnitTest extends BaseUnitTest {
                 .thenReturn(ResponseEntity.status(HttpStatus.OK).build());
         when(queryRepository.findById(QUERY_1_ID))
                 .thenReturn(Optional.of(QUERY_1));
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
 
         /* test */
         assertThrows(ZenodoApiException.class, () -> {
