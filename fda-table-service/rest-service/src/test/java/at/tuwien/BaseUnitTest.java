@@ -112,7 +112,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
 
     public final static Long IMAGE_1_ID = 1L;
     public final static String IMAGE_1_REPOSITORY = "postgres";
-    public final static String IMAGE_1_TAG = "13-alpine";
+    public final static String IMAGE_1_TAG = "13.4-alpine";
     public final static String IMAGE_1_HASH = "83b40f2726e5";
     public final static String IMAGE_1_DIALECT = "POSTGRES";
     public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
@@ -124,7 +124,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
 
     public final static Long IMAGE_2_ID = 2L;
     public final static String IMAGE_2_REPOSITORY = "mariadb";
-    public final static String IMAGE_2_TAG = "latest";
+    public final static String IMAGE_2_TAG = "10.5";
     public final static String IMAGE_2_HASH = "d6a5e003eae42397f7ee4589e9f21e231d3721ac131970d2286bd616e7f55bb4\n";
     public final static String IMAGE_2_DIALECT = "MARIADB";
     public final static String IMAGE_2_DRIVER = "org.mariadb.jdbc.Driver";
