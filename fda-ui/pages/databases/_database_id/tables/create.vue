@@ -143,6 +143,7 @@ export default {
         const res = await this.$axios.post(`/api/database/${this.$route.params.database_id}/table`, data)
         if (res.status === 201) {
           this.$toast.success('Table created.')
+          this.$router.push({ path: `/databases/${this.$route.params.database_id}/tables` })
           this.$root.$emit('table-create', res.data)
         } else {
           this.$toast.error(`Could not create table: status ${res.status}`)
