@@ -77,7 +77,7 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         final Query response = metadataService.storeCitation(DATABASE_1_ID, QUERY_1_ID);
-        assertNull(response.getId());
+        assertEquals(QUERY_1_ID, response.getId());
         assertNotNull(response.getDoi());
     }
 
@@ -86,12 +86,11 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
             ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
             QueryNotFoundException {
         final Query query = metadataService.storeCitation(DATABASE_1_ID, QUERY_1_ID);
-        assertNull(query.getId());
         assertNotNull(query.getDepositId());
 
         /* test */
         final Query response = metadataService.updateCitation(DATABASE_1_ID, QUERY_1_ID, DEPOST_1_REQUEST);
-        assertNull(response.getId());
+        assertEquals(QUERY_1_ID, response.getId());
         assertNotNull(response.getDepositId());
         assertEquals(DATABASE_1_ID, response.getQdbid());
     }

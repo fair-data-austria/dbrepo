@@ -88,8 +88,8 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         final Query response = zenodoService.storeCitation(DATABASE_1_ID, QUERY_1_ID);
-        assertNull(response.getId());
-        assertNotNull(response.getDepositId());
+        assertEquals(QUERY_1_ID, response.getId());
+        assertEquals(DEPOSIT_1_ID, response.getDepositId());
     }
 
     @Test
