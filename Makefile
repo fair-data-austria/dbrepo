@@ -99,7 +99,7 @@ run: run-backend run-frontend
 deploy-registry: config-registry
 	docker-compose -f ./.gitlab-ci/docker-compose.yml up -d
 
-registry-tag: config build test
+registry-stable-tag: config build test
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service
@@ -111,7 +111,7 @@ registry-tag: config build test
 	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service
 	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service
 
-registry-push: registry-tag registry-tag
+registry-stable-push: registry-stable-tag registry-stable-tag
 	docker push ${REGISTRY}/fda-metadata-db
 	docker push ${REGISTRY}/fda-authentication-service
 	docker push ${REGISTRY}/fda-broker-service
@@ -122,7 +122,32 @@ registry-push: registry-tag registry-tag
 	docker push ${REGISTRY}/fda-query-service
 	docker push ${REGISTRY}/fda-table-service
 
-registry: registry-tag registry-push
+registry-stable: registry-stable-tag registry-stable-push
+
+registry-nightly-tag: config build test
+	docker tag fda-metadata-db:nightly ${REGISTRY}/fda-metadata-db
+	docker tag fda-authentication-service:nightly ${REGISTRY}/fda-authentication-service
+	docker tag fda-broker-service:nightly ${REGISTRY}/fda-broker-service
+	docker tag fda-citation-service:nightly ${REGISTRY}/fda-citation-service
+	docker tag fda-container-service:nightly ${REGISTRY}/fda-container-service
+	docker tag fda-database-service:nightly ${REGISTRY}/fda-database-service
+	docker tag fda-discovery-service:nightly ${REGISTRY}/fda-discovery-service
+	docker tag fda-gateway-service:nightly ${REGISTRY}/fda-gateway-service
+	docker tag fda-query-service:nightly ${REGISTRY}/fda-query-service
+	docker tag fda-table-service:nightly ${REGISTRY}/fda-table-service
+
+registry-nightly-push: registry-nightly-tag registry-nightly-tag
+	docker push ${REGISTRY}/fda-metadata-db
+	docker push ${REGISTRY}/fda-authentication-service
+	docker push ${REGISTRY}/fda-broker-service
+	docker push ${REGISTRY}/fda-citation-service
+	docker push ${REGISTRY}/fda-container-service
+	docker push ${REGISTRY}/fda-database-service
+	docker push ${REGISTRY}/fda-discovery-service
+	docker push ${REGISTRY}/fda-query-service
+	docker push ${REGISTRY}/fda-table-service
+
+registry-nightly: registry-nightly-tag registry-nightly-push
 
 logs:
 	docker-compose logs
@@ -133,5 +158,8 @@ clean:
 	docker container rm $(docker container ls -aq) || true
 	docker volume rm $(docker volume ls -q) || true
 
-deploy: registry
-	make deploy
+deploy-stable: registry-stable
+	ENV=prod ./.gitlab-ci/deploy
+
+deploy-nightly: registry-nightly
+	ENV=prod ./.gitlab-ci/deploy

@@ -254,11 +254,10 @@ test-backend-authentication:
       junit:
         - fda-authentication-service/rest-service/target/surefire-reports/TEST-*.xml
 
-registry:
+registry-stable:
   stage: registry
-#  only:
-#    - master
-#    - dev
+  only:
+    - master
   needs:
     - test-frontend
     - test-backend-authentication
@@ -280,15 +279,42 @@ registry:
     - test-backend-query
     - test-backend-table
   script:
-    - make registry
+    - make registry-stable
 
-deploy:
-  stage: deploy
-  #  only:
-  #    - master
+registry-nightly:
+  stage: registry
+  only:
+    - dev
   needs:
-    - registry
+    - test-frontend
+    - test-backend-authentication
+    - test-backend-citation
+    - test-backend-container
+    - test-backend-database
+    - test-backend-discovery
+    - test-backend-gateway
+    - test-backend-query
+    - test-backend-table
   dependencies:
-    - registry
+    - test-frontend
+    - test-backend-authentication
+    - test-backend-citation
+    - test-backend-container
+    - test-backend-database
+    - test-backend-discovery
+    - test-backend-gateway
+    - test-backend-query
+    - test-backend-table
   script:
-    - make deploy
+    - make registry-nightly
+
+deploy-stable:
+  stage: deploy
+  only:
+    - master
+  needs:
+    - registry-stable
+  dependencies:
+    - registry-stable
+  script:
+    - make deploy-stable
