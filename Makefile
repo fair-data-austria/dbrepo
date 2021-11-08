@@ -159,7 +159,7 @@ clean:
 	docker volume rm $(docker volume ls -q) || true
 
 deploy-stable: registry-stable
-	ENV=prod ./.gitlab-ci/deploy
+	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
 
 deploy-nightly: registry-nightly
-	ENV=prod ./.gitlab-ci/deploy
+	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
