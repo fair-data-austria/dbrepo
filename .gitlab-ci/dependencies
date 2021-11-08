@@ -1,2 +1,3 @@
 #!/bin/bash
 sudo dnf install -y git vim net-tools chromium libdrm maven make java-11-openjdk java-11-openjdk-devel
+sudo dnf module install -y nodejs:14

@@ -9,10 +9,10 @@ config-registry:
 	./.gitlab-ci/install_cert
 
 config-docker:
-	docker image pull postgres:13.4-alpine || true
-	docker image pull mysql:8.0 || true
-	docker image pull mariadb:10.5 || true
-	docker image pull rabbitmq:3-alpine || true
+	docker image pull -q postgres:13.4-alpine || true > /dev/null
+	docker image pull -q mysql:8.0 || true > /dev/null
+	docker image pull -q mariadb:10.5 || true > /dev/null
+	docker image pull -q rabbitmq:3-alpine || true > /dev/null
 
 config: config-backend config-docker
 
