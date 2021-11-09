@@ -1,6 +1,8 @@
 package at.tuwien.api.database.deposit.files;
 
 import at.tuwien.api.database.query.QueryDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.Instant;

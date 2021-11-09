@@ -3,6 +3,8 @@ package at.tuwien.service;
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
 import at.tuwien.api.database.deposit.DepositDto;
 import at.tuwien.api.database.deposit.DepositTzDto;
+import at.tuwien.api.database.deposit.metadata.ResourceTypeDto;
+import at.tuwien.api.database.deposit.record.RecordDto;
 import at.tuwien.config.ZenodoConfig;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
@@ -53,7 +55,7 @@ public class ZenodoMetadataService implements MetadataService {
     @Override
     @Transactional
     public Query storeCitation(Long databaseId, Long queryId) throws ZenodoAuthenticationException,
-            ZenodoApiException, ZenodoUnavailableException, MetadataDatabaseNotFoundException {
+            ZenodoApiException, ZenodoUnavailableException, MetadataDatabaseNotFoundException, ZenodoNotFoundException {
         final Database database = find(databaseId);
         final ResponseEntity<DepositTzDto> response;
         try {
@@ -62,15 +64,7 @@ public class ZenodoMetadataService implements MetadataService {
         } catch (ResourceAccessException e) {
             throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
         }
-        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-            throw new ZenodoAuthenticationException("Token is missing or invalid.");
-        }
-        if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
-            throw new ZenodoApiException("Failed to store citation.");
-        }
-        if (response.getBody() == null) {
-            throw new ZenodoApiException("Endpoint returned null body");
-        }
+        responseErrorWrapper(response);
         final Query query = zenodoMapper.depositTzDtoToQuery(response.getBody());
         query.setQdbid(databaseId);
         query.setDatabase(database);
@@ -105,18 +99,10 @@ public class ZenodoMetadataService implements MetadataService {
         } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
             throw new ZenodoNotFoundException("Could not get the citation.", e);
         }
-        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-            throw new ZenodoAuthenticationException("Token is missing or invalid.");
-        }
-        if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
-            throw new ZenodoNotFoundException("Could not get the citation.");
-        }
         if (!response.getStatusCode().equals(HttpStatus.OK)) {
             throw new ZenodoAuthenticationException("Could not update the citation.");
         }
-        if (response.getBody() == null) {
-            throw new ZenodoApiException("Endpoint returned null body");
-        }
+        responseErrorWrapper(response);
         log.info("Updated query metadata id {}", queryId);
         log.debug("Updated query metadata {}", response.getBody());
         return query.get();
@@ -142,17 +128,28 @@ public class ZenodoMetadataService implements MetadataService {
         } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
             throw new ZenodoNotFoundException("Could not get the citation.", e);
         }
-        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-            throw new ZenodoAuthenticationException("Token is missing or invalid.");
-        }
-        if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
-            throw new ZenodoNotFoundException("Could not get the citation.");
-        }
-        if (response.getBody() == null) {
-            throw new ZenodoApiException("Endpoint returned null body");
-        }
+        responseErrorWrapper(response);
         log.debug("Found query metadata {}", response.getBody());
         return query.get();
+    }
+
+    @Override
+    @Transactional
+    public RecordDto fetchRemoteRecord(Long depositId)
+            throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
+            ZenodoUnavailableException {
+        final ResponseEntity<RecordDto> response;
+        try {
+            response = zenodoTemplate.exchange("/api/records/{deposit_id}?access_token={token}",
+                    HttpMethod.GET, addHeaders(null), RecordDto.class, depositId, zenodoConfig.getApiKey());
+        } catch (ResourceAccessException e) {
+            throw new ZenodoUnavailableException("Zenodo host is not reachable from the service network", e);
+        } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
+            throw new ZenodoNotFoundException("Could not get the citation.", e);
+        }
+        responseErrorWrapper(response);
+        log.debug("Found query metadata {}", response.getBody());
+        return response.getBody();
     }
 
     @Override
@@ -174,12 +171,7 @@ public class ZenodoMetadataService implements MetadataService {
         } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
             throw new ZenodoNotFoundException("Could not get the citation.", e);
         }
-        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-            throw new ZenodoAuthenticationException("Token is missing or invalid.");
-        }
-        if (!response.getStatusCode().equals(HttpStatus.CREATED)) {
-            throw new ZenodoApiException("Could not delete the deposit");
-        }
+        responseErrorWrapper(response);
         log.info("Deleted query metadata id {}", queryId);
         log.debug("Deleted query metadata {}", response.getBody());
     }
@@ -204,12 +196,7 @@ public class ZenodoMetadataService implements MetadataService {
         } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
             throw new ZenodoNotFoundException("Could not get the citation.", e);
         }
-        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-            throw new ZenodoAuthenticationException("Token is missing or invalid.");
-        }
-        if (!response.getStatusCode().equals(HttpStatus.ACCEPTED)) {
-            throw new ZenodoApiException("Could not publish the deposit");
-        }
+        responseErrorWrapper(response);
         log.info("Published query metadata id {} and doi {}", queryId, query.get().getDoi());
         log.debug("Published query metadata {}", response.getBody());
         return query.get();
@@ -241,5 +228,18 @@ public class ZenodoMetadataService implements MetadataService {
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(body, headers);
+    }
+
+    private void responseErrorWrapper(ResponseEntity<?> response) throws ZenodoAuthenticationException,
+            ZenodoNotFoundException, ZenodoApiException {
+        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            throw new ZenodoAuthenticationException("Token is missing or invalid.");
+        }
+        if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+            throw new ZenodoNotFoundException("Could not get the citation.");
+        }
+        if (response.getBody() == null) {
+            throw new ZenodoApiException("Endpoint returned null body");
+        }
     }
 }

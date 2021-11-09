@@ -72,7 +72,7 @@ public class MetadataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void storeCitation_succeed() throws ZenodoApiException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, MetadataDatabaseNotFoundException {
+            ZenodoUnavailableException, MetadataDatabaseNotFoundException, ZenodoNotFoundException {
 
         /* mocks */
         when(queryRepository.findByDatabaseAndId(DATABASE_1, QUERY_1_ID))
