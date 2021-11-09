@@ -2,9 +2,11 @@ package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.*;
+import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.PostgresConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.DataEndpoint;
+import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
@@ -13,6 +15,7 @@ import at.tuwien.service.impl.MariaDataService;
 import at.tuwien.service.impl.TableServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
@@ -81,13 +84,10 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
-                .withEnv("POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=weather")
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
-        /* start container */
-        dockerClient.startContainerCmd(request.getId()).exec();
-        Thread.sleep(3000);
     }
 
     @Transactional
@@ -126,7 +126,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insertFromTuple_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, SQLException {
+            DatabaseNotFoundException, ImageNotSupportedException, SQLException, InterruptedException {
         final Map<String, Object> map = new LinkedHashMap<>() {{
             put(COLUMN_1_NAME, 4);
             put(COLUMN_2_NAME, Instant.now());
@@ -139,7 +139,8 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        PostgresConfig.clearDatabase();
+        startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
 
         /* test */
         final ResponseEntity<?> response = dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
@@ -153,7 +154,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        PostgresConfig.clearDatabase();
+        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -162,13 +163,14 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void insertFromTuple_empty2_fails() throws SQLException {
+    public void insertFromTuple_empty2_fails() throws SQLException, InterruptedException {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of(Map.of()))
                 .build();
 
         /* mock */
-        PostgresConfig.clearDatabase();
+        startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -178,7 +180,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, SQLException {
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, SQLException, InterruptedException {
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(',')
                 .skipHeader(true)
@@ -187,7 +189,8 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        PostgresConfig.clearDatabase();
+        startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
 
         /* test */
         final ResponseEntity<?> response = dataEndpoint.insertFromFile(DATABASE_1_ID, TABLE_1_ID, request);
@@ -196,17 +199,34 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
 
     @Test
     public void getAll_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, SQLException, DatabaseConnectionException {
+            DatabaseNotFoundException, ImageNotSupportedException, SQLException, DatabaseConnectionException, InterruptedException {
         final Instant timestamp = Instant.now();
         final Long page = 0L;
         final Long size = 1L;
 
         /* mock */
-        PostgresConfig.clearDatabase();
+        startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
 
         /* test */
         final ResponseEntity<?> response = dataEndpoint.getAll(DATABASE_1_ID, TABLE_1_ID, timestamp, page, size);
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    private static void startContainer(Container container) throws InterruptedException {
+        final InspectContainerResponse inspect = dockerClient.inspectContainerCmd(container.getHash())
+                .exec();
+        if (Objects.equals(inspect.getState().getStatus(), "running")) {
+            return;
+        }
+        dockerClient.startContainerCmd(container.getHash())
+                .exec();
+        Thread.sleep(6 * 1000L);
+    }
+
+    private static void stopContainer(Container container) {
+        dockerClient.stopContainerCmd(container.getHash())
+                .exec();
     }
 
 }

@@ -33,6 +33,11 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String DATABASE_2_INTERNALNAME = "weather";
     public final static String DATABASE_2_EXCHANGE = "fda." + DATABASE_2_INTERNALNAME;
 
+    public final static Long DATABASE_3_ID = 3L;
+    public final static String DATABASE_3_NAME = "Biomedical";
+    public final static String DATABASE_3_INTERNALNAME = "biomedical";
+    public final static String DATABASE_3_EXCHANGE = "fda." + DATABASE_3_INTERNALNAME;
+
     public final static Long TABLE_1_ID = 1L;
     public final static String TABLE_1_NAME = "Weather AUS";
     public final static String TABLE_1_INTERNALNAME = "weather_aus";
@@ -44,6 +49,12 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String TABLE_2_INTERNALNAME = "weather_aus";
     public final static String TABLE_2_DESCRIPTION = "Weather in the world";
     public final static String TABLE_2_TOPIC = DATABASE_2_EXCHANGE + "." + TABLE_2_INTERNALNAME;
+
+    public final static Long TABLE_3_ID = 3L;
+    public final static String TABLE_3_NAME = "MALDI MS Data";
+    public final static String TABLE_3_INTERNALNAME = "maldi_ms_data";
+    public final static String TABLE_3_DESCRIPTION = "See Ruffini-Ronzani et al. (https://doi.org/10.1098/rsos.210210)";
+    public final static String TABLE_3_TOPIC = DATABASE_3_EXCHANGE + "." + TABLE_3_INTERNALNAME;
 
     public final static Long COLUMN_1_ID = 1L;
     public final static Integer COLUMN_1_ORDINALPOS = 0;
@@ -109,6 +120,45 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String COLUMN_5_FOREIGN_KEY = null;
     public final static String COLUMN_5_CHECK = null;
     public final static List<String> COLUMN_5_ENUM_VALUES = null;
+
+    public final static Long COLUMN_3_1_ID = 1L;
+    public final static Integer COLUMN_3_1_ORDINALPOS = 0;
+    public final static Boolean COLUMN_3_1_PRIMARY = false;
+    public final static String COLUMN_3_1_NAME = "qu";
+    public final static String COLUMN_3_1_INTERNAL_NAME = "mdb_qu";
+    public final static TableColumnType COLUMN_3_1_TYPE = TableColumnType.STRING;
+    public final static ColumnTypeDto COLUMN_3_1_TYPE_DTO = ColumnTypeDto.STRING;
+    public final static Boolean COLUMN_3_1_NULL = false;
+    public final static Boolean COLUMN_3_1_UNIQUE = false;
+    public final static String COLUMN_3_1_FOREIGN_KEY = null;
+    public final static String COLUMN_3_1_CHECK = null;
+    public final static List<String> COLUMN_3_1_ENUM_VALUES = null;
+
+    public final static Long COLUMN_3_2_ID = 2L;
+    public final static Integer COLUMN_3_2_ORDINALPOS = 1;
+    public final static Boolean COLUMN_3_2_PRIMARY = false;
+    public final static String COLUMN_3_2_NAME = "species";
+    public final static String COLUMN_3_2_INTERNAL_NAME = "mdb_species";
+    public final static TableColumnType COLUMN_3_2_TYPE = TableColumnType.ENUM;
+    public final static ColumnTypeDto COLUMN_3_2_TYPE_DTO = ColumnTypeDto.ENUM;
+    public final static Boolean COLUMN_3_2_NULL = false;
+    public final static Boolean COLUMN_3_2_UNIQUE = false;
+    public final static String COLUMN_3_2_FOREIGN_KEY = null;
+    public final static String COLUMN_3_2_CHECK = null;
+    public final static List<String> COLUMN_3_2_ENUM_VALUES = List.of("sheep", "calf", "undetermined", "sheep or goat", "goat", "not anal.");
+
+    public final static Long COLUMN_3_3_ID = 3L;
+    public final static Integer COLUMN_3_3_ORDINALPOS = 2;
+    public final static Boolean COLUMN_3_3_PRIMARY = false;
+    public final static String COLUMN_3_3_NAME = "score";
+    public final static String COLUMN_3_3_INTERNAL_NAME = "mdb_score";
+    public final static TableColumnType COLUMN_3_3_TYPE = TableColumnType.STRING;
+    public final static ColumnTypeDto COLUMN_3_3_TYPE_DTO = ColumnTypeDto.STRING;
+    public final static Boolean COLUMN_3_3_NULL = false;
+    public final static Boolean COLUMN_3_3_UNIQUE = false;
+    public final static String COLUMN_3_3_FOREIGN_KEY = null;
+    public final static String COLUMN_3_3_CHECK = null;
+    public final static List<String> COLUMN_3_3_ENUM_VALUES = null;
 
     public final static Long IMAGE_1_ID = 1L;
     public final static String IMAGE_1_REPOSITORY = "postgres";
@@ -203,7 +253,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
 
     public final static Long CONTAINER_1_ID = 1L;
     public final static String CONTAINER_1_HASH = "deadbeef";
-    public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
+    public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_2;
     public final static String CONTAINER_1_NAME = "u01";
     public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
     public final static String CONTAINER_1_IP = "172.28.0.5";
@@ -216,6 +266,14 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-u02";
     public final static String CONTAINER_2_IP = "172.28.0.6";
     public final static Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
+
+    public final static Long CONTAINER_3_ID = 3L;
+    public final static String CONTAINER_3_HASH = "deadbeef";
+    public final static ContainerImage CONTAINER_3_IMAGE = IMAGE_2;
+    public final static String CONTAINER_3_NAME = "u03";
+    public final static String CONTAINER_3_INTERNALNAME = "fda-userdb-u03";
+    public final static String CONTAINER_3_IP = "172.28.0.7";
+    public final static Instant CONTAINER_3_CREATED = Instant.now().minus(1, HOURS);
 
     public final static Container CONTAINER_1 = Container.builder()
             .id(CONTAINER_1_ID)
@@ -234,6 +292,55 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .hash(CONTAINER_2_HASH)
             .containerCreated(CONTAINER_2_CREATED)
             .build();
+
+    public final static Container CONTAINER_3 = Container.builder()
+            .id(CONTAINER_3_ID)
+            .name(CONTAINER_3_NAME)
+            .internalName(CONTAINER_3_INTERNALNAME)
+            .image(CONTAINER_3_IMAGE)
+            .hash(CONTAINER_3_HASH)
+            .containerCreated(CONTAINER_3_CREATED)
+            .build();
+
+    public final static List<TableColumn> TABLE_3_COLUMNS = List.of(TableColumn.builder()
+                    .id(COLUMN_3_1_ID)
+                    .ordinalPosition(COLUMN_3_1_ORDINALPOS)
+                    .cdbid(DATABASE_3_ID)
+                    .tid(TABLE_3_ID)
+                    .name(COLUMN_3_1_NAME)
+                    .internalName(COLUMN_3_1_INTERNAL_NAME)
+                    .columnType(COLUMN_3_1_TYPE)
+                    .isNullAllowed(COLUMN_3_1_NULL)
+                    .isUnique(COLUMN_3_1_UNIQUE)
+                    .isPrimaryKey(COLUMN_3_1_PRIMARY)
+                    .enumValues(COLUMN_3_1_ENUM_VALUES)
+                    .build(),
+            TableColumn.builder()
+                    .id(COLUMN_3_2_ID)
+                    .ordinalPosition(COLUMN_3_2_ORDINALPOS)
+                    .cdbid(DATABASE_3_ID)
+                    .tid(TABLE_3_ID)
+                    .name(COLUMN_3_2_NAME)
+                    .internalName(COLUMN_3_2_INTERNAL_NAME)
+                    .columnType(COLUMN_3_2_TYPE)
+                    .isNullAllowed(COLUMN_3_2_NULL)
+                    .isUnique(COLUMN_3_2_UNIQUE)
+                    .isPrimaryKey(COLUMN_3_2_PRIMARY)
+                    .enumValues(COLUMN_3_2_ENUM_VALUES)
+                    .build(),
+            TableColumn.builder()
+                    .id(COLUMN_3_3_ID)
+                    .ordinalPosition(COLUMN_3_3_ORDINALPOS)
+                    .cdbid(DATABASE_3_ID)
+                    .tid(TABLE_3_ID)
+                    .name(COLUMN_3_3_NAME)
+                    .internalName(COLUMN_3_3_INTERNAL_NAME)
+                    .columnType(COLUMN_3_3_TYPE)
+                    .isNullAllowed(COLUMN_3_3_NULL)
+                    .isUnique(COLUMN_3_3_UNIQUE)
+                    .isPrimaryKey(COLUMN_3_3_PRIMARY)
+                    .enumValues(COLUMN_3_3_ENUM_VALUES)
+                    .build());
 
     public final static List<TableColumn> TABLE_1_COLUMNS = List.of(TableColumn.builder()
                     .id(COLUMN_1_ID)
@@ -324,6 +431,19 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .topic(TABLE_2_TOPIC)
             .build();
 
+
+    public final static Table TABLE_3 = Table.builder()
+            .id(TABLE_3_ID)
+            .tdbid(DATABASE_3_ID)
+            .created(Instant.now())
+            .internalName(TABLE_3_INTERNALNAME)
+            .description(TABLE_3_DESCRIPTION)
+            .name(TABLE_3_NAME)
+            .lastModified(Instant.now())
+            .columns(TABLE_3_COLUMNS)
+            .topic(TABLE_3_TOPIC)
+            .build();
+
     public final static Database DATABASE_1 = Database.builder()
             .id(DATABASE_1_ID)
             .created(Instant.now().minus(1, HOURS))
@@ -343,10 +463,22 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .lastModified(Instant.now())
             .isPublic(false)
             .name(DATABASE_2_NAME)
-            .tables(List.of())
+            .tables(List.of(TABLE_2))
             .container(CONTAINER_2)
             .internalName(DATABASE_2_INTERNALNAME)
             .exchange(DATABASE_2_EXCHANGE)
+            .build();
+
+    public final static Database DATABASE_3 = Database.builder()
+            .id(DATABASE_3_ID)
+            .created(Instant.now().minus(1, HOURS))
+            .lastModified(Instant.now())
+            .isPublic(false)
+            .name(DATABASE_3_NAME)
+            .container(CONTAINER_3)
+            .tables(List.of(TABLE_3))
+            .internalName(DATABASE_3_INTERNALNAME)
+            .exchange(DATABASE_3_EXCHANGE)
             .build();
 
     public final static ColumnCreateDto[] COLUMNS_CSV01 = new ColumnCreateDto[]{
