@@ -42,7 +42,8 @@ public class MetadataEndpoint {
     @Transactional
     public QueryDto create(@Valid @PathVariable("id") Long databaseId,
                            @Valid @PathVariable("queryId") Long queryId) throws ZenodoApiException,
-            ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException {
+            ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
+            ZenodoNotFoundException {
         return queryMapper.queryToQueryDto(metadataService.storeCitation(databaseId, queryId));
     }
 

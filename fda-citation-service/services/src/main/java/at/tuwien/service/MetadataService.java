@@ -1,10 +1,14 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.api.database.deposit.DepositDto;
+import at.tuwien.api.database.deposit.DepositTzDto;
+import at.tuwien.api.database.deposit.record.RecordDto;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -22,14 +26,14 @@ public interface MetadataService {
      * Create a new deposit
      *
      * @param databaseId The database-table id pair
-     * @param queryId The query id
+     * @param queryId    The query id
      * @return The created deposit
      * @throws ZenodoAuthenticationException Token invalid
      * @throws ZenodoApiException            Something other went wrong
      * @throws ZenodoUnavailableException    The remote server is not available
      */
     Query storeCitation(Long databaseId, Long queryId) throws ZenodoAuthenticationException,
-            ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException;
+            ZenodoApiException, MetadataDatabaseNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException;
 
     /**
      * Update a deposit with new metadata for a given id
@@ -44,7 +48,7 @@ public interface MetadataService {
      * @throws ZenodoUnavailableException    The remote server is not available
      */
     Query updateCitation(Long databaseId, Long queryId,
-                            DepositChangeRequestDto data) throws ZenodoAuthenticationException, ZenodoApiException,
+                         DepositChangeRequestDto data) throws ZenodoAuthenticationException, ZenodoApiException,
             ZenodoNotFoundException, ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException;
 
     /**
@@ -62,6 +66,23 @@ public interface MetadataService {
     Query findCitation(Long databaseId, Long queryId)
             throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
             MetadataDatabaseNotFoundException, ZenodoUnavailableException, QueryNotFoundException;
+
+    /**
+     * Fetches a record by depositId
+     *
+     * @param depositId The depositId (e.g. 956194)
+     * @return The record
+     * @throws ZenodoAuthenticationException
+     * @throws ZenodoApiException
+     * @throws ZenodoNotFoundException
+     * @throws QueryNotFoundException
+     * @throws ZenodoUnavailableException
+     * @throws MetadataDatabaseNotFoundException
+     */
+    @Transactional
+    RecordDto fetchRemoteRecord(Long depositId)
+            throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
+            QueryNotFoundException, ZenodoUnavailableException, MetadataDatabaseNotFoundException;
 
     /**
      * Delete a deposit from a given id

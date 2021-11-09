@@ -28,11 +28,15 @@ public class MetadataDto {
 
     private String doi;
 
-//    private LicenseTypeDto license;
+    @JsonProperty("related_identifiers")
+    private IdentifierDto[] relatedIdentifiers;
 
     @JsonProperty("publication_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date publicationDate;
+
+    @JsonProperty("resource_type")
+    private ResourceTypeDto resourceType;
 
     @JsonProperty("access_right")
     private AccessRightDto accessRight;

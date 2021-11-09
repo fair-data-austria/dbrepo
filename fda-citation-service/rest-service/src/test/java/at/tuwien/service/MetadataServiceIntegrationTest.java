@@ -2,8 +2,11 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.api.database.deposit.DepositDto;
+import at.tuwien.api.database.deposit.DepositTzDto;
 import at.tuwien.api.database.deposit.metadata.MetadataDto;
 import at.tuwien.api.database.deposit.metadata.UploadTypeDto;
+import at.tuwien.api.database.deposit.record.RecordDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
@@ -11,6 +14,7 @@ import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.QueryRepository;
 import at.tuwien.repository.jpa.TableRepository;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -28,6 +32,7 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Log4j2
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -73,7 +78,7 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void createDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
-            MetadataDatabaseNotFoundException, ZenodoUnavailableException {
+            MetadataDatabaseNotFoundException, ZenodoUnavailableException, ZenodoNotFoundException {
 
         /* test */
         final Query response = metadataService.storeCitation(DATABASE_1_ID, QUERY_1_ID);
@@ -96,7 +101,20 @@ public class MetadataServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    @Disabled("something missing in query service")
+    /* Test Doppler Shift Recordings from a Prototype Low-Cost Personal Space Weather Station in Collegeville, Pennsylvania */
+    public void fetchRemoteRecord_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
+            ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
+            QueryNotFoundException {
+        final Long depositId = 956194L;
+
+        /* test */
+        final RecordDto response = metadataService.fetchRemoteRecord(depositId);
+        assertNotNull(response.getMetadata().getTitle());
+        assertNotNull(response.getDoi());
+        assertNotNull(response.getFiles()[0].getLinks().getSelf());
+    }
+
+    @Test
     public void publishDeposit_succeeds() throws ZenodoApiException, ZenodoAuthenticationException,
             ZenodoNotFoundException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
             QueryNotFoundException, RemoteDatabaseException, TableServiceException, ZenodoFileException {
