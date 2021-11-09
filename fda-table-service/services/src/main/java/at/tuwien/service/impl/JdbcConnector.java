@@ -94,7 +94,7 @@ public abstract class JdbcConnector implements DatabaseConnector {
             context.batch(statements)
                     .execute();
         } catch (DataAccessException e) {
-            throw new TableMalformedException("Columns seem to differ or other problem with jOOQ mapper", e);
+            throw new TableMalformedException("Columns seem to differ or other problem with jOOQ mapper, most commonly it is a data type issue try with type 'STRING'", e);
         }
     }
 
