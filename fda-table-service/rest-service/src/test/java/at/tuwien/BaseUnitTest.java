@@ -56,70 +56,70 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String TABLE_3_DESCRIPTION = "See Ruffini-Ronzani et al. (https://doi.org/10.1098/rsos.210210)";
     public final static String TABLE_3_TOPIC = DATABASE_3_EXCHANGE + "." + TABLE_3_INTERNALNAME;
 
-    public final static Long COLUMN_1_ID = 1L;
-    public final static Integer COLUMN_1_ORDINALPOS = 0;
-    public final static Boolean COLUMN_1_PRIMARY = true;
-    public final static String COLUMN_1_NAME = "id";
-    public final static String COLUMN_1_INTERNAL_NAME = "mdb_id";
-    public final static TableColumnType COLUMN_1_TYPE = TableColumnType.NUMBER;
-    public final static ColumnTypeDto COLUMN_1_TYPE_DTO = ColumnTypeDto.NUMBER;
-    public final static Boolean COLUMN_1_NULL = false;
-    public final static Boolean COLUMN_1_UNIQUE = true;
-    public final static String COLUMN_1_FOREIGN_KEY = null;
-    public final static String COLUMN_1_CHECK = null;
-    public final static List<String> COLUMN_1_ENUM_VALUES = null;
+    public final static Long COLUMN_1_1_ID = 1L;
+    public final static Integer COLUMN_1_1_ORDINALPOS = 0;
+    public final static Boolean COLUMN_1_1_PRIMARY = true;
+    public final static String COLUMN_1_1_NAME = "id";
+    public final static String COLUMN_1_1_INTERNAL_NAME = "mdb_id";
+    public final static TableColumnType COLUMN_1_1_TYPE = TableColumnType.NUMBER;
+    public final static ColumnTypeDto COLUMN_1_1_TYPE_DTO = ColumnTypeDto.NUMBER;
+    public final static Boolean COLUMN_1_1_NULL = false;
+    public final static Boolean COLUMN_1_1_UNIQUE = true;
+    public final static String COLUMN_1_1_FOREIGN_KEY = null;
+    public final static String COLUMN_1_1_CHECK = null;
+    public final static List<String> COLUMN_1_1_ENUM_VALUES = null;
 
-    public final static Long COLUMN_2_ID = 2L;
-    public final static Integer COLUMN_2_ORDINALPOS = 1;
-    public final static Boolean COLUMN_2_PRIMARY = false;
-    public final static String COLUMN_2_NAME = "Date";
-    public final static String COLUMN_2_INTERNAL_NAME = "mdb_date";
-    public final static TableColumnType COLUMN_2_TYPE = TableColumnType.DATE;
-    public final static ColumnTypeDto COLUMN_2_TYPE_DTO = ColumnTypeDto.DATE;
-    public final static Boolean COLUMN_2_NULL = true;
-    public final static Boolean COLUMN_2_UNIQUE = false;
-    public final static String COLUMN_2_FOREIGN_KEY = null;
-    public final static String COLUMN_2_CHECK = null;
-    public final static List<String> COLUMN_2_ENUM_VALUES = null;
+    public final static Long COLUMN_1_2_ID = 2L;
+    public final static Integer COLUMN_1_2_ORDINALPOS = 1;
+    public final static Boolean COLUMN_1_2_PRIMARY = false;
+    public final static String COLUMN_1_2_NAME = "Date";
+    public final static String COLUMN_1_2_INTERNAL_NAME = "mdb_date";
+    public final static TableColumnType COLUMN_1_2_TYPE = TableColumnType.DATE;
+    public final static ColumnTypeDto COLUMN_1_2_TYPE_DTO = ColumnTypeDto.DATE;
+    public final static Boolean COLUMN_1_2_NULL = true;
+    public final static Boolean COLUMN_1_2_UNIQUE = false;
+    public final static String COLUMN_1_2_FOREIGN_KEY = null;
+    public final static String COLUMN_1_2_CHECK = null;
+    public final static List<String> COLUMN_1_2_ENUM_VALUES = null;
 
-    public final static Long COLUMN_3_ID = 3L;
-    public final static Integer COLUMN_3_ORDINALPOS = 2;
-    public final static Boolean COLUMN_3_PRIMARY = false;
-    public final static String COLUMN_3_NAME = "MinTemp";
-    public final static String COLUMN_3_INTERNAL_NAME = "mdb_mintemp";
-    public final static TableColumnType COLUMN_3_TYPE = TableColumnType.NUMBER;
-    public final static ColumnTypeDto COLUMN_3_TYPE_DTO = ColumnTypeDto.NUMBER;
-    public final static Boolean COLUMN_3_NULL = true;
-    public final static Boolean COLUMN_3_UNIQUE = false;
-    public final static String COLUMN_3_FOREIGN_KEY = null;
-    public final static String COLUMN_3_CHECK = null;
-    public final static List<String> COLUMN_3_ENUM_VALUES = null;
+    public final static Long COLUMN_1_3_ID = 3L;
+    public final static Integer COLUMN_1_3_ORDINALPOS = 2;
+    public final static Boolean COLUMN_1_3_PRIMARY = false;
+    public final static String COLUMN_1_3_NAME = "Location";
+    public final static String COLUMN_1_3_INTERNAL_NAME = "mdb_location";
+    public final static TableColumnType COLUMN_1_3_TYPE = TableColumnType.STRING;
+    public final static ColumnTypeDto COLUMN_1_3_TYPE_DTO = ColumnTypeDto.STRING;
+    public final static Boolean COLUMN_1_3_NULL = true;
+    public final static Boolean COLUMN_1_3_UNIQUE = false;
+    public final static String COLUMN_1_3_FOREIGN_KEY = null;
+    public final static String COLUMN_1_3_CHECK = null;
+    public final static List<String> COLUMN_1_3_ENUM_VALUES = null;
 
-    public final static Long COLUMN_4_ID = 4L;
-    public final static Integer COLUMN_4_ORDINALPOS = 3;
-    public final static Boolean COLUMN_4_PRIMARY = false;
-    public final static String COLUMN_4_NAME = "Location";
-    public final static String COLUMN_4_INTERNAL_NAME = "mdb_location";
-    public final static TableColumnType COLUMN_4_TYPE = TableColumnType.STRING;
-    public final static ColumnTypeDto COLUMN_4_TYPE_DTO = ColumnTypeDto.STRING;
-    public final static Boolean COLUMN_4_NULL = true;
-    public final static Boolean COLUMN_4_UNIQUE = false;
-    public final static String COLUMN_4_FOREIGN_KEY = null;
-    public final static String COLUMN_4_CHECK = null;
-    public final static List<String> COLUMN_4_ENUM_VALUES = null;
-
-    public final static Long COLUMN_5_ID = 5L;
-    public final static Integer COLUMN_5_ORDINALPOS = 4;
-    public final static Boolean COLUMN_5_PRIMARY = false;
-    public final static String COLUMN_5_NAME = "Rainfall";
-    public final static String COLUMN_5_INTERNAL_NAME = "mdb_rainfall";
-    public final static TableColumnType COLUMN_5_TYPE = TableColumnType.NUMBER;
-    public final static ColumnTypeDto COLUMN_5_TYPE_DTO = ColumnTypeDto.NUMBER;
-    public final static Boolean COLUMN_5_NULL = true;
-    public final static Boolean COLUMN_5_UNIQUE = false;
-    public final static String COLUMN_5_FOREIGN_KEY = null;
-    public final static String COLUMN_5_CHECK = null;
-    public final static List<String> COLUMN_5_ENUM_VALUES = null;
+    public final static Long COLUMN_1_4_ID = 4L;
+    public final static Integer COLUMN_1_4_ORDINALPOS = 3;
+    public final static Boolean COLUMN_1_4_PRIMARY = false;
+    public final static String COLUMN_1_4_NAME = "MinTemp";
+    public final static String COLUMN_1_4_INTERNAL_NAME = "mdb_mintemp";
+    public final static TableColumnType COLUMN_1_4_TYPE = TableColumnType.STRING;
+    public final static ColumnTypeDto COLUMN_1_4_TYPE_DTO = ColumnTypeDto.STRING;
+    public final static Boolean COLUMN_1_4_NULL = true;
+    public final static Boolean COLUMN_1_4_UNIQUE = false;
+    public final static String COLUMN_1_4_FOREIGN_KEY = null;
+    public final static String COLUMN_1_4_CHECK = null;
+    public final static List<String> COLUMN_1_4_ENUM_VALUES = null;
+    
+    public final static Long COLUMN_1_5_ID = 5L;
+    public final static Integer COLUMN_1_5_ORDINALPOS = 4;
+    public final static Boolean COLUMN_1_5_PRIMARY = false;
+    public final static String COLUMN_1_5_NAME = "Rainfall";
+    public final static String COLUMN_1_5_INTERNAL_NAME = "mdb_rainfall";
+    public final static TableColumnType COLUMN_1_5_TYPE = TableColumnType.NUMBER;
+    public final static ColumnTypeDto COLUMN_1_5_TYPE_DTO = ColumnTypeDto.NUMBER;
+    public final static Boolean COLUMN_1_5_NULL = true;
+    public final static Boolean COLUMN_1_5_UNIQUE = false;
+    public final static String COLUMN_1_5_FOREIGN_KEY = null;
+    public final static String COLUMN_1_5_CHECK = null;
+    public final static List<String> COLUMN_1_5_ENUM_VALUES = null;
 
     public final static Long COLUMN_3_1_ID = 1L;
     public final static Integer COLUMN_3_1_ORDINALPOS = 0;
@@ -343,69 +343,69 @@ public abstract class BaseUnitTest extends CsvUnitTest {
                     .build());
 
     public final static List<TableColumn> TABLE_1_COLUMNS = List.of(TableColumn.builder()
-                    .id(COLUMN_1_ID)
-                    .ordinalPosition(COLUMN_1_ORDINALPOS)
+                    .id(COLUMN_1_1_ID)
+                    .ordinalPosition(COLUMN_1_1_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
-                    .name(COLUMN_1_NAME)
-                    .internalName(COLUMN_1_INTERNAL_NAME)
-                    .columnType(COLUMN_1_TYPE)
-                    .isNullAllowed(COLUMN_1_NULL)
-                    .isUnique(COLUMN_1_UNIQUE)
-                    .isPrimaryKey(COLUMN_1_PRIMARY)
-                    .enumValues(COLUMN_1_ENUM_VALUES)
+                    .name(COLUMN_1_1_NAME)
+                    .internalName(COLUMN_1_1_INTERNAL_NAME)
+                    .columnType(COLUMN_1_1_TYPE)
+                    .isNullAllowed(COLUMN_1_1_NULL)
+                    .isUnique(COLUMN_1_1_UNIQUE)
+                    .isPrimaryKey(COLUMN_1_1_PRIMARY)
+                    .enumValues(COLUMN_1_1_ENUM_VALUES)
                     .build(),
             TableColumn.builder()
-                    .id(COLUMN_2_ID)
-                    .ordinalPosition(COLUMN_2_ORDINALPOS)
+                    .id(COLUMN_1_2_ID)
+                    .ordinalPosition(COLUMN_1_2_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
-                    .name(COLUMN_2_NAME)
-                    .internalName(COLUMN_2_INTERNAL_NAME)
-                    .columnType(COLUMN_2_TYPE)
-                    .isNullAllowed(COLUMN_2_NULL)
-                    .isUnique(COLUMN_2_UNIQUE)
-                    .isPrimaryKey(COLUMN_2_PRIMARY)
-                    .enumValues(COLUMN_2_ENUM_VALUES)
+                    .name(COLUMN_1_2_NAME)
+                    .internalName(COLUMN_1_2_INTERNAL_NAME)
+                    .columnType(COLUMN_1_2_TYPE)
+                    .isNullAllowed(COLUMN_1_2_NULL)
+                    .isUnique(COLUMN_1_2_UNIQUE)
+                    .isPrimaryKey(COLUMN_1_2_PRIMARY)
+                    .enumValues(COLUMN_1_2_ENUM_VALUES)
                     .build(),
             TableColumn.builder()
-                    .id(COLUMN_3_ID)
-                    .ordinalPosition(COLUMN_3_ORDINALPOS)
+                    .id(COLUMN_1_3_ID)
+                    .ordinalPosition(COLUMN_1_3_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
-                    .name(COLUMN_3_NAME)
-                    .internalName(COLUMN_3_INTERNAL_NAME)
-                    .columnType(COLUMN_3_TYPE)
-                    .isNullAllowed(COLUMN_3_NULL)
-                    .isUnique(COLUMN_3_UNIQUE)
-                    .isPrimaryKey(COLUMN_3_PRIMARY)
-                    .enumValues(COLUMN_3_ENUM_VALUES)
+                    .name(COLUMN_1_3_NAME)
+                    .internalName(COLUMN_1_3_INTERNAL_NAME)
+                    .columnType(COLUMN_1_3_TYPE)
+                    .isNullAllowed(COLUMN_1_3_NULL)
+                    .isUnique(COLUMN_1_3_UNIQUE)
+                    .isPrimaryKey(COLUMN_1_3_PRIMARY)
+                    .enumValues(COLUMN_1_3_ENUM_VALUES)
                     .build(),
             TableColumn.builder()
-                    .id(COLUMN_4_ID)
-                    .ordinalPosition(COLUMN_4_ORDINALPOS)
+                    .id(COLUMN_1_4_ID)
+                    .ordinalPosition(COLUMN_1_4_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
-                    .name(COLUMN_4_NAME)
-                    .internalName(COLUMN_4_INTERNAL_NAME)
-                    .columnType(COLUMN_4_TYPE)
-                    .isNullAllowed(COLUMN_4_NULL)
-                    .isUnique(COLUMN_4_UNIQUE)
-                    .isPrimaryKey(COLUMN_4_PRIMARY)
-                    .enumValues(COLUMN_4_ENUM_VALUES)
+                    .name(COLUMN_1_4_NAME)
+                    .internalName(COLUMN_1_4_INTERNAL_NAME)
+                    .columnType(COLUMN_1_4_TYPE)
+                    .isNullAllowed(COLUMN_1_4_NULL)
+                    .isUnique(COLUMN_1_4_UNIQUE)
+                    .isPrimaryKey(COLUMN_1_4_PRIMARY)
+                    .enumValues(COLUMN_1_4_ENUM_VALUES)
                     .build(),
             TableColumn.builder()
-                    .id(COLUMN_5_ID)
-                    .ordinalPosition(COLUMN_5_ORDINALPOS)
+                    .id(COLUMN_1_5_ID)
+                    .ordinalPosition(COLUMN_1_5_ORDINALPOS)
                     .cdbid(DATABASE_1_ID)
                     .tid(TABLE_1_ID)
-                    .name(COLUMN_5_NAME)
-                    .internalName(COLUMN_5_INTERNAL_NAME)
-                    .columnType(COLUMN_5_TYPE)
-                    .isNullAllowed(COLUMN_5_NULL)
-                    .isUnique(COLUMN_5_UNIQUE)
-                    .isPrimaryKey(COLUMN_5_PRIMARY)
-                    .enumValues(COLUMN_5_ENUM_VALUES)
+                    .name(COLUMN_1_5_NAME)
+                    .internalName(COLUMN_1_5_INTERNAL_NAME)
+                    .columnType(COLUMN_1_5_TYPE)
+                    .isNullAllowed(COLUMN_1_5_NULL)
+                    .isUnique(COLUMN_1_5_UNIQUE)
+                    .isPrimaryKey(COLUMN_1_5_PRIMARY)
+                    .enumValues(COLUMN_1_5_ENUM_VALUES)
                     .build());
 
     public final static Table TABLE_1 = Table.builder()
@@ -483,39 +483,39 @@ public abstract class BaseUnitTest extends CsvUnitTest {
 
     public final static ColumnCreateDto[] COLUMNS_CSV01 = new ColumnCreateDto[]{
             ColumnCreateDto.builder()
-                    .type(COLUMN_1_TYPE_DTO)
-                    .name(COLUMN_1_NAME)
-                    .nullAllowed(COLUMN_1_NULL)
-                    .primaryKey(COLUMN_1_PRIMARY)
-                    .unique(COLUMN_1_UNIQUE)
+                    .type(COLUMN_1_1_TYPE_DTO)
+                    .name(COLUMN_1_1_NAME)
+                    .nullAllowed(COLUMN_1_1_NULL)
+                    .primaryKey(COLUMN_1_1_PRIMARY)
+                    .unique(COLUMN_1_1_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_2_TYPE_DTO)
-                    .name(COLUMN_2_NAME)
-                    .nullAllowed(COLUMN_2_NULL)
-                    .primaryKey(COLUMN_2_PRIMARY)
-                    .unique(COLUMN_2_UNIQUE)
+                    .type(COLUMN_1_2_TYPE_DTO)
+                    .name(COLUMN_1_2_NAME)
+                    .nullAllowed(COLUMN_1_2_NULL)
+                    .primaryKey(COLUMN_1_2_PRIMARY)
+                    .unique(COLUMN_1_2_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_3_TYPE_DTO)
-                    .name(COLUMN_3_NAME)
-                    .nullAllowed(COLUMN_3_NULL)
-                    .primaryKey(COLUMN_3_PRIMARY)
-                    .unique(COLUMN_3_UNIQUE)
+                    .type(COLUMN_1_3_TYPE_DTO)
+                    .name(COLUMN_1_3_NAME)
+                    .nullAllowed(COLUMN_1_3_NULL)
+                    .primaryKey(COLUMN_1_3_PRIMARY)
+                    .unique(COLUMN_1_3_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_4_TYPE_DTO)
-                    .name(COLUMN_4_NAME)
-                    .nullAllowed(COLUMN_4_NULL)
-                    .primaryKey(COLUMN_4_PRIMARY)
-                    .unique(COLUMN_4_UNIQUE)
+                    .type(COLUMN_1_4_TYPE_DTO)
+                    .name(COLUMN_1_4_NAME)
+                    .nullAllowed(COLUMN_1_4_NULL)
+                    .primaryKey(COLUMN_1_4_PRIMARY)
+                    .unique(COLUMN_1_4_UNIQUE)
                     .build(),
             ColumnCreateDto.builder()
-                    .type(COLUMN_5_TYPE_DTO)
-                    .name(COLUMN_5_NAME)
-                    .nullAllowed(COLUMN_5_NULL)
-                    .primaryKey(COLUMN_5_PRIMARY)
-                    .unique(COLUMN_5_UNIQUE)
+                    .type(COLUMN_1_5_TYPE_DTO)
+                    .name(COLUMN_1_5_NAME)
+                    .nullAllowed(COLUMN_1_5_NULL)
+                    .primaryKey(COLUMN_1_5_PRIMARY)
+                    .unique(COLUMN_1_5_UNIQUE)
                     .build()};
 
     public final static TableCreateDto TABLE_2_CREATE_DTO = TableCreateDto.builder()

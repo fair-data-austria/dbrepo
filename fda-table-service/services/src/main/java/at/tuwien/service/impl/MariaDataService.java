@@ -167,7 +167,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
             log.error("header size: {}, column size: {}", headers.size(), table.getColumns().size());
             throw new TableMalformedException("Header size is not the same as cell size, maybe wrong delimiter?");
         }
-        final LinkedList<Map<String, Object>> records = new LinkedList<>();
+        final List<Map<String, Object>> records = new LinkedList<>();
         /* map to the map-list structure */
         for (int i = (data.getSkipHeader() ? 1 : 0); i < cells.size(); i++) {
             final Map<String, Object> record = new LinkedHashMap<>();

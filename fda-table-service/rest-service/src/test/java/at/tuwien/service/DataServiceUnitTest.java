@@ -143,8 +143,8 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .withName(CONTAINER_2_INTERNALNAME)
                 .withIpv4Address(CONTAINER_2_IP)
                 .withHostName(CONTAINER_2_INTERNALNAME)
-                .withEnv("MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(new File("./src/test/resources/weather-mariadb").toPath().toAbsolutePath()
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
+                .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
         dockerClient.startContainerCmd(mariaDbContainer.getId())
