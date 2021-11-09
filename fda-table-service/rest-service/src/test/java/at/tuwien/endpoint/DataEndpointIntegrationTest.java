@@ -88,6 +88,8 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
+        /* set hash */
+        CONTAINER_1.setHash(request.getId());
     }
 
     @Transactional
@@ -128,11 +130,11 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     public void insertFromTuple_succeeds() throws TableNotFoundException, TableMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException, SQLException, InterruptedException {
         final Map<String, Object> map = new LinkedHashMap<>() {{
-            put(COLUMN_1_NAME, 4);
-            put(COLUMN_2_NAME, Instant.now());
-            put(COLUMN_3_NAME, 35.2);
-            put(COLUMN_4_NAME, "Sydney");
-            put(COLUMN_5_NAME, 10.2);
+            put(COLUMN_1_1_NAME, 4);
+            put(COLUMN_1_2_NAME, Instant.now());
+            put(COLUMN_1_3_NAME, 35.2);
+            put(COLUMN_1_4_NAME, "Sydney");
+            put(COLUMN_1_5_NAME, 10.2);
         }};
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of(map))

@@ -255,7 +255,6 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
 
         /* mock */
         stopContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
