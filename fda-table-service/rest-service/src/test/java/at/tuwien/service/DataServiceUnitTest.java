@@ -1,17 +1,13 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
-import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
@@ -28,7 +24,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 
@@ -80,7 +75,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
-                .withEnv("POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=weather")
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
@@ -123,7 +118,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void selectAll_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, InterruptedException, SQLException {
+            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -138,7 +133,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_noTable_fails() throws SQLException, InterruptedException {
+    public void selectAll_noTable_fails() {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -155,7 +150,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_noDatabase_fails() throws InterruptedException, SQLException {
+    public void selectAll_noDatabase_fails() {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -172,7 +167,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_parameter_fails() throws InterruptedException, SQLException {
+    public void selectAll_parameter_fails() {
         final Long page = -1L;
         final Long size = 10L;
 
@@ -189,7 +184,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_parameter2_fails() throws InterruptedException, SQLException {
+    public void selectAll_parameter2_fails() {
         final Long page = 1L;
         final Long size = 0L;
 
@@ -206,7 +201,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void insert_columns_fails() throws InterruptedException, SQLException {
+    public void insert_columns_fails() {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of(Map.of("not_existing", "some value")))
                 .build();

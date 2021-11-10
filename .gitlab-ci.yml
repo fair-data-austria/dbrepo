@@ -94,7 +94,6 @@ build-frontend:
 
 test-frontend:
   stage: test-frontend
-  allow_failure: true
   dependencies:
     - build-docker
     - build-frontend
@@ -103,7 +102,6 @@ test-frontend:
     - build-frontend
   script:
     - make test-frontend
-    - docker-compose logs
   artifacts:
     when: always
     paths:
