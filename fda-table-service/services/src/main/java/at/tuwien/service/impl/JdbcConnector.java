@@ -11,15 +11,19 @@ import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.service.DatabaseConnector;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FileUtils;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.server.Encoding;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -110,8 +114,10 @@ public abstract class JdbcConnector implements DatabaseConnector {
      * @param word The word
      * @return True if it is reserved word
      */
-    public Boolean isReserved(String word) {
-        return false;
+    public Boolean isReserved(String word) throws IOException {
+        final List<String> reserved = FileUtils.readLines(ResourceUtils.getFile("classpath:mariadb/reserved.csv"),
+                Encoding.DEFAULT_CHARSET);
+        return reserved.contains(word.toUpperCase());
     }
 
 }
