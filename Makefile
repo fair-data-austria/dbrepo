@@ -81,7 +81,7 @@ test-backend-query: config-docker
 test-backend-table: config-docker
 	mvn -f ./fda-table-service/pom.xml clean test verify
 
-test-frontend: build-frontend
+test-frontend: clean build-frontend
 	npm --prefix ./fda-ui install
 	docker-compose up -d
 	npm --prefix ./fda-ui run test
