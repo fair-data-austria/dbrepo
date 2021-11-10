@@ -2,6 +2,7 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.config.DockerConfig;
 import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.PostgresConfig;
 import at.tuwien.config.ReadyConfig;
@@ -150,8 +151,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
@@ -172,8 +173,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
@@ -193,8 +194,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -215,8 +216,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
@@ -235,8 +236,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -254,7 +255,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        stopContainer(CONTAINER_1);
+        DockerConfig.stopContainer(CONTAINER_1);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -272,27 +273,11 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_3);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_3);
+        MariaDbConfig.clearDatabase(TABLE_3);
 
         /* test */
         dataService.insertCsv(DATABASE_3_ID, TABLE_3_ID, request);
-    }
-
-    private static void startContainer(Container container) throws InterruptedException {
-        final InspectContainerResponse inspect = dockerClient.inspectContainerCmd(container.getHash())
-                .exec();
-        if (Objects.equals(inspect.getState().getStatus(), "running")) {
-            return;
-        }
-        dockerClient.startContainerCmd(container.getHash())
-                .exec();
-        Thread.sleep(6 * 1000L);
-    }
-
-    private static void stopContainer(Container container) {
-        dockerClient.stopContainerCmd(container.getHash())
-                .exec();
     }
 
 }

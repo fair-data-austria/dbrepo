@@ -3,11 +3,15 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.config.DockerConfig;
+import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
+import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
@@ -26,10 +30,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
@@ -56,8 +57,14 @@ public class DataServiceUnitTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
+    /**
+     * We need a container to test the CRUD operations as of now it is unfeasible to determine the correctness of the
+     * operations without a live container
+     *
+     * @throws InterruptedException Sleep interrupted.
+     */
     @BeforeAll
-    public static void beforeAll() throws InterruptedException, SQLException {
+    public static void beforeAll() throws InterruptedException {
         afterAll();
         /* create network */
         dockerClient.createNetworkCmd()
@@ -68,7 +75,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .withEnableIpv6(false)
                 .exec();
         /* create container */
-        final CreateContainerResponse container = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+        final CreateContainerResponse response = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
@@ -78,8 +85,8 @@ public class DataServiceUnitTest extends BaseUnitTest {
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
         /* start */
-        dockerClient.startContainerCmd(container.getId()).exec();
-        Thread.sleep(3000);
+        CONTAINER_1.setHash(response.getId());
+        DockerConfig.startContainer(CONTAINER_1);
     }
 
     @AfterAll
@@ -116,7 +123,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void selectAll_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException {
+            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, InterruptedException, SQLException {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -131,38 +138,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_mariaDb_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, InterruptedException {
-        final Long page = 0L;
-        final Long size = 10L;
-
-
-        /* create container */
-        final CreateContainerResponse mariaDbContainer = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
-                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
-                .withName(CONTAINER_2_INTERNALNAME)
-                .withIpv4Address(CONTAINER_2_IP)
-                .withHostName(CONTAINER_2_INTERNALNAME)
-                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
-                        + ":/docker-entrypoint-initdb.d"))
-                .exec();
-        dockerClient.startContainerCmd(mariaDbContainer.getId())
-                        .exec();
-        Thread.sleep(10 * 1000);
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_2_ID))
-                .thenReturn(Optional.of(DATABASE_2));
-        when(tableRepository.findByDatabaseAndId(DATABASE_2, TABLE_2_ID))
-                .thenReturn(Optional.of(TABLE_2));
-
-        /* test */
-        dataService.selectAll(DATABASE_2_ID, TABLE_2_ID, Instant.now(), page, size);
-    }
-
-    @Test
-    public void selectAll_noTable_fails() {
+    public void selectAll_noTable_fails() throws SQLException, InterruptedException {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -179,7 +155,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_noDatabase_fails() {
+    public void selectAll_noDatabase_fails() throws InterruptedException, SQLException {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -196,7 +172,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_parameter_fails() {
+    public void selectAll_parameter_fails() throws InterruptedException, SQLException {
         final Long page = -1L;
         final Long size = 10L;
 
@@ -213,7 +189,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_parameter2_fails() {
+    public void selectAll_parameter2_fails() throws InterruptedException, SQLException {
         final Long page = 1L;
         final Long size = 0L;
 
@@ -230,7 +206,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void insert_columns_fails() {
+    public void insert_columns_fails() throws InterruptedException, SQLException {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of(Map.of("not_existing", "some value")))
                 .build();

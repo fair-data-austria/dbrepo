@@ -2,6 +2,7 @@ package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.*;
+import at.tuwien.config.DockerConfig;
 import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.PostgresConfig;
 import at.tuwien.config.ReadyConfig;
@@ -79,12 +80,13 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
-        final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+        final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
-                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb",
+                        "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
@@ -131,9 +133,9 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
             DatabaseNotFoundException, ImageNotSupportedException, SQLException, InterruptedException {
         final Map<String, Object> map = new LinkedHashMap<>() {{
             put(COLUMN_1_1_NAME, 4);
-            put(COLUMN_1_2_NAME, Instant.now());
-            put(COLUMN_1_3_NAME, 35.2);
-            put(COLUMN_1_4_NAME, "Sydney");
+            put(COLUMN_1_2_NAME, "2020-11-01");
+            put(COLUMN_1_3_NAME, "Sydney");
+            put(COLUMN_1_4_NAME, 35.2);
             put(COLUMN_1_5_NAME, 10.2);
         }};
         final TableCsvDto request = TableCsvDto.builder()
@@ -141,8 +143,8 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         final ResponseEntity<?> response = dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
@@ -156,7 +158,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -171,8 +173,8 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -191,8 +193,8 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         final ResponseEntity<?> response = dataEndpoint.insertFromFile(DATABASE_1_ID, TABLE_1_ID, request);
@@ -207,28 +209,12 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
         final Long size = 1L;
 
         /* mock */
-        startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(CONTAINER_1_INTERNALNAME, DATABASE_1_INTERNALNAME, TABLE_1_INTERNALNAME);
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         final ResponseEntity<?> response = dataEndpoint.getAll(DATABASE_1_ID, TABLE_1_ID, timestamp, page, size);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    private static void startContainer(Container container) throws InterruptedException {
-        final InspectContainerResponse inspect = dockerClient.inspectContainerCmd(container.getHash())
-                .exec();
-        if (Objects.equals(inspect.getState().getStatus(), "running")) {
-            return;
-        }
-        dockerClient.startContainerCmd(container.getHash())
-                .exec();
-        Thread.sleep(6 * 1000L);
-    }
-
-    private static void stopContainer(Container container) {
-        dockerClient.stopContainerCmd(container.getHash())
-                .exec();
     }
 
 }
