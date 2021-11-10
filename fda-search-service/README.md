@@ -4,6 +4,7 @@ Supports ElasticSearch for searching databases, tables, colums saved in the meta
 
 ### `POST /9200/databaseindex/_search`
 with JSON body
+```JSON
 {
   "query": {
     "match": {
@@ -14,10 +15,12 @@ with JSON body
     }
   }
 }
+```
 
 Finds databases by their names. 
 
 Example output: 
+```JSON
 {
   "took": 76,
   "timed_out": false,
@@ -66,8 +69,10 @@ Example output:
     ]
   }
 }
+```
 
 ### `POST /9200/tblindex/_search`
+```JSON
 {
   "query": {
     "match": {
@@ -78,5 +83,6 @@ Example output:
     }
   }
 }
+```
 
 Finds databases with columnnames 'date'. 
