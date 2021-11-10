@@ -124,19 +124,19 @@ registry-stable-push: registry-stable-tag registry-stable-tag
 
 registry-stable: registry-stable-tag registry-stable-push
 
-registry-nightly-tag: config build test
-	docker tag fda-metadata-db:nightly ${REGISTRY}/fda-metadata-db
-	docker tag fda-authentication-service:nightly ${REGISTRY}/fda-authentication-service
-	docker tag fda-broker-service:nightly ${REGISTRY}/fda-broker-service
-	docker tag fda-citation-service:nightly ${REGISTRY}/fda-citation-service
-	docker tag fda-container-service:nightly ${REGISTRY}/fda-container-service
-	docker tag fda-database-service:nightly ${REGISTRY}/fda-database-service
-	docker tag fda-discovery-service:nightly ${REGISTRY}/fda-discovery-service
-	docker tag fda-gateway-service:nightly ${REGISTRY}/fda-gateway-service
-	docker tag fda-query-service:nightly ${REGISTRY}/fda-query-service
-	docker tag fda-table-service:nightly ${REGISTRY}/fda-table-service
+registry-staging-tag: config build test
+	docker tag fda-metadata-db:staging ${REGISTRY}/fda-metadata-db
+	docker tag fda-authentication-service:staging ${REGISTRY}/fda-authentication-service
+	docker tag fda-broker-service:staging ${REGISTRY}/fda-broker-service
+	docker tag fda-citation-service:staging ${REGISTRY}/fda-citation-service
+	docker tag fda-container-service:staging ${REGISTRY}/fda-container-service
+	docker tag fda-database-service:staging ${REGISTRY}/fda-database-service
+	docker tag fda-discovery-service:staging ${REGISTRY}/fda-discovery-service
+	docker tag fda-gateway-service:staging ${REGISTRY}/fda-gateway-service
+	docker tag fda-query-service:staging ${REGISTRY}/fda-query-service
+	docker tag fda-table-service:staging ${REGISTRY}/fda-table-service
 
-registry-nightly-push: registry-nightly-tag registry-nightly-tag
+registry-staging-push: registry-staging-tag registry-staging-tag
 	docker push ${REGISTRY}/fda-metadata-db
 	docker push ${REGISTRY}/fda-authentication-service
 	docker push ${REGISTRY}/fda-broker-service
@@ -147,7 +147,7 @@ registry-nightly-push: registry-nightly-tag registry-nightly-tag
 	docker push ${REGISTRY}/fda-query-service
 	docker push ${REGISTRY}/fda-table-service
 
-registry-nightly: registry-nightly-tag registry-nightly-push
+registry-staging: registry-staging-tag registry-staging-push
 
 logs:
 	docker-compose logs
@@ -161,5 +161,5 @@ clean:
 deploy-stable: registry-stable
 	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
 
-deploy-nightly: registry-nightly
+deploy-staging: registry-staging
 	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy

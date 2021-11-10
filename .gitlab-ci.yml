@@ -281,8 +281,11 @@ registry-stable:
   script:
     - make registry-stable
 
-registry-nightly:
+registry-staging:
   stage: registry
+  environment:
+    name: staging
+    url: https://staging.ossdip.at
   only:
     - dev
   needs:
@@ -306,10 +309,13 @@ registry-nightly:
     - test-backend-query
     - test-backend-table
   script:
-    - make registry-nightly
+    - make registry-staging
 
 deploy-stable:
   stage: deploy
+  environment:
+    name: stable
+    url: https://dbrepo.ossdip.at
   only:
     - master
   needs:
