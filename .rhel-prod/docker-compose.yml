@@ -28,7 +28,11 @@ services:
     restart: on-failure
     container_name: fda-metadata-db
     hostname: fda-metadata-db
-    image: docker.ossdip.at/fda-metadata-db
+    build:
+      context: ./fda-metadata-db
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-metadata-db
     networks:
       - fda-public
     volumes:
@@ -44,7 +48,11 @@ services:
     restart: on-failure
     container_name: fda-discovery-service
     hostname: fda-discovery-service
-    image: docker.ossdip.at/fda-discovery-service
+    build:
+      context: ./fda-discovery-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-discovery-service
     networks:
       - fda-public
     environment:
@@ -56,9 +64,15 @@ services:
     restart: on-failure
     container_name: fda-gateway-service
     hostname: fda-gateway-service
-    image: docker.ossdip.at/fda-gateway-service
+    build:
+      context: ./fda-gateway-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-gateway-service
     networks:
-      - fda-public
+      fda-public:
+        aliases:
+          - fda-gateway-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -73,7 +87,11 @@ services:
     restart: on-failure
     container_name: fda-database-service
     hostname: fda-database-service
-    image: docker.ossdip.at/fda-database-service
+    build:
+      context: ./fda-database-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-database-service
     networks:
       - fda-userdb
       - fda-public
@@ -97,7 +115,11 @@ services:
     restart: on-failure
     container_name: fda-container-service
     hostname: fda-container-service
-    image: docker.ossdip.at/fda-container-service
+    build:
+      context: ./fda-container-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-container-service
     networks:
       - fda-public
     environment:
@@ -118,7 +140,11 @@ services:
     restart: on-failure
     container_name: fda-authentication-service
     hostname: fda-authentication-service
-    image: docker.ossdip.at/fda-authentication-service
+    build:
+      context: ./fda-authentication-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-authentication-service
     networks:
       - fda-public
     volumes:
@@ -137,7 +163,11 @@ services:
     restart: on-failure
     container_name: fda-query-service
     hostname: fda-query-service
-    image: docker.ossdip.at/fda-query-service
+    build:
+      context: ./fda-query-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-query-service
     networks:
       - fda-public
       - fda-userdb
@@ -161,7 +191,11 @@ services:
     restart: on-failure
     container_name: fda-table-service
     hostname: fda-table-service
-    image: docker.ossdip.at/fda-table-service
+    build:
+      context: ./fda-table-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-table-service
     networks:
       - fda-public
       - fda-userdb
@@ -185,7 +219,11 @@ services:
     restart: on-failure
     container_name: fda-citation-service
     hostname: fda-citation-service
-    image: docker.ossdip.at/fda-citation-service
+    build:
+      context: ./fda-citation-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-citation-service
     networks:
       - fda-public
     environment:
@@ -205,7 +243,8 @@ services:
     restart: on-failure
     container_name: fda-analyse-service
     hostname: fda-analyse-service
-    image: docker.ossdip.at/fda-analyse-service
+    build: ./fda-analyse-service
+    image: fda-analyse-service
     networks:
       - fda-public
       - fda-userdb
@@ -229,7 +268,8 @@ services:
     restart: on-failure
     container_name: fda-broker-service
     hostname: fda-broker-service
-    image: docker.ossdip.at/fda-broker-service
+    build: ./fda-broker-service
+    image: fda-broker-service
     networks:
       - fda-public
     ports:
@@ -262,27 +302,20 @@ services:
     restart: on-failure
     container_name: fda-ui
     hostname: fda-ui
-    image: docker.ossdip.at/fda-ui
+    build: ./fda-ui
+    image: fda-ui
     networks:
       - fda-public
     ports:
       - "443:443"
       - "3000:3000"
     volumes:
-      - /tmp:/tmp
+      - /certs:/certs
+      - /nginx:/etc/nginx/conf.d
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-container-service:
-        condition: service_healthy
-      fda-table-service:
-        condition: service_healthy
-      fda-query-service:
-        condition: service_healthy
-      fda-analyse-service:
+      fda-gateway-service:
         condition: service_healthy
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
-      NGINX_HOST: dbrepo.ossdip.at
-      NGINX_PORT: 443
+      NGINX_PORT: "${NGINX_PORT:-3000}"

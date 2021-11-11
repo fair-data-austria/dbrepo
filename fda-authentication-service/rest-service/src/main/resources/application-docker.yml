@@ -17,17 +17,17 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
-      metadata: https://dev-13953915.okta.com/app/exk26nye6eBAomvJW5d7/sso/saml/metadata
+      metadata: https://idp.zid.tuwien.ac.at/saml2
       base-url: https://dbrepo.ossdip.at:9097
       relyingparty:
         registration:
           okta-saml:
             identityprovider:
-              entity-id: https://www.okta.com/exk26nye6eBAomvJW5d7
+              entity-id: https://idp.zid.tuwien.ac.at/saml2
               verification.credentials:
-                - certificate-location: classpath:ssl/okta.crt
-              singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
-              singlesignon.sign-request: false
+                - certificate-location: classpath:ssl/tu.crt
+              singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
+              singlesignon.sign-request: true
 server:
   port: 9097
   name: dbrepo.ossdip.at

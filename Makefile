@@ -153,10 +153,8 @@ logs:
 	docker-compose logs
 
 clean:
-	docker-compose down || true
-	docker container stop $(docker container ls -aq) || true
-	docker container rm $(docker container ls -aq) || true
-	docker volume rm $(docker volume ls -q) || true
+	docker-compose down
+	docker volume rm fda-services_fda-metadata-db-data || true
 
 deploy-stable: registry-stable
 	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
