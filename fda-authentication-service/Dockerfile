@@ -24,10 +24,11 @@ RUN if [ ! -z "$CI_JOB_STAGE" ]; then mvn clean package -DskipTests; fi # only i
 ###### THIRD STAGE ######
 FROM openjdk:11-jre-slim as runtime
 
-VOLUME /mnt
+VOLUME /tmp
 
 COPY --from=build ./rest-service/target/rest-service-*.jar ./rest-service.jar
 COPY ./service_ready /usr/bin
+COPY ./rest-service/src/main/resources/ssl/dbrepo.jks /ssl/dbrepo.jks
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
 

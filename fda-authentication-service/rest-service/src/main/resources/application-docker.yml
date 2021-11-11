@@ -34,7 +34,7 @@ server:
   ssl:
     enabled: true
     key-alias: 1
-    key-store: /tmp/dbrepo.jks
+    key-store: /ssl/dbrepo.jks
     key-store-password: dbrepo
     key-store-type: jks
 logging:

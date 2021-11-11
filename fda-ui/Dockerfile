@@ -35,8 +35,6 @@ COPY --from=build /app/dist /usr/share/nginx/html
 COPY default.conf /etc/nginx/conf.d/default.conf
 COPY ./service_ready ./
 
-VOLUME /tmp
-
 EXPOSE 443
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD ./service_ready
