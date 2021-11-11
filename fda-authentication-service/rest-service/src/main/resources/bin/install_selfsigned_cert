@@ -1,5 +1,6 @@
 #!/bin/bash
 KEY_STORE_LOCATION="./rest-service/src/main/resources/ssl/dbrepo.p12"
+JKS_LOCATION="./rest-service/src/main/resources/ssl/dbrepo.jks"
 KEY_STORE_ALIAS="dbrepo"
 KEY_STORE_PASS="dbrepo"
 
@@ -8,3 +9,9 @@ keytool -genkey -keyalg RSA -alias "${KEY_STORE_ALIAS}" -storetype PKCS12 \
   -dname "cn=FAIR Data Austria, ou=Zentrum für Forschungsdatenmanagement, o=TU Wien, c=AT, l=Vienna, st=Austria" \
   -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" -validity 3650 \
   -keysize 4096
+
+# CONVERT
+keytool -importkeystore -srckeystore "${KEY_STORE_LOCATION}" -destkeystore "${JKS_LOCATION}" -srcstoretype PKCS12 \
+  -deststoretype jks -srcstorepass "${KEY_STORE_PASS}" -deststorepass "${KEY_STORE_PASS}" \
+  -srcalias "${KEY_STORE_ALIAS}" -destalias "${KEY_STORE_ALIAS}" -srckeypass "${KEY_STORE_PASS}" \
+  -destkeypass "${KEY_STORE_PASS}"

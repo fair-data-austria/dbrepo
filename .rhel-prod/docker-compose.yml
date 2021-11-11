@@ -311,7 +311,7 @@ services:
       - "3000:3000"
     volumes:
       - /certs:/certs
-      - /nginx:/etc/nginx/conf.d
+      - /tmp:/tmp
     depends_on:
       fda-gateway-service:
         condition: service_healthy
