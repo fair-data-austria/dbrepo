@@ -18,29 +18,27 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
-      metadata: https://dev-13953915.okta.com/app/exk26nye6eBAomvJW5d7/sso/saml/metadata
-      base-url: https://localhost:9097
       relyingparty:
         registration:
-          okta-saml:
+          tu-saml:
             identityprovider:
-              entity-id: http://www.okta.com/exk26nye6eBAomvJW5d7
+              entity-id: at:tuwien
+#              signing.credentials:
+#                - certificate-location:
+#                  private-key-location:
               verification.credentials:
-                - certificate-location: "classpath:ssl/okta.crt"
-              singlesignon.url: https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml
-              singlesignon.sign-request: false
+                - certificate-location: classpath:ssl/tu.cer
+              singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
+              singlesignon.sign-request: true
 server:
   port: 9097
-  name: dbrepo.ossdip.at
+  name: ${SERVER_NAME}
   ssl:
     enabled: true
     key-alias: 1
-    key-store: classpath:saml/dbrepo.jks
+    key-store: classpath:ssl/dbrepo.jks
     key-store-password: dbrepo
     key-store-type: pkcs12
-  error:
-    whitelabel:
-      enabled: false
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
@@ -50,4 +48,6 @@ eureka:
   instance.hostname: fda-authentication-service
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
 fda:
-  ready.path: ./ready
+  ready.path: /ready
+  idp.metadata: https://idp.zid.tuwien.ac.at/saml2
+  base-url: https://dbrepo.ossdip.at:9097
