@@ -150,7 +150,11 @@ services:
     volumes:
       - /tmp:/tmp
     environment:
+      SERVER_NAME: dbrepo.local
       SPRING_PROFILES_ACTIVE: docker
+      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+      KEY_STORE_LOCATION: /tmp/dbrepo.jks
+      KEY_STORE_TYPE: jks
     ports:
       - "9097:9097"
     depends_on:

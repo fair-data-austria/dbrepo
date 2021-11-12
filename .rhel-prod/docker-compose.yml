@@ -151,6 +151,8 @@ services:
       - /tmp:/tmp
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+      SERVER_NAME: dbrepo.ossdip.at
     ports:
       - "9097:9097"
     depends_on:

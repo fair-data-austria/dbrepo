@@ -28,7 +28,6 @@ VOLUME /tmp
 
 COPY --from=build ./rest-service/target/rest-service-*.jar ./rest-service.jar
 COPY ./service_ready /usr/bin
-COPY ./rest-service/src/main/resources/ssl/dbrepo.jks /ssl/dbrepo.jks
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
 
