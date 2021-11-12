@@ -3,7 +3,7 @@ package at.tuwien.config;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
+import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.xml.parse.StaticBasicParserPool;
@@ -38,6 +38,7 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -247,10 +248,11 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public MetadataProvider pivotalTestMetadataProvider() throws MetadataProviderException {
-        final Timer backgroundTaskTimer = new Timer(true);
-        final HTTPMetadataProvider provider = new HTTPMetadataProvider(backgroundTaskTimer, new HttpClient(),
-                idpProviderMetadata);
+    public MetadataProvider pivotalTestMetadataProvider() throws MetadataProviderException, IOException {
+        final DefaultResourceLoader loader = new DefaultResourceLoader();
+        final Resource storeFile = loader.getResource("/saml/sp_metadata.xml");
+        final File tuMetadata = storeFile.getFile();
+        final FilesystemMetadataProvider provider = new FilesystemMetadataProvider(tuMetadata);
         provider.setParserPool(parserPool());
         return provider;
     }
@@ -259,11 +261,12 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public MetadataGenerator metadataGenerator() {
         final MetadataGenerator metadataGenerator = new MetadataGenerator();
         metadataGenerator.setEntityId("at:tuwien");
-        metadataGenerator.setRequestSigned(true);
+        metadataGenerator.setRequestSigned(false);
         metadataGenerator.setExtendedMetadata(extendedMetadata());
         metadataGenerator.setIncludeDiscoveryExtension(false);
         metadataGenerator.setKeyManager(keyManager());
         metadataGenerator.setEntityBaseURL(baseUrl);
+        metadataGenerator.setWantAssertionSigned(false);
         return metadataGenerator;
     }
 
@@ -291,6 +294,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         final Resource storeFile = loader.getResource(samlKeystoreLocation);
         final Map<String, String> passwords = new HashMap<>();
         passwords.put(samlKeystoreAlias, samlKeystorePassword);
+        passwords.put("saml", samlKeystorePassword);
         return new JKSKeyManager(storeFile, samlKeystorePassword, passwords, samlKeystoreAlias);
     }
 

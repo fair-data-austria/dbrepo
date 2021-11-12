@@ -1,36 +1,16 @@
 #!/bin/bash
 CERT_STORE_LOCATION="/tmp/cert.p12"
 KEY_STORE_LOCATION="/tmp/dbrepo.jks"
-KEY_STORE_ALIAS="dbrepo"
 KEY_STORE_PASS="dbrepo"
-CERT_LOCATION="/etc/letsencrypt/live/dbrepo.ossdip.at/"
-CERT_NAME="chain.pem"
-PRIV_KEY_NAME="privkey.pem"
-USER="rocky"
-
-if [ "$ENV" != "prod" ]; then
-  echo "WARN: environment must be prod"
-  exit 0
-fi
+CERT_LOCATION="/etc/letsencrypt/live/dbrepo.ossdip.at"
 
 # REQUEST
 sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 		-m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
 
-# COPY
-mkdir -p "/tmp/certs"
-sudo cp "${CERT_LOCATION}/${CERT_NAME}" "/tmp/certs/"
-sudo cp "${CERT_LOCATION}/${PRIV_KEY_NAME}" "/tmp/certs/"
-
-# FIX PERMISSIONS
-sudo chown "${USER}:${USER}" "/tmp/certs/${CERT_NAME}"
-sudo chown "${USER}:${USER}" "/tmp/certs/${PRIV_KEY_NAME}"
-chmod 600 "/tmp/certs/${CERT_NAME}"
-chmod 600 "/tmp/certs/${PRIV_KEY_NAME}"
-
 # CONVERT PKCS12
-sudo openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in /etc/letsencrypt/live/dbrepo.ossdip.at/cert.pem \
-  -inkey /etc/letsencrypt/live/dbrepo.ossdip.at/privkey.pem -passout "pass:${KEY_STORE_PASS}"
+sudo openssl pkcs12 -export -out "${CERT_STORE_LOCATION}" -in "${CERT_LOCATION}/cert.pem" \
+  -inkey "${CERT_LOCATION}/privkey.pem" -passout "pass:${KEY_STORE_PASS}"
 
 # FIX PERMISSIONS
 sudo chmod 644 "${CERT_STORE_LOCATION}"

@@ -28,7 +28,7 @@ spring:
               verification.credentials:
                 - certificate-location: classpath:ssl/tu.cer
               singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
-              singlesignon.sign-request: true
+              singlesignon.sign-request: false
 server:
   port: 9097
   name: ${SERVER_NAME}
