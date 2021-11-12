@@ -17,26 +17,27 @@ spring:
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
-      metadata: https://idp.zid.tuwien.ac.at/saml2
-      base-url: https://dbrepo.ossdip.at:9097
       relyingparty:
         registration:
-          okta-saml:
+          tu-saml:
             identityprovider:
-              entity-id: https://idp.zid.tuwien.ac.at/saml2
+              entity-id: at:tuwien
+#              signing.credentials:
+#                - certificate-location:
+#                  private-key-location:
               verification.credentials:
-                - certificate-location: classpath:ssl/tu.crt
+                - certificate-location: classpath:ssl/tu.cer
               singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
               singlesignon.sign-request: true
 server:
   port: 9097
-  name: dbrepo.ossdip.at
+  name: ${SERVER_NAME}
   ssl:
     enabled: true
     key-alias: 1
-    key-store: /ssl/dbrepo.jks
-    key-store-password: dbrepo
-    key-store-type: jks
+    key-store: file:${KEY_STORE_LOCATION}
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: ${KEY_STORE_TYPE}
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
@@ -47,3 +48,5 @@ eureka:
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
   ready.path: /ready
+  idp.metadata: https://idp.zid.tuwien.ac.at/saml2
+  base-url: https://dbrepo.ossdip.at:9097

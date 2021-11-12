@@ -2,9 +2,7 @@ package at.tuwien.config;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.io.FileUtils;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
@@ -40,7 +38,6 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -49,10 +46,10 @@ import java.util.*;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SamlConfig extends WebSecurityConfigurerAdapter {
 
-    @Value("${spring.security.saml2.metadata}")
+    @Value("${fda.idp.metadata}")
     private String idpProviderMetadata;
 
-    @Value("${spring.security.saml2.base-url}")
+    @Value("${fda.base-url}")
     private String baseUrl;
 
     @Value("${server.ssl.key-store}")
@@ -145,7 +142,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public ExtendedMetadata extendedMetadata() {
         final ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setIdpDiscoveryEnabled(true);
-        extendedMetadata.setSignMetadata(true);
+        extendedMetadata.setSignMetadata(false);
         return extendedMetadata;
     }
 
@@ -155,10 +152,10 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public ExtendedMetadataDelegate oktaExtendedMetadataProvider() throws MetadataProviderException, IOException {
+    public ExtendedMetadataDelegate extendedMetadataProvider() throws MetadataProviderException, IOException {
         ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(pivotalTestMetadataProvider(),
                 extendedMetadata());
-        extendedMetadataDelegate.setMetadataTrustCheck(false);
+        extendedMetadataDelegate.setMetadataTrustCheck(true);
         extendedMetadataDelegate.setMetadataRequireSignature(false);
         return extendedMetadataDelegate;
     }
@@ -262,6 +259,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public MetadataGenerator metadataGenerator() {
         final MetadataGenerator metadataGenerator = new MetadataGenerator();
         metadataGenerator.setEntityId("at:tuwien");
+        metadataGenerator.setRequestSigned(true);
         metadataGenerator.setExtendedMetadata(extendedMetadata());
         metadataGenerator.setIncludeDiscoveryExtension(false);
         metadataGenerator.setKeyManager(keyManager());

@@ -1,17 +1,43 @@
 #!/bin/bash
-KEY_STORE_LOCATION="./rest-service/src/main/resources/ssl/dbrepo.p12"
-JKS_LOCATION="./rest-service/src/main/resources/ssl/dbrepo.jks"
-KEY_STORE_ALIAS="dbrepo"
+KEY_STORE_LOCATION="/tmp/dbrepo.p12"
+JKS_LOCATION="/tmp/dbrepo.jks"
+KEY_STORE_ALIAS="1"
 KEY_STORE_PASS="dbrepo"
 
-# GENERATE
+SSL_PASS="dbrepo"
+
+TU_ALIAS="tu"
+
+SAML_STORE_LOCATION="/tmp/saml.p12"
+SAML_ALIAS="saml"
+SAML_KEY="/tmp/saml_sign.key"
+SAML_CERTIFICATE="/tmp/saml_sign.pem"
+SAML_PASS="dbrepo"
+
+# GENERATE SSL PRIVATE KEY AND PUBLIC KEY IN KEYSTORE
+echo "Generate self-signed certificate ..."
 keytool -genkey -keyalg RSA -alias "${KEY_STORE_ALIAS}" -storetype PKCS12 \
   -dname "cn=FAIR Data Austria, ou=Zentrum für Forschungsdatenmanagement, o=TU Wien, c=AT, l=Vienna, st=Austria" \
   -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" -validity 3650 \
-  -keysize 4096
+  -keysize 4096 > /dev/null 2>&1
 
-# CONVERT
+# CONVERT PKCS12 KEYSTORE TO JKS
+echo "Convert to .jks ..."
 keytool -importkeystore -srckeystore "${KEY_STORE_LOCATION}" -destkeystore "${JKS_LOCATION}" -srcstoretype PKCS12 \
   -deststoretype jks -srcstorepass "${KEY_STORE_PASS}" -deststorepass "${KEY_STORE_PASS}" \
-  -srcalias "${KEY_STORE_ALIAS}" -destalias "${KEY_STORE_ALIAS}" -srckeypass "${KEY_STORE_PASS}" \
-  -destkeypass "${KEY_STORE_PASS}"
+  -srcalias "${KEY_STORE_ALIAS}" -destalias "${KEY_STORE_ALIAS}" -srckeypass "${SSL_PASS}" \
+  -destkeypass "${SSL_PASS}"
+
+# COMBINE CERTIFICATE AND PRIVATE KEY
+echo "Import SAML keys ..."
+openssl pkcs12 -export -out "${SAML_STORE_LOCATION}" -in "${SAML_CERTIFICATE}" -inkey "${SAML_KEY}" \
+  -passout "pass:${SAML_PASS}"
+keytool -importkeystore -srckeystore "${SAML_STORE_LOCATION}" -destkeystore "${JKS_LOCATION}" -srcstoretype PKCS12 \
+  -trustcacerts -noprompt -deststoretype jks -srcstorepass "${KEY_STORE_PASS}" -deststorepass "${KEY_STORE_PASS}" \
+  -srcalias "1" -destalias "${SAML_ALIAS}" -srckeypass "${SAML_PASS}" \
+  -destkeypass "${SAML_PASS}"
+
+# IMPORT TU WIEN CERTIFICATE
+echo "Import TU certificate ..."
+keytool -importcert -trustcacerts -noprompt -keystore "${JKS_LOCATION}" -storepass "${KEY_STORE_PASS}" \
+  -alias "${TU_ALIAS}" -file ./fda-authentication-service/rest-service/src/main/resources/saml/tu.cer

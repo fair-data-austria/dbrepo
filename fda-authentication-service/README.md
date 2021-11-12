@@ -2,10 +2,25 @@
 
 Uses SAML2.0
 
-## Usage
+## Run
 
-Login via [Okta](https://dev-13953915.okta.com/app/dev-13953915_testtusaml_1/exk26nye6eBAomvJW5d7/sso/saml), later we
-use TU Wien SSO
+The container needs the environment variable set with the Key Store password, put it in your `~/.bashrc`:
+
+```bash
+export KEY_STORE_PASSWORD=...
+```
+
+or for fish in your `~/.config/fish/config.fish`:
+
+```fish
+set KEY_STORE_PASSWORD "..."
+```
+
+## Key Store
+
+The key store is a secure container that contains the SSL/TLS certificate:
+
+1. Let's Encrypt private key for `dbrepo.ossdip.at` with alias `1`
 
 ## Development
 
