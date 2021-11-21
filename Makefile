@@ -160,9 +160,7 @@ clean:
 	docker volume rm fda-services_fda-metadata-db-data || true
 
 teardown:
-	docker container stop $(docker container ls -aq) || true
-	docker container rm $(docker container ls -aq) || true
-	docker volume rm $(docker volume ls -q) || true
+	./.rhel-prod/teardown
 
 re-deploy: teardown deploy-staging
 
