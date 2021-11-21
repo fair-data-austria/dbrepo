@@ -1,0 +1,2 @@
+0 2 * * *       /usr/bin/make -C /home/rocky/fda-services teardown
+1 2 * * *       /usr/bin/make -C /home/rocky/fda-services run
