@@ -318,7 +318,7 @@ services:
       - "443:443"
       - "3000:3000"
     volumes:
-      - "./fda-ui/.prod:/prod"
+      - "./fda-ui/.prod:/etc/nginx/conf.d/"
     depends_on:
       fda-gateway-service:
         condition: service_healthy
