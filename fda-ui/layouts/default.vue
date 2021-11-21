@@ -14,14 +14,6 @@
             <v-list-item-title v-text="item.title" />
           </v-list-item-content>
         </v-list-item>
-        <v-list-item disabled>
-          <v-list-item-action>
-            <v-icon>mdi-hours-24</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            Sandbox Environment
-          </v-list-item-content>
-        </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-app-bar fixed app>
@@ -31,7 +23,7 @@
       <v-btn
         color="blue-grey"
         href="/api/auth"
-        class="mr-2">
+        class="mr-2 white--text">
         <v-icon left>mdi-login</v-icon> Login
       </v-btn>
       <v-menu bottom offset-y left>
@@ -58,6 +50,17 @@
         <nuxt />
       </v-container>
     </v-main>
+    <v-footer padless>
+      <v-card
+        flat
+        tile
+        width="100%"
+        class="amber lighten-3 text-center">
+        <v-card-text>
+          <strong>Sandbox Environment</strong> — Reset in {{ timer }}
+        </v-card-text>
+      </v-card>
+    </v-footer>
   </v-app>
 </template>
 
@@ -75,6 +78,7 @@ export default {
   data () {
     return {
       drawer: false,
+      countDown: 1,
       items: [
         {
           icon: mdiHome,
@@ -123,6 +127,12 @@ export default {
     },
     db () {
       return this.$store.state.db
+    },
+    timer () {
+      const hours = Math.floor(this.countDown / 3600)
+      const minutes = Math.floor((this.countDown - hours * 3600) / 60)
+      const seconds = (this.countDown - hours * 3600 - minutes * 60)
+      return `${hours}h${minutes}m${seconds}s`
     }
   },
   watch: {
@@ -132,8 +142,24 @@ export default {
   },
   mounted () {
     this.loadDB()
+    this.countDownTimer()
+    this.initDownTimer()
   },
   methods: {
+    initDownTimer () {
+      const two = new Date()
+      two.setDate(new Date().getDate() + 1)
+      two.setHours(2, 0, 0, 0)
+      this.countDown = Math.floor((two - new Date()) / 1000)
+    },
+    countDownTimer () {
+      if (this.countDown > 0) {
+        setTimeout(() => {
+          this.countDown -= 1
+          this.countDownTimer()
+        }, 1000)
+      }
+    },
     async loadDB () {
       if (this.$route.params.db_id && !this.db) {
         try {
@@ -147,3 +173,5 @@ export default {
   }
 }
 </script>
+<style scoped>
+</style>
