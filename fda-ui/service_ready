@@ -1,7 +1,0 @@
-#!/bin/bash
-EXISTS=$(netstat -tulpn | grep "\d:80" | wc -l)
-if [ $EXISTS -eq 1 ]; then
-  echo "service is ready and accepting connections"
-  exit 0
-fi
-exit 1

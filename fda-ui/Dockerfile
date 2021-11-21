@@ -25,7 +25,6 @@ COPY ./server-middleware ./server-middleware
 COPY ./static ./static
 COPY ./store ./store
 COPY ./yarn.lock ./
-COPY ./service_ready ./
 
 RUN yarn generate
 
@@ -33,9 +32,6 @@ FROM nginx:1.21-alpine as runtime
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-COPY ./service_ready ./
 COPY ./.prod/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 443
-
-HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD ./service_ready
