@@ -4,17 +4,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.NO_CONTENT)
-public class ZenodoUnavailableException extends Exception {
+public class RemoteUnavailableException extends Exception {
 
-    public ZenodoUnavailableException(String msg) {
+    public RemoteUnavailableException(String msg) {
         super(msg);
     }
 
-    public ZenodoUnavailableException(String msg, Throwable thr) {
+    public RemoteUnavailableException(String msg, Throwable thr) {
         super(msg, thr);
     }
 
-    public ZenodoUnavailableException(Throwable thr) {
+    public RemoteUnavailableException(Throwable thr) {
         super(thr);
     }
 

@@ -16,16 +16,16 @@ public interface FileService {
      * @param databaseId The database-table id paid
      * @param queryId    The query id
      * @return The new file
-     * @throws ZenodoAuthenticationException Token invalid
-     * @throws ZenodoApiException            Something other went wrong
-     * @throws ZenodoNotFoundException       The deposit id was not found on the remote server
-     * @throws ZenodoUnavailableException    The remote server is not reachable
+     * @throws RemoteAuthenticationException Token invalid
+     * @throws RemoteApiException            Something other went wrong
+     * @throws RemoteNotFoundException       The deposit id was not found on the remote server
+     * @throws RemoteUnavailableException    The remote server is not reachable
      * @throws QueryNotFoundException        The deposit was not found on the metadata database
      */
     @Transactional
     File createResource(Long databaseId, Long queryId)
-            throws ZenodoAuthenticationException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException, ZenodoFileException, MetadataDatabaseNotFoundException;
+            throws RemoteAuthenticationException, RemoteApiException, RemoteNotFoundException,
+            RemoteUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException, RemoteFileException, MetadataDatabaseNotFoundException;
 
     /**
      * List all files known to a deposit number (through the database-table id pair)
@@ -42,15 +42,15 @@ public interface FileService {
      * @param queryId    The query id
      * @return The file
      * @throws QueryNotFoundException        The deposit was not found on the metadata database
-     * @throws ZenodoAuthenticationException Token invalid
-     * @throws ZenodoNotFoundException       The deposit id was not found on the remote server
-     * @throws ZenodoUnavailableException    The remote server is not reachable
-     * @throws ZenodoApiException            Something other went wrong
+     * @throws RemoteAuthenticationException Token invalid
+     * @throws RemoteNotFoundException       The deposit id was not found on the remote server
+     * @throws RemoteUnavailableException    The remote server is not reachable
+     * @throws RemoteApiException            Something other went wrong
      */
     @Transactional
     File findResource(Long databaseId, Long queryId)
-            throws ZenodoAuthenticationException, ZenodoNotFoundException,
-            ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException;
+            throws RemoteAuthenticationException, RemoteNotFoundException,
+            RemoteApiException, RemoteUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException;
 
     /**
      * Delete a file based on the database-table id pair by id
@@ -58,12 +58,12 @@ public interface FileService {
      * @param databaseId The database-table id pair
      * @param queryId    The query id
      * @throws QueryNotFoundException        The deposit was not found on the metadata database
-     * @throws ZenodoAuthenticationException Token invalid
-     * @throws ZenodoNotFoundException       The deposit id was not found on the remote server
-     * @throws ZenodoUnavailableException    The remote server is not reachable
-     * @throws ZenodoApiException            Something other went wrong
+     * @throws RemoteAuthenticationException Token invalid
+     * @throws RemoteNotFoundException       The deposit id was not found on the remote server
+     * @throws RemoteUnavailableException    The remote server is not reachable
+     * @throws RemoteApiException            Something other went wrong
      */
     @Transactional
-    void deleteResource(Long databaseId, Long queryId) throws ZenodoAuthenticationException,
-            ZenodoNotFoundException, ZenodoApiException, ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException;
+    void deleteResource(Long databaseId, Long queryId) throws RemoteAuthenticationException,
+            RemoteNotFoundException, RemoteApiException, RemoteUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException;
 }

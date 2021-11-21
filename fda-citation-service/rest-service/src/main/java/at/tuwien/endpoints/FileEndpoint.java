@@ -38,17 +38,17 @@ public class FileEndpoint {
     @GetMapping("/{queryId}")
     public FileDto find(@Valid @PathVariable("id") Long databaseId,
                         @Valid @PathVariable("queryId") Long queryId)
-            throws ZenodoApiException, ZenodoNotFoundException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
+            throws RemoteApiException, RemoteNotFoundException, RemoteAuthenticationException,
+            RemoteUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
         return fileMapper.fileToFileDto(fileService.findResource(databaseId, queryId));
     }
 
     @PostMapping("/{queryId}")
     public FileDto create(@Valid @PathVariable("id") Long databaseId,
                           @Valid @PathVariable("queryId") Long queryId)
-            throws ZenodoApiException, ZenodoNotFoundException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException,
-            ZenodoFileException, MetadataDatabaseNotFoundException {
+            throws RemoteApiException, RemoteNotFoundException, RemoteAuthenticationException,
+            RemoteUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException,
+            RemoteFileException, MetadataDatabaseNotFoundException {
         return fileMapper.fileToFileDto(fileService.createResource(databaseId, queryId));
     }
 

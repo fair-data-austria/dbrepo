@@ -4,17 +4,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.FORBIDDEN)
-public class ZenodoAuthenticationException extends Exception {
+public class RemoteAuthenticationException extends Exception {
 
-    public ZenodoAuthenticationException(String msg) {
+    public RemoteAuthenticationException(String msg) {
         super(msg);
     }
 
-    public ZenodoAuthenticationException(String msg, Throwable thr) {
+    public RemoteAuthenticationException(String msg, Throwable thr) {
         super(msg, thr);
     }
 
-    public ZenodoAuthenticationException(Throwable thr) {
+    public RemoteAuthenticationException(Throwable thr) {
         super(thr);
     }
 

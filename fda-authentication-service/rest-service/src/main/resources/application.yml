@@ -37,8 +37,8 @@ server:
     enabled: true
     key-alias: 1
     key-store: classpath:ssl/dbrepo.jks
-    key-store-password: dbrepo
-    key-store-type: pkcs12
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: jks
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:

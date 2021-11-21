@@ -250,7 +250,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public MetadataProvider pivotalTestMetadataProvider() throws MetadataProviderException, IOException {
         final DefaultResourceLoader loader = new DefaultResourceLoader();
-        final Resource storeFile = loader.getResource("/saml/sp_metadata.xml");
+        final Resource storeFile = loader.getResource("classpath:saml/sp_metadata.xml");
         final File tuMetadata = storeFile.getFile();
         final FilesystemMetadataProvider provider = new FilesystemMetadataProvider(tuMetadata);
         provider.setParserPool(parserPool());

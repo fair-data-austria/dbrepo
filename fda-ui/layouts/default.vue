@@ -47,6 +47,7 @@
       <v-container>
         <nuxt />
       </v-container>
+      <Sandbox />
     </v-main>
   </v-app>
 </template>
@@ -59,9 +60,11 @@ import {
   mdiDatabaseSearch,
   mdiHome
 } from '@mdi/js'
+import Sandbox from '../components/Sandbox'
 
 export default {
   name: 'DefaultLayout',
+  components: { Sandbox },
   data () {
     return {
       drawer: false,
