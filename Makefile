@@ -156,6 +156,13 @@ clean:
 	docker-compose down
 	docker volume rm fda-services_fda-metadata-db-data || true
 
+teardown:
+	docker container stop $(docker container ls -aq)
+	docker container rm $(docker container ls -aq)
+	docker volume rm $(docker volume ls -q)
+
+re-deploy: teardown deploy-staging
+
 deploy-stable: registry-stable
 	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
 
