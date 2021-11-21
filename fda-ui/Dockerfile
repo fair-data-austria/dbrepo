@@ -30,8 +30,6 @@ RUN yarn generate
 
 FROM nginx:1.21-alpine as runtime
 
-COPY --from=build /app/dist /usr/share/nginx/html
-
-COPY ./.prod/default.conf /etc/nginx/conf.d/default.conf
-
 EXPOSE 443
+
+COPY --from=build /app/dist /usr/share/nginx/html
