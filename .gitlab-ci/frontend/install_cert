@@ -11,8 +11,10 @@ fi
 sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
                 -m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
 
-sudo cp "${CA_PATH}/fullchain.pem" "${CERT_PATH}"
+sudo cp "${CA_PATH}/cert.pem" "${CERT_PATH}"
 sudo cp "${CA_PATH}/privkey.pem" "${CERT_PATH}"
+
+mv ./fda-ui/secure.conf ./fda-ui/.prod/default.conf
 
 mkdir -p "${CERT_PATH}"
 sudo chown -R "${USER}:docker" "${CERT_PATH}"
