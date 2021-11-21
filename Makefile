@@ -97,7 +97,8 @@ run-backend:
 run-frontend:
 	docker-compose up -d fda-ui
 
-run: run-backend run-frontend
+run:
+	docker-compose up -d
 
 deploy-registry: config-registry
 	docker-compose -f ./.gitlab-ci/docker-compose.yml up -d
