@@ -4,17 +4,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-public class ZenodoFileException extends Exception {
+public class RemoteFileException extends Exception {
 
-    public ZenodoFileException(String msg) {
+    public RemoteFileException(String msg) {
         super(msg);
     }
 
-    public ZenodoFileException(String msg, Throwable thr) {
+    public RemoteFileException(String msg, Throwable thr) {
         super(msg, thr);
     }
 
-    public ZenodoFileException(Throwable thr) {
+    public RemoteFileException(Throwable thr) {
         super(thr);
     }
 

@@ -14,6 +14,7 @@ spring:
   application:
     name: fda-authentication-service
   cloud:
+    discovery.enabled: false
     loadbalancer.ribbon.enabled: false
   security:
     saml2:
@@ -35,9 +36,9 @@ server:
   ssl:
     enabled: true
     key-alias: 1
-    key-store: file:${KEY_STORE_LOCATION}
+    key-store: classpath:ssl/dbrepo.jks
     key-store-password: ${KEY_STORE_PASSWORD}
-    key-store-type: ${KEY_STORE_TYPE}
+    key-store-type: jks
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:

@@ -4,17 +4,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
-public class ZenodoNotFoundException extends Exception {
+public class RemoteNotFoundException extends Exception {
 
-    public ZenodoNotFoundException(String msg) {
+    public RemoteNotFoundException(String msg) {
         super(msg);
     }
 
-    public ZenodoNotFoundException(String msg, Throwable thr) {
+    public RemoteNotFoundException(String msg, Throwable thr) {
         super(msg, thr);
     }
 
-    public ZenodoNotFoundException(Throwable thr) {
+    public RemoteNotFoundException(Throwable thr) {
         super(thr);
     }
 

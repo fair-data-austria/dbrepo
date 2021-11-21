@@ -4,17 +4,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.UNPROCESSABLE_ENTITY)
-public class ZenodoFileTooLargeException extends Exception {
+public class RemoteFileTooLargeException extends Exception {
 
-    public ZenodoFileTooLargeException(String msg) {
+    public RemoteFileTooLargeException(String msg) {
         super(msg);
     }
 
-    public ZenodoFileTooLargeException(String msg, Throwable thr) {
+    public RemoteFileTooLargeException(String msg, Throwable thr) {
         super(msg, thr);
     }
 
-    public ZenodoFileTooLargeException(Throwable thr) {
+    public RemoteFileTooLargeException(Throwable thr) {
         super(thr);
     }
 

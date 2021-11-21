@@ -41,9 +41,9 @@ public class MetadataEndpoint {
     @PostMapping("/{queryId}")
     @Transactional
     public QueryDto create(@Valid @PathVariable("id") Long databaseId,
-                           @Valid @PathVariable("queryId") Long queryId) throws ZenodoApiException,
-            ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
-            ZenodoNotFoundException {
+                           @Valid @PathVariable("queryId") Long queryId) throws RemoteApiException,
+            RemoteAuthenticationException, MetadataDatabaseNotFoundException, RemoteUnavailableException,
+            RemoteNotFoundException {
         return queryMapper.queryToQueryDto(metadataService.storeCitation(databaseId, queryId));
     }
 
@@ -51,8 +51,8 @@ public class MetadataEndpoint {
     @Transactional
     public QueryDto find(@Valid @PathVariable("id") Long databaseId,
                          @Valid @RequestParam("queryId") Long queryId)
-            throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoUnavailableException, QueryNotFoundException {
+            throws MetadataDatabaseNotFoundException, RemoteApiException, RemoteNotFoundException,
+            RemoteAuthenticationException, RemoteUnavailableException, QueryNotFoundException {
         return queryMapper.queryToQueryDto(metadataService.findCitation(databaseId, queryId));
     }
 
@@ -61,8 +61,8 @@ public class MetadataEndpoint {
     public QueryDto update(@Valid @PathVariable("id") Long databaseId,
                            @Valid @PathVariable("queryId") Long queryId,
                            @Valid @RequestBody DepositChangeRequestDto data)
-            throws ZenodoApiException, ZenodoNotFoundException, ZenodoAuthenticationException,
-            ZenodoUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
+            throws RemoteApiException, RemoteNotFoundException, RemoteAuthenticationException,
+            RemoteUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
         return queryMapper.queryToQueryDto(metadataService.updateCitation(databaseId, queryId, data));
     }
 
@@ -70,7 +70,7 @@ public class MetadataEndpoint {
     @Transactional
     public void delete(@Valid @PathVariable("id") Long databaseId,
                        @Valid @PathVariable("queryId") Long queryId) throws MetadataDatabaseNotFoundException,
-            ZenodoApiException, ZenodoAuthenticationException, ZenodoNotFoundException, ZenodoUnavailableException,
+            RemoteApiException, RemoteAuthenticationException, RemoteNotFoundException, RemoteUnavailableException,
             QueryNotFoundException {
         metadataService.deleteCitation(databaseId, queryId);
     }
@@ -78,9 +78,9 @@ public class MetadataEndpoint {
     @PostMapping("/{queryId}/publish")
     @Transactional
     public QueryDto publish(@Valid @PathVariable("id") Long databaseId,
-                            @Valid @PathVariable("queryId") Long queryId) throws ZenodoApiException,
-            ZenodoAuthenticationException, MetadataDatabaseNotFoundException, ZenodoUnavailableException,
-            ZenodoNotFoundException, QueryNotFoundException {
+                            @Valid @PathVariable("queryId") Long queryId) throws RemoteApiException,
+            RemoteAuthenticationException, MetadataDatabaseNotFoundException, RemoteUnavailableException,
+            RemoteNotFoundException, QueryNotFoundException {
         return queryMapper.queryToQueryDto(metadataService.publishCitation(databaseId, queryId));
     }
 }
