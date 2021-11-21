@@ -14,14 +14,25 @@
             <v-list-item-title v-text="item.title" />
           </v-list-item-content>
         </v-list-item>
+        <v-list-item disabled>
+          <v-list-item-action>
+            <v-icon>mdi-hours-24</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            Sandbox Environment
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-app-bar fixed app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title v-text="title" />
       <v-spacer />
-      <v-btn color="primary" href="https://login.tuwien.ac.at/portal" class="mr-2">
-        <v-icon left>mdi-login</v-icon> TU Wien
+      <v-btn
+        color="blue-grey"
+        href="/api/auth"
+        class="mr-2">
+        <v-icon left>mdi-login</v-icon> Login
       </v-btn>
       <v-menu bottom offset-y left>
         <template v-slot:activator="{ on, attrs }">
@@ -32,7 +43,6 @@
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
-
         <v-list>
           <v-list-item
             v-for="locale in availableLocales"
@@ -47,7 +57,6 @@
       <v-container>
         <nuxt />
       </v-container>
-      <Sandbox />
     </v-main>
   </v-app>
 </template>
@@ -60,11 +69,9 @@ import {
   mdiDatabaseSearch,
   mdiHome
 } from '@mdi/js'
-import Sandbox from '../components/Sandbox'
 
 export default {
   name: 'DefaultLayout',
-  components: { Sandbox },
   data () {
     return {
       drawer: false,

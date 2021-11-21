@@ -16,8 +16,8 @@ export default {
   telemetry: false,
 
   head: {
-    titleTemplate: '%s - fda-ui',
-    title: 'fda-ui',
+    titleTemplate: '%s - Database Repository (Sandbox)',
+    title: 'FAIR Data Austria',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
