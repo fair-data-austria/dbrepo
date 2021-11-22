@@ -15,7 +15,6 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Component
-@Profile("seeder")
 public class DatabaseSeeder implements Seeder {
 
     private final static Long DATABASE_1_ID = 1L;
