@@ -22,7 +22,7 @@
       <v-spacer />
       <v-btn
         color="blue-grey"
-        href="/api/auth"
+        @click="authenticate"
         class="mr-2 white--text">
         <v-icon left>mdi-login</v-icon> Login
       </v-btn>
@@ -50,14 +50,14 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-footer padless>
+    <v-footer padless v-if="sandbox">
       <v-card
         flat
         tile
         width="100%"
         class="amber lighten-3 text-center">
         <v-card-text>
-          <strong>Sandbox Environment</strong> — Reset in {{ timer }}
+          <strong>Sandbox Environment</strong> — Reset in {{ timer }} — <a href="//github.com/fair-data-austria/dbrepo/issues/new">Report a bug</a>
         </v-card-text>
       </v-card>
     </v-footer>
@@ -116,6 +116,9 @@ export default {
     availableLocales () {
       return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale)
     },
+    sandbox () {
+      return true
+    },
     container () {
       return this.$store.state.container
     },
@@ -146,6 +149,9 @@ export default {
     this.initDownTimer()
   },
   methods: {
+    authenticate () {
+      window.location.href = '/api/auth'
+    },
     initDownTimer () {
       const two = new Date()
       two.setDate(new Date().getDate() + 1)
