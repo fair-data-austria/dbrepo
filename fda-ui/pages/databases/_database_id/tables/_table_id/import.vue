@@ -73,10 +73,8 @@ export default {
         const res = await this.$axios.get(infoUrl)
         console.debug('got table', res.data)
         this.table = res.data
-        this.loading = false
       } catch (err) {
         console.error('Could not insert data.', err)
-        this.loading = false
       }
     },
     async upload () {
@@ -93,12 +91,10 @@ export default {
           console.debug('upload csv', res.data)
         } else {
           console.error('Could not upload CSV data', res.data)
-          this.loading = false
           return
         }
       } catch (err) {
         console.error('Could not upload data.', err)
-        this.loading = false
         return
       }
       const insertUrl = `/api/database/${this.databaseId}/table/${this.tableId}/data`

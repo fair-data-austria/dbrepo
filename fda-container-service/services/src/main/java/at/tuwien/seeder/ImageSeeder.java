@@ -3,9 +3,8 @@ package at.tuwien.seeder;
 import at.tuwien.api.container.image.ImageCreateDto;
 import at.tuwien.api.container.image.ImageEnvItemDto;
 import at.tuwien.api.container.image.ImageEnvItemTypeDto;
-import at.tuwien.exception.DockerClientException;
-import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.service.ImageService;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -172,8 +171,9 @@ public class ImageSeeder implements Seeder {
         this.imageService = imageService;
     }
 
+    @SneakyThrows
     @Override
-    public void seed() throws DockerClientException, ImageNotFoundException {
+    public void seed() {
         if (imageService.getAll().size() > 0) {
             return;
         }

@@ -26,7 +26,7 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
   // send path to analyse service
   let analysis
   try {
-    analysis = await fetch(`${process.env.API_ANALYSE}/determinedt`, {
+    analysis = await fetch(`${process.env.API}/api/analyse/determinedt`, {
       method: 'post',
       body: JSON.stringify({ filepath: path }),
       headers: { 'Content-Type': 'application/json' }
@@ -35,6 +35,7 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
     analysis = JSON.parse(analysis)
     console.debug('analyzed', analysis)
   } catch (error) {
+    console.error('failed to analyze', error)
     return res.json({ success: false, error })
   }
 

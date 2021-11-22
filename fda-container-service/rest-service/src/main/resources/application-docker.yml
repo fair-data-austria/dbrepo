@@ -24,3 +24,5 @@ logging:
 eureka:
   instance.hostname: fda-container-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
+fda:
+  ready.path: /ready

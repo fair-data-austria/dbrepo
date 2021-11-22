@@ -15,7 +15,8 @@ spring:
     name: fda-container-service
   cloud:
     loadbalancer.ribbon.enabled: false
-server.port: 9093
+    discovery.enabled: false
+server.port: 9091
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
@@ -24,3 +25,5 @@ logging:
 eureka:
   instance.hostname: fda-container-service
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
+fda:
+  ready.path: ./ready

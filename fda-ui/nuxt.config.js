@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import colors from 'vuetify/es5/util/colors'
 
@@ -10,10 +11,26 @@ if (!process.env.API) {
 Have you passed env vars from docker-compose or defined them in your .env file?`)
 }
 
+let serv = {
+  port: 3000,
+  host: '0.0.0.0',
+  timing: false
+}
+if (process.env.SECURE) {
+  serv = {
+    https: {
+      key: fs.readFileSync('/certs/privkey.pem'),
+      cert: fs.readFileSync('/certs/cert.pem')
+    }
+  }
+}
+
 export default {
   target: 'server',
 
   telemetry: false,
+
+  server: serv,
 
   head: {
     titleTemplate: '%s - Database Repository (Sandbox)',
@@ -68,7 +85,7 @@ export default {
   },
 
   serverMiddleware: [
-    { path: '/server-middleware', handler: path.resolve(__dirname, 'server-middleware/index.js') },
+    { path: '/server-middleware', handler: path.resolve(__dirname, 'server-middleware/index.js') }
   ],
 
   vuetify: {

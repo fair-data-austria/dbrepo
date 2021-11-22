@@ -18,8 +18,7 @@ COPY ./report ./report
 ARG CI_JOB_STAGE
 
 # Make sure it compiles
-RUN if [ -z "$CI_JOB_STAGE" ]; then mvn -q clean package -DskipTests > /dev/null; fi
-RUN if [ ! -z "$CI_JOB_STAGE" ]; then mvn clean package -DskipTests; fi # only in CI/CD pipeline
+RUN mvn -q clean package -DskipTests > /dev/null
 
 ###### THIRD STAGE ######
 FROM openjdk:11-jre-slim as runtime
