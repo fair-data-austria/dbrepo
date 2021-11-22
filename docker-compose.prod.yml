@@ -90,7 +90,7 @@ services:
       - fda-userdb
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
     ports:
       - "9092:9092"
     volumes:
@@ -116,7 +116,7 @@ services:
     networks:
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
     ports:
       - "9091:9091"
     volumes:
@@ -303,3 +303,4 @@ services:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
       NGINX_PORT: "${NGINX_PORT:-3000}"
+      SECURE: https

@@ -100,6 +100,9 @@ run-frontend:
 run:
 	docker-compose up -d
 
+run-sandbox:
+	docker-compose -f docker-compose.prod.yml up -d
+
 deploy-registry: config-registry
 	docker-compose -f ./.rhel-registry/docker-compose.yml up -d
 
