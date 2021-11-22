@@ -62,7 +62,6 @@ public class DatabaseSeeder implements Seeder {
     }
 
     @Override
-    @PostConstruct
     public void seed() throws ImageNotSupportedException, AmqpException, ContainerNotFoundException,
             DatabaseMalformedException {
         log.debug("seeded database {}", databaseService.create(DATABASE_1_CREATE));
