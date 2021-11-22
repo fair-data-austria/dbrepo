@@ -8,7 +8,7 @@ services:
     hostname: fda-registry-service
     image: registry:2
     volumes:
-      - ./fda-ui/.prod:/certs
+      - ./.rhel-prod/certs:/certs
     ports:
       - "4443:443"
       - "5555:5000"
