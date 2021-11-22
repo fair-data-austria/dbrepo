@@ -6,7 +6,7 @@ config-backend:
 	./.rhel-prod/install_cert
 
 config-registry:
-	./.gitlab-ci/registry/install_cert
+	./.rhel-registry/install_cert
 
 config-frontend:
 	./.gitlab-ci/frontend/install_cert
@@ -101,7 +101,7 @@ run:
 	docker-compose up -d
 
 deploy-registry: config-registry
-	docker-compose -f ./.gitlab-ci/docker-compose.yml up -d
+	docker-compose -f ./.rhel-registry/docker-compose.yml up -d
 
 registry-stable-tag: config build test
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db

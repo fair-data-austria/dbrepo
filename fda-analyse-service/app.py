@@ -219,6 +219,7 @@ def updatecol():
 rest_server_port = 5000
 eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
                    app_name="fda-analyse-service",
+                   instance_host="fda-analyse-service",
                    instance_port=rest_server_port)
 
 if __name__ == '__main__':

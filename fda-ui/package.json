@@ -6,7 +6,7 @@
     "dev": "nuxt --port 3001",
     "docker": "nuxt > /dev/null",
     "build": "nuxt build",
-    "start": "nuxt start && touch ",
+    "start": "nuxt start",
     "generate": "nuxt generate",
     "ver": "nuxt --version",
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",

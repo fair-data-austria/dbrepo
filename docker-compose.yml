@@ -28,10 +28,7 @@ services:
     restart: on-failure
     container_name: fda-metadata-db
     hostname: fda-metadata-db
-    build:
-      context: ./fda-metadata-db
-      args:
-        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    build: ./fda-metadata-db
     image: fda-metadata-db
     networks:
       - fda-public
@@ -48,10 +45,7 @@ services:
     restart: on-failure
     container_name: fda-discovery-service
     hostname: fda-discovery-service
-    build:
-      context: ./fda-discovery-service
-      args:
-        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    build: ./fda-discovery-service
     image: fda-discovery-service
     networks:
       - fda-public
@@ -64,10 +58,7 @@ services:
     restart: on-failure
     container_name: fda-gateway-service
     hostname: fda-gateway-service
-    build:
-      context: ./fda-gateway-service
-      args:
-        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    build: ./fda-gateway-service
     image: fda-gateway-service
     networks:
       fda-public:
@@ -93,16 +84,13 @@ services:
     restart: on-failure
     container_name: fda-database-service
     hostname: fda-database-service
-    build:
-      context: ./fda-database-service
-      args:
-        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    build: ./fda-database-service
     image: fda-database-service
     networks:
       - fda-userdb
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      SPRING_PROFILES_ACTIVE: docker,seeder
     ports:
       - "9092:9092"
     volumes:
@@ -123,15 +111,12 @@ services:
     restart: on-failure
     container_name: fda-container-service
     hostname: fda-container-service
-    build:
-      context: ./fda-container-service
-      args:
-        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    build: ./fda-container-service
     image: fda-container-service
     networks:
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      SPRING_PROFILES_ACTIVE: docker,seeder
     ports:
       - "9091:9091"
     volumes:
@@ -148,10 +133,7 @@ services:
 #    restart: on-failure
 #    container_name: fda-authentication-service
 #    hostname: fda-authentication-service
-#    build:
-#      context: ./fda-authentication-service
-#      args:
-#        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+#    build: ./fda-authentication-service
 #    image: fda-authentication-service
 #    networks:
 #      - fda-public
@@ -173,10 +155,7 @@ services:
     restart: on-failure
     container_name: fda-query-service
     hostname: fda-query-service
-    build:
-      context: ./fda-query-service
-      args:
-        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    build: ./fda-query-service
     image: fda-query-service
     networks:
       - fda-public
@@ -201,10 +180,7 @@ services:
     restart: on-failure
     container_name: fda-table-service
     hostname: fda-table-service
-    build:
-      context: ./fda-table-service
-      args:
-        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    build: ./fda-table-service
     image: fda-table-service
     networks:
       - fda-public
@@ -231,10 +207,7 @@ services:
 #    restart: on-failure
 #    container_name: fda-citation-service
 #    hostname: fda-citation-service
-#    build:
-#      context: ./fda-citation-service
-#      args:
-#        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+#    build: ./fda-citation-service
 #    image: fda-citation-service
 #    networks:
 #      - fda-public
@@ -262,7 +235,7 @@ services:
       - fda-userdb
     command: sh -c "/wait && flask run" # docker-compose should not test the implementation
     environment:
-      EUREKA_SERVER: http://fda-discovery-service:9090/eureka
+      EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
     ports:
       - "5000:5000"
     volumes:
@@ -322,7 +295,7 @@ services:
       - "443:443"
       - "3000:3000"
     volumes:
-      - "./fda-ui/.prod:/etc/nginx/conf.d/"
+      - "./fda-ui/.prod:/certs"
     depends_on:
       fda-gateway-service:
         condition: service_healthy

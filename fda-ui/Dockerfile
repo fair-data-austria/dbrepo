@@ -26,10 +26,6 @@ COPY ./static ./static
 COPY ./store ./store
 COPY ./yarn.lock ./
 
-RUN yarn generate
+RUN yarn build > /dev/null
 
-FROM nginx:1.21-alpine as runtime
-
-EXPOSE 443
-
-COPY --from=build /app/dist /usr/share/nginx/html
+ENTRYPOINT ["yarn", "start"]

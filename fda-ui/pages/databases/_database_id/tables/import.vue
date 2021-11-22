@@ -183,10 +183,12 @@ export default {
           this.fileLocation = res.data.file.filename
           this.tableInsert.csvLocation = this.fileLocation
           this.step = 3
+          this.loading = false
           console.debug('upload csv', res.data)
         } else {
           console.error('Upload failed. Try from docker container, not with yarn dev', res)
           this.$toast.error('Could not upload CSV data')
+          this.loading = false
           return
         }
       } catch (err) {
