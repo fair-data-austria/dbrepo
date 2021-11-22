@@ -8,10 +8,10 @@ services:
     hostname: fda-registry-service
     image: registry:2
     volumes:
-      - /home/rocky/registry/certs:/certs
+      - ./fda-ui/.prod:/certs
     ports:
-      - "443:443"
-      - "5000:5000"
+      - "4443:443"
+      - "5555:5000"
     environment:
       REGISTRY_HTTP_ADDR: 0.0.0.0:443
       REGISTRY_HTTP_TLS_CERTIFICATE: /certs/fullchain.pem
