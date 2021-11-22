@@ -292,8 +292,7 @@ services:
     networks:
       - fda-public
     ports:
-      - "443:443"
-      - "3000:3000"
+      - "443:3000"
     volumes:
       - "./fda-ui/.prod:/certs"
     depends_on:
@@ -302,5 +301,4 @@ services:
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
-      NGINX_PORT: "${NGINX_PORT:-3000}"
       SECURE: https
