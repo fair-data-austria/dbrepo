@@ -1,6 +1,6 @@
 #!/bin/bash
 CA_PATH="/etc/letsencrypt/live/docker.ossdip.at"
-CERT_PATH="./.rhel-prod/certs"
+CERT_PATH="./.rhel-registry/certs"
 USER="rocky"
 
 if [ "$ENV" != "prod" ]; then
