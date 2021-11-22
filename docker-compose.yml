@@ -102,7 +102,7 @@ services:
       - fda-userdb
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,seeder
     ports:
       - "9092:9092"
     volumes:
@@ -131,7 +131,7 @@ services:
     networks:
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seed
+      SPRING_PROFILES_ACTIVE: docker,seeder
     ports:
       - "9091:9091"
     volumes:

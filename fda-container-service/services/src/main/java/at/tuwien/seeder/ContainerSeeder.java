@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 @Log4j2
 @Component
-@Profile("seed")
 public class ContainerSeeder implements Seeder {
 
     private final static Long CONTAINER_1_ID = 1L;
