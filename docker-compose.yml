@@ -114,6 +114,8 @@ services:
         condition: service_healthy
       fda-metadata-db:
         condition: service_healthy
+      fda-container-service:
+        condition: service_healthy
     logging:
       driver: json-file
 
@@ -221,6 +223,8 @@ services:
       fda-discovery-service:
         condition: service_healthy
       fda-broker-service:
+        condition: service_healthy
+      fda-database-service:
         condition: service_healthy
 
 #  fda-citation-service:

@@ -3,22 +3,17 @@ package at.tuwien.seeder;
 import at.tuwien.api.container.image.ImageCreateDto;
 import at.tuwien.api.container.image.ImageEnvItemDto;
 import at.tuwien.api.container.image.ImageEnvItemTypeDto;
-import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
-import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.service.ImageService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Log4j2
 @Component
-@Profile("seed")
 public class ImageSeeder implements Seeder {
 
     private final static String IMAGE_1_REPOSITORY = "postgres";
@@ -178,7 +173,6 @@ public class ImageSeeder implements Seeder {
     }
 
     @Override
-    @PostConstruct
     public void seed() throws DockerClientException, ImageNotFoundException {
         if (imageService.getAll().size() > 0) {
             return;
@@ -186,7 +180,6 @@ public class ImageSeeder implements Seeder {
         log.debug("seeded image {}", imageService.create(IMAGE_1_CREATE_DTO));
         log.debug("seeded image {}", imageService.create(IMAGE_2_CREATE_DTO));
         log.debug("seeded image {}", imageService.create(IMAGE_3_CREATE_DTO));
-//        log.debug("seeded image {}", imageService.create(IMAGE_4_CREATE_DTO));
     }
 
 }
