@@ -22,8 +22,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Document(indexName = "databaseindex", createIndex = false)
 @Where(clause = "deleted is null")
-@Document(indexName = "databaseindex")
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "update mdb_databases set deleted = NOW() where id = ?")

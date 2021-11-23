@@ -8,6 +8,7 @@ target/
 ready
 *.p12
 *.key
+*.pem
 
 ### STS ###
 .apt_generated

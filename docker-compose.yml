@@ -202,6 +202,8 @@ services:
         condition: service_healthy
       fda-database-service:
         condition: service_healthy
+      fda-search-service:
+        condition: service_started
 
 #  fda-citation-service:
 #    restart: on-failure
@@ -268,6 +270,7 @@ services:
     container_name: fda-search-service
     hostname: fda-search-service
     image: elasticsearch:7.13.4
+    command: ["elasticsearch"]
     networks:
       - fda-public
     environment:
@@ -277,11 +280,11 @@ services:
     depends_on:
       fda-discovery-service:
         condition: service_healthy
-      fda-table-service:
-        condition: service_healthy
     ports:
-      - "9200:9200"
-      - "9600:9600"
+      - 9200:9200
+      - 9600:9600
+    logging:
+      driver: json-file
 
   fda-ui:
     restart: on-failure
@@ -301,4 +304,3 @@ services:
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
-      NGINX_PORT: "${NGINX_PORT:-3000}"
