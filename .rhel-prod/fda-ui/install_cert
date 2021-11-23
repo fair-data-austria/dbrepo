@@ -1,0 +1,11 @@
+#!/bin/bash
+CA_PATH="/etc/letsencrypt/live/dbrepo.ossdip.at"
+
+sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
+                -m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
+
+KEY=$(sudo cat "${CA_PATH}/privkey.pem")
+CERT=$(sudo cat "${CA_PATH}/cert.pem")
+
+export UI_KEY="${KEY}"
+export UI_CERT="${CERT}"
