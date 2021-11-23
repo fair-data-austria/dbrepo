@@ -40,6 +40,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fda
+    logging:
+      driver: json-file
 
   fda-discovery-service:
     restart: on-failure
@@ -53,6 +55,8 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - "9090:9090"
+    logging:
+      driver: json-file
 
   fda-gateway-service:
     restart: on-failure
@@ -204,6 +208,8 @@ services:
         condition: service_healthy
       fda-search-service:
         condition: service_started
+    logging:
+      driver: json-file
 
 #  fda-citation-service:
 #    restart: on-failure
@@ -264,6 +270,8 @@ services:
       - "15672:15672"
     volumes:
       - fda-broker-service-data:/var/lib/rabbitmq/
+    logging:
+      driver: json-file
 
   fda-search-service:
     restart: always
@@ -304,3 +312,5 @@ services:
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
+    logging:
+      driver: json-file

@@ -3,13 +3,13 @@ REGISTRY=docker.ossdip.at
 all:
 
 config-backend:
-	./.rhel-prod/install_cert
+	./.rhel-prod/fda-authentication-service/install_cert
 
 config-registry:
 	./.rhel-registry/install_cert
 
 config-frontend:
-	./.rhel-prod/frontend/install_cert
+	. ./.rhel-prod/fda-ui/install_cert
 
 config-docker:
 	docker image pull -q postgres:13.4-alpine || true > /dev/null
@@ -169,7 +169,7 @@ teardown:
 re-deploy: teardown deploy-staging
 
 deploy-stable: registry-stable
-	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
+	./.gitlab-ci/deploy
 
 deploy-staging: registry-staging
-	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
+	./.gitlab-ci/deploy
