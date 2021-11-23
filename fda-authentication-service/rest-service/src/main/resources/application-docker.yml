@@ -23,22 +23,12 @@ spring:
           tu-saml:
             identityprovider:
               entity-id: at:tuwien
-#              signing.credentials:
-#                - certificate-location:
-#                  private-key-location:
               verification.credentials:
                 - certificate-location: classpath:ssl/tu.cer
               singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
               singlesignon.sign-request: false
 server:
   port: 9097
-  name: ${SERVER_NAME}
-  ssl:
-    enabled: true
-    key-alias: 1
-    key-store: classpath:ssl/dbrepo.jks
-    key-store-password: ${KEY_STORE_PASSWORD}
-    key-store-type: jks
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:

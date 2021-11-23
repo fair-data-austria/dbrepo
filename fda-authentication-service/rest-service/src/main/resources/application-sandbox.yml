@@ -1,0 +1,9 @@
+server:
+  port: 9097
+  name: ${SERVER_NAME}
+  ssl:
+    enabled: true
+    key-alias: 1
+    key-store: classpath:ssl/dbrepo.jks
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: jks
