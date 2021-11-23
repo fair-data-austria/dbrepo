@@ -26,7 +26,7 @@ import java.io.IOException;
 @Log4j2
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class AmqpServiceUnitTest extends BaseUnitTest {
+public class AmqpServiceIntegrationTest extends BaseUnitTest {
 
     private static final String AMQP_EXCHANGE = "fda";
 

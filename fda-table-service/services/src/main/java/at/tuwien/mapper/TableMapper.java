@@ -15,7 +15,9 @@ import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
 import org.apache.commons.lang.WordUtils;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDataType;
+import org.junit.jupiter.api.Assertions;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -90,10 +92,6 @@ public interface TableMapper {
         return slug.toLowerCase(Locale.ENGLISH);
     }
 
-    default String nameToColumnName(String data) {
-        return "mdb " + data;
-    }
-
     @Named("camelMapping")
     default String nameToCamelCase(String data) {
         if (data == null || data.length() == 0) {
@@ -111,7 +109,7 @@ public interface TableMapper {
     }
 
     default String columnCreateDtoToEnumTypeName(TableCreateDto table, ColumnCreateDto data) {
-        return "__" + nameToInternalName(nameToColumnName(table.getName())) + "_" + nameToInternalName(nameToColumnName(data.getName()));
+        return "__" + nameToInternalName(table.getName()) + "_" + nameToInternalName(data.getName());
     }
 
     @Named("identityMapping")
@@ -125,7 +123,7 @@ public interface TableMapper {
             @Mapping(source = "type", target = "columnType"),
             @Mapping(source = "nullAllowed", target = "isNullAllowed"),
             @Mapping(source = "name", target = "name", qualifiedByName = "identityMapping"),
-            @Mapping(target = "internalName", expression = "java(nameToInternalName(nameToColumnName(data.getName())))"),
+            @Mapping(target = "internalName", expression = "java(nameToInternalName(data.getName()))"),
             @Mapping(source = "checkExpression", target = "checkExpression", qualifiedByName = "identityMapping"),
             @Mapping(source = "foreignKey", target = "foreignKey", qualifiedByName = "identityMapping"),
     })
@@ -135,6 +133,9 @@ public interface TableMapper {
             throws ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
         if (data.getColumns().length == 0) {
             throw new TableMalformedException("The must be at least one column");
+        }
+        if (Arrays.stream(data.getColumns()).map(ColumnCreateDto::getPrimaryKey).filter(Objects::isNull).count() > 1) {
+            throw new ArbitraryPrimaryKeysException("Primary key column must either be true or false, cannot be null");
         }
         if (Arrays.stream(data.getColumns()).noneMatch(ColumnCreateDto::getPrimaryKey)) {
             throw new ArbitraryPrimaryKeysException("There must be at least one primary key column");
@@ -165,13 +166,13 @@ public interface TableMapper {
             }
             final DataType<?> dataType = columnTypeDtoToDataType(data, column)
                     .nullable(column.getNullAllowed());
-            columnStep.column(nameToInternalName(nameToColumnName(column.getName())), dataType);
+            columnStep.column(nameToInternalName(column.getName()), dataType);
         }
         /* primary keys */
-        constraints.add(constraint("PK_" + nameToInternalName(data.getName()))
+        constraints.add(constraint("pk_" + nameToInternalName(data.getName()))
                 .primaryKey(Arrays.stream(data.getColumns())
                         .filter(ColumnCreateDto::getPrimaryKey)
-                        .map(c -> field(nameToInternalName(nameToColumnName(c.getName()))))
+                        .map(this::primaryKeyField)
                         .toArray(Field[]::new)));
         /* constraints */
         final long count = Arrays.stream(data.getColumns())
@@ -181,8 +182,8 @@ public interface TableMapper {
             /* primary key constraints */
             Arrays.stream(data.getColumns())
                     .filter(c -> Objects.nonNull(c.getUnique()) && c.getUnique())
-                    .forEach(c -> constraints.add(constraint("UK_" + nameToInternalName(nameToColumnName(c.getName())))
-                            .unique(nameToInternalName(nameToColumnName(c.getName())))));
+                    .forEach(c -> constraints.add(constraint("uk_" + nameToInternalName(c.getName()))
+                            .unique(nameToInternalName(c.getName()))));
             /* check constraints */
             if (Arrays.stream(data.getColumns()).anyMatch(c -> Objects.nonNull(c.getCheckExpression()))) {
                 throw new ArbitraryPrimaryKeysException("Check constraints currently not supported");
@@ -190,12 +191,19 @@ public interface TableMapper {
             /* foreign key constraints */
             Arrays.stream(data.getColumns())
                     .filter(c -> Objects.nonNull(c.getForeignKey()))
-                    .forEach(c -> constraints.add(constraint("FK_" + nameToInternalName(nameToColumnName(c.getName())))
+                    .forEach(c -> constraints.add(constraint("fk_" + nameToInternalName(c.getName()))
                             .foreignKey(c.getForeignKey())
                             .references(c.getReferences())));
         }
         columnStep.constraints(constraints);
         return columnStep;
+    }
+
+    default Field<?> primaryKeyField(ColumnCreateDto column) {
+        if (column.getType().equals(ColumnTypeDto.TEXT) || column.getType().equals(ColumnTypeDto.BLOB)) {
+            return field(sql(nameToInternalName(column.getName()) + "(255)"));
+        }
+        return field(nameToInternalName(column.getName()));
     }
 
     default List<Field<?>> tableToFieldList(Table data) {

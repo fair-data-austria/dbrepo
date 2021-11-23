@@ -48,7 +48,7 @@ public abstract class JdbcConnector implements DatabaseConnector {
     @Override
     public DSLContext open(Database database) throws SQLException, ImageNotSupportedException {
         final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
-        log.trace("Attempt to connect to '{}'", url);
+        log.trace("attempt to connect to '{}'", url);
         final Properties properties = imageMapper.containerImageToProperties(database.getContainer().getImage());
         final Connection connection = DriverManager.getConnection(url, properties);
         return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
@@ -61,13 +61,13 @@ public abstract class JdbcConnector implements DatabaseConnector {
             throw new TableMalformedException("Table name contains reserved name");
         }
         final DSLContext context = open(database);
-        CreateTableColumnStep createTableColumnStep = tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto);
-        log.debug("Before insertion: {} ", createTableColumnStep.getSQL());
+        final CreateTableColumnStep createTableColumnStep = tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto);
+        log.debug("before insertion: {} ", createTableColumnStep.getSQL());
         /* add versioning for mariadb databases */
         if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
             String sql = createTableColumnStep.getSQL();
             sql = sql + "WITH SYSTEM VERSIONING;";
-            log.debug("With versioning {} ", sql);
+            log.trace("with versioning {} ", sql);
             context.fetch(sql);
         } else {
             createTableColumnStep.execute();
@@ -102,6 +102,12 @@ public abstract class JdbcConnector implements DatabaseConnector {
         }
     }
 
+    /**
+     * Deletes a table based on the name.
+     * @param table The table.
+     * @throws SQLException Invalid SQL.
+     * @throws ImageNotSupportedException Image is not MariaDB.
+     */
     @Override
     public void delete(Table table) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(table.getDatabase());

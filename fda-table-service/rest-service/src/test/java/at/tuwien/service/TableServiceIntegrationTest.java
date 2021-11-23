@@ -2,6 +2,8 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.columns.ColumnCreateDto;
+import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
@@ -34,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -126,7 +129,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_table_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
+    public void createTable_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, SQLException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_2_NAME)
@@ -145,6 +148,47 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
         assertEquals(DATABASE_1_ID, response.getTdbid());
         assertEquals(COLUMNS_CSV01.length, response.getColumns().size());
+    }
+
+    /**
+     * TODO https://gitlab.phaidra.org/fair-data-austria-db-repository/fda-services/-/issues/99
+     *
+     * When creating a table (POST /database/1/table) with columns of these types, I get this error:
+     *
+     * type: "STRING", name: "username"
+     * type: "BLOB"
+     */
+    @Test
+    public void createTable_text_pk_succeeds() throws InterruptedException, SQLException, TableMalformedException,
+            ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException,
+            DataProcessingException {
+        final TableCreateDto request = TableCreateDto.builder()
+                .name("Issue 99")
+                .description("Related to issue 99")
+                .columns(new ColumnCreateDto[]{
+                        ColumnCreateDto.builder()
+                                .name("username")
+                                .nullAllowed(false)
+                                .type(ColumnTypeDto.TEXT)
+                                .unique(true)
+                                .primaryKey(true)
+                                .build(),
+                        ColumnCreateDto.builder()
+                                .name("data")
+                                .nullAllowed(true)
+                                .type(ColumnTypeDto.BLOB)
+                                .unique(false)
+                                .primaryKey(false)
+                                .build()
+                })
+                .build();
+
+        /* start */
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
+
+        /* test */
+        tableService.createTable(DATABASE_1_ID, request);
     }
 
     @Test
