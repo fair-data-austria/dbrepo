@@ -1,16 +1,13 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.api.database.deposit.files.FileDto;
-import at.tuwien.exception.*;
 import at.tuwien.mapper.FileMapper;
-import at.tuwien.service.FileService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Log4j2
 @CrossOrigin(origins = "*")
@@ -19,37 +16,27 @@ import java.util.stream.Collectors;
 public class FileEndpoint {
 
     private final FileMapper fileMapper;
-    private final FileService fileService;
 
     @Autowired
-    public FileEndpoint(FileMapper fileMapper, FileService fileService) {
+    public FileEndpoint(FileMapper fileMapper) {
         this.fileMapper = fileMapper;
-        this.fileService = fileService;
     }
 
     @GetMapping
     public List<FileDto> listAll(@Valid @PathVariable("id") Long databaseId) {
-        return fileService.listResources()
-                .stream()
-                .map(fileMapper::fileToFileDto)
-                .collect(Collectors.toList());
+        return null;
     }
 
     @GetMapping("/{queryId}")
     public FileDto find(@Valid @PathVariable("id") Long databaseId,
-                        @Valid @PathVariable("queryId") Long queryId)
-            throws RemoteApiException, RemoteNotFoundException, RemoteAuthenticationException,
-            RemoteUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
-        return fileMapper.fileToFileDto(fileService.findResource(databaseId, queryId));
+                        @Valid @PathVariable("queryId") Long queryId) {
+        return null;
     }
 
     @PostMapping("/{queryId}")
     public FileDto create(@Valid @PathVariable("id") Long databaseId,
-                          @Valid @PathVariable("queryId") Long queryId)
-            throws RemoteApiException, RemoteNotFoundException, RemoteAuthenticationException,
-            RemoteUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException,
-            RemoteFileException, MetadataDatabaseNotFoundException {
-        return fileMapper.fileToFileDto(fileService.createResource(databaseId, queryId));
+                          @Valid @PathVariable("queryId") Long queryId) {
+        return null;
     }
 
     @PutMapping("/{queryId}")
