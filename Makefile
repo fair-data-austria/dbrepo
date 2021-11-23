@@ -157,7 +157,7 @@ registry-staging-push: registry-staging-tag registry-staging-tag
 registry-staging: registry-staging-tag registry-staging-push
 
 logs:
-	docker-compose logs
+	docker-compose -f docker-compose.prod.yml logs
 
 clean:
 	docker-compose down
