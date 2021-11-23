@@ -86,7 +86,7 @@ test-backend-table: config-docker
 
 test-frontend: clean build-frontend
 	npm --prefix ./fda-ui install
-	docker-compose up
+	docker-compose up -d
 	npm --prefix ./fda-ui run test
 
 test: test-backend test-frontend
