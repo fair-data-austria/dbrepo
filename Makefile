@@ -9,7 +9,7 @@ config-registry:
 	./.rhel-registry/install_cert
 
 config-frontend:
-	./.gitlab-ci/frontend/install_cert
+	./.rhel-prod/frontend/install_cert
 
 config-docker:
 	docker image pull -q postgres:13.4-alpine || true > /dev/null

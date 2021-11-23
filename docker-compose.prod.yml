@@ -301,4 +301,5 @@ services:
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
-      SECURE: https
+      KEY: "${UI_KEY}"
+      CERT: "${UI_CERT}"
