@@ -1,6 +1,6 @@
 #!/bin/bash
 CA_PATH="/etc/letsencrypt/live/dbrepo.ossdip.at"
-CERT_PATH="./fda-ui/.prod/"
+CERT_PATH="/certs/"
 USER="rocky"
 
 if [ "$ENV" != "prod" ]; then
@@ -13,8 +13,6 @@ sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.
 
 sudo cp "${CA_PATH}/cert.pem" "${CERT_PATH}"
 sudo cp "${CA_PATH}/privkey.pem" "${CERT_PATH}"
-
-mv ./fda-ui/secure.conf ./fda-ui/.prod/default.conf
 
 mkdir -p "${CERT_PATH}"
 sudo chown -R "${USER}:docker" "${CERT_PATH}"

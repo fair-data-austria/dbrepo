@@ -12,16 +12,16 @@ Have you passed env vars from docker-compose or defined them in your .env file?`
 }
 
 let serv = {
-  port: 3000,
-  host: '0.0.0.0',
-  timing: false
+  https: {
+    key: process.env.KEY,
+    cert: process.env.CERT
+  }
 }
-if (process.env.SECURE) {
+if (!process.env.KEY || !process.env.CERT) {
   serv = {
-    https: {
-      key: fs.readFileSync('/certs/privkey.pem'),
-      cert: fs.readFileSync('/certs/cert.pem')
-    }
+    port: 3000,
+    host: '0.0.0.0',
+    timing: false
   }
 }
 
