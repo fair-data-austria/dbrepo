@@ -250,6 +250,26 @@ services:
         condition: service_healthy
     logging:
       driver: json-file
+      
+  fda-units-service:
+    restart: on-failure
+    container_name: fda-units-service
+    hostname: fda-units-service
+    build: ./fda-units-service
+    image: fda-units-service
+    networks:
+      - fda-public
+    environment:
+      EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
+    ports:
+      - "5010:5010"
+    volumes:
+      - /tmp:/tmp
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
 
   fda-broker-service:
     restart: on-failure
