@@ -1,5 +1,6 @@
 <template>
   <div>
+    <DBToolbar v-model="$store.state.db" />
     <v-card>
       <v-card-title v-if="!loading">
         Result of Query #{{ id }}
