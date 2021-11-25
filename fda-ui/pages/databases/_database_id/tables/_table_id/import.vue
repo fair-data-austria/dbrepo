@@ -4,7 +4,6 @@
       <v-card-title v-if="!loading">
         Import CSV
       </v-card-title>
-      <v-card-subtitle>Table xxx</v-card-subtitle>
       <v-card-text>
         <v-checkbox
           v-model="tableInsert.skipHeader"

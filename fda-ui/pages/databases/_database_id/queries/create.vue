@@ -1,5 +1,6 @@
 <template>
   <div>
+    <DBToolbar v-model="$store.state.db" />
     <v-card class="pb-2">
       <v-card-title class="pb-0">
         Query Builder

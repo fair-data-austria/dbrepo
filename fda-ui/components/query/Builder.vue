@@ -22,10 +22,10 @@
           @change="buildQuery" />
       </v-col>
     </v-row>
-    <!--    <QueryFilters-->
-    <!--      v-if="table"-->
-    <!--      v-model="clauses"-->
-    <!--      :columns="columnNames" />-->
+    <QueryFilters
+      v-if="table"
+      v-model="clauses"
+      :columns="columnNames" />
     <v-row v-if="query.formatted">
       <v-col>
         <highlightjs autodetect :code="query.formatted" />
@@ -74,7 +74,7 @@ export default {
       return columns || []
     },
     columnNames () {
-      return this.selectItems && this.selectItems.map(s => s.name)
+      return this.selectItems && this.selectItems.map(s => s.internalName)
     }
   },
   watch: {
