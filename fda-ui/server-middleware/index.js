@@ -31,6 +31,7 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
       body: JSON.stringify({ filepath: path }),
       headers: { 'Content-Type': 'application/json' }
     })
+    console.debug('analyzed', analysis)
     analysis = await analysis.json()
     if (!analysis.success) {
       console.error('Failed to determine datatypes', analysis.message)
