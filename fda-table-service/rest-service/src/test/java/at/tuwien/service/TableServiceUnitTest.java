@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.config.ReadyConfig;
@@ -171,6 +172,22 @@ public class TableServiceUnitTest extends BaseUnitTest {
         assertEquals(1001, response.getData().size());
     }
 
+    @Test
+    public void createTable_issue106_fails() {
+        final TableCreateDto request = TableCreateDto.builder()
+                .name("Table")
+                .description(TABLE_2_DESCRIPTION)
+                .columns(COLUMNS_CSV01)
+                .build();
 
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+
+        /* test */
+        assertThrows(TableMalformedException.class, () -> {
+            tableService.createTable(DATABASE_1_ID, request);
+        });
+    }
 
 }
