@@ -9,7 +9,8 @@ config-registry:
 	./.rhel-registry/install_cert
 
 config-frontend:
-	. ./.rhel-prod/fda-ui/install_cert
+	./.rhel-prod/fda-ui/install_cert
+	docker-compose -f docker-compose.prod.yml config
 
 config-docker:
 	docker image pull -q postgres:13.4-alpine || true > /dev/null
@@ -100,7 +101,7 @@ run-frontend:
 run:
 	docker-compose up -d
 
-run-sandbox:
+run-sandbox: config-frontend
 	docker-compose -f docker-compose.prod.yml up -d
 
 deploy-registry: config-registry

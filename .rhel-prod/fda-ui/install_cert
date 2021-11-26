@@ -7,5 +7,7 @@ sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.
 KEY=$(sudo cat "${CA_PATH}/privkey.pem")
 CERT=$(sudo cat "${CA_PATH}/cert.pem")
 
-export UI_KEY="${KEY}"
-export UI_CERT="${CERT}"
+cat EOF >> .env
+UI_KEY=${KEY}
+UI_CERT=${CERT}
+EOF
