@@ -38,10 +38,12 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -201,6 +203,20 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+    }
+
+    @Test
+    public void createTable_issue106_fails() {
+        final TableCreateDto request = TableCreateDto.builder()
+                .name("Table")
+                .description(TABLE_2_DESCRIPTION)
+                .columns(COLUMNS_CSV01)
+                .build();
+
+        /* test */
+        assertThrows(TableMalformedException.class, () -> {
+            tableService.createTable(DATABASE_1_ID, request);
+        });
     }
 
 }
