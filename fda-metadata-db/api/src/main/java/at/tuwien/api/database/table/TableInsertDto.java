@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 public class TableInsertDto {
 
     @ApiModelProperty(name = "null element", example = "NA", required = true)
-    private String nullElement;
+    private String nullElement = null;
 
     @ApiModelProperty(name = "delimiting character", example = ",", required = true)
     private Character delimiter = ',';

@@ -20,6 +20,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
+import java.math.BigInteger;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.Comparator;
@@ -146,10 +147,11 @@ public interface TableMapper {
             throw new TableMalformedException("The must be at least one column");
         }
         if (Arrays.stream(data.getColumns()).map(ColumnCreateDto::getPrimaryKey).filter(Objects::isNull).count() > 1) {
+            log.error("Primary key column must either be true or false, cannot be null");
             throw new ArbitraryPrimaryKeysException("Primary key column must either be true or false, cannot be null");
         }
         if (Arrays.stream(data.getColumns()).noneMatch(ColumnCreateDto::getPrimaryKey)) {
-            log.warn("No primary key found, use invisible id column and sequence for primary key.");
+            log.warn("No primary key found, use auto-generated hidden id column");
             final ColumnCreateDto[] newColumns = Arrays.copyOf(data.getColumns(), data.getColumns().length + 1);
             newColumns[data.getColumns().length] = ColumnCreateDto.builder()
                     .name("id")
@@ -164,6 +166,7 @@ public interface TableMapper {
         }
         if (Arrays.stream(data.getColumns()).anyMatch(dto -> dto.getCheckExpression() != null)) {
             // TODO
+            log.error("Currently no check operations are supported");
             throw new ImageNotSupportedException("Currently no check operations are supported");
         }
         final CreateTableColumnStep columnStep = context.createTableIfNotExists(nameToInternalName(data.getName()));
