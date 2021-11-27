@@ -15,16 +15,19 @@ public class ContainerSeeder implements Seeder {
     public final static String CONTAINER_1_NAME = "fda-userdb-wetter-aus";
     private final static String CONTAINER_1_REPOSITORY = "mariadb";
     private final static String CONTAINER_1_TAG = "10.5";
+    private final static String CONTAINER_1_IP = "172.28.0.2";
 
     private final static Long CONTAINER_2_ID = 2L;
     public final static String CONTAINER_2_NAME = "fda-userdb-infection";
     private final static String CONTAINER_2_REPOSITORY = "mariadb";
     private final static String CONTAINER_2_TAG = "10.5";
+    private final static String CONTAINER_2_IP = "172.28.0.3";
 
     private final static Long CONTAINER_3_ID = 3L;
     public final static String CONTAINER_3_NAME = "fda-userdb-air";
     private final static String CONTAINER_3_REPOSITORY = "mariadb";
     private final static String CONTAINER_3_TAG = "10.5";
+    private final static String CONTAINER_3_IP = "172.28.0.4";
 
     private final static ContainerCreateRequestDto CONTAINER_1_CREATE_REQ = ContainerCreateRequestDto.builder()
             .name(CONTAINER_1_NAME)

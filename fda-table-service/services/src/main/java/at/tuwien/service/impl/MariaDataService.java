@@ -25,15 +25,13 @@ import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
@@ -123,15 +121,16 @@ public class MariaDataService extends JdbcConnector implements DataService {
             ArrayIndexOutOfBoundsException, TableMalformedException {
         log.debug("insert into table {} with params {}", table, data);
         if (data.getDelimiter() == null) {
-            log.info("No delimiter provided, using comma ','");
+            log.warn("No delimiter provided, using comma ','");
             data.setDelimiter(',');
         }
-
+        boolean isClassPathFile = false;
         if (!FileUtils.isTestFile(data.getCsvLocation())) {
             if (!FileUtils.isUrl(data.getCsvLocation())) {
                 data.setCsvLocation("/tmp/" + data.getCsvLocation());
             }
         } else {
+            isClassPathFile = true;
             /* assume it is test file */
             data.setCsvLocation(data.getCsvLocation().substring(5));
         }
@@ -144,9 +143,17 @@ public class MariaDataService extends JdbcConnector implements DataService {
             /* source is remote file */
             fileReader = new BufferedReader(new InputStreamReader(URI.create(data.getCsvLocation()).toURL().openStream()));
         } else {
-            /* source is local file */
-            final MultipartFile multipartFile = new MockMultipartFile(data.getCsvLocation(),
-                    Files.readAllBytes(Paths.get(data.getCsvLocation())));
+            MultipartFile multipartFile;
+            if (!isClassPathFile) {
+                /* source is local file, read from external /tmp path */
+                multipartFile = new MockMultipartFile(data.getCsvLocation(),
+                        Files.readAllBytes(Paths.get(data.getCsvLocation())));
+            } else {
+                /* source is in class path */
+                final InputStream stream = new ClassPathResource(data.getCsvLocation()).getInputStream();
+                multipartFile = new MockMultipartFile(data.getCsvLocation(),
+                    stream.readAllBytes());
+            }
             fileReader = new InputStreamReader(multipartFile.getInputStream());
         }
 

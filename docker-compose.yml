@@ -94,7 +94,7 @@ services:
       - fda-userdb
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
     ports:
       - "9092:9092"
     volumes:
@@ -120,7 +120,7 @@ services:
     networks:
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
     ports:
       - "9091:9091"
     volumes:
@@ -133,27 +133,27 @@ services:
     logging:
       driver: json-file
 
-  fda-authentication-service:
-    restart: on-failure
-    container_name: fda-authentication-service
-    hostname: fda-authentication-service
-    build: ./fda-authentication-service
-    image: fda-authentication-service
-    networks:
-      - fda-public
-    volumes:
-      - /tmp:/tmp
-    environment:
-      SERVER_NAME: dbrepo.local
-      SPRING_PROFILES_ACTIVE: docker
-      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
-    ports:
-      - "9097:9097"
-    depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-    logging:
-      driver: json-file
+#  fda-authentication-service:
+#    restart: on-failure
+#    container_name: fda-authentication-service
+#    hostname: fda-authentication-service
+#    build: ./fda-authentication-service
+#    image: fda-authentication-service
+#    networks:
+#      - fda-public
+#    volumes:
+#      - /tmp:/tmp
+#    environment:
+#      SERVER_NAME: dbrepo.local
+#      SPRING_PROFILES_ACTIVE: docker
+#      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+#    ports:
+#      - "9097:9097"
+#    depends_on:
+#      fda-discovery-service:
+#        condition: service_healthy
+#    logging:
+#      driver: json-file
 
   fda-query-service:
     restart: on-failure
@@ -190,7 +190,8 @@ services:
       - fda-public
       - fda-userdb
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      INSTANCE_ID: "${INSTANCE_ID}"
       multipart.location: /tmp
     ports:
       - "9094:9094"
