@@ -55,12 +55,6 @@
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
             <version>${spring-cloud.version}</version>
         </dependency>
-        <!-- Gitlab Deployment -->
-        <dependency>
-            <groupId>io.getunleash</groupId>
-            <artifactId>unleash-client-java</artifactId>
-            <version>${unleash.version}</version>
-        </dependency>
         <!-- Entities and API -->
         <dependency>
             <groupId>at.tuwien</groupId>

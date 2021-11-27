@@ -5,6 +5,8 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
+import at.tuwien.entities.database.table.columns.TableColumnType;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
@@ -13,13 +15,12 @@ import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.DataService;
 import at.tuwien.utils.FileUtils;
+import at.tuwien.utils.TableUtils;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvValidationException;
-import com.opencsv.validators.LineValidator;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.DSLContext;
@@ -32,8 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -41,6 +42,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -97,6 +99,9 @@ public class MariaDataService extends JdbcConnector implements DataService {
         } catch (IOException | CsvException | ArrayIndexOutOfBoundsException e) {
             log.error("Failed to parse csv {}", e.getMessage());
             throw new FileStorageException("failed to parse csv", e);
+        } catch (SQLException e) {
+            log.error("Failed to get next id value", e);
+            throw new TableNotFoundException("Failed to get next id value", e);
         }
         try {
             insertCsv(table, values);
@@ -118,20 +123,20 @@ public class MariaDataService extends JdbcConnector implements DataService {
     }
 
     protected TableCsvDto readCsv(Table table, TableInsertDto data) throws IOException, CsvException,
-            ArrayIndexOutOfBoundsException, TableMalformedException {
-        log.debug("insert into table {} with params {}", table, data);
+            ArrayIndexOutOfBoundsException, TableMalformedException, FileStorageException, SQLException, ImageNotSupportedException {
+        log.trace("insert into table {} with params {}", table, data);
         if (data.getDelimiter() == null) {
             log.warn("No delimiter provided, using comma ','");
             data.setDelimiter(',');
         }
         boolean isClassPathFile = false;
-        if (!FileUtils.isTestFile(data.getCsvLocation())) {
-            if (!FileUtils.isUrl(data.getCsvLocation())) {
-                data.setCsvLocation("/tmp/" + data.getCsvLocation());
-            }
+        if (!FileUtils.isTestFile(data.getCsvLocation()) && !FileUtils.isUrl(data.getCsvLocation())) {
+            log.trace("read prod file from /tmp/{}", data.getCsvLocation());
+            data.setCsvLocation("/tmp/" + data.getCsvLocation());
         } else {
             isClassPathFile = true;
             /* assume it is test file */
+            log.trace("read test file from {}", data.getCsvLocation().substring(5));
             data.setCsvLocation(data.getCsvLocation().substring(5));
         }
         final CSVParser csvParser = new CSVParserBuilder()
@@ -141,9 +146,12 @@ public class MariaDataService extends JdbcConnector implements DataService {
         Reader fileReader;
         if (FileUtils.isUrl(data.getCsvLocation())) {
             /* source is remote file */
-            fileReader = new BufferedReader(new InputStreamReader(URI.create(data.getCsvLocation()).toURL().openStream()));
+            log.trace("read file from url {}", data.getCsvLocation());
+            fileReader = new BufferedReader(new InputStreamReader(URI.create(data.getCsvLocation()).toURL()
+                    .openStream()));
         } else {
             MultipartFile multipartFile;
+            log.trace("generate multipart file for location {}, classpath (y/n) {}", data.getCsvLocation(), isClassPathFile ? 'y' : 'n');
             if (!isClassPathFile) {
                 /* source is local file, read from external /tmp path */
                 multipartFile = new MockMultipartFile(data.getCsvLocation(),
@@ -152,7 +160,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
                 /* source is in class path */
                 final InputStream stream = new ClassPathResource(data.getCsvLocation()).getInputStream();
                 multipartFile = new MockMultipartFile(data.getCsvLocation(),
-                    stream.readAllBytes());
+                        stream.readAllBytes());
             }
             fileReader = new InputStreamReader(multipartFile.getInputStream());
         }
@@ -160,36 +168,57 @@ public class MariaDataService extends JdbcConnector implements DataService {
         final CSVReader reader = new CSVReaderBuilder(fileReader)
                 .withCSVParser(csvParser)
                 .build();
-        List<String> headers = null;
-        final LinkedList<List<String>> cells = new LinkedList<>();
+        final List<List<String>> rows = new LinkedList<>();
         reader.readAll()
-                .forEach(x -> cells.add(Arrays.asList(x)));
-        log.trace("csv rows {}", cells.size());
-        /* get header */
+                .forEach(x -> rows.add(new ArrayList<>(List.of(x))));
+        log.trace("csv rows {}", rows.size());
+        /* generic header, ref issue #95 */
+        List<String> headers = TableUtils.fill(0, rows.get(0).size());
         if (data.getSkipHeader()) {
-            headers = cells.get(0);
-            log.debug("got headers {}", headers);
+            /* get header */
+            headers = rows.get(0);
+            log.trace("csv headers {}", headers);
         }
-        if (headers != null && headers.size() != table.getColumns().size()) {
-            log.error("header size: {}, column size: {}", headers.size(), table.getColumns().size());
-            throw new TableMalformedException("Header size is not the same as cell size, maybe wrong delimiter?");
+        if (!TableUtils.needsPrimaryKey(table) && /* auto-generated id columns have -1 in size */
+                headers.size() != table.getColumns().size() && /* differ */
+                table.getColumns().stream().noneMatch(TableColumn::getAutoGenerated)) {
+            log.error("Header size is not the same as cell size and none is auto-generated: header size={}, column " +
+                    "size={}", headers.size(), table.getColumns().size());
+            throw new TableMalformedException("Header size is not the same as cell size.");
         }
         final List<Map<String, Object>> records = new LinkedList<>();
         /* map to the map-list structure */
-        for (int i = (data.getSkipHeader() ? 1 : 0); i < cells.size(); i++) {
+        final List<String> booleanColumns = table.getColumns()
+                .stream()
+                .filter(c -> c.getColumnType().equals(TableColumnType.BOOLEAN))
+                .map(TableColumn::getInternalName)
+                .collect(Collectors.toList());
+        for (int k = (data.getSkipHeader() ? 1 : 0); k < rows.size(); k++) {
             final Map<String, Object> record = new LinkedHashMap<>();
-            final List<String> row = cells.get(i);
-            for (int j = 0; j < table.getColumns().size(); j++) {
-                record.put(table.getColumns().get(j).getInternalName(), row.get(j));
+            final List<String> row = rows.get(k);
+            for (int i = 0; i < table.getColumns().size(); i++) {
+                if (i == table.getColumns().size() - 1 && TableUtils.needsPrimaryKey(table)) {
+                    record.put("id", nextSequence(table));
+                    continue;
+                }
+                record.put(table.getColumns().get(i).getInternalName(), row.get(i));
             }
             /* when the nullElement itself is null, nothing to do */
             if (data.getNullElement() != null) {
                 record.replaceAll((key, value) -> value.equals(data.getNullElement()) ? null : value);
             }
+            /* replace values for true and/or false, todo move to mapper class */
+            if (data.getTrueElement() != null || data.getFalseElement() != null) {
+                record.replaceAll((key, value) -> {
+                    if (booleanColumns.contains(key) && value.equals(data.getTrueElement())) {
+                        return true;
+                    } else if (booleanColumns.contains(key) && value.equals(data.getFalseElement())) {
+                        return false;
+                    }
+                    return value;
+                });
+            }
             records.add(record);
-        }
-        if (headers == null || headers.size() == 0) {
-            log.warn("No header check possible, possibly csv without header line or skipHeader=false provided");
         }
         log.debug("first row is {}", records.size() > 0 ? records.get(0) : null);
         return TableCsvDto.builder()
