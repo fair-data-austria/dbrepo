@@ -9,8 +9,6 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 COPY ./api ./api
 COPY ./entities ./entities
 
-ARG CI_JOB_STAGE
-
 # Make sure it compiles
 RUN mvn -q clean package -DskipTests > /dev/null
 

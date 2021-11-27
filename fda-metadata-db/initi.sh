@@ -203,6 +203,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     title character varying(255) NULL,
     doi character varying(255),
     query TEXT NULL,
+    description TEXT NULL,
     query_normalized TEXT NULL,
     query_hash character varying(255) NULL,
     result_hash character varying(255) NULL,
