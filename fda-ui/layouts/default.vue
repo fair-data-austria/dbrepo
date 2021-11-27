@@ -21,9 +21,9 @@
       <v-toolbar-title v-text="title" />
       <v-spacer />
       <v-btn
+        class="mr-2 white--text"
         color="blue-grey"
-        @click="authenticate"
-        class="mr-2 white--text">
+        @click="authenticate">
         <v-icon left>mdi-login</v-icon> Login
       </v-btn>
       <v-menu bottom offset-y left>
@@ -50,7 +50,7 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-footer padless v-if="sandbox">
+    <v-footer v-if="sandbox" padless>
       <v-card
         flat
         tile

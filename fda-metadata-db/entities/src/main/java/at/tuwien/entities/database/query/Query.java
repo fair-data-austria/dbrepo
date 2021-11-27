@@ -47,6 +47,9 @@ public class Query {
     private String query;
 
     @Column
+    private String description;
+
+    @Column
     private String queryNormalized;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "query")

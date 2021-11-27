@@ -11,7 +11,7 @@ export default {
     return {
       items: [
         { text: 'Databases', href: '/databases' },
-        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}` },
+        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` },
         { text: 'Tables', href: `/databases/${this.$route.params.database_id}/tables` }
       ]
     }

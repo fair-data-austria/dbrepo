@@ -15,8 +15,6 @@ COPY ./rest-service ./rest-service
 COPY ./services ./services
 COPY ./report ./report
 
-ARG CI_JOB_STAGE
-
 # Make sure it compiles
 RUN mvn -q clean package -DskipTests > /dev/null
 

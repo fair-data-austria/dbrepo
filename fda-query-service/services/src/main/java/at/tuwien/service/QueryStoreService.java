@@ -19,13 +19,16 @@ import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.select.Select;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jooq.*;
+import org.jooq.exception.DataAccessException;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.StringReader;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -43,7 +46,8 @@ import static org.jooq.impl.SQLDataType.*;
 @Service
 public class QueryStoreService extends JdbcConnector {
 
-    private final static String QUERYSTORENAME = "mdb_querystore";
+    public final static String QUERYSTORE_NAME = "userdb_querystore";
+    public final static String QUERYSTORE_SEQ_NAME = "seq_querystore_id";
 
     private final DatabaseRepository databaseRepository;
     private final QueryRepository queryRepository;
@@ -75,7 +79,7 @@ public class QueryStoreService extends JdbcConnector {
                 .fetch()
                 .toString());
         return queryMapper.recordListToQueryList(context
-                .selectFrom(QUERYSTORENAME)
+                .selectFrom(QUERYSTORE_NAME)
                 .orderBy(field("execution_timestamp"))
                 .fetch());
     }
@@ -93,9 +97,16 @@ public class QueryStoreService extends JdbcConnector {
         log.trace("select query {}", context.selectQuery()
                 .fetch()
                 .toString());
-        final List<org.jooq.Record> records = context
-                .selectFrom(QUERYSTORENAME).where(condition("id = " + queryId))
-                .fetch();
+        List<org.jooq.Record> records;
+        try {
+            records = context
+                    .selectFrom(QUERYSTORE_NAME)
+                    .where(condition("id = " + queryId))
+                    .fetch();
+        } catch (DataAccessException e) {
+            log.error("Failed to select records: {}", e.getMessage());
+            throw new QueryStoreException("Failed to select records", e);
+        }
         if (records.size() != 1) {
             throw new QueryStoreException("Failed to get query from querystore");
         }
@@ -123,9 +134,9 @@ public class QueryStoreService extends JdbcConnector {
         /* create database in container */
         try {
             final DSLContext context = open(database);
-            context.createSequence("seq_id")
+            context.createSequence(QUERYSTORE_SEQ_NAME)
                     .execute();
-            context.createTable(QUERYSTORENAME)
+            context.createTable(QUERYSTORE_NAME)
                     .column("id", BIGINT)
                     .column("doi", VARCHAR(255).nullable(false))
                     .column("title", VARCHAR(255).nullable(false))
@@ -156,7 +167,8 @@ public class QueryStoreService extends JdbcConnector {
         query.setResultNumber(0L);
         try {
             final DSLContext context = open(database);
-            int success = context.insertInto(table(QUERYSTORENAME))
+            final BigInteger idVal = nextSequence(database);
+            int success = context.insertInto(table(QUERYSTORE_NAME))
                     .columns(field("id"),
                             field("doi"),
                             field("title"),
@@ -165,9 +177,9 @@ public class QueryStoreService extends JdbcConnector {
                             field("execution_timestamp"),
                             field("result_hash"),
                             field("result_number"))
-                    .values(sequence("seq_id").nextval(), "doi/" + query.getId(), query.getTitle(), query.getQuery(),
+                    .values(idVal, "doi/" + idVal, query.getTitle(), query.getQuery(),
                             query.getQueryHash(), LocalDateTime.ofInstant(query.getExecutionTimestamp(),
-                                    ZoneId.of("Europe/Vienna")), "" + queryResult.hashCode(),
+                                    ZoneId.of("Europe/Vienna")), getResultHash(queryResult),
                             queryResult.getResult().size())
                     .execute();
             log.info("Saved query into query store id {}", query.getId());
@@ -186,6 +198,16 @@ public class QueryStoreService extends JdbcConnector {
     // FIXME mw: lel
     private String normalizeQuery(String query) {
         return query;
+    }
+
+    /**
+     * Retrieve the result hash
+     *
+     * @param result The result.
+     * @return The hash.
+     */
+    private String getResultHash(QueryResultDto result) {
+        return "sha256:" + DigestUtils.sha256Hex(result.getResult().toString());
     }
 
     @Deprecated
@@ -449,7 +471,7 @@ public class QueryStoreService extends JdbcConnector {
         }
         return context.select(count())
                 .from("information_schema.tables")
-                .where("table_name like '" + QUERYSTORENAME + "'")
+                .where("table_name like '" + QUERYSTORE_NAME + "'")
                 .fetchOne(0, int.class) == 1;
     }
 
