@@ -2,7 +2,6 @@
   <div>
     <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
     <v-toolbar flat>
-      <v-btn id="zenodo-logo" class="mr-2" :style="`background-image:url(${zenodoLogo});`" disabled />
       <v-toolbar-title>Cite Query No. {{ queryId }}</v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
@@ -151,9 +150,6 @@ export default {
         { name: 'Restricted', value: 'restricted', disabled: true },
         { name: 'Embargoed', value: 'embargoed', disabled: true }
       ]
-    },
-    zenodoLogo () {
-      return require('assets/img/zenodo-logo.png')
     },
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'

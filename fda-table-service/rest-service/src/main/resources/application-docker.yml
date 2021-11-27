@@ -25,13 +25,15 @@ logging:
   level:
     root: warn
     at.tuwien.: debug
+    at.tuwien.seeder.: trace
 eureka:
   instance.hostname: fda-table-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
   mapping.path: /root
   table.path: /root
+  ready.path: /ready
   elastic.endpoint: fda-search-service:9200
-zenodo:
-  endpoint: https://sandbox.zenodo.org/
-  api_key: "${ZENODO_API_KEY}"
+unleash:
+  api.url: https://gitlab.phaidra.org/api/v4/feature_flags/unleash/450
+  instance.id: "${INSTANCE_ID}"

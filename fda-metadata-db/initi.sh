@@ -235,6 +235,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		ordinal_position INTEGER,
 		is_primary_key BOOLEAN,
 		is_unique BOOLEAN,
+		auto_generated BOOLEAN DEFAULT false,
 		is_null_allowed BOOLEAN,
 		foreign_key VARCHAR(255),
 		reference_table VARCHAR(255),
