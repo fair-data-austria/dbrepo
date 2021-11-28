@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.table.TableDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.Table;
@@ -10,8 +11,10 @@ import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.QueryMapper;
+import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.QueryRepository;
+import at.tuwien.repository.jpa.TableRepository;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
@@ -51,15 +54,19 @@ public class QueryStoreService extends JdbcConnector {
 
     private final DatabaseRepository databaseRepository;
     private final QueryRepository queryRepository;
+    private final TableRepository tableRepository;
+    private final TableMapper tableMapper;
     private final QueryMapper queryMapper;
 
     @Autowired
     public QueryStoreService(ImageMapper imageMapper, QueryMapper queryMapper, DatabaseRepository databaseRepository,
-                             QueryRepository queryRepository) {
+                             QueryRepository queryRepository, TableRepository tableRepository, TableMapper tableMapper) {
         super(imageMapper);
         this.databaseRepository = databaseRepository;
         this.queryMapper = queryMapper;
         this.queryRepository = queryRepository;
+        this.tableRepository = tableRepository;
+        this.tableMapper = tableMapper;
     }
 
     @Transactional
@@ -157,7 +164,17 @@ public class QueryStoreService extends JdbcConnector {
         }
     }
 
-    public QueryDto saveQuery(Database database, QueryDto query, QueryResultDto queryResult)
+    /**
+     * Saves a query result for a database
+     *
+     * @param database    The database.
+     * @param query       The query.
+     * @param queryResult The query result.
+     * @return The query with result.
+     * @throws ImageNotSupportedException When not MariaDB.
+     * @throws QueryStoreException        When the query store is not found.
+     */
+    public QueryDto persistQueryResult(Database database, QueryDto query, QueryResultDto queryResult)
             throws ImageNotSupportedException, QueryStoreException {
         // TODO map in mapper next iteration
         query.setExecutionTimestamp(Instant.now());
@@ -220,10 +237,25 @@ public class QueryStoreService extends JdbcConnector {
         return false;
     }
 
+    /**
+     * Executes a query on a database and table.
+     *
+     * @param databaseId The database.
+     * @param tableId    The table.
+     * @param data       The query data.
+     * @return The query result.
+     * @throws ImageNotSupportedException
+     * @throws DatabaseNotFoundException
+     * @throws QueryStoreException
+     * @throws DatabaseConnectionException
+     * @throws QueryMalformedException
+     * @throws TableNotFoundException
+     */
     @Transactional
     public QueryResultDto execute(Long databaseId, Long tableId, ExecuteQueryDto data) throws ImageNotSupportedException,
-            DatabaseNotFoundException, QueryStoreException, DatabaseConnectionException, QueryMalformedException {
+            DatabaseNotFoundException, QueryStoreException, DatabaseConnectionException, QueryMalformedException, TableNotFoundException {
         final Database database = findDatabase(databaseId);
+        final Table table = findTable(database, tableId);
         if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
             if (!exists(database)) {
                 create(databaseId);
@@ -236,12 +268,12 @@ public class QueryStoreService extends JdbcConnector {
             log.error("Failed to connect to the remote database: {}", e.getMessage());
             throw new DatabaseConnectionException("Failed to connect to the remote database", e);
         }
-        final QueryDto query = queryMapper.executeQueryDtoToQueryDto(data);
-        final QueryResultDto queryResultDto = executeQueryOnContext(context, query, database);
+        final QueryDto queryDto = queryMapper.executeQueryDtoToQueryDto(data);
+        final QueryResultDto queryResultDto = executeQueryOnContext(context, queryDto, database);
         log.trace("Result of the query is: \n {}", queryResultDto.getResult());
 
         /* save some metadata */
-        final Query metaQuery = queryMapper.queryDtotoQuery(query);
+        final Query metaQuery = queryMapper.queryDtotoQuery(queryDto);
         metaQuery.setExecutionTimestamp(null);
         metaQuery.setTitle(data.getTitle());
         metaQuery.setQdbid(databaseId);
@@ -249,19 +281,24 @@ public class QueryStoreService extends JdbcConnector {
         log.info("Saved executed query in metadata database id {}", res.getId());
 
         /* save the query in the store */
-        final QueryDto out = saveQuery(database, query, queryResultDto);
+        final QueryDto out = persistQueryResult(database, queryDto, queryResultDto);
         queryResultDto.setId(out.getId());
         log.info("Saved executed query in query store {}", out.getId());
         log.debug("query store {}", out);
         return queryResultDto;
     }
 
-    private QueryDto parse(QueryDto query, Database database) throws JSQLParserException, QueryMalformedException {
+    private Query parse(QueryDto query, Database database) throws QueryMalformedException {
         query.setExecutionTimestamp(query.getExecutionTimestamp());
+        Statement statement;
         final CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
-        final Statement statement = parserRealSql.parse(new StringReader(query.getQuery()));
+        try {
+            statement = parserRealSql.parse(new StringReader(query.getQuery()));
+        } catch (JSQLParserException e) {
+            log.error("Could not parse statement");
+            throw new QueryMalformedException("Could not parse statement", e);
+        }
         log.trace("given query {}", query.getQuery());
-
         if (statement instanceof net.sf.jsqlparser.statement.select.Select) {
             final net.sf.jsqlparser.statement.select.Select selectStatement = (Select) statement;
             final PlainSelect select = (PlainSelect) selectStatement.getSelectBody();
@@ -293,7 +330,7 @@ public class QueryStoreService extends JdbcConnector {
                 }
                 if (error) {
                     log.error("Table {} does not exist in remote database", item.toString());
-                    throw new JSQLParserException("Table does not exist in remote database");
+                    throw new QueryMalformedException("Table does not exist in remote database");
                 }
             }
 
@@ -320,7 +357,7 @@ public class QueryStoreService extends JdbcConnector {
                 }
                 if (i) {
                     log.error("Column {} does not exist", s);
-                    throw new JSQLParserException("Column does not exist");
+                    throw new QueryMalformedException("Column does not exist");
                 }
             }
             //TODO Future work
@@ -328,7 +365,7 @@ public class QueryStoreService extends JdbcConnector {
                 Expression where = select.getWhere();
                 log.debug("where clause: {}", where);
             }
-            return query;
+            return queryMapper.queryDtotoQuery(query);
         } else {
             log.error("Provided query is not a select statement, currently we only support 'select' statements");
             throw new QueryMalformedException("Provided query is not a select statement");
@@ -336,41 +373,57 @@ public class QueryStoreService extends JdbcConnector {
 
     }
 
+    /**
+     * Saves a query without executing it for a database-table tuple.
+     *
+     * @param databaseId The database-table tuple.
+     * @param tableId    The database-table tuple.
+     * @param data       The query data.
+     * @return The query entity.
+     * @throws ImageNotSupportedException
+     * @throws DatabaseNotFoundException
+     * @throws QueryStoreException
+     * @throws DatabaseConnectionException
+     * @throws QueryMalformedException
+     */
     @Transactional
-    public QueryResultDto save(Long databaseId, Long tableId, ExecuteQueryDto data) throws ImageNotSupportedException,
+    public Query saveWithoutExecution(Long databaseId, Long tableId, ExecuteQueryDto data) throws ImageNotSupportedException,
             DatabaseNotFoundException, QueryStoreException, DatabaseConnectionException,
-            QueryMalformedException {
+            QueryMalformedException, TableNotFoundException {
         final Database database = findDatabase(databaseId);
+        final Table table = findTable(database, tableId);
         if (database.getContainer().getImage().getDialect().equals("MARIADB")) {
             if (!exists(database)) {
                 create(databaseId);
             }
         }
-        final QueryDto query = queryMapper.executeQueryDtoToQueryDto(data);
+        final QueryDto queryDto = queryMapper.executeQueryDtoToQueryDto(data);
         final DSLContext context;
         try {
             context = open(database);
         } catch (SQLException e) {
             throw new QueryMalformedException("Could not connect to the remote container database", e);
         }
-        final QueryResultDto queryResultDto = executeQueryOnContext(context, query, database);
+        final QueryResultDto queryResultDto = executeQueryOnContext(context, queryDto, database);
         log.trace("Result of the query is: \n {}", queryResultDto.getResult());
 
         /* save some metadata */
-        final Query metaQuery = queryMapper.queryDtotoQuery(query);
+        final Query metaQuery = queryMapper.queryDtotoQuery(queryDto);
         metaQuery.setExecutionTimestamp(null);
         metaQuery.setTitle(data.getTitle());
         metaQuery.setQdbid(databaseId);
+        metaQuery.setQtid(tableId);
+        metaQuery.setTable(table);
         final Query res = queryRepository.save(metaQuery);
         log.info("Saved query in metadata database id {}", res.getId());
 
         // Save the query in the store
-        final QueryDto out = saveQuery(database, query, queryResultDto);
-        queryResultDto.setId(out.getId());
-        log.info("Saved query in query store {}", out.getId());
-        log.debug("Save query {}", out);
+//        final QueryDto out = saveQuery(database, query, queryResultDto);
+//        queryResultDto.setId(out.getId());
+//        log.info("Saved query in query store {}", out.getId());
+//        log.debug("Save query {}", out);
 //        return queryStoreService.findLast(database.getId(), query); // FIXME mw: why query last entry when we set it in the line above?
-        return queryResultDto;
+        return res;
     }
 
     /**
@@ -439,9 +492,9 @@ public class QueryStoreService extends JdbcConnector {
     /**
      * Find a database in the metadata database by id
      *
-     * @param id The id
-     * @return The database
-     * @throws DatabaseNotFoundException The database is not found
+     * @param id The id.
+     * @return The database.
+     * @throws DatabaseNotFoundException The database is not found.
      */
     @Transactional
     protected Database findDatabase(Long id) throws DatabaseNotFoundException {
@@ -451,6 +504,24 @@ public class QueryStoreService extends JdbcConnector {
             throw new DatabaseNotFoundException("Database not found in metadata database");
         }
         return database.get();
+    }
+
+    /**
+     * Find a table in the metadata database by database and id
+     *
+     * @param database The database.
+     * @param id       The id.
+     * @return The table.
+     * @throws TableNotFoundException The table is not found.
+     */
+    @Transactional
+    protected Table findTable(Database database, Long id) throws TableNotFoundException {
+        final Optional<Table> table = tableRepository.findByDatabaseAndId(database, id);
+        if (table.isEmpty()) {
+            log.error("Table with id {} not found in metadata database", id);
+            throw new TableNotFoundException("Table not found in metadata database");
+        }
+        return table.get();
     }
 
     /**
@@ -489,18 +560,13 @@ public class QueryStoreService extends JdbcConnector {
             throws QueryMalformedException {
         final StringBuilder parsedQuery = new StringBuilder();
         final String q;
-        try {
-            q = parse(query, database).getQuery();
-            if (q.charAt(q.length() - 1) == ';') {
-                parsedQuery.append(q.substring(0, q.length() - 2));
-            } else {
-                parsedQuery.append(q);
-            }
-            parsedQuery.append(";");
-        } catch (JSQLParserException e) {
-            log.error("The manual mapped query is malformed: {}", e.getMessage());
-            throw new QueryMalformedException("The manual mapped query is malformed", e);
+        q = parse(query, database).getQuery();
+        if (q.charAt(q.length() - 1) == ';') {
+            parsedQuery.append(q.substring(0, q.length() - 2));
+        } else {
+            parsedQuery.append(q);
         }
+        parsedQuery.append(";");
         final List<org.jooq.Record> result = context.resultQuery(parsedQuery.toString())
                 .fetch();
         return queryMapper.recordListToQueryResultDto(result, query.getId());

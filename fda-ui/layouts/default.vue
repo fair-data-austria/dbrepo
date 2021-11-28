@@ -4,11 +4,11 @@
       <v-img
         contain
         class="tu-logo"
-        src="/tu_logo.png" />
+        src="/tu_logo_512.png" />
       <v-img
         contain
         class="univie-logo"
-        src="/univie_logo.png" />
+        src="/univie_logo_512.png" />
       <v-list>
         <v-list-item
           v-for="(item, i) in filteredItems"
@@ -204,6 +204,6 @@ export default {
   margin: 1em 1em 0;
 }
 .univie-logo {
-  margin: 0 1em;
+  margin: 1em 1em .5em;
 }
 </style>

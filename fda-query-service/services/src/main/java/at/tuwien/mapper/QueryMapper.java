@@ -1,6 +1,7 @@
 package at.tuwien.mapper;
 
 import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.QueryBriefDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.query.Query;
@@ -21,16 +22,16 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface QueryMapper {
 
-    QueryResultDto queryToQueryResultDto(Query data);
-
-    Query executeQueryDtoToQuery(ExecuteQueryDto data);
-
+    @Mappings({})
     Query queryDtotoQuery(QueryDto data);
 
+    @Mappings({})
     QueryDto queryToQueryDto(Query data);
 
+    @Mappings({})
+    QueryBriefDto queryToQueryBriefDto(Query data);
+
     @Mappings({
-            @Mapping(source = "query", target = "query"),
             @Mapping(source = "query", target = "queryNormalized")
     })
     QueryDto executeQueryDtoToQueryDto(ExecuteQueryDto data);

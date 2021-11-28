@@ -2,10 +2,15 @@
   <div>
     <v-card>
       <v-card-title v-if="!loading">
-        Result of Query #{{ id }}
+        {{ query.title }}
       </v-card-title>
       <v-card-subtitle v-if="!loading">
-        <code v-if="hash">{{ hash }}</code>
+        <span v-if="query.execution_timestamp != null">
+          Executed {{ query.execution_timestamp }}, result hash <code>{{ query.result_hash }}</code>
+        </span>
+        <span v-if="query.execution_timestamp == null">
+          Query was never executed
+        </span>
       </v-card-subtitle>
       <v-data-table
         :headers="headers"
@@ -23,8 +28,17 @@ export default {
   },
   data () {
     return {
-      id: this.$route.params.query_id,
-      hash: null,
+      query: {
+        id: this.$route.params.query_id,
+        title: null,
+        description: null,
+        query_hash: null,
+        result_hash: null,
+        result_number: null,
+        doi: null,
+        execution_timestamp: null,
+        created: null
+      },
       loading: true,
       table: null,
       headers: [],
@@ -32,19 +46,36 @@ export default {
     }
   },
   mounted () {
-    this.loadData()
+    this.loadMetadata()
   },
   methods: {
-    async loadData () {
+    async loadMetadata () {
+      this.loading = true
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/query/${this.$route.params.query_id}`)
+        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/metadata/query/${this.$route.params.query_id}`)
+        console.debug('query metadata', res.data)
+        this.query = res.data
+      } catch (err) {
+        console.error('Could not load query metadata', err)
+        this.$toast.error('Could not load query metadata')
+        this.loading = false
+      }
+      this.loading = false
+    },
+    async reExecute () {
+      this.loading = true
+      try {
+        const res = await this.$axios.put(`/api/database/${this.$route.params.database_id}/store/table/1/execute/${this.$route.params.query_id}`)
         this.headers = Object.keys(res.data.result[0]).map((c) => {
           return { text: c, value: c }
         })
         this.rows = res.data.result
         console.debug('query data', res.data)
+        this.query = res.data
       } catch (err) {
-        this.$toast.error('Could not load table data.')
+        console.error('Could not load query data', err)
+        this.$toast.error('Could not load query data')
+        this.loading = false
       }
       this.loading = false
     }
