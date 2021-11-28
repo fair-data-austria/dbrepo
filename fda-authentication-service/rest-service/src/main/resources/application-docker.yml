@@ -1,34 +1,28 @@
 spring:
   main.banner-mode: off
   datasource:
-    url: jdbc:postgresql://fda-metadata-db:5432/fda
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
   jpa:
     show-sql: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create-drop
     open-in-view: false
   application:
     name: fda-authentication-service
   cloud:
-    discovery.enabled: false
     loadbalancer.ribbon.enabled: false
-#  security:
-#    saml2:
-#      relyingparty:
-#        registration:
-#          tu-saml:
-#            identityprovider:
-#              entity-id: at:tuwien
-#              verification.credentials:
-#                - certificate-location: classpath:ssl/tu.cer
-#              singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
-#              singlesignon.sign-request: false
 server:
   port: 9097
+  ssl:
+    enabled: true
+    key-alias: 1
+    key-store: classpath:saml/dbrepo.jks
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: jks
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
@@ -41,3 +35,4 @@ fda:
   ready.path: /ready
   idp.metadata: https://idp.zid.tuwien.ac.at/saml2
   saml.signkey: saml
+  base-url: https://fda-authentication-service

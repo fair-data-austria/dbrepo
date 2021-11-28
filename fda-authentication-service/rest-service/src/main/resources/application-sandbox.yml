@@ -1,9 +1,49 @@
+spring:
+  main.banner-mode: off
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  application:
+    name: fda-authentication-service
+  cloud:
+    loadbalancer.ribbon.enabled: false
+#  security:
+#    saml2:
+#      relyingparty:
+#        registration:
+#          tu-saml:
+#            identityprovider:
+#              entity-id: at:tuwien
+#              verification.credentials:
+#                - certificate-location: classpath:ssl/tu.cer
+#              singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
+#              singlesignon.sign-request: false
 server:
   port: 9097
-  name: ${SERVER_NAME}
   ssl:
     enabled: true
     key-alias: ssl
-    key-store: /tmp/dbrepo.jks
+    key-store: classpath:saml/dbrepo.jks
     key-store-password: ${KEY_STORE_PASSWORD}
     key-store-type: jks
+logging:
+  pattern.console: "%d %highlight(%-5level) %msg%n"
+  level:
+    root: warn
+    at.tuwien.: debug
+eureka:
+  instance.hostname: fda-authentication-service
+  client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
+fda:
+  ready.path: /ready
+  idp.metadata: https://idp.zid.tuwien.ac.at/saml2
+  saml.signkey: saml
+  base-url: https://dbrepo.ossdip.at
