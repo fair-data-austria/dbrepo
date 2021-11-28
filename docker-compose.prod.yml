@@ -137,6 +137,8 @@ services:
       SERVER_NAME: dbrepo.ossdip.at
       SPRING_PROFILES_ACTIVE: docker,sandbox
       KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+    ports:
+      - "9097:9097"
     depends_on:
       fda-discovery-service:
         condition: service_healthy

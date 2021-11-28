@@ -40,4 +40,3 @@ eureka:
 fda:
   ready.path: /ready
   idp.metadata: https://idp.zid.tuwien.ac.at/saml2
-  base-url: https://dbrepo.ossdip.at:9097

@@ -5,8 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/api/auth")
 @Log4j2
+@RestController("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthenticationEndpoint {
 
     @GetMapping("/")
