@@ -160,7 +160,6 @@ export default {
     }
   },
   mounted () {
-    this.switchTheme()
     this.loadDB()
     this.countDownTimer()
     this.initDownTimer()

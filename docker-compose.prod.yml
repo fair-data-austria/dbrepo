@@ -34,8 +34,6 @@ services:
       - fda-public
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -53,8 +51,6 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
-    ports:
-      - "9090:9090"
     logging:
       driver: json-file
 
@@ -70,8 +66,6 @@ services:
           - fda-gateway-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
-    ports:
-      - "9095:9095"
     depends_on:
       fda-container-service:
         condition: service_healthy
@@ -95,8 +89,6 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
-    ports:
-      - "9092:9092"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -121,8 +113,6 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
-    ports:
-      - "9091:9091"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -133,27 +123,25 @@ services:
     logging:
       driver: json-file
 
-#  fda-authentication-service:
-#    restart: on-failure
-#    container_name: fda-authentication-service
-#    hostname: fda-authentication-service
-#    build: ./fda-authentication-service
-#    image: fda-authentication-service
-#    networks:
-#      - fda-public
-#    volumes:
-#      - /tmp:/tmp
-#    environment:
-#      SERVER_NAME: dbrepo.local
-#      SPRING_PROFILES_ACTIVE: docker,sandbox
-#      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
-#    ports:
-#      - "9097:9097"
-#    depends_on:
-#      fda-discovery-service:
-#        condition: service_healthy
-#    logging:
-#      driver: json-file
+  fda-authentication-service:
+    restart: on-failure
+    container_name: fda-authentication-service
+    hostname: fda-authentication-service
+    build: ./fda-authentication-service
+    image: fda-authentication-service
+    networks:
+      - fda-public
+    volumes:
+      - /tmp:/tmp
+    environment:
+      SERVER_NAME: dbrepo.ossdip.at
+      SPRING_PROFILES_ACTIVE: docker,sandbox
+      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
 
   fda-query-service:
     restart: on-failure
@@ -166,8 +154,6 @@ services:
       - fda-userdb
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
-    ports:
-      - "9093:9093"
     volumes:
       - /tmp:/tmp
     depends_on:
@@ -194,8 +180,6 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
       multipart.location: /tmp
-    ports:
-      - "9094:9094"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
@@ -246,8 +230,6 @@ services:
     command: sh -c "/wait && flask run" # docker-compose should not test the implementation
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
-    ports:
-      - "5000:5000"
     volumes:
       - /tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
@@ -267,9 +249,6 @@ services:
     image: fda-broker-service
     networks:
       - fda-public
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     volumes:
       - fda-broker-service-data:/var/lib/rabbitmq/
     logging:
@@ -290,9 +269,6 @@ services:
     depends_on:
       fda-discovery-service:
         condition: service_healthy
-    ports:
-      - 9200:9200
-      - 9600:9600
     logging:
       driver: json-file
 
