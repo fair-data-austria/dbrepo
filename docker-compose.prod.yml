@@ -135,7 +135,7 @@ services:
       - /tmp:/tmp
     environment:
       SERVER_NAME: dbrepo.ossdip.at
-      SPRING_PROFILES_ACTIVE: docker,sandbox
+      SPRING_PROFILES_ACTIVE: sandbox
       KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
       SAML_SIGN_KEY: ${SAML_SIGN_KEY}
     ports:
