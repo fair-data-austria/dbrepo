@@ -204,6 +204,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
                 record.put(table.getColumns().get(i).getInternalName(), row.get(i));
             }
             /* when the nullElement itself is null, nothing to do */
+            record.replaceAll((key, value) -> value != null && value.equals("") ? null : value);
             if (data.getNullElement() != null) {
                 record.replaceAll((key, value) -> value != null && value.equals(data.getNullElement()) ? null : value);
             }
