@@ -161,7 +161,8 @@ public class TableServiceImpl extends JdbcConnector implements TableService {
         return out;
     }
 
-    protected Database findDatabase(Long id) throws DatabaseNotFoundException {
+    @Override
+    public Database findDatabase(Long id) throws DatabaseNotFoundException {
         final Optional<Database> database = databaseRepository.findById(id);
         if (database.isEmpty()) {
             log.error("Could not find database with id {} in metadata database", id);
@@ -170,6 +171,7 @@ public class TableServiceImpl extends JdbcConnector implements TableService {
         return database.get();
     }
 
+    @Override
     public TableCsvDto readCsv(Table table, TableInsertDto data, MultipartFile file) throws IOException, CsvException,
             ArrayIndexOutOfBoundsException {
         final CSVParser csvParser = new CSVParserBuilder()

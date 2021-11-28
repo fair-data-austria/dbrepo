@@ -198,21 +198,29 @@ public class MariaDataService extends JdbcConnector implements DataService {
             final List<String> row = rows.get(k);
             for (int i = 0; i < table.getColumns().size(); i++) {
                 if (i == table.getColumns().size() - 1 && TableUtils.needsPrimaryKey(table)) {
-                    record.put("id", nextSequence(table));
+                    record.put("id", null);
                     continue;
                 }
                 record.put(table.getColumns().get(i).getInternalName(), row.get(i));
             }
             /* when the nullElement itself is null, nothing to do */
             if (data.getNullElement() != null) {
-                record.replaceAll((key, value) -> value.equals(data.getNullElement()) ? null : value);
+                record.replaceAll((key, value) -> value != null && value.equals(data.getNullElement()) ? null : value);
             }
-            /* replace values for true and/or false, todo move to mapper class */
+            /* replace values for true and/or false, todo move to mapper class, test it with true=true and false=null */
             if (data.getTrueElement() != null || data.getFalseElement() != null) {
                 record.replaceAll((key, value) -> {
-                    if (booleanColumns.contains(key) && value.equals(data.getTrueElement())) {
+                    if (value == null) {
+                        return null;
+                    }
+                    if (booleanColumns.size() == 0) {
+                        return value;
+                    }
+                    if (data.getTrueElement() != null && booleanColumns.contains(key) &&
+                            value.equals(data.getTrueElement())) {
                         return true;
-                    } else if (booleanColumns.contains(key) && value.equals(data.getFalseElement())) {
+                    } else if (data.getFalseElement() != null && booleanColumns.contains(key) &&
+                            value.equals(data.getFalseElement())) {
                         return false;
                     }
                     return value;

@@ -1,6 +1,14 @@
 <template>
   <v-app dark>
     <v-navigation-drawer v-model="drawer" fixed app>
+      <v-img
+        contain
+        class="tu-logo"
+        src="/tu_logo.png" />
+      <v-img
+        contain
+        class="univie-logo"
+        src="/univie_logo.png" />
       <v-list>
         <v-list-item
           v-for="(item, i) in filteredItems"
@@ -42,6 +50,10 @@
             :to="switchLocalePath(locale.code)">
             <v-list-item-title>{{ locale.name }}</v-list-item-title>
           </v-list-item>
+          <v-list-item
+            @click="switchTheme()">
+            {{ nextTheme }} Theme
+          </v-list-item>
         </v-list>
       </v-menu>
     </v-app-bar>
@@ -55,9 +67,10 @@
         flat
         tile
         width="100%"
-        class="amber lighten-3 text-center">
-        <v-card-text>
-          <strong>Sandbox Environment</strong> — Reset in {{ timer }} — <a href="//github.com/fair-data-austria/dbrepo/issues/new">Report a bug</a>
+        class="primary text-center">
+        <v-card-text class="white--text">
+          <strong>Sandbox Environment</strong> — Reset in {{ timer }} —
+          <a href="//github.com/fair-data-austria/dbrepo/issues/new" class="white--text">Report a bug</a>
         </v-card-text>
       </v-card>
     </v-footer>
@@ -119,6 +132,9 @@ export default {
     sandbox () {
       return true
     },
+    nextTheme () {
+      return this.$vuetify.theme.dark ? 'Light' : 'Dark'
+    },
     container () {
       return this.$store.state.container
     },
@@ -144,6 +160,7 @@ export default {
     }
   },
   mounted () {
+    this.switchTheme()
     this.loadDB()
     this.countDownTimer()
     this.initDownTimer()
@@ -151,6 +168,9 @@ export default {
   methods: {
     authenticate () {
       window.location.href = '/api/auth'
+    },
+    switchTheme () {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
     },
     initDownTimer () {
       const two = new Date()
@@ -180,4 +200,10 @@ export default {
 }
 </script>
 <style scoped>
+.tu-logo {
+  margin: 1em 1em 0;
+}
+.univie-logo {
+  margin: 0 1em;
+}
 </style>
