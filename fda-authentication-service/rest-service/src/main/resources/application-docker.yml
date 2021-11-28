@@ -16,17 +16,17 @@ spring:
   cloud:
     discovery.enabled: false
     loadbalancer.ribbon.enabled: false
-  security:
-    saml2:
-      relyingparty:
-        registration:
-          tu-saml:
-            identityprovider:
-              entity-id: at:tuwien
-              verification.credentials:
-                - certificate-location: classpath:ssl/tu.cer
-              singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
-              singlesignon.sign-request: false
+#  security:
+#    saml2:
+#      relyingparty:
+#        registration:
+#          tu-saml:
+#            identityprovider:
+#              entity-id: at:tuwien
+#              verification.credentials:
+#                - certificate-location: classpath:ssl/tu.cer
+#              singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
+#              singlesignon.sign-request: false
 server:
   port: 9097
 logging:
@@ -40,3 +40,4 @@ eureka:
 fda:
   ready.path: /ready
   idp.metadata: https://idp.zid.tuwien.ac.at/saml2
+  saml.signkey: saml

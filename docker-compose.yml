@@ -133,27 +133,28 @@ services:
     logging:
       driver: json-file
 
-#  fda-authentication-service:
-#    restart: on-failure
-#    container_name: fda-authentication-service
-#    hostname: fda-authentication-service
-#    build: ./fda-authentication-service
-#    image: fda-authentication-service
-#    networks:
-#      - fda-public
-#    volumes:
-#      - /tmp:/tmp
-#    environment:
-#      SERVER_NAME: dbrepo.local
-#      SPRING_PROFILES_ACTIVE: docker
-#      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
-#    ports:
-#      - "9097:9097"
-#    depends_on:
-#      fda-discovery-service:
-#        condition: service_healthy
-#    logging:
-#      driver: json-file
+  fda-authentication-service:
+    restart: on-failure
+    container_name: fda-authentication-service
+    hostname: fda-authentication-service
+    build: ./fda-authentication-service
+    image: fda-authentication-service
+    networks:
+      - fda-public
+    volumes:
+      - /tmp:/tmp
+    environment:
+      SERVER_NAME: dbrepo.local
+      SPRING_PROFILES_ACTIVE: docker
+      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+      SAML_SIGN_KEY: ${SAML_SIGN_KEY}
+    ports:
+      - "9097:9097"
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
 
   fda-query-service:
     restart: on-failure
