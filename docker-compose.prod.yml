@@ -137,6 +137,7 @@ services:
       SERVER_NAME: dbrepo.ossdip.at
       SPRING_PROFILES_ACTIVE: docker,sandbox
       KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+      SAML_SIGN_KEY: ${SAML_SIGN_KEY}
     ports:
       - "9097:9097"
     depends_on:

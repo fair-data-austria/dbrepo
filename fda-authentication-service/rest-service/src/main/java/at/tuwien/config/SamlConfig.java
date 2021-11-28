@@ -3,7 +3,6 @@ package at.tuwien.config;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
@@ -39,9 +38,6 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 
 @Configuration
@@ -51,6 +47,9 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${fda.idp.metadata}")
     private String idpProviderMetadata;
+
+    @Value("${fda.saml.signkey}")
+    private String samlSignKey;
 
     @Value("${fda.base-url}")
     private String baseUrl;
@@ -145,7 +144,9 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public ExtendedMetadata extendedMetadata() {
         final ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setIdpDiscoveryEnabled(true);
-        extendedMetadata.setSignMetadata(false);
+        extendedMetadata.setSignMetadata(true);
+        extendedMetadata.setSigningKey(samlSignKey);
+//        extendedMetadata.setEncryptionKey(samlSignKey);
         return extendedMetadata;
     }
 
