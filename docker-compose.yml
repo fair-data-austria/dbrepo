@@ -311,6 +311,8 @@ services:
     depends_on:
       fda-gateway-service:
         condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
