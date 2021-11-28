@@ -47,6 +47,7 @@ export default {
   },
   mounted () {
     this.loadMetadata()
+    // this.reExecute()
   },
   methods: {
     async loadMetadata () {
