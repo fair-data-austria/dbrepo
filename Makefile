@@ -53,11 +53,17 @@ build-docker: config-docker
 	docker-compose build fda-metadata-db
 	docker-compose build
 
+build-docker-sandbox: config-docker
+	docker-compose -f docker-compose.prod.yml build fda-metadata-db
+	docker-compose -f docker-compose.prod.yml build
+
 build-frontend:
 	npm --prefix ./fda-ui install
 	npm --prefix ./fda-ui run build
 
 build: clean build-backend build-frontend build-docker
+
+build-sandbox: clean build-backend build-frontend build-docker-sandbox
 
 test-backend: test-backend-auth test-backend-citation test-backend-container test-backend-database test-backend-discovery test-backend-gateway test-backend-query test-backend-table
 
