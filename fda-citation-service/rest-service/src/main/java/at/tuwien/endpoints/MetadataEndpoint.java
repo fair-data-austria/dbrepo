@@ -2,9 +2,7 @@ package at.tuwien.endpoints;
 
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
 import at.tuwien.api.database.query.QueryDto;
-import at.tuwien.mapper.QueryMapper;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,13 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/database/{id}/cite/metadata")
 public class MetadataEndpoint {
-
-    private final QueryMapper queryMapper;
-
-    @Autowired
-    public MetadataEndpoint(QueryMapper queryMapper) {
-        this.queryMapper = queryMapper;
-    }
 
     @GetMapping
     @Transactional

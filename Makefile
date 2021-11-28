@@ -24,28 +24,28 @@ build-backend-metadata:
 	mvn -f ./fda-metadata-db/pom.xml clean install
 
 build-backend-authentication:
-	mvn -f ./fda-authentication-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-authentication-service/pom.xml clean package -DskipTests
 
 build-backend-citation:
-	mvn -f ./fda-citation-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-citation-service/pom.xml clean package -DskipTests
 
 build-backend-container:
-	mvn -f ./fda-container-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-container-service/pom.xml clean package -DskipTests
 
 build-backend-database:
-	mvn -f ./fda-database-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-database-service/pom.xml clean package -DskipTests
 
 build-backend-discovery:
-	mvn -f ./fda-discovery-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-discovery-service/pom.xml clean package -DskipTests
 
 build-backend-gateway:
-	mvn -f ./fda-gateway-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-gateway-service/pom.xml clean package -DskipTests
 
 build-backend-query:
-	mvn -f ./fda-query-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-query-service/pom.xml clean package -DskipTests
 
 build-backend-table:
-	mvn -f ./fda-table-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-table-service/pom.xml clean package -DskipTests
 
 build-backend: build-backend-metadata build-backend-authentication build-backend-citation build-backend-container build-backend-database build-backend-discovery build-backend-gateway build-backend-query build-backend-table
 

@@ -1,10 +1,6 @@
 package at.tuwien;
 
 import at.tuwien.api.database.deposit.DepositChangeRequestDto;
-import at.tuwien.api.database.deposit.DepositDto;
-import at.tuwien.api.database.deposit.DepositTzDto;
-import at.tuwien.api.database.deposit.files.FileDto;
-import at.tuwien.api.database.deposit.files.FileLinksDto;
 import at.tuwien.api.database.deposit.metadata.CreatorDto;
 import at.tuwien.api.database.deposit.metadata.LicenseTypeDto;
 import at.tuwien.api.database.deposit.metadata.MetadataDto;
@@ -16,7 +12,6 @@ import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
-import at.tuwien.entities.database.query.File;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.Table;
 import org.apache.commons.lang.RandomStringUtils;
@@ -88,24 +83,6 @@ public abstract class BaseUnitTest {
     public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
     public final static CreatorDto[] METADATA_1_CREATORS = new CreatorDto[]{CREATOR_1, CREATOR_2};
 
-    public final static Long FILE_1_ID = 1L;
-    public final static Long FILE_1_DB_ID = 1L;
-    public final static Long FILE_1_QID = QUERY_1_ID;
-    public final static String FILE_1_NAME = "testdata-othername.csv";
-    public final static String FILE_1_REF_ID = "6b3df619-eb55-427a-8ee2-9bef7c1ae189";
-    public final static String FILE_1_CHECKSUM = "d393c7fa1240c18473133793f7901aaa";
-    public final static Long FILE_1_SIZE = 34614L;
-
-    public final static File FILE_1 = File.builder()
-            .id(FILE_1_ID)
-            .fqid(FILE_1_QID)
-            .fdbid(FILE_1_DB_ID)
-            .refId(FILE_1_REF_ID)
-            .build();
-
-    public final static String FILE_1_LINKS_DOWNLOAD = "http://localhost:5500/file/" + FILE_1_ID + "/download";
-    public final static String FILE_1_LINKS_SELF = "http://localhost:5500/file/" + FILE_1_ID;
-
     public final static Query QUERY_1 = Query.builder()
             .id(QUERY_1_ID)
             .qdbid(DATABASE_1_ID)
@@ -113,22 +90,7 @@ public abstract class BaseUnitTest {
             .query(QUERY_1_QUERY)
             .queryNormalized(QUERY_1_QUERY_NORMALIZED)
             .executionTimestamp(QUERY_1_EXECUTION_TIMESTAMP)
-            .files(List.of(FILE_1))
-            .depositId(DEPOSIT_1_ID)
             .qdbid(DATABASE_1_ID)
-            .build();
-
-    public final static Long FILE_2_ID = 2L;
-    public final static Long FILE_2_DB_ID = 1L;
-    public final static String FILE_2_NAME = "testdata-weather.csv";
-    public final static String FILE_2_REF_ID = "78729cbb-37ea-441a-94ae-c40ff021b09d";
-    public final static String FILE_2_CHECKSUM = "a65cf8b8719b1a65db4f361eeec18457";
-    public final static Long FILE_2_SIZE = 14094055L;
-
-    public final static File FILE_2 = File.builder()
-            .id(FILE_2_ID)
-            .fdbid(FILE_2_DB_ID)
-            .refId(FILE_2_REF_ID)
             .build();
 
     public final static Long DEPOSIT_2_ID = 2L;
@@ -221,36 +183,6 @@ public abstract class BaseUnitTest {
             .description(METADATA_1_DESCRIPTION)
             .title(METADATA_1_TITLE)
             .uploadType(METADATA_1_UPLOAD_TYPE)
-            .build();
-
-    public final static FileLinksDto FILE_1_LINKS = FileLinksDto.builder()
-            .download(FILE_1_LINKS_DOWNLOAD)
-            .self(FILE_1_LINKS_SELF)
-            .build();
-
-    public final static FileDto FILE_1_DTO = FileDto.builder()
-            .id(FILE_1_ID)
-            .refId(FILE_1_REF_ID)
-            .fqid(QUERY_1_ID)
-            .fdbid(DATABASE_1_ID)
-            .build();
-
-    public final static FileDto FILE_2_DTO = FileDto.builder()
-            .id(FILE_2_ID)
-            .refId(FILE_2_REF_ID)
-            .fqid(QUERY_1_ID)
-            .fdbid(DATABASE_1_ID)
-            .build();
-
-    public final static DepositTzDto DEPOSIT_1 = DepositTzDto.builder()
-            .id(DEPOSIT_1_ID)
-            .created(DEPOSIT_1_CREATED)
-            .modified(DEPOSIT_1_MODIFIED)
-            .title(DEPOSIT_1_TITLE)
-            .state(DEPOSIT_1_STATE)
-            .submitted(DEPOSIT_1_SUBMITTED)
-            .recordId(DEPOSIT_1_RECORD_ID)
-            .files(List.of(FILE_1_DTO, FILE_2_DTO))
             .build();
 
     public final static ExecuteQueryDto QUERY_1_EXECUTE = ExecuteQueryDto.builder()
