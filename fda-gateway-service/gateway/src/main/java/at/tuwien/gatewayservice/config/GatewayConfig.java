@@ -18,7 +18,7 @@ public class GatewayConfig {
                         .uri("lb://fda-analyse-service"))
                 .route("fda-authentication-service", r -> r.path("/api/auth/**")
                         .and()
-                        .method("POST", "GET")
+                        .method("POST", "GET", "PUT", "DELETE")
                         .and()
                         .uri("lb://fda-authentication-service"))
                 .route("fda-container-service", r -> r.path("/api/container/**",
