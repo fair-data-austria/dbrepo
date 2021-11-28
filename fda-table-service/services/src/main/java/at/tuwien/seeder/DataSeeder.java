@@ -17,25 +17,13 @@ import java.util.List;
 public class DataSeeder implements Seeder {
 
     private final static Long TABLE_1_ID = 1L;
-    private final static Table TABLE_1 = Table.builder()
-            .id(TABLE_1_ID)
-            .build();
     private final static Long DATABASE_1_ID = 1L;
-    private final static Database DATABASE_1 = Database.builder()
-            .id(DATABASE_1_ID)
-            .tables(List.of(TABLE_1))
-            .build();
 
     private final static Long TABLE_2_ID = 2L;
-    private final static Table TABLE_2 = Table.builder()
-            .id(TABLE_2_ID)
-            .build();
-
     private final static Long DATABASE_2_ID = 2L;
-    private final static Database DATABASE_2 = Database.builder()
-            .id(DATABASE_2_ID)
-            .tables(List.of(TABLE_2))
-            .build();
+
+    private final static Long TABLE_3_ID = 3L;
+    private final static Long DATABASE_3_ID = 3L;
 
     private final static TableInsertDto TABLE_1_INSERT = TableInsertDto.builder()
             .csvLocation("test:seed/weather-small.csv")
@@ -52,6 +40,12 @@ public class DataSeeder implements Seeder {
             .delimiter(',')
             .build();
 
+    private final static TableInsertDto TABLE_3_INSERT = TableInsertDto.builder()
+            .csvLocation("test:seed/air-small.csv")
+            .skipHeader(true)
+            .delimiter(';')
+            .build();
+
     private final DataService dataService;
     private final TableRepository tableRepository;
 
@@ -64,15 +58,12 @@ public class DataSeeder implements Seeder {
     @Override
     public void seed() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
             ImageNotSupportedException, FileStorageException {
-        if (tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID).isPresent()) {
-            return;
-        }
         dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT);
-        log.debug("seeded table {}", TABLE_1_ID);
         log.info("Seeded table {}", TABLE_1_ID);
         dataService.insertCsv(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT);
-        log.debug("seeded table {}", TABLE_2_ID);
         log.info("Seeded table {}", TABLE_2_ID);
+        dataService.insertCsv(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT);
+        log.info("Seeded table {}", TABLE_3_ID);
     }
 
 }

@@ -103,6 +103,10 @@ public class TableServiceImpl extends JdbcConnector implements TableService {
     @Transactional
     public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
+        if (createDto.getName().contains("-")) {
+            log.error("Table name cannot contain -");
+            throw new TableMalformedException("Table name cannot contain -");
+        }
         log.trace("create table in db {} with request {}", databaseId, createDto);
         final Database database = findDatabase(databaseId);
         /* create database in container */

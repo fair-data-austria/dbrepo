@@ -8,10 +8,11 @@
         {{ table.description }}
       </v-card-subtitle>
       <v-data-table
+        dense
         :headers="headers"
         :items="rows"
         :loading="loading"
-        :items-per-page="30"
+        :items-per-page="15"
         class="elevation-1" />
     </v-card>
     <div class="mt-3">
