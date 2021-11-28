@@ -1,4 +1,3 @@
-import fs from 'fs'
 import path from 'path'
 import colors from 'vuetify/es5/util/colors'
 
@@ -9,6 +8,10 @@ if (!process.env.API) {
   throw new Error(`Environment variable API not defined.
 
 Have you passed env vars from docker-compose or defined them in your .env file?`)
+}
+
+if (process.env.SANDBOX) {
+  console.info('[FDA] Running in sandbox environment')
 }
 
 let serv = {

@@ -1,0 +1,7 @@
+# FDA USERDB
+172.28.0.2      fda-userdb-weather-aus
+172.28.0.3      fda-userdb-infection
+172.28.0.4      fda-userdb-air
+172.28.0.5      fda-userdb-u01
+172.28.0.6      fda-userdb-u02
+172.28.0.7      fda-userdb-u03

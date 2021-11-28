@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -32,6 +33,7 @@ public class ServiceSeeder implements Seeder {
     }
 
     @Override
+    @Transactional
     @PostConstruct
     public void seed() throws IOException, QueryStoreException, DatabaseConnectionException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {

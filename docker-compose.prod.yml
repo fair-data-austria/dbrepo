@@ -165,7 +165,7 @@ services:
       - fda-public
       - fda-userdb
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
     ports:
       - "9093:9093"
     volumes:
@@ -174,6 +174,8 @@ services:
       fda-discovery-service:
         condition: service_healthy
       fda-container-service:
+        condition: service_healthy
+      fda-table-service:
         condition: service_healthy
       fda-metadata-db:
         condition: service_healthy
@@ -190,7 +192,7 @@ services:
       - fda-public
       - fda-userdb
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
       multipart.location: /tmp
     ports:
       - "9094:9094"

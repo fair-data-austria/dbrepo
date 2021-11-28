@@ -6,6 +6,7 @@ import at.tuwien.service.QueryStoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -68,6 +69,7 @@ public class QuerySeeder implements Seeder {
     }
 
     @Override
+    @Transactional
     public void seed() throws QueryStoreException, DatabaseConnectionException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
         log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_1_ID, TABLE_1_ID, QUERY_EXECUTE_1));
