@@ -25,14 +25,14 @@ spring:
 #              verification.credentials:
 #                - certificate-location: classpath:ssl/tu.cer
 #              singlesignon.url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
-#              singlesignon.sign-request: false
+#              singlesignon.sign-request: true
 server:
   port: 9097
   ssl:
     enabled: true
     key-alias: ssl
-    key-store: classpath:saml/dbrepo.jks
-    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store: file:/tmp/dbrepo.jks
+    key-store-password: "${KEY_STORE_PASSWORD}"
     key-store-type: jks
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
@@ -46,4 +46,4 @@ fda:
   ready.path: /ready
   idp.metadata: https://idp.zid.tuwien.ac.at/saml2
   saml.signkey: saml
-  base-url: https://dbrepo.ossdip.at
+  base-url: https://dbrepo.ossdip.at:9097
