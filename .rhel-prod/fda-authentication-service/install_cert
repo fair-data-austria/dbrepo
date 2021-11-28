@@ -24,11 +24,11 @@ sudo chmod 644 "${TMP_CERT_LOCATION}"
 sudo chmod 644 "${TMP_SAML_LOCATION}"
 
 # IMPORT
-keytool -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
+sudo keytool -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
   -destkeystore "${KEY_STORE_LOCATION}" -srckeystore "${TMP_CERT_LOCATION}" -srcstoretype PKCS12 \
-  -srcstorepass "${KEY_STORE_PASS}" -alias 1
+  -srcstorepass "${KEY_STORE_PASS}" -srcalias 1 -destalias ssl
 
 # IMPORT
-keytool -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
+sudo keytool -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
   -destkeystore "${KEY_STORE_LOCATION}" -srckeystore "${TMP_SAML_LOCATION}" -srcstoretype PKCS12 \
-  -srcstorepass "${KEY_STORE_PASS}" -alias saml
+  -srcstorepass "${KEY_STORE_PASS}" -srcalias 1 -destalias saml

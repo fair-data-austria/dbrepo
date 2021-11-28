@@ -3,7 +3,7 @@ server:
   name: ${SERVER_NAME}
   ssl:
     enabled: true
-    key-alias: 1
+    key-alias: ssl
     key-store: /tmp/dbrepo.jks
     key-store-password: ${KEY_STORE_PASSWORD}
     key-store-type: jks
