@@ -94,7 +94,7 @@ services:
       - fda-userdb
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      SPRING_PROFILES_ACTIVE: docker,seeder
     ports:
       - "9092:9092"
     volumes:
@@ -120,7 +120,7 @@ services:
     networks:
       - fda-public
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      SPRING_PROFILES_ACTIVE: docker,seeder
     ports:
       - "9091:9091"
     volumes:
@@ -165,7 +165,7 @@ services:
       - fda-public
       - fda-userdb
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      SPRING_PROFILES_ACTIVE: docker,seeder
     ports:
       - "9093:9093"
     volumes:
@@ -192,8 +192,7 @@ services:
       - fda-public
       - fda-userdb
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
-      INSTANCE_ID: "${INSTANCE_ID}"
+      SPRING_PROFILES_ACTIVE: docker,seeder
       multipart.location: /tmp
     ports:
       - "9094:9094"

@@ -21,7 +21,6 @@ logging:
   level:
     root: warn
     at.tuwien.: debug
-    at.tuwien.service.: trace
 eureka:
   instance.hostname: fda-citation-service
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/

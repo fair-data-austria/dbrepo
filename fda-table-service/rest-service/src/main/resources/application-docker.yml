@@ -25,7 +25,6 @@ logging:
   level:
     root: warn
     at.tuwien.: debug
-    at.tuwien.seeder.: trace
 eureka:
   instance.hostname: fda-table-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
