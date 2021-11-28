@@ -19,7 +19,6 @@ public class ReadyConfig {
 
     @EventListener(ApplicationReadyEvent.class)
     public void init() throws IOException {
-        log.debug("Service ready");
         Files.touch(new File(readyPath));
     }
 
