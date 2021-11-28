@@ -10,6 +10,8 @@ import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -40,6 +42,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 @Configuration
@@ -249,8 +252,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public MetadataProvider pivotalTestMetadataProvider() throws MetadataProviderException, IOException {
-        final DefaultResourceLoader loader = new DefaultResourceLoader();
-        final Resource storeFile = loader.getResource("classpath:saml/sp_metadata.xml");
+        final InputStream stream = new ClassPathResource("saml/sp_metadata.xml").getInputStream();
+        final Resource storeFile = new ByteArrayResource(stream.readAllBytes());
         final File tuMetadata = storeFile.getFile();
         final FilesystemMetadataProvider provider = new FilesystemMetadataProvider(tuMetadata);
         provider.setParserPool(parserPool());
