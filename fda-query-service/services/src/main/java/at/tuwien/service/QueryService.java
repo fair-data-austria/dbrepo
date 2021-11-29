@@ -52,6 +52,7 @@ public class QueryService extends JdbcConnector {
         this.queryMapper = queryMapper;
     }
 
+    @Deprecated
     @Transactional
     public QueryResultDto execute(Long id, Query query) throws ImageNotSupportedException, DatabaseNotFoundException, JSQLParserException, SQLException, QueryMalformedException, QueryStoreException {
         Database database = findDatabase(id);
