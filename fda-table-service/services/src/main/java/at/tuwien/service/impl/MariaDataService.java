@@ -173,16 +173,10 @@ public class MariaDataService extends JdbcConnector implements DataService {
     @Override
     @Transactional
     public QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp,
-                                    Long page, Long size) throws TableNotFoundException,
+                                    @NonNull Long page, @NonNull Long size) throws TableNotFoundException,
             DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException, TableMalformedException {
         if(timestamp == null) {
             timestamp = Instant.now();
-        }
-        if(page == null ) {
-            page = 0L;
-        }
-        if(size == null) {
-            size = 100L;
         }
         if (page < 0) {
             throw new TableMalformedException("Page number cannot be lower than 0");
