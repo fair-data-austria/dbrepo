@@ -172,7 +172,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(metadataProvider(),
                 extendedMetadata());
         extendedMetadataDelegate.setMetadataTrustCheck(true);
-        extendedMetadataDelegate.setMetadataRequireSignature(false);
+        extendedMetadataDelegate.setMetadataRequireSignature(true);
         return extendedMetadataDelegate;
     }
 

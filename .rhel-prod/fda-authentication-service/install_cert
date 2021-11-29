@@ -32,3 +32,7 @@ sudo keytool -noprompt -importkeystore -deststorepass "${KEY_STORE_PASS}" -destk
 sudo keytool -noprompt -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
   -destkeystore "${KEY_STORE_LOCATION}" -srckeystore "${TMP_SAML_LOCATION}" -srcstoretype PKCS12 \
   -srcstorepass "${KEY_STORE_PASS}" -alias 1 -destalias saml
+
+# TRUST LET'S ENCRYPT
+sudo keytool -noprompt -import -alias letsencrypt -keystore "${KEY_STORE_LOCATION}" \
+  -file "${CERT_LOCATION}/chain.pem"
