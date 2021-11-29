@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import colors from 'vuetify/es5/util/colors'
 
@@ -5,9 +6,23 @@ import colors from 'vuetify/es5/util/colors'
 require('dotenv').config()
 
 if (!process.env.API) {
-  throw new Error(`Environment variable API_CONTAINER not defined.
+  throw new Error(`Environment variable API not defined.
 
 Have you passed env vars from docker-compose or defined them in your .env file?`)
+}
+
+let serv = {
+  port: 3000,
+  host: '0.0.0.0',
+  timing: false
+}
+if (process.env.SECURE) {
+  serv = {
+    https: {
+      key: fs.readFileSync('/certs/privkey.pem'),
+      cert: fs.readFileSync('/certs/cert.pem')
+    }
+  }
 }
 
 export default {
@@ -15,9 +30,11 @@ export default {
 
   telemetry: false,
 
+  server: serv,
+
   head: {
-    titleTemplate: '%s - fda-ui',
-    title: 'fda-ui',
+    titleTemplate: '%s - Database Repository (Sandbox)',
+    title: 'FAIR Data Austria',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },

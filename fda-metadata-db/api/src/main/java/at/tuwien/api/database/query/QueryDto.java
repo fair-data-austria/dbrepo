@@ -1,13 +1,16 @@
 package at.tuwien.api.database.query;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import at.tuwien.api.database.deposit.files.FileDto;
+import at.tuwien.api.database.table.TableDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
+import javax.persistence.Column;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.List;
 
 
 @Data
@@ -15,19 +18,46 @@ import java.sql.Timestamp;
 @Setter
 @Builder
 public class QueryDto {
+
+    @NotNull
     private Long id;
 
-    private Timestamp execution_timestamp;
+    @NotNull
+    private Long qdbid;
 
+    @JsonProperty("execution_timestamp")
+    private Instant executionTimestamp;
+
+    @NotBlank
     private String query;
+
+    @NotBlank
+    private String title;
 
     private String doi;
 
-    private String query_normalized;
+    @JsonProperty("deposit_id")
+    private Long depositId;
 
-    private String query_hash;
+    private List<FileDto> files;
 
-    private String result_hash;
+    private TableDto table;
 
-    private Integer result_number;
+    @JsonProperty("query_normalized")
+    private String queryNormalized;
+
+    @JsonProperty("query_hash")
+    private String queryHash;
+
+    @JsonProperty("result_hash")
+    private String resultHash;
+
+    @JsonProperty("result_number")
+    private Long resultNumber;
+
+    @NotNull
+    private Instant created;
+
+    @NotNull
+    private Instant lastModified;
 }

@@ -19,7 +19,6 @@
         <module>rest-service</module>
         <module>services</module>
         <module>report</module>
-        <module>api</module>
     </modules>
 
     <properties>

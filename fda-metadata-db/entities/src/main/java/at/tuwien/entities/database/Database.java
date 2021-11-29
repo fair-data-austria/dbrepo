@@ -1,6 +1,7 @@
 package at.tuwien.entities.database;
 
 import at.tuwien.entities.container.Container;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.Table;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -25,7 +26,6 @@ import java.util.List;
 @Where(clause = "deleted is null")
 @ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @SQLDelete(sql = "update mdb_databases set deleted = NOW() where id = ?")
 @javax.persistence.Table(name = "mdb_databases")
 public class Database {
@@ -70,6 +70,10 @@ public class Database {
             @JoinColumn(name = "tdbid", referencedColumnName = "id", insertable = false, updatable = false)
     })
     private List<Table> tables;
+
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "database")
+    private List<Query> queries;
 
     @ToString.Include
     @Column(nullable = false)

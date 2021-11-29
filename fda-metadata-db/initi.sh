@@ -22,6 +22,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	    NO MAXVALUE
 	    CACHE 1;
 
+	CREATE SEQUENCE public.mdb_files_seq
+	    START WITH 1
+	    INCREMENT BY 1
+	    NO MINVALUE
+	    NO MAXVALUE
+	    CACHE 1;
+
 	CREATE TABLE public.mdb_image_environment_item (
 	    id bigint NOT NULL DEFAULT nextval('mdb_image_environment_item_seq'),
 	    created timestamp without time zone NOT NULL,
@@ -106,6 +113,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE TABLE IF NOT EXISTS mdb_USERS (
 		UserID bigint PRIMARY KEY DEFAULT nextval('mdb_user_seq'),
+		external_id VARCHAR(255) UNIQUE NOT NULL,
 		TISS_ID bigint,
 		OID bigint,
 		First_name VARCHAR(50),
@@ -153,19 +161,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MAXVALUE
 		CACHE 1;
 
-	CREATE TABLE IF NOT EXISTS mdb_queries (
-    ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
-    execution_timestamp timestamp without time zone NOT NULL,
-    query TEXT NOT NULL,
-    query_normalized TEXT NOT NULL,
-    query_hash character varying(255) NULL,
-    result_hash character varying(255) NULL,
-    result_number INTEGER NULL,
-    created timestamp without time zone NOT NULL,
-    last_modified timestamp without time zone,
-    PRIMARY KEY(ID)
-    );
-
 	CREATE TABLE IF NOT EXISTS mdb_DATABASES (
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'),
 		container_id bigint REFERENCES mdb_CONTAINER(id),
@@ -192,13 +187,42 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		internal_name character varying(255) NOT NULL,
 		topic character varying(255) NOT NULL,
 		last_modified timestamp without time zone,
-		dep_id bigint UNIQUE,
 		tName VARCHAR(50),
 		tDescription TEXT,
 		NumCols INTEGER,
 		NumRows INTEGER, 
 		Version TEXT,
 		PRIMARY KEY(tDBID,ID)
+	);
+
+	CREATE TABLE IF NOT EXISTS mdb_queries (
+    ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
+    execution_timestamp timestamp without time zone,
+		deposit_id bigint NULL UNIQUE,
+		qdbid bigint NOT NULL,
+    title character varying(255) NULL,
+    doi character varying(255),
+    query TEXT NULL,
+    query_normalized TEXT NULL,
+    query_hash character varying(255) NULL,
+    result_hash character varying(255) NULL,
+    result_number bigint NULL,
+    created timestamp without time zone NOT NULL,
+    last_modified timestamp without time zone,
+		FOREIGN KEY (qdbid) REFERENCES mdb_DATABASES(ID),
+    PRIMARY KEY(qdbid, ID)
+  );
+
+	CREATE TABLE IF NOT EXISTS mdb_files (
+		id bigint DEFAULT nextval('mdb_files_seq'),
+		fdbid bigint NOT NULL,
+		fqid bigint NOT NULL,
+		ref_id varchar(255) NOT NULL,
+    created timestamp without time zone NOT NULL,
+    last_modified timestamp without time zone,
+		FOREIGN KEY (fdbid) REFERENCES mdb_DATABASES(ID),
+		FOREIGN KEY (fdbid, fqid) REFERENCES mdb_queries(qdbid, ID),
+		PRIMARY KEY (fdbid, fqid, id)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS ( 

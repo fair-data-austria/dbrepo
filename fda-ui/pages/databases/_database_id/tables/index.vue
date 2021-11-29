@@ -1,7 +1,9 @@
 <template>
   <div>
-    <DBToolbar v-model="db" />
-    <TableList />
+    <DBToolbar />
+    <v-tabs-items v-model="tab">
+      <TableList />
+    </v-tabs-items>
   </div>
 </template>
 <script>
@@ -17,6 +19,11 @@ export default {
   data () {
     return {
       db: null
+    }
+  },
+  computed: {
+    tab () {
+      return 1
     }
   },
   mounted () {

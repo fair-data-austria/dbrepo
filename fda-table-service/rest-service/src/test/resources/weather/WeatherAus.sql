@@ -6,7 +6,7 @@ CREATE TABLE weather_aus
     mdb_mintemp  DOUBLE PRECISION NULL,
     mdb_location VARCHAR(255)     NULL,
     mdb_rainfall DOUBLE PRECISION NULL
-);
+) WITH SYSTEM VERSIONING;
 
 INSERT INTO weather_aus (mdb_id, mdb_date, mdb_location, mdb_mintemp, mdb_rainfall)
 VALUES (1, '2008-12-01'::DATE, 13.4, 'Albury', 0.6),

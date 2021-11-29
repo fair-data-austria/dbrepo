@@ -1,11 +1,11 @@
 <template>
   <div>
-    <v-card v-if="tables.length === 0" flat>
+    <v-card v-if="!loading && tables.length === 0" flat>
       <v-card-title>
         (no tables)
       </v-card-title>
     </v-card>
-    <v-expansion-panels v-if="tables.length > 0" accordion>
+    <v-expansion-panels v-if="!loading && tables.length > 0" accordion>
       <v-expansion-panel v-for="(item,i) in tables" :key="i" @click="details(item)">
         <v-expansion-panel-header>
           {{ item.name }}
@@ -135,6 +135,7 @@
 export default {
   data () {
     return {
+      loading: false,
       tables: [],
       tableDetails: { id: 0 },
       dialogDelete: false
@@ -162,15 +163,19 @@ export default {
       // XXX same as in QueryBuilder
       let res
       try {
+        this.loading = true
         res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
+        this.loading = false
       } catch (err) {
         this.$toast.error('Could not list table.')
       }
     },
     async deleteTable () {
       try {
+        this.loading = true
         await this.$axios.delete(`/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
+        this.loading = false
         this.refresh()
       } catch (err) {
         this.$toast.error('Could not delete table.')

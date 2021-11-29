@@ -2,7 +2,10 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.config.DockerConfig;
+import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
+import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ContainerRepository;
@@ -12,6 +15,7 @@ import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.impl.TableServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
@@ -30,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
@@ -74,18 +79,16 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
                 .withEnableIpv6(false)
                 .exec();
         /* create container */
-        final CreateContainerResponse container = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+        final CreateContainerResponse response = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
-                .withEnv("POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=weather")
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
-        /* start */
-        dockerClient.startContainerCmd(container.getId()).exec();
-        Thread.sleep(3000);
+        CONTAINER_1.setHash(response.getId());
     }
 
     @AfterAll
@@ -124,12 +127,16 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void create_table_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException {
+            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, SQLException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_2_NAME)
                 .description(TABLE_2_DESCRIPTION)
                 .columns(COLUMNS_CSV01)
                 .build();
+
+        /* start */
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         final Table response = tableService.createTable(DATABASE_1_ID, request);
@@ -142,7 +149,11 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException {
+            DataProcessingException, InterruptedException, SQLException {
+
+        /* start */
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);

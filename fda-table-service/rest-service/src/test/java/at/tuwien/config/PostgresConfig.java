@@ -15,15 +15,14 @@ public class PostgresConfig {
         final Properties properties = new Properties();
         properties.setProperty("POSTGRES_USER", "postgres");
         properties.setProperty("POSTGRES_PASSWORD", "postgres");
-        properties.setProperty("POSTGRES_DB", "u01");
         return properties;
     }
 
-    public static void clearDatabase() throws SQLException {
-        final Connection connection = DriverManager.getConnection("jdbc:postgresql://fda-userdb-u01/weather",
+    public static void clearDatabase(String containerHost, String databaseName, String tableName) throws SQLException {
+        final Connection connection = DriverManager.getConnection("jdbc:postgresql://" + containerHost + "/" + databaseName,
                 "postgres", "postgres");
         final Statement statement = connection.createStatement();
-        statement.execute("DELETE FROM weather_aus;");
+        statement.execute("DELETE FROM " + tableName + ";");
         connection.close();
     }
 

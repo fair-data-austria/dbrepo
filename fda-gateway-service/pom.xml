@@ -13,11 +13,18 @@
     <name>fda-gateway-service</name>
     <description>Demo project for Spring Boot</description>
 
+    <packaging>pom</packaging>
+    <modules>
+        <module>gateway</module>
+        <module>report</module>
+    </modules>
+
     <properties>
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR10</spring-cloud.version><!-- SR11 not working yet -->
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
+        <jacoco.version>0.8.7</jacoco.version>
     </properties>
 
     <dependencies>
@@ -81,12 +88,31 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>at/tuwien/utils/**/*</exclude>
+                        <exclude>at/tuwien/seeder/**/*</exclude>
+                        <exclude>at/tuwien/mapper/**/*</exclude>
+                        <exclude>at/tuwien/exception/**/*</exclude>
+                        <exclude>at/tuwien/config/**/*</exclude>
+                        <exclude>**/FdaContainerManagingApplication.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>default-prepare-agent</id>
                         <goals>
-                            <goal>repackage</goal><!-- to make it exuteable with $ java -jar ./app.jar -->
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>

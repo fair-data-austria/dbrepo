@@ -9,12 +9,10 @@ import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.AmqpMapper;
 import at.tuwien.mapper.ImageMapper;
-import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.TableService;
-import at.tuwien.service.impl.JdbcConnector;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -42,9 +40,8 @@ public class TableServiceImpl extends JdbcConnector implements TableService {
 
     @Autowired
     public TableServiceImpl(TableRepository tableRepository, DatabaseRepository databaseRepository,
-                            ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper,
-                            AmqpMapper amqpMapper) {
-        super(imageMapper, tableMapper, queryMapper);
+                            ImageMapper imageMapper, TableMapper tableMapper, AmqpMapper amqpMapper) {
+        super(imageMapper, tableMapper);
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
         this.tableMapper = tableMapper;
@@ -110,7 +107,7 @@ public class TableServiceImpl extends JdbcConnector implements TableService {
         /* create database in container */
         try {
             create(database, createDto);
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             log.error("Could not create table via JDBC: {}", e.getMessage());
             throw new DataProcessingException("could not create table", e);
         }

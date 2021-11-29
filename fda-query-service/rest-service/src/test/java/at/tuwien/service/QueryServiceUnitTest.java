@@ -38,39 +38,14 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     @Autowired
     private QueryStoreService queryStoreService;
 
-
-
-
-
-
-
-    /*
-    @Test
-    public void findAll_notPostgres_fails() throws DatabaseConnectionException, QueryMalformedException {
-        when(databaseRepository.findById(DATABASE_2_ID))
-                .thenReturn(Optional.of(DATABASE_2));
-        when(postgresService.getQueries(DATABASE_2))
-                .thenThrow(QueryMalformedException.class);
-
-        /* test
-        assertThrows(QueryMalformedException.class, () -> {
-            queryService.findAll(DATABASE_2_ID);
-        });
-    } */
-
     @Test
     public void executeStatement_succeeds() {
         //
     }
 
-    //@Test
-    public void execute_notValidSyntax_fails() throws DatabaseNotFoundException, SQLException, ImageNotSupportedException {
-        when(queryStoreService.exists(DATABASE_1))
-                .thenReturn(true);
-
-        assertThrows(JSQLParserException.class, () -> {
-            queryService.execute(DATABASE_1_ID, QUERY_1);
-        });
+    @Test
+    public void execute_notValidSyntax_fails() throws ImageNotSupportedException, DatabaseConnectionException {
+        //
     }
 
     @Test

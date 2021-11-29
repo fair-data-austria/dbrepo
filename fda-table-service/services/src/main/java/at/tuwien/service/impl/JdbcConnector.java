@@ -1,6 +1,5 @@
 package at.tuwien.service.impl;
 
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
@@ -9,44 +8,47 @@ import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.mapper.ImageMapper;
-import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.service.DatabaseConnector;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FileUtils;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.server.Encoding;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 
 @Log4j2
+@Service
 public abstract class JdbcConnector implements DatabaseConnector {
 
     private final ImageMapper imageMapper;
     private final TableMapper tableMapper;
-    private final QueryMapper queryMapper;
 
     @Autowired
-    protected JdbcConnector(ImageMapper imageMapper, TableMapper tableMapper, QueryMapper queryMapper) {
+    protected JdbcConnector(ImageMapper imageMapper, TableMapper tableMapper) {
         this.imageMapper = imageMapper;
         this.tableMapper = tableMapper;
-        this.queryMapper = queryMapper;
     }
 
     @Override
     public DSLContext open(Database database) throws SQLException, ImageNotSupportedException {
         final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
-        log.info("Attempt to connect to '{}'", url);
+        log.trace("Attempt to connect to '{}'", url);
         final Properties properties = imageMapper.containerImageToProperties(database.getContainer().getImage());
         final Connection connection = DriverManager.getConnection(url, properties);
         return DSL.using(connection, SQLDialect.valueOf(database.getContainer().getImage().getDialect()));
@@ -54,7 +56,10 @@ public abstract class JdbcConnector implements DatabaseConnector {
 
     @Override
     public void create(Database database, TableCreateDto createDto) throws SQLException,
-            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException {
+            ArbitraryPrimaryKeysException, ImageNotSupportedException, TableMalformedException, IOException {
+        if (isReserved(createDto.getName())) {
+            throw new TableMalformedException("Table name contains reserved name");
+        }
         final DSLContext context = open(database);
         CreateTableColumnStep createTableColumnStep = tableMapper.tableCreateDtoToCreateTableColumnStep(context, createDto);
         log.debug("Before insertion: {} ", createTableColumnStep.getSQL());
@@ -81,8 +86,8 @@ public abstract class JdbcConnector implements DatabaseConnector {
             throw new TableMalformedException("Provided columns differ from table columns found in metadata db.");
         }
         final List<Field<?>> headers = tableMapper.tableToFieldList(table);
-        log.trace("-> headers received {}", headers.stream().map(Field::getName).collect(Collectors.toList()));
-        log.trace("-> first row received {}", data.getData().size() > 0 ? data.getData().get(0) : null);
+        log.trace("headers received {}", headers.stream().map(Field::getName).collect(Collectors.toList()));
+        log.trace("first row received {}", data.getData().size() > 0 ? data.getData().get(0) : null);
         final DSLContext context = open(table.getDatabase());
         final List<InsertValuesStepN<Record>> statements = new LinkedList<>();
         for (List<Object> row : tableMapper.tableCsvDtoToObjectListList(data)) {
@@ -93,7 +98,7 @@ public abstract class JdbcConnector implements DatabaseConnector {
             context.batch(statements)
                     .execute();
         } catch (DataAccessException e) {
-            throw new TableMalformedException("Columns seem to differ or other problem with jOOQ mapper", e);
+            throw new TableMalformedException("Columns seem to differ or other problem with jOOQ mapper, most commonly it is a data type issue try with type 'STRING'", e);
         }
     }
 
@@ -101,6 +106,18 @@ public abstract class JdbcConnector implements DatabaseConnector {
     public void delete(Table table) throws SQLException, ImageNotSupportedException {
         final DSLContext context = open(table.getDatabase());
         context.dropTable(table.getName());
+    }
+
+    /**
+     * Checks if the word is in the reserved word csv (i.e. a SQL keyword)
+     *
+     * @param word The word
+     * @return True if it is reserved word
+     */
+    public Boolean isReserved(String word) throws IOException {
+        final List<String> reserved = FileUtils.readLines(ResourceUtils.getFile("classpath:mariadb/reserved.csv"),
+                Encoding.DEFAULT_CHARSET);
+        return reserved.contains(word.toUpperCase());
     }
 
 }

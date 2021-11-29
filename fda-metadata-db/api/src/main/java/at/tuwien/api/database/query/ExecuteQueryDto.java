@@ -1,6 +1,5 @@
 package at.tuwien.api.database.query;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -10,7 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 public class ExecuteQueryDto {
 
-    @JsonProperty("Query")
+    private String title;
+
     private String query;
 
 }

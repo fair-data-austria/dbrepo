@@ -2,13 +2,13 @@
   <div>
     <v-card>
       <v-card-title v-if="!loading">
-        Import CSV
+        Import Data
       </v-card-title>
-      <v-card-subtitle>Table xxx</v-card-subtitle>
+      <v-card-subtitle>{{ table.name }} ({{ table.internal_name }})</v-card-subtitle>
       <v-card-text>
         <v-checkbox
           v-model="tableInsert.skipHeader"
-          label="Skip first row" />
+          label="First row contains headers" />
         <v-text-field
           v-model="tableInsert.nullElement"
           placeholder="e.g. NA or leave empty"
@@ -16,6 +16,8 @@
         <v-text-field
           v-model="tableInsert.delimiter"
           label="Delimiter"
+          hint="Only 1 character"
+          maxlength="1"
           placeholder="e.g. ;" />
         <v-file-input
           v-model="file"
@@ -24,7 +26,9 @@
           label="CSV File" />
       </v-card-text>
       <v-card-actions>
-        <v-btn :disabled="!file" :loading="loading" color="primary" @click="upload">Next</v-btn>
+        <v-col>
+          <v-btn :disabled="!file" :loading="loading" color="primary" @click="upload">Next</v-btn>
+        </v-col>
       </v-card-actions>
     </v-card>
   </div>
@@ -37,18 +41,42 @@ export default {
   data () {
     return {
       loading: false,
+      table: {
+        name: null,
+        internal_name: null
+      },
       tableInsert: {
         skipHeader: false,
         nullElement: null,
-        delimiter: null,
+        delimiter: ',',
         csvLocation: null
       },
       file: null
     }
   },
+  computed: {
+    tableId () {
+      return this.$route.params.table_id
+    },
+    databaseId () {
+      return this.$route.params.database_id
+    }
+  },
   mounted () {
+    this.info()
   },
   methods: {
+    async info () {
+      this.loading = true
+      const infoUrl = `/api/database/${this.databaseId}/table/${this.tableId}`
+      try {
+        const res = await this.$axios.get(infoUrl)
+        console.debug('got table', res.data)
+        this.table = res.data
+      } catch (err) {
+        console.error('Could not insert data.', err)
+      }
+    },
     async upload () {
       this.loading = true
       const url = '/server-middleware/table_from_csv'
@@ -63,15 +91,13 @@ export default {
           console.debug('upload csv', res.data)
         } else {
           console.error('Could not upload CSV data', res.data)
-          this.loading = false
           return
         }
       } catch (err) {
         console.error('Could not upload data.', err)
-        this.loading = false
         return
       }
-      const insertUrl = `/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
+      const insertUrl = `/api/database/${this.databaseId}/table/${this.tableId}/data`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)

@@ -6,9 +6,11 @@ import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import lombok.NonNull;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+@Service
 public interface DataService {
 
     /**
@@ -62,7 +64,7 @@ public interface DataService {
      * @throws ImageNotSupportedException  The image is not supported.
      * @throws DatabaseConnectionException The connection to the remote database was unsuccessful.
      */
-    QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, @NonNull Instant timestamp,
-                             @NonNull Long page, @NonNull Long size) throws TableNotFoundException,
-            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException, TableMalformedException;
+    QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp,
+                             Long page, Long size) throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException;
 }

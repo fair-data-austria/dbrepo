@@ -1,0 +1,325 @@
+version: "3.6"
+
+volumes:
+  fda-metadata-db-data:
+  fda-broker-service-data:
+
+networks:
+  fda-public:
+    name: fda-public
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/16
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
+  fda-userdb:
+    name: fda-userdb
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
+
+services:
+
+  fda-metadata-db:
+    restart: on-failure
+    container_name: fda-metadata-db
+    hostname: fda-metadata-db
+    build:
+      context: ./fda-metadata-db
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-metadata-db
+    networks:
+      - fda-public
+    volumes:
+      - fda-metadata-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fda
+
+  fda-discovery-service:
+    restart: on-failure
+    container_name: fda-discovery-service
+    hostname: fda-discovery-service
+    build:
+      context: ./fda-discovery-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-discovery-service
+    networks:
+      - fda-public
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9090:9090"
+
+  fda-gateway-service:
+    restart: on-failure
+    container_name: fda-gateway-service
+    hostname: fda-gateway-service
+    build:
+      context: ./fda-gateway-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-gateway-service
+    networks:
+      fda-public:
+        aliases:
+          - fda-gateway-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9095:9095"
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
+  fda-database-service:
+    restart: on-failure
+    container_name: fda-database-service
+    hostname: fda-database-service
+    build:
+      context: ./fda-database-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-database-service
+    networks:
+      - fda-userdb
+      - fda-public
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9092:9092"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+      fda-broker-service:
+        condition: service_healthy
+      fda-metadata-db:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
+  fda-container-service:
+    restart: on-failure
+    container_name: fda-container-service
+    hostname: fda-container-service
+    build:
+      context: ./fda-container-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-container-service
+    networks:
+      - fda-public
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,seed
+    ports:
+      - "9091:9091"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+      fda-metadata-db:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
+  fda-authentication-service:
+    restart: on-failure
+    container_name: fda-authentication-service
+    hostname: fda-authentication-service
+    build:
+      context: ./fda-authentication-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-authentication-service
+    networks:
+      - fda-public
+    volumes:
+      - /tmp:/tmp
+    environment:
+      SERVER_NAME: dbrepo.ossdip.at
+      SPRING_PROFILES_ACTIVE: docker
+      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+      KEY_STORE_LOCATION: /tmp/dbrepo.jks
+      KEY_STORE_TYPE: jks
+    ports:
+      - "9097:9097"
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
+  fda-query-service:
+    restart: on-failure
+    container_name: fda-query-service
+    hostname: fda-query-service
+    build:
+      context: ./fda-query-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-query-service
+    networks:
+      - fda-public
+      - fda-userdb
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9093:9093"
+    volumes:
+      - /tmp:/tmp
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+      fda-container-service:
+        condition: service_healthy
+      fda-metadata-db:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
+  fda-table-service:
+    restart: on-failure
+    container_name: fda-table-service
+    hostname: fda-table-service
+    build:
+      context: ./fda-table-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-table-service
+    networks:
+      - fda-public
+      - fda-userdb
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      multipart.location: /tmp
+    ports:
+      - "9094:9094"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+    depends_on:
+      fda-metadata-db:
+        condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
+      fda-broker-service:
+        condition: service_healthy
+
+  fda-citation-service:
+    restart: on-failure
+    container_name: fda-citation-service
+    hostname: fda-citation-service
+    build:
+      context: ./fda-citation-service
+      args:
+        CI_JOB_STAGE: "${CI_JOB_STAGE}"
+    image: fda-citation-service
+    networks:
+      - fda-public
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      ZENODO_API_KEY: "${ZENODO_API_KEY}"
+    ports:
+      - "9096:9096"
+    depends_on:
+      fda-metadata-db:
+        condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
+      fda-table-service:
+        condition: service_healthy
+
+  fda-analyse-service:
+    restart: on-failure
+    container_name: fda-analyse-service
+    hostname: fda-analyse-service
+    build: ./fda-analyse-service
+    image: fda-analyse-service
+    networks:
+      - fda-public
+      - fda-userdb
+    command: sh -c "/wait && flask run" # docker-compose should not test the implementation
+    environment:
+      EUREKA_SERVER: http://fda-discovery-service:9090/eureka
+    ports:
+      - "5000:5000"
+    volumes:
+      - /tmp:/tmp
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+      fda-database-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
+  fda-broker-service:
+    restart: on-failure
+    container_name: fda-broker-service
+    hostname: fda-broker-service
+    build: ./fda-broker-service
+    image: fda-broker-service
+    networks:
+      - fda-public
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - fda-broker-service-data:/var/lib/rabbitmq/
+
+  fda-search-service:
+    restart: always
+    container_name: fda-search-service
+    hostname: fda-search-service
+    image: elasticsearch:7.13.4
+    networks:
+      - fda-public
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - logger.level=WARN
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+      fda-table-service:
+        condition: service_healthy
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+
+  fda-ui:
+    restart: on-failure
+    container_name: fda-ui
+    hostname: fda-ui
+    build: ./fda-ui
+    image: fda-ui
+    networks:
+      - fda-public
+    ports:
+      - "443:443"
+      - "3000:3000"
+    volumes:
+      - /certs:/certs
+      - /tmp:/tmp
+    depends_on:
+      fda-gateway-service:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      API: http://fda-gateway-service:9095
+      NGINX_PORT: "${NGINX_PORT:-3000}"
