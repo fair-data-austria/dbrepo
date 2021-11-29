@@ -36,6 +36,7 @@ public class QueryService extends JdbcConnector {
         this.databaseRepository = databaseRepository;
     }
 
+    @Deprecated
     @Transactional
     public List<Query> findAll(Long databaseId) throws DatabaseNotFoundException {
         final Database database = findDatabase(databaseId);

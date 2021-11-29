@@ -248,14 +248,16 @@ public class MariaDataService extends JdbcConnector implements DataService {
     @Override
     @Transactional
     public QueryResultDto selectAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp,
-                                    Long page, Long size) throws TableNotFoundException,
-            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException,
-            TableMalformedException {
-        if (page != null && page < 0) {
-            throw new TableMalformedException("page cannot be lower than zero");
+                                    @NonNull Long page, @NonNull Long size) throws TableNotFoundException,
+            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException, TableMalformedException {
+        if(timestamp == null) {
+            timestamp = Instant.now();
         }
-        if (size != null && (size <= 0 || page == null)) {
-            throw new TableMalformedException("size cannot be lower than zero or page is null");
+        if (page < 0) {
+            throw new TableMalformedException("Page number cannot be lower than 0");
+        }
+        if (size <= 0) {
+            throw new TableMalformedException("Page number cannot be lower or equal to 0");
         }
         final Table table = findById(databaseId, tableId);
         try {
@@ -266,18 +268,16 @@ public class MariaDataService extends JdbcConnector implements DataService {
                 StringBuilder stringBuilder = new StringBuilder()
                         .append("SELECT * FROM ")
                         .append(table.getInternalName());
-                if (timestamp != null) {
-                    stringBuilder.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
-                            .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
-                            .append("'");
-                }
-                if (page != null && size != null) {
-                    stringBuilder.append(" LIMIT ")
-                            .append(size)
-                            .append(" OFFSET ")
-                            .append(page * size)
-                            .append(";");
-                }
+                stringBuilder.append(" FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                        .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
+                        .append("'");
+                page = Math.abs(page);
+                size = Math.abs(size);
+                stringBuilder.append(" LIMIT ")
+                        .append(size)
+                        .append(" OFFSET ")
+                        .append(page * size)
+                        .append(";");
                 return queryMapper.recordListToQueryResultDto(context.fetch(stringBuilder.toString()));
             } else {
                 log.debug("Not MariaDB, can only provide legacy pagination");
@@ -290,5 +290,6 @@ public class MariaDataService extends JdbcConnector implements DataService {
             throw new DatabaseConnectionException(e);
         }
     }
+
 
 }
