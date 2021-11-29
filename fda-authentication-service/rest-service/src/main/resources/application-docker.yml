@@ -33,6 +33,8 @@ eureka:
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
   ready.path: /ready
-  idp.metadata: https://idp.zid.tuwien.ac.at/saml2
+  idp:
+    entity-id: "at:tuwien"
+    metadata: https://idp.zid.tuwien.ac.at/saml2
   saml.signkey: saml
   base-url: https://fda-authentication-service

@@ -49,6 +49,9 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Value("${fda.idp.metadata}")
     private String idpProviderMetadata;
 
+    @Value("${fda.idp.entity-id}")
+    private String idpEntityId;
+
     @Value("${fda.saml.signkey}")
     private String samlSignKey;
 
@@ -274,7 +277,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public MetadataGenerator metadataGenerator() {
         final MetadataGenerator metadataGenerator = new MetadataGenerator();
-        metadataGenerator.setEntityId("at:tuwien");
+        metadataGenerator.setEntityId(idpEntityId);
         metadataGenerator.setRequestSigned(false);
         metadataGenerator.setExtendedMetadata(extendedMetadata());
         metadataGenerator.setIncludeDiscoveryExtension(false);
@@ -289,6 +292,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         final SAMLContextProviderLB contextProvider = new SAMLContextProviderLB();
         contextProvider.setScheme("https");
         contextProvider.setServerName(serverName + ":" + serverPort);
+        contextProvider.setServerPort(Integer.parseInt(serverPort));
+        contextProvider.setIncludeServerPortInRequestURL(false);
         contextProvider.setContextPath("/");
         return contextProvider;
     }
