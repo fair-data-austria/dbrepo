@@ -14,11 +14,11 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.context.SAMLContextProvider;
+import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.context.SAMLContextProviderLB;
 import org.springframework.security.saml.key.JKSKeyManager;
 import org.springframework.security.saml.key.KeyManager;
@@ -33,10 +33,7 @@ import org.springframework.security.saml.processor.SAMLProcessorImpl;
 import org.springframework.security.saml.util.VelocityFactory;
 import org.springframework.security.saml.websso.*;
 import org.springframework.security.web.*;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.*;
 
@@ -141,6 +138,11 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public SAMLContextProvider samlContextProvider() {
+        return new SAMLContextProviderImpl();
+    }
+
+    @Bean
     public ExtendedMetadata extendedMetadata() {
         final ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setIdpDiscoveryEnabled(true);
@@ -219,40 +221,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterChainProxy samlFilter() throws Exception {
-        final List<SecurityFilterChain> chains = new ArrayList<>();
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/login/**"),
-                samlEntryPoint()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/metadata/**"),
-                metadataDisplayFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SSO/**"),
-                samlWebSSOProcessingFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/discovery/**"),
-                samlIDPDiscovery()));
-        return new FilterChainProxy(chains);
-    }
-
-    @Bean
     public SAMLLogger samlLogger() {
         return new SAMLDefaultLogger();
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.requiresChannel()
-                .anyRequest().requiresSecure();
-        http.httpBasic()
-                .authenticationEntryPoint(samlEntryPoint());
-        http.csrf()
-                .disable();
-        http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
-                .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
-        /* allow metadata and saml stuff */
-        http.authorizeRequests()
-                .antMatchers("/saml/**").permitAll()
-                .antMatchers("/health").permitAll()
-                .antMatchers("/error").permitAll()
-                .anyRequest().authenticated();
     }
 
     @Bean
