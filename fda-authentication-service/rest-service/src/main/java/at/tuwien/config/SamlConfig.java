@@ -1,6 +1,5 @@
 package at.tuwien.config;
 
-import at.tuwien.service.AuthenticationService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -105,6 +104,13 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public HttpClient httpClient() {
         return new HttpClient(multiThreadedHttpConnectionManager());
+    }
+
+    @Bean
+    public SAMLAuthenticationProvider samlAuthenticationProvider() {
+        final SAMLAuthenticationProvider samlAuthenticationProvider = new SAMLAuthenticationProvider();
+        samlAuthenticationProvider.setForcePrincipalAsString(false);
+        return samlAuthenticationProvider;
     }
 
     @Bean
@@ -345,11 +351,6 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         passwords.put(samlKeystoreAlias, samlKeystorePassword);
         passwords.put("saml", samlKeystorePassword);
         return new JKSKeyManager(storeFile, samlKeystorePassword, passwords, samlKeystoreAlias);
-    }
-
-    @Bean
-    public SAMLAuthenticationProvider samlAuthenticationProvider() {
-        return new AuthenticationService();
     }
 
     @Override
