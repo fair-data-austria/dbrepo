@@ -1,6 +1,5 @@
 package at.tuwien.config;
 
-import lombok.extern.log4j.Log4j2;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.velocity.app.VelocityEngine;
@@ -36,17 +35,12 @@ import org.springframework.security.saml.util.VelocityFactory;
 import org.springframework.security.saml.websso.*;
 import org.springframework.security.web.*;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.io.IOException;
 import java.util.*;
 
-@Log4j2
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
@@ -161,7 +155,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         extendedMetadata.setIdpDiscoveryEnabled(true);
         extendedMetadata.setSignMetadata(true);
         extendedMetadata.setSigningKey(samlSignKey);
-        extendedMetadata.setEncryptionKey(samlSignKey);
+//        extendedMetadata.setEncryptionKey(samlSignKey);
         return extendedMetadata;
     }
 
@@ -183,9 +177,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public CachingMetadataManager metadata(ExtendedMetadataDelegate extendedMetadataDelegate) throws MetadataProviderException {
         final List<MetadataProvider> providers = new ArrayList<>();
         providers.add(extendedMetadataDelegate);
-        CachingMetadataManager metadataManager = new CachingMetadataManager(providers);
-        metadataManager.setDefaultIDP(idpProviderMetadata);
-        return metadataManager;
+        return new CachingMetadataManager(providers);
     }
 
     @Bean
@@ -236,38 +228,16 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public SecurityContextLogoutHandler logoutHandler() {
-        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-        logoutHandler.setInvalidateHttpSession(true);
-        logoutHandler.setClearAuthentication(true);
-        return logoutHandler;
-    }
-
-    @Bean
-    public SAMLLogoutFilter samlLogoutFilter() {
-        return new SAMLLogoutFilter(successLogoutHandler(),
-                new LogoutHandler[]{logoutHandler()},
-                new LogoutHandler[]{logoutHandler()});
-    }
-
-    @Bean
-    public SAMLLogoutProcessingFilter samlLogoutProcessingFilter() {
-        return new SAMLLogoutProcessingFilter(successLogoutHandler(), logoutHandler());
-    }
-
-    @Bean
     public FilterChainProxy samlFilter() throws Exception {
-        List<SecurityFilterChain> chains = new ArrayList<>();
+        final List<SecurityFilterChain> chains = new ArrayList<>();
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/login/**"),
+                samlEntryPoint()));
+        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/metadata/**"),
+                metadataDisplayFilter()));
         chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SSO/**"),
                 samlWebSSOProcessingFilter()));
         chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/discovery/**"),
                 samlIDPDiscovery()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/login/**"),
-                samlEntryPoint()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/logout/**"),
-                samlLogoutFilter()));
-        chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SingleLogout/**"),
-                samlLogoutProcessingFilter()));
         return new FilterChainProxy(chains);
     }
 
@@ -286,23 +256,12 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         http.csrf()
                 .disable();
         http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
-                .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class)
-                .addFilterBefore(samlFilter(), CsrfFilter.class);
+                .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
         http.authorizeRequests()
-                .antMatchers("/").permitAll()
-//                .antMatchers("/saml/**").permitAll()
-//                .antMatchers("/health").permitAll()
-//                .antMatchers("/error").permitAll()
-                .anyRequest()
-                .authenticated();
-        http.logout()
-                .addLogoutHandler((request, response, authentication) -> {
-                    try {
-                        response.sendRedirect("/saml/logout");
-                    } catch (IOException e) {
-                        log.error("Failed to logout: {}", e.getMessage());
-                    }
-                });
+                .antMatchers("/saml/**").permitAll()
+                .antMatchers("/health").permitAll()
+                .antMatchers("/error").permitAll()
+                .anyRequest().authenticated();
     }
 
     @Bean
