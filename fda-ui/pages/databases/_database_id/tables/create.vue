@@ -1,9 +1,18 @@
 <template>
   <form id="create_table" action="/" method="post" @submit="checkForm">
-    <v-card class="pb-2">
-      <v-card-title class="pb-0">
-        Create Table
-      </v-card-title>
+    <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
+    <v-toolbar flat>
+      <v-toolbar-title>
+        <span>Create Table</span>
+      </v-toolbar-title>
+      <v-spacer />
+      <v-toolbar-title>
+        <v-btn :disabled="!canCreateTable" color="primary" @click="createTable">
+          Create Table
+        </v-btn>
+      </v-toolbar-title>
+    </v-toolbar>
+    <v-card flat>
       <v-card-text>
         <v-text-field
           v-model="name"
@@ -14,8 +23,8 @@
           v-model="description"
           label="Description" />
       </v-card-text>
-      <v-card-text v-for="(c, idx) in columns" :key="idx" class="pa-3 mb-2">
-        <v-row class="column pa-2 ml-1 mr-1">
+      <v-card-text>
+        <v-row v-for="(c, idx) in columns" :key="idx" class="row-border mt-2">
           <v-col cols="3">
             <v-text-field v-model="c.name" required label="Name" />
           </v-col>
@@ -53,16 +62,14 @@
             <v-icon>mdi-minus</v-icon>
           </v-btn>
         </v-row>
+        <v-row>
+          <v-col>
+            <v-btn @click="addColumn">
+              Add Column
+            </v-btn>
+          </v-col>
+        </v-row>
       </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="addColumn">
-          Add Column
-        </v-btn>
-        <v-btn :disabled="!canCreateTable" color="primary" @click="createTable">
-          Create Table
-        </v-btn>
-      </v-card-actions>
     </v-card>
   </form>
 </template>
@@ -74,6 +81,8 @@ export default {
       columns: [],
       name: null,
       description: null,
+      loading: false,
+      error: false,
       columnTypes: [
         { value: 'ENUM', text: 'ENUM' },
         { value: 'BOOLEAN', text: 'BOOLEAN' },
@@ -83,6 +92,14 @@ export default {
         { value: 'STRING', text: 'STRING' },
         { value: 'TEXT', text: 'TEXT' }
       ]
+    }
+  },
+  computed: {
+    databaseId () {
+      return this.$route.params.database_id
+    },
+    loadingColor () {
+      return this.error ? 'red lighten-2' : 'primary'
     }
   },
   mounted () {
@@ -140,14 +157,20 @@ export default {
         columns: this.columns
       }
       try {
-        const res = await this.$axios.post(`/api/database/${this.$route.params.database_id}/table`, data)
+        this.loading = true
+        const res = await this.$axios.post(`/api/database/${this.databaseId}/table`, data)
         if (res.status === 201) {
+          this.error = false
           this.$toast.success('Table created.')
-          this.$root.$emit('table-create', res.data)
+          // this.$root.$emit('table-create', res.data)
+          const tableId = res.data.id
+          await this.$router.push(`/databases/${this.databaseId}/tables/${tableId}/import`)
         } else {
+          this.error = true
           this.$toast.error(`Could not create table: status ${res.status}`)
         }
       } catch (err) {
+        this.error = true
         this.$toast.error('Could not create table.')
       }
     }
@@ -156,8 +179,9 @@ export default {
 </script>
 
 <style>
-.column {
+.row-border {
   border: 1px solid #ccc;
   border-radius: 3px;
+  margin: 0 !important;
 }
 </style>

@@ -1,6 +1,7 @@
 package at.tuwien.entities.database.table;
 
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -30,7 +31,6 @@ public class Table {
 
     @Id
     @EqualsAndHashCode.Include
-    @ToString.Include
     @GeneratedValue(generator = "table-sequence")
     @GenericGenerator(
             name = "table-sequence",
@@ -41,26 +41,17 @@ public class Table {
 
     @Id
     @EqualsAndHashCode.Include
-    @ToString.Include
     private Long tdbid;
 
-    @ToString.Include
-    @Column(nullable = true, name = "dep_id")
-    private Long depositId;
-
-    @ToString.Include
     @Column(nullable = false, name = "tname")
     private String name;
 
-    @ToString.Include
     @Column(name = "tdescription")
     private String description;
 
-    @ToString.Include
     @Column(nullable = false)
     private String internalName;
 
-    @ToString.Include
     @Column(nullable = false, updatable = false)
     private String topic;
 
@@ -69,7 +60,6 @@ public class Table {
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;
 
-    @ToString.Include
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
     @Field(type = FieldType.Nested)
     private List<TableColumn> columns;

@@ -1,8 +1,8 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
@@ -24,12 +24,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
@@ -40,8 +36,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 @Log4j2
 public class DataServiceUnitTest extends BaseUnitTest {
-
-    private static CreateContainerResponse container;
 
     @MockBean
     private Channel channel;
@@ -58,8 +52,14 @@ public class DataServiceUnitTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
+    /**
+     * We need a container to test the CRUD operations as of now it is unfeasible to determine the correctness of the
+     * operations without a live container
+     *
+     * @throws InterruptedException Sleep interrupted.
+     */
     @BeforeAll
-    public static void beforeAll() throws InterruptedException, SQLException {
+    public static void beforeAll() throws InterruptedException {
         afterAll();
         /* create network */
         dockerClient.createNetworkCmd()
@@ -70,18 +70,18 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .withEnableIpv6(false)
                 .exec();
         /* create container */
-        container = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+        final CreateContainerResponse response = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
-                .withEnv("POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=weather")
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
         /* start */
-        dockerClient.startContainerCmd(container.getId()).exec();
-        Thread.sleep(3000);
+        CONTAINER_1.setHash(response.getId());
+        DockerConfig.startContainer(CONTAINER_1);
     }
 
     @AfterAll
@@ -130,37 +130,6 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         dataService.selectAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
-    }
-
-    @Test
-    public void selectAll_mariaDb_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, InterruptedException {
-        final Long page = 0L;
-        final Long size = 10L;
-
-
-        /* create container */
-        final CreateContainerResponse mariaDbContainer = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
-                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
-                .withName(CONTAINER_2_INTERNALNAME)
-                .withIpv4Address(CONTAINER_2_IP)
-                .withHostName(CONTAINER_2_INTERNALNAME)
-                .withEnv("MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(new File("./src/test/resources/weather-mariadb").toPath().toAbsolutePath()
-                        + ":/docker-entrypoint-initdb.d"))
-                .exec();
-        dockerClient.startContainerCmd(mariaDbContainer.getId())
-                        .exec();
-        Thread.sleep(10 * 1000);
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_2_ID))
-                .thenReturn(Optional.of(DATABASE_2));
-        when(tableRepository.findByDatabaseAndId(DATABASE_2, TABLE_2_ID))
-                .thenReturn(Optional.of(TABLE_2));
-
-        /* test */
-        dataService.selectAll(DATABASE_2_ID, TABLE_2_ID, Instant.now(), page, size);
     }
 
     @Test

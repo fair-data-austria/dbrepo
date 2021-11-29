@@ -1,20 +1,32 @@
 package at.tuwien;
 
-import at.tuwien.api.zenodo.deposit.*;
-import at.tuwien.api.zenodo.files.FileResponseDto;
-import at.tuwien.api.zenodo.files.FileLinksDto;
+import at.tuwien.api.database.deposit.DepositChangeRequestDto;
+import at.tuwien.api.database.deposit.DepositDto;
+import at.tuwien.api.database.deposit.DepositTzDto;
+import at.tuwien.api.database.deposit.files.FileDto;
+import at.tuwien.api.database.deposit.files.FileLinksDto;
+import at.tuwien.api.database.deposit.metadata.CreatorDto;
+import at.tuwien.api.database.deposit.metadata.LicenseTypeDto;
+import at.tuwien.api.database.deposit.metadata.MetadataDto;
+import at.tuwien.api.database.deposit.metadata.UploadTypeDto;
+import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.query.File;
+import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.Table;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.time.temporal.ChronoUnit.HOURS;
 
@@ -44,27 +56,80 @@ public abstract class BaseUnitTest {
     public final static Long DEPOSIT_1_CONCEPT_RECORD_ID = 143L;
     public final static Long DEPOSIT_1_OWNER = 144L;
 
-    public final static String METADATA_1_TITLE = "My super dataset";
-    public final static UploadTypeDto METADATA_1_UPLOAD_TYPE = UploadTypeDto.DATASET;
-    public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
+    public final static Long QUERY_1_ID = 1L;
+    public final static String QUERY_1_TITLE = "All Raindata";
+    public final static String QUERY_1_QUERY = "SELECT * FROM rainfall;";
+    public final static String QUERY_1_QUERY_NORMALIZED = "SELECT id,rainfall FROM rainfall;";
+    public final static String QUERY_1_HASH = "a5ddf5ac87b72173f75ccbd134ba1072";
+    public final static Instant QUERY_1_EXECUTION_TIMESTAMP = Instant.now();
 
     public final static String CREATOR_1_NAME = "First1 Last1";
     public final static String CREATOR_1_AFFIL = "TU Wien";
     public final static String CREATOR_1_ORCID = "0000-0002-5713-0725";
 
+    public final static CreatorDto CREATOR_1 = CreatorDto.builder()
+            .name(CREATOR_1_NAME)
+            .affiliation(CREATOR_1_AFFIL)
+            .orcid(CREATOR_1_ORCID)
+            .build();
+
     public final static String CREATOR_2_NAME = "First2 Last2";
     public final static String CREATOR_2_AFFIL = "TU Graz";
     public final static String CREATOR_2_ORCID = "0000-0002-2606-4059";
 
-    public final static String FILE_1_ID = "deadbeef-deafdeed";
+    public final static CreatorDto CREATOR_2 = CreatorDto.builder()
+            .name(CREATOR_2_NAME)
+            .affiliation(CREATOR_2_AFFIL)
+            .orcid(CREATOR_2_ORCID)
+            .build();
+
+    public final static String METADATA_1_TITLE = "My super dataset";
+    public final static UploadTypeDto METADATA_1_UPLOAD_TYPE = UploadTypeDto.DATASET;
+    public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
+    public final static CreatorDto[] METADATA_1_CREATORS = new CreatorDto[]{CREATOR_1, CREATOR_2};
+
+    public final static Long FILE_1_ID = 1L;
+    public final static Long FILE_1_DB_ID = 1L;
+    public final static Long FILE_1_QID = QUERY_1_ID;
     public final static String FILE_1_NAME = "testdata-othername.csv";
+    public final static String FILE_1_REF_ID = "6b3df619-eb55-427a-8ee2-9bef7c1ae189";
     public final static String FILE_1_CHECKSUM = "d393c7fa1240c18473133793f7901aaa";
     public final static Long FILE_1_SIZE = 34614L;
 
-    public final static String FILE_2_ID = "deadbeef-deafdeed";
+    public final static File FILE_1 = File.builder()
+            .id(FILE_1_ID)
+            .fqid(FILE_1_QID)
+            .fdbid(FILE_1_DB_ID)
+            .refId(FILE_1_REF_ID)
+            .build();
+
+    public final static String FILE_1_LINKS_DOWNLOAD = "http://localhost:5500/file/" + FILE_1_ID + "/download";
+    public final static String FILE_1_LINKS_SELF = "http://localhost:5500/file/" + FILE_1_ID;
+
+    public final static Query QUERY_1 = Query.builder()
+            .id(QUERY_1_ID)
+            .qdbid(DATABASE_1_ID)
+            .title(QUERY_1_TITLE)
+            .query(QUERY_1_QUERY)
+            .queryNormalized(QUERY_1_QUERY_NORMALIZED)
+            .executionTimestamp(QUERY_1_EXECUTION_TIMESTAMP)
+            .files(List.of(FILE_1))
+            .depositId(DEPOSIT_1_ID)
+            .qdbid(DATABASE_1_ID)
+            .build();
+
+    public final static Long FILE_2_ID = 2L;
+    public final static Long FILE_2_DB_ID = 1L;
     public final static String FILE_2_NAME = "testdata-weather.csv";
+    public final static String FILE_2_REF_ID = "78729cbb-37ea-441a-94ae-c40ff021b09d";
     public final static String FILE_2_CHECKSUM = "a65cf8b8719b1a65db4f361eeec18457";
     public final static Long FILE_2_SIZE = 14094055L;
+
+    public final static File FILE_2 = File.builder()
+            .id(FILE_2_ID)
+            .fdbid(FILE_2_DB_ID)
+            .refId(FILE_2_REF_ID)
+            .build();
 
     public final static Long DEPOSIT_2_ID = 2L;
     public final static String DEPOSIT_2_TITLE = "Test Document " + RandomStringUtils.randomAlphanumeric(10);
@@ -74,9 +139,6 @@ public abstract class BaseUnitTest {
     public final static LicenseTypeDto DEPOSIT_2_LICENSE = LicenseTypeDto.CC_BY;
     public final static String DEPOSIT_2_STATE = "draft";
     public final static Boolean DEPOSIT_2_SUBMITTED = false;
-
-    public final static String FILE_1_LINKS_DOWNLOAD = "http://localhost:5500/file/" + FILE_1_ID + "/download";
-    public final static String FILE_1_LINKS_SELF = "http://localhost:5500/file/" + FILE_1_ID;
 
     public final static String DEPOSIT_1_DOI = "10.5072/zenodo.542201";
     public final static Long DEPOSIT_1_REC_ID = 542201L;
@@ -152,19 +214,6 @@ public abstract class BaseUnitTest {
             .internalName(TABLE_1_INTERNAL_NAME)
             .topic(TABLE_1_TOPIC)
             .tdbid(DATABASE_1_ID)
-            .depositId(DEPOSIT_1_ID)
-            .build();
-
-    public final static CreatorDto CREATOR_1 = CreatorDto.builder()
-            .name(CREATOR_1_NAME)
-            .affiliation(CREATOR_1_AFFIL)
-            .orcid(CREATOR_1_ORCID)
-            .build();
-
-    public final static CreatorDto CREATOR_2 = CreatorDto.builder()
-            .name(CREATOR_2_NAME)
-            .affiliation(CREATOR_2_AFFIL)
-            .orcid(CREATOR_2_ORCID)
             .build();
 
     public final static MetadataDto METADATA_1 = MetadataDto.builder()
@@ -179,15 +228,21 @@ public abstract class BaseUnitTest {
             .self(FILE_1_LINKS_SELF)
             .build();
 
-    public final static FileResponseDto FILE_1 = FileResponseDto.builder()
-            .checksum(FILE_1_CHECKSUM)
-            .filename(FILE_1_NAME)
+    public final static FileDto FILE_1_DTO = FileDto.builder()
             .id(FILE_1_ID)
-            .filesize(FILE_1_SIZE)
-            .links(FILE_1_LINKS)
+            .refId(FILE_1_REF_ID)
+            .fqid(QUERY_1_ID)
+            .fdbid(DATABASE_1_ID)
             .build();
 
-    public final static DepositChangeResponseDto DEPOSIT_1 = DepositChangeResponseDto.builder()
+    public final static FileDto FILE_2_DTO = FileDto.builder()
+            .id(FILE_2_ID)
+            .refId(FILE_2_REF_ID)
+            .fqid(QUERY_1_ID)
+            .fdbid(DATABASE_1_ID)
+            .build();
+
+    public final static DepositTzDto DEPOSIT_1 = DepositTzDto.builder()
             .id(DEPOSIT_1_ID)
             .created(DEPOSIT_1_CREATED)
             .modified(DEPOSIT_1_MODIFIED)
@@ -195,16 +250,37 @@ public abstract class BaseUnitTest {
             .state(DEPOSIT_1_STATE)
             .submitted(DEPOSIT_1_SUBMITTED)
             .recordId(DEPOSIT_1_RECORD_ID)
-            .files(List.of(FILE_1))
+            .files(List.of(FILE_1_DTO, FILE_2_DTO))
             .build();
 
-    public final static DepositResponseDto DEPOSIT_2 = DepositResponseDto.builder()
-            .id(DEPOSIT_1_ID)
-            .title(DEPOSIT_1_TITLE)
-            .state(DEPOSIT_1_STATE)
-            .submitted(DEPOSIT_1_SUBMITTED)
-            .recordId(DEPOSIT_1_RECORD_ID)
-            .files(List.of(FILE_1))
+    public final static ExecuteQueryDto QUERY_1_EXECUTE = ExecuteQueryDto.builder()
+            .query(QUERY_1_QUERY)
+            .title(QUERY_1_TITLE)
+            .build();
+
+    public final static String COLUMN_1_INTERNAL_NAME = "id";
+    public final static String COLUMN_2_INTERNAL_NAME = "name";
+
+    public final static Map<String, Object> ROW_1 = new LinkedHashMap<>() {{
+        put(COLUMN_1_INTERNAL_NAME, 1L);
+        put(COLUMN_2_INTERNAL_NAME, "Foo");
+    }};
+    public final static Map<String, Object> ROW_2 = new LinkedHashMap<>() {{
+        put(COLUMN_1_INTERNAL_NAME, 2L);
+        put(COLUMN_2_INTERNAL_NAME, "Bar");
+    }};
+    public final static Map<String, Object> ROW_3 = new LinkedHashMap<>() {{
+        put(COLUMN_1_INTERNAL_NAME, 3L);
+        put(COLUMN_2_INTERNAL_NAME, "Baz");
+    }};
+
+    public final static QueryResultDto QUERY_1_RESULT = QueryResultDto.builder()
+            .id(QUERY_1_ID)
+            .result(List.of(ROW_1, ROW_2, ROW_3))
+            .build();
+
+    public final static DepositChangeRequestDto DEPOST_1_REQUEST = DepositChangeRequestDto.builder()
+            .metadata(METADATA_1)
             .build();
 
 }

@@ -1,0 +1,6 @@
+#!/bin/bash
+scp ./.rhel-prod/install_cert dbrepo.ossdip.at:
+scp ./.rhel-prod/docker-compose.yml dbrepo.ossdip.at:
+ssh dbrepo.ossdip.at "docker-compose down"
+ssh dbrepo.ossdip.at "ENV=${ENV} ./install_cert"
+ssh dbrepo.ossdip.at "ENV=${ENV} docker-compose up -d"

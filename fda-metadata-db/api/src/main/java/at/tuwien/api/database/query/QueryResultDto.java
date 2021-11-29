@@ -1,6 +1,5 @@
 package at.tuwien.api.database.query;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -13,25 +12,16 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 @ToString
 public class QueryResultDto {
 
     @NotNull
-    @ApiModelProperty(name = "query result")
+    @ApiModelProperty(notes = "query result")
     private List<Map<String, Object>> result;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    @NotNull
+    @ApiModelProperty(notes = "query id")
+    private Long id;
 
-        QueryResultDto that = (QueryResultDto) o;
-
-        return result != null ? result.equals(that.result) : that.result == null;
-    }
-
-    @Override
-    public int hashCode() {
-        return result != null ? result.hashCode() : 0;
-    }
 }

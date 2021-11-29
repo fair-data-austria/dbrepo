@@ -1,5 +1,6 @@
 package at.tuwien.entities.database.query;
 
+import at.tuwien.entities.database.Database;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -7,42 +8,74 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 
 @Data
+@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(onlyExplicitlyIncluded = true)
+@IdClass(QueryKey.class)
 @EntityListeners(AuditingEntityListener.class)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Query  {
+@javax.persistence.Table(name = "mdb_queries")
+public class Query {
 
-	@EqualsAndHashCode.Include
-	@ToString.Include
-	private Long id;
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @GeneratedValue(generator = "query-sequence")
+    @GenericGenerator(
+            name = "query-sequence",
+            strategy = "enhanced-sequence",
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_queries_seq")
+    )
+    private Long id;
 
-	@ToString.Include
-	private String doi;
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Long qdbid;
 
-	@ToString.Include
-	private Timestamp executionTimestamp;
+    @Column
+    private String doi;
 
-	@ToString.Include
-	private String query;
+    @Column
+    private String title;
 
-	@ToString.Include
-	private String queryNormalized;
+    @Column
+    private String query;
 
-	@ToString.Include
-	private String queryHash;
+    @Column
+    private String queryNormalized;
 
-	@ToString.Include
-	private String resultHash;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "query")
+    private List<File> files;
 
-	@ToString.Include
-	private Integer resultNumber;
+    @Column(name = "deposit_id", unique = true)
+    private Long depositId;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "qdbid", referencedColumnName = "id", insertable = false, updatable = false)
+    })
+    private Database database;
+
+    @Column
+    private Instant executionTimestamp;
+
+    @Column
+    private String resultHash;
+
+    @Column
+    private Long resultNumber;
+
+    @Column(nullable = false, updatable = false)
+    @CreatedDate
+    private Instant created;
+
+    @Column
+    @LastModifiedDate
+    private Instant lastModified;
 
 }

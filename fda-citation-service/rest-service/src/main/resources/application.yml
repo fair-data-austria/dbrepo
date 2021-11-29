@@ -26,8 +26,10 @@ eureka:
   instance.hostname: fda-citation-service
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
 fda:
+  ready.path: ~/
   mapping.path: rest-service/src/main/resources
   table.path: rest-service/src/main/java/at/tuwien/userdb
+  query.endpoint: fda-query-service:9093
 zenodo:
   endpoint: https://sandbox.zenodo.org/
   api_key: "${ZENODO_API_KEY}"

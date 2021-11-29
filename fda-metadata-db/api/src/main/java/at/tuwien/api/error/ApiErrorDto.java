@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 public class ApiErrorDto {
 

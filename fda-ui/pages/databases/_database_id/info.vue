@@ -5,7 +5,8 @@
       <v-tab-item>
         <v-card flat>
           <v-card-title>
-            {{ db.internalName }}
+            <span>{{ db.internalName }}</span>
+            <v-progress-circular v-if="loading" :size="20" :width="3" indeterminate color="primary" />
           </v-card-title>
           <v-card-subtitle>
             {{ publisher }}, {{ db.image.repository }}:{{ db.image.tag }}
@@ -14,9 +15,9 @@
             <blockquote>
               <p>{{ description }}</p>
             </blockquote>
-            <p>
+            <span>
               Created {{ db.created }}
-            </p>
+            </span>
           </v-card-text>
         </v-card>
       </v-tab-item>
@@ -33,10 +34,13 @@ export default {
   },
   data () {
     return {
-      tab: 0
+      loading: false
     }
   },
   computed: {
+    tab () {
+      return 0
+    },
     db () {
       return this.$store.state.db
     },
@@ -47,13 +51,24 @@ export default {
       return this.db.publisher === null ? '(no publisher)' : this.db.publisher
     }
   },
-  async mounted () {
-    try {
-      const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
-      console.debug('database', res.data)
-      this.$store.commit('SET_DATABASE', res.data)
-    } catch (err) {
-      this.$toast.error('Could not load database.')
+  mounted () {
+    this.init()
+  },
+  methods: {
+    async init () {
+      if (this.db != null) {
+        return
+      }
+      try {
+        this.loading = true
+        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
+        console.debug('database', res.data)
+        this.$store.commit('SET_DATABASE', res.data)
+        this.loading = false
+      } catch (err) {
+        this.$toast.error('Could not load database.')
+        this.loading = false
+      }
     }
   }
 }

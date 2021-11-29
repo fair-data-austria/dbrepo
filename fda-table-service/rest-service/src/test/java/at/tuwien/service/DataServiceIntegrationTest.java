@@ -2,11 +2,17 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.config.DockerConfig;
+import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.PostgresConfig;
 import at.tuwien.config.ReadyConfig;
+import at.tuwien.entities.container.Container;
+import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.impl.MariaDataService;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -28,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -54,6 +61,9 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
     private TableRepository tableRepository;
 
     @Autowired
+    private ImageRepository imageRepository;
+
+    @Autowired
     private MariaDataService dataService;
 
     @BeforeAll
@@ -67,17 +77,27 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
-        final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+        final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
-                .withEnv("POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=weather")
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
+                        + ":/docker-entrypoint-initdb.d"))
+                .exec();
+        final CreateContainerResponse request3 = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(CONTAINER_3_INTERNALNAME)
+                .withIpv4Address(CONTAINER_3_IP)
+                .withHostName(CONTAINER_3_INTERNALNAME)
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=biomedical")
+                .withBinds(Bind.parse(new File("./src/test/resources/species").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
         /* set hash */
         CONTAINER_1.setHash(request.getId());
+        CONTAINER_3.setHash(request3.getId());
     }
 
     @AfterAll
@@ -109,8 +129,14 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     @BeforeEach
     public void beforeEach() {
+        imageRepository.save(IMAGE_1);
+        imageRepository.save(IMAGE_2);
+        TABLE_1.setDatabase(DATABASE_1);
+        TABLE_2.setDatabase(DATABASE_2);
+        TABLE_3.setDatabase(DATABASE_3);
         databaseRepository.save(DATABASE_1);
         databaseRepository.save(DATABASE_2);
+        databaseRepository.save(DATABASE_3);
     }
 
     @Test
@@ -125,8 +151,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer();
-        PostgresConfig.clearDatabase();
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
@@ -147,8 +173,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer();
-        PostgresConfig.clearDatabase();
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
@@ -168,8 +194,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer();
-        PostgresConfig.clearDatabase();
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -190,8 +216,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer();
-        PostgresConfig.clearDatabase();
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
@@ -210,8 +236,8 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        startContainer();
-        PostgresConfig.clearDatabase();
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -220,7 +246,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void insertFromFile_notRunning_fails() {
+    public void insertFromFile_notRunning_fails() throws SQLException {
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
@@ -229,7 +255,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        stopContainer();
+        DockerConfig.stopContainer(CONTAINER_1);
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
@@ -237,20 +263,21 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
         });
     }
 
-    private static void startContainer() throws InterruptedException {
-        final InspectContainerResponse inspect = dockerClient.inspectContainerCmd(CONTAINER_1.getHash())
-                .exec();
-        if (Objects.equals(inspect.getState().getStatus(), "running")) {
-            return;
-        }
-        dockerClient.startContainerCmd(CONTAINER_1.getHash())
-                .exec();
-        Thread.sleep(3000L);
-    }
+    @Test
+    public void insertFromRemote_succeeds() throws TableNotFoundException, TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, InterruptedException,
+            SQLException {
+        final TableInsertDto request = TableInsertDto.builder()
+                .skipHeader(true)
+                .csvLocation("https://sandbox.zenodo.org/api/files/6aca3421-add3-489b-8c4a-35228fe5c683/species_id.csv")
+                .build();
 
-    private static void stopContainer() {
-        dockerClient.stopContainerCmd(CONTAINER_1.getHash())
-                .exec();
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_3);
+        MariaDbConfig.clearDatabase(TABLE_3);
+
+        /* test */
+        dataService.insertCsv(DATABASE_3_ID, TABLE_3_ID, request);
     }
 
 }

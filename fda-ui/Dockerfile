@@ -26,11 +26,6 @@ COPY ./static ./static
 COPY ./store ./store
 COPY ./yarn.lock ./
 
-RUN yarn build
-
-# Minimize image & cleanup
-RUN rm -rf /tmp/*
-
-EXPOSE 3000
+RUN yarn build > /dev/null
 
 ENTRYPOINT ["yarn", "start"]

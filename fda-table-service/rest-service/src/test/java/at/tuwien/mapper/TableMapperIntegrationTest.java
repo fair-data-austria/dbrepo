@@ -119,39 +119,39 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .description(TABLE_2_DESCRIPTION)
                 .columns(new ColumnCreateDto[]{
                         ColumnCreateDto.builder()
-                                .type(COLUMN_1_TYPE_DTO)
-                                .name(COLUMN_1_NAME)
-                                .nullAllowed(COLUMN_1_NULL)
-                                .primaryKey(COLUMN_1_PRIMARY)
-                                .unique(COLUMN_1_UNIQUE)
+                                .type(COLUMN_1_1_TYPE_DTO)
+                                .name(COLUMN_1_1_NAME)
+                                .nullAllowed(COLUMN_1_1_NULL)
+                                .primaryKey(COLUMN_1_1_PRIMARY)
+                                .unique(COLUMN_1_1_UNIQUE)
                                 .build(),
                         ColumnCreateDto.builder()
-                                .type(COLUMN_2_TYPE_DTO)
-                                .name(COLUMN_2_NAME)
-                                .nullAllowed(COLUMN_2_NULL)
-                                .primaryKey(COLUMN_2_PRIMARY)
-                                .unique(COLUMN_2_UNIQUE)
+                                .type(COLUMN_1_2_TYPE_DTO)
+                                .name(COLUMN_1_2_NAME)
+                                .nullAllowed(COLUMN_1_2_NULL)
+                                .primaryKey(COLUMN_1_2_PRIMARY)
+                                .unique(COLUMN_1_2_UNIQUE)
                                 .build(),
                         ColumnCreateDto.builder()
-                                .type(COLUMN_3_TYPE_DTO)
-                                .name(COLUMN_3_NAME)
-                                .nullAllowed(COLUMN_3_NULL)
-                                .primaryKey(COLUMN_3_PRIMARY)
-                                .unique(COLUMN_3_UNIQUE)
+                                .type(COLUMN_1_3_TYPE_DTO)
+                                .name(COLUMN_1_3_NAME)
+                                .nullAllowed(COLUMN_1_3_NULL)
+                                .primaryKey(COLUMN_1_3_PRIMARY)
+                                .unique(COLUMN_1_3_UNIQUE)
                                 .build(),
                         ColumnCreateDto.builder()
-                                .type(COLUMN_4_TYPE_DTO)
-                                .name(COLUMN_4_NAME)
-                                .nullAllowed(COLUMN_4_NULL)
-                                .primaryKey(COLUMN_4_PRIMARY)
-                                .unique(COLUMN_4_UNIQUE)
+                                .type(COLUMN_1_4_TYPE_DTO)
+                                .name(COLUMN_1_4_NAME)
+                                .nullAllowed(COLUMN_1_4_NULL)
+                                .primaryKey(COLUMN_1_4_PRIMARY)
+                                .unique(COLUMN_1_4_UNIQUE)
                                 .build(),
                         ColumnCreateDto.builder()
-                                .type(COLUMN_5_TYPE_DTO)
-                                .name(COLUMN_5_NAME)
-                                .nullAllowed(COLUMN_5_NULL)
-                                .primaryKey(COLUMN_5_PRIMARY)
-                                .unique(COLUMN_5_UNIQUE)
+                                .type(COLUMN_1_5_TYPE_DTO)
+                                .name(COLUMN_1_5_NAME)
+                                .nullAllowed(COLUMN_1_5_NULL)
+                                .primaryKey(COLUMN_1_5_PRIMARY)
+                                .unique(COLUMN_1_5_UNIQUE)
                                 .build()})
                 .build();
     }
@@ -207,7 +207,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(Objects::nonNull)
                 .map(Key::getFields)
                 .map(k -> k.get(0))
-                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .map(f -> f.getName().matches(COLUMN_1_1_INTERNAL_NAME))
                 .count());
         assertEquals(1, context.meta()
                 .getTables()
@@ -217,7 +217,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(Objects::nonNull)
                 .map(Key::getFields)
                 .map(k -> k.get(0))
-                .map(f -> f.getName().matches(COLUMN_2_INTERNAL_NAME))
+                .map(f -> f.getName().matches(COLUMN_1_2_INTERNAL_NAME))
                 .count());
     }
 
@@ -245,7 +245,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(Objects::nonNull)
                 .map(Key::getFields)
                 .map(k -> k.get(0))
-                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .map(f -> f.getName().matches(COLUMN_1_1_INTERNAL_NAME))
                 .count());
     }
 
@@ -273,7 +273,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(Objects::nonNull)
                 .map(Key::getFields)
                 .map(k -> k.get(0))
-                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .map(f -> f.getName().matches(COLUMN_1_1_INTERNAL_NAME))
                 .count());
     }
 
@@ -301,7 +301,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(Objects::nonNull)
                 .map(Key::getFields)
                 .map(k -> k.get(0))
-                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .map(f -> f.getName().matches(COLUMN_1_1_INTERNAL_NAME))
                 .count());
     }
 
@@ -329,7 +329,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(Objects::nonNull)
                 .map(Key::getFields)
                 .map(k -> k.get(0))
-                .map(f -> f.getName().matches(COLUMN_1_INTERNAL_NAME))
+                .map(f -> f.getName().matches(COLUMN_1_1_INTERNAL_NAME))
                 .count());
     }
 
@@ -390,7 +390,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
                 .map(Table::getKeys)
                 .map(uniqueKeys -> uniqueKeys.get(0))
-                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_1_INTERNAL_NAME))
+                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_1_1_INTERNAL_NAME))
                 .count());
     }
 
@@ -411,7 +411,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
                 .map(Table::getKeys)
                 .map(uniqueKeys -> uniqueKeys.get(0))
-                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_1_INTERNAL_NAME))
+                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_1_1_INTERNAL_NAME))
                 .count());
         assertEquals(1, context.meta()
                 .getTables()
@@ -419,7 +419,7 @@ public class TableMapperIntegrationTest extends BaseUnitTest {
                 .filter(t -> t.getName().matches(TABLE_2_INTERNALNAME))
                 .map(Table::getKeys)
                 .map(uniqueKeys -> uniqueKeys.get(0))
-                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_2_INTERNAL_NAME))
+                .map(uniqueKey -> uniqueKey.constraint().getName().matches(COLUMN_1_2_INTERNAL_NAME))
                 .count());
     }
 

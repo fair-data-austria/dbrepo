@@ -1,69 +1,66 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.zenodo.files.FileResponseDto;
-import at.tuwien.api.zenodo.files.FileUploadDto;
+import at.tuwien.api.database.deposit.files.FileDto;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.FileMapper;
 import at.tuwien.service.FileService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/database/{id}/table/{tableid}/deposit/file")
+@RequestMapping("/api/database/{id}/cite/file")
 public class FileEndpoint {
 
+    private final FileMapper fileMapper;
     private final FileService fileService;
 
     @Autowired
-    public FileEndpoint(FileService fileService) {
+    public FileEndpoint(FileMapper fileMapper, FileService fileService) {
+        this.fileMapper = fileMapper;
         this.fileService = fileService;
     }
 
     @GetMapping
-    public List<FileResponseDto> listAll(@Valid @RequestParam("id") Long databaseId,
-                                         @Valid @RequestParam("tableId") Long tableId)
-            throws MetadataDatabaseNotFoundException, ZenodoAuthenticationException, ZenodoApiException,
-            ZenodoNotFoundException, ZenodoUnavailableException {
-        return fileService.listResources(databaseId, tableId);
+    public List<FileDto> listAll(@Valid @PathVariable("id") Long databaseId) {
+        return fileService.listResources()
+                .stream()
+                .map(fileMapper::fileToFileDto)
+                .collect(Collectors.toList());
     }
 
-    @GetMapping("/{fileId}")
-    public FileResponseDto find(@Valid @RequestParam("id") Long databaseId,
-                                @Valid @RequestParam("tableId") Long tableId,
-                                @NotBlank @RequestParam("fileId") String fileId)
-            throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoNotFoundException,
-            ZenodoAuthenticationException, ZenodoUnavailableException {
-        return fileService.findResource(databaseId, tableId, fileId);
+    @GetMapping("/{queryId}")
+    public FileDto find(@Valid @PathVariable("id") Long databaseId,
+                        @Valid @PathVariable("queryId") Long queryId)
+            throws RemoteApiException, RemoteNotFoundException, RemoteAuthenticationException,
+            RemoteUnavailableException, QueryNotFoundException, MetadataDatabaseNotFoundException {
+        return fileMapper.fileToFileDto(fileService.findResource(databaseId, queryId));
     }
 
-    @PostMapping
-    public FileResponseDto create(@Valid @RequestParam("id") Long databaseId,
-                                  @Valid @RequestParam("tableId") Long tableId,
-                                  @Valid @RequestParam("data") FileUploadDto data,
-                                  @Valid @RequestParam("file") MultipartFile file)
-            throws MetadataDatabaseNotFoundException, ZenodoApiException, ZenodoFileTooLargeException,
-            ZenodoNotFoundException, ZenodoAuthenticationException, ZenodoUnavailableException {
-        return fileService.createResource(databaseId, tableId, data, file);
+    @PostMapping("/{queryId}")
+    public FileDto create(@Valid @PathVariable("id") Long databaseId,
+                          @Valid @PathVariable("queryId") Long queryId)
+            throws RemoteApiException, RemoteNotFoundException, RemoteAuthenticationException,
+            RemoteUnavailableException, QueryNotFoundException, RemoteDatabaseException, TableServiceException,
+            RemoteFileException, MetadataDatabaseNotFoundException {
+        return fileMapper.fileToFileDto(fileService.createResource(databaseId, queryId));
     }
 
-    @PutMapping("/{fileId}")
-    public FileResponseDto update(@Valid @RequestParam("id") Long databaseId,
-                                  @Valid @RequestParam("tableId") Long tableId,
-                                  @NotBlank @RequestParam("fileId") String fileId) {
+    @PutMapping("/{queryId}")
+    public FileDto update(@Valid @PathVariable("id") Long databaseId,
+                          @Valid @PathVariable("queryId") Long queryId) {
         return null;
     }
 
-    @DeleteMapping("/{fileId}")
-    public FileResponseDto delete(@Valid @RequestParam("id") Long databaseId,
-                                  @Valid @RequestParam("tableId") Long tableId,
-                                  @NotBlank @RequestParam("fileId") String fileId) {
+    @DeleteMapping("/{queryId}")
+    public FileDto delete(@Valid @PathVariable("id") Long databaseId,
+                          @Valid @PathVariable("queryId") Long queryId) {
         return null;
     }
 }

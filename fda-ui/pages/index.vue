@@ -1,9 +1,18 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      Welcome
-    </v-col>
-  </v-row>
+  <div>
+    <v-toolbar flat>
+      <v-toolbar-title>Welcome</v-toolbar-title>
+    </v-toolbar>
+    <v-card flat>
+      <v-card-title>FAIR Data</v-card-title>
+      <v-card-subtitle>
+        Findable, Accessible, Interoperable, Reusable
+      </v-card-subtitle>
+      <v-card-text>
+        text
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <script>

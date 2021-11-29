@@ -1,63 +1,58 @@
 <template>
-  <v-card>
-    <v-card-title>
-      <span>Databases</span>
-      <v-progress-circular v-if="loading" :size="20" :width="3" indeterminate color="primary" />
-    </v-card-title>
-    <v-card-subtitle>
-      All public databases found in the metadata database.
-    </v-card-subtitle>
-    <v-simple-table>
-      <template v-slot:default>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Engine</th>
-            <th>Created</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="databases.length === 0" aria-readonly="true">
-            <td colspan="4">
-              <span v-if="!loading">(no databases)</span>
-            </td>
-          </tr>
-          <tr
-            v-for="item in databases"
-            :key="item.id">
-            <td>
-              <v-btn :to="`/databases/${item.id}/info`" icon>
-                <v-icon>{{ iconSelect }}</v-icon>
-              </v-btn>
-              {{ item.name }}
-            </td>
-            <!-- <td>
-                 {{ formatDate(item.Created) }}<br>
-                 <span class="color-grey">
-                 ({{ relativeDate(item.Created) }})
-                 </span>
-                 </td> -->
-            <td>{{ item.description }}</td>
-            <td>{{ item.engine }}</td>
-            <td>{{ item.created }}</td>
-          </tr>
-        </tbody>
-      </template>
-    </v-simple-table>
-    <v-btn class="float-right mt-3" color="primary" @click.stop="createDbDialog = true">
-      <v-icon class="mr-1">
-        mdi-plus
-      </v-icon>
-      Create Database
-    </v-btn>
-    <v-dialog
-      v-model="createDbDialog"
-      persistent
-      max-width="640">
-      <CreateDB @refresh="refresh" />
-    </v-dialog>
-  </v-card>
+  <div>
+    <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
+    <v-toolbar flat>
+      <v-toolbar-title>
+        <span>Databases</span>
+      </v-toolbar-title>
+      <v-spacer />
+      <v-toolbar-title>
+        <v-btn color="primary" @click.stop="createDbDialog = true">
+          <v-icon left>mdi-plus</v-icon> Database
+        </v-btn>
+      </v-toolbar-title>
+    </v-toolbar>
+    <v-card flat>
+      <v-simple-table>
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Engine</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="databases.length === 0" aria-readonly="true">
+              <td colspan="4">
+                <span v-if="!loading">(no databases)</span>
+              </td>
+            </tr>
+            <tr
+              v-for="item in databases"
+              :key="item.id">
+              <td>
+                <v-btn :to="`/databases/${item.id}/info`" icon>
+                  <v-icon>{{ iconSelect }}</v-icon>
+                </v-btn>
+                {{ item.name }}
+              </td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.engine }}</td>
+              <td>{{ item.created }}</td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
+      <v-dialog
+        v-model="createDbDialog"
+        persistent
+        max-width="640">
+        <CreateDB @refresh="refresh" />
+      </v-dialog>
+    </v-card>
+  </div>
 </template>
 <script>
 import { mdiDatabaseArrowRightOutline } from '@mdi/js'
@@ -74,7 +69,13 @@ export default {
       createDbDialog: false,
       databases: [],
       loading: true,
+      error: false,
       iconSelect: mdiDatabaseArrowRightOutline
+    }
+  },
+  computed: {
+    loadingColor () {
+      return this.error ? 'red lighten-2' : 'primary'
     }
   },
   mounted () {
@@ -83,11 +84,17 @@ export default {
   methods: {
     async refresh () {
       this.createDbDialog = false
-      this.loading = true
-      const res = await this.$axios.get('/api/database/')
-      this.databases = res.data
-      this.loading = false
-      console.debug('databases', res.data)
+      try {
+        this.loading = true
+        const res = await this.$axios.get('/api/database/')
+        this.databases = res.data
+        this.loading = false
+        this.error = false
+        console.debug('databases', res.data)
+      } catch (err) {
+        console.error('databases', err)
+        this.error = true
+      }
     },
     trim (s) {
       return s.slice(0, 12)

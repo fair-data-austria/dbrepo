@@ -1,0 +1,8 @@
+#!/bin/bash
+SIGN_KEYS_LOCATION="./rest-service/src/main/resources/saml"
+
+# CREATE SIGNING KEYS
+openssl req -newkey rsa:4096 -new \
+  -subj "/C=AT/ST=Vienna/L=Vienna/O=TU Wien/OU=Zentrum für Forschungsdatenmanagement/CN=FAIR Data Austria" \
+  -nodes -x509 -days 3650 -keyout "${SIGN_KEYS_LOCATION}/saml_sign_priv.key" \
+  -out "${SIGN_KEYS_LOCATION}/saml_sign_public.cer"

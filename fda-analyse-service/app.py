@@ -61,7 +61,7 @@ template = dict(
 app.json_encoder = LazyJSONEncoder
 swagger = Swagger(app, config=swagger_config, template=template)
 
-@app.route('/determinedt', methods=["POST"], endpoint='analyze_determinedt')
+@app.route('/api/analyse/determinedt', methods=["POST"], endpoint='analyze_determinedt')
 @swag_from('/as-yml/determinedt.yml')
 def determinedt():
     input_json = request.get_json()
@@ -84,7 +84,7 @@ def determinedt():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/determinepk', methods=["POST"], endpoint='analyze_determinepk')
+@app.route('/api/analyse/determinepk', methods=["POST"], endpoint='analyze_determinepk')
 @swag_from('/as-yml/determinepk.yml')
 def determinepk():
     input_json = request.get_json()
@@ -99,7 +99,7 @@ def determinepk():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/checkcsv', methods=["POST"], endpoint='analyze_checkcsv')
+@app.route('/api/analyse/checkcsv', methods=["POST"], endpoint='analyze_checkcsv')
 @swag_from('/as-yml/checkcsv.yml')
 def checkcsv():
     input_json = request.get_json()
@@ -121,7 +121,7 @@ def checkcsv():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/update_mdb_db', methods=["POST"], endpoint='mdb_update_db')
+@app.route('/api/analyse/update_mdb_db', methods=["POST"], endpoint='mdb_update_db')
 @swag_from('/as-yml/importdb.yml')
 def importdb():
     input_json = request.get_json()
@@ -136,7 +136,7 @@ def importdb():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/update_mdb_tbl', methods=["POST"], endpoint='mdb_update_tbl')
+@app.route('/api/analyse/update_mdb_tbl', methods=["POST"], endpoint='mdb_update_tbl')
 @swag_from('/as-yml/importtbl.yml')
 def importtbl():
     input_json = request.get_json()
@@ -148,7 +148,7 @@ def importtbl():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/update_mdb_db_ispublic', methods=["POST"], endpoint='mdb_ispublic')
+@app.route('/api/analyse/update_mdb_db_ispublic', methods=["POST"], endpoint='mdb_ispublic')
 @swag_from('/as-yml/updateispub.yml')
 def updateispublic():
     input_json = request.get_json()
@@ -161,7 +161,7 @@ def updateispublic():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/update_mdb_columns_num_siunit', methods=["POST"], endpoint='mdb_columns_num')
+@app.route('/api/analyse/update_mdb_columns_num_siunit', methods=["POST"], endpoint='mdb_columns_num')
 @swag_from('/as-yml/updatesiunit.yml')
 def updatesiunit():
     input_json = request.get_json()
@@ -176,7 +176,7 @@ def updatesiunit():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-@app.route('/update_mdb_data_provenance', methods=["POST"], endpoint='mdb_update_data_provenance')
+@app.route('/api/analyse/update_mdb_data_provenance', methods=["POST"], endpoint='mdb_update_data_provenance')
 @swag_from('/as-yml/updatedata.yml')
 def updatesdataprovenance():
     input_json = request.get_json()
@@ -189,7 +189,7 @@ def updatesdataprovenance():
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
 
-#@app.route('/insert_mdb_col', methods=["POST"], endpoint='mdb_insert_col')
+#@app.route('/api/analyse/insert_mdb_col', methods=["POST"], endpoint='mdb_insert_col')
 #@swag_from('/as-yml/importcol.yml')
 #def importcol():
 #    input_json = request.get_json()
@@ -202,7 +202,7 @@ def updatesdataprovenance():
 #        res = {"success": False, "message": "Unknown error"}
 #    return jsonify(res), 200
 
-@app.route('/update_mdb_col', methods=["POST"], endpoint='mdb_update_col')
+@app.route('/api/analyse/update_mdb_col', methods=["POST"], endpoint='mdb_update_col')
 @swag_from('/as-yml/updatecol.yml')
 def updatecol(): 
     input_json = request.get_json() 
@@ -219,6 +219,8 @@ def updatecol():
 rest_server_port = 5000
 eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
                    app_name="fda-analyse-service",
+                   instance_ip="fda-analyse-service",
+                   instance_host="fda-analyse-service",
                    instance_port=rest_server_port)
 
 if __name__ == '__main__':

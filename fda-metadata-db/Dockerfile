@@ -9,17 +9,19 @@ RUN mvn -fn -B dependency:go-offline > /dev/null
 COPY ./api ./api
 COPY ./entities ./entities
 
+ARG CI_JOB_STAGE
+
 # Make sure it compiles
-RUN mvn clean package -DskipTests > /dev/null
+RUN mvn -q clean package -DskipTests > /dev/null
 
 # Install to local repository
-RUN mvn clean install > /dev/null
+RUN mvn -q clean install > /dev/null
 
 ###### SECOND STAGE ######
 FROM postgres:latest as runtime
 
 # Scripts are copied to /docker-entrypoint-initdb.d/ in docker-compose from analyze service
-HEALTHCHECK --interval=25s --timeout=3s --retries=2 CMD pg_isready
+HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD pg_isready
 
 COPY ./initi.sh /docker-entrypoint-initdb.d/
 RUN chmod +x /docker-entrypoint-initdb.d/initi.sh
