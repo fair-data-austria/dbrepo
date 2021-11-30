@@ -1,0 +1,40 @@
+spring:
+  main.banner-mode: off
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  application:
+    name: fda-authentication-service
+  cloud:
+    loadbalancer.ribbon.enabled: false
+server:
+  port: 9097
+  ssl:
+    enabled: true
+    key-alias: ssl
+    key-store: file:/tmp/dbrepo.jks
+    key-store-password: "${KEY_STORE_PASSWORD}"
+    key-store-type: jks
+logging:
+  pattern.console: "%d %highlight(%-5level) %msg%n"
+  level:
+    root: debug
+    at.tuwien.: debug
+eureka:
+  instance.hostname: fda-authentication-service
+  client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
+fda:
+  ready.path: /ready
+  idp:
+    entity-id: "at:tuwien"
+    metadata: https://idp.zid.tuwien.ac.at/saml2
+  saml.signkey: saml
+  base-url: https://dbrepo.ossdip.at:9097

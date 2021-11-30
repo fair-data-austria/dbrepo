@@ -3,7 +3,7 @@ package at.tuwien.config;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
+import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.xml.parse.StaticBasicParserPool;
@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.context.SAMLContextProvider;
+import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.context.SAMLContextProviderLB;
 import org.springframework.security.saml.key.JKSKeyManager;
 import org.springframework.security.saml.key.KeyManager;
@@ -38,8 +39,6 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 @Configuration
@@ -49,6 +48,12 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${fda.idp.metadata}")
     private String idpProviderMetadata;
+
+    @Value("${fda.idp.entity-id}")
+    private String idpEntityId;
+
+    @Value("${fda.saml.signkey}")
+    private String samlSignKey;
 
     @Value("${fda.base-url}")
     private String baseUrl;
@@ -135,15 +140,25 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public SAMLEntryPoint samlEntryPoint() {
         final SAMLEntryPoint samlEntryPoint = new SAMLEntryPoint();
+        samlEntryPoint.setSamlLogger(samlLogger());
+        samlEntryPoint.setContextProvider(samlContextProvider());
+        samlEntryPoint.setWebSSOprofile(webSSOprofile());
         samlEntryPoint.setDefaultProfileOptions(defaultWebSSOProfileOptions());
         return samlEntryPoint;
+    }
+
+    @Bean
+    public SAMLContextProvider samlContextProvider() {
+        return new SAMLContextProviderImpl();
     }
 
     @Bean
     public ExtendedMetadata extendedMetadata() {
         final ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setIdpDiscoveryEnabled(true);
-        extendedMetadata.setSignMetadata(false);
+        extendedMetadata.setSignMetadata(true);
+        extendedMetadata.setSigningKey(samlSignKey);
+//        extendedMetadata.setEncryptionKey(samlSignKey);
         return extendedMetadata;
     }
 
@@ -153,11 +168,11 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public ExtendedMetadataDelegate extendedMetadataProvider() throws MetadataProviderException, IOException {
-        ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(pivotalTestMetadataProvider(),
+    public ExtendedMetadataDelegate extendedMetadataProvider() throws MetadataProviderException {
+        ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(metadataProvider(),
                 extendedMetadata());
         extendedMetadataDelegate.setMetadataTrustCheck(true);
-        extendedMetadataDelegate.setMetadataRequireSignature(false);
+        extendedMetadataDelegate.setMetadataRequireSignature(true);
         return extendedMetadataDelegate;
     }
 
@@ -171,6 +186,11 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public MetadataDisplayFilter metadataDisplayFilter() {
         return new MetadataDisplayFilter();
+    }
+
+    @Bean
+    public Timer timer() {
+        return new Timer();
     }
 
     @Bean
@@ -232,14 +252,14 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.requiresChannel()
-                .anyRequest().requiresSecure();
+                .anyRequest()
+                .requiresSecure();
         http.httpBasic()
                 .authenticationEntryPoint(samlEntryPoint());
         http.csrf()
                 .disable();
         http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
                 .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
-        /* allow metadata and saml stuff */
         http.authorizeRequests()
                 .antMatchers("/saml/**").permitAll()
                 .antMatchers("/health").permitAll()
@@ -248,11 +268,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public MetadataProvider pivotalTestMetadataProvider() throws MetadataProviderException, IOException {
-        final DefaultResourceLoader loader = new DefaultResourceLoader();
-        final Resource storeFile = loader.getResource("classpath:saml/sp_metadata.xml");
-        final File tuMetadata = storeFile.getFile();
-        final FilesystemMetadataProvider provider = new FilesystemMetadataProvider(tuMetadata);
+    public MetadataProvider metadataProvider() throws MetadataProviderException {
+        final HTTPMetadataProvider provider = new HTTPMetadataProvider(timer(), httpClient(), idpProviderMetadata);
         provider.setParserPool(parserPool());
         return provider;
     }
@@ -260,7 +277,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public MetadataGenerator metadataGenerator() {
         final MetadataGenerator metadataGenerator = new MetadataGenerator();
-        metadataGenerator.setEntityId("at:tuwien");
+        metadataGenerator.setEntityId(idpEntityId);
         metadataGenerator.setRequestSigned(false);
         metadataGenerator.setExtendedMetadata(extendedMetadata());
         metadataGenerator.setIncludeDiscoveryExtension(false);
@@ -275,6 +292,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         final SAMLContextProviderLB contextProvider = new SAMLContextProviderLB();
         contextProvider.setScheme("https");
         contextProvider.setServerName(serverName + ":" + serverPort);
+        contextProvider.setServerPort(Integer.parseInt(serverPort));
+        contextProvider.setIncludeServerPortInRequestURL(false);
         contextProvider.setContextPath("/");
         return contextProvider;
     }

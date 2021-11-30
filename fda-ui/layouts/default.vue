@@ -1,6 +1,14 @@
 <template>
   <v-app dark>
     <v-navigation-drawer v-model="drawer" fixed app>
+      <v-img
+        contain
+        class="tu-logo"
+        src="/tu_logo_512.png" />
+      <v-img
+        contain
+        class="univie-logo"
+        src="/univie_logo_512.png" />
       <v-list>
         <v-list-item
           v-for="(item, i) in filteredItems"
@@ -21,9 +29,9 @@
       <v-toolbar-title v-text="title" />
       <v-spacer />
       <v-btn
+        class="mr-2 white--text"
         color="blue-grey"
-        @click="authenticate"
-        class="mr-2 white--text">
+        @click="authenticate">
         <v-icon left>mdi-login</v-icon> Login
       </v-btn>
       <v-menu bottom offset-y left>
@@ -42,6 +50,10 @@
             :to="switchLocalePath(locale.code)">
             <v-list-item-title>{{ locale.name }}</v-list-item-title>
           </v-list-item>
+          <v-list-item
+            @click="switchTheme()">
+            {{ nextTheme }} Theme
+          </v-list-item>
         </v-list>
       </v-menu>
     </v-app-bar>
@@ -50,14 +62,15 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-footer padless v-if="sandbox">
+    <v-footer v-if="sandbox" padless>
       <v-card
         flat
         tile
         width="100%"
-        class="amber lighten-3 text-center">
-        <v-card-text>
-          <strong>Sandbox Environment</strong> — Reset in {{ timer }} — <a href="//github.com/fair-data-austria/dbrepo/issues/new">Report a bug</a>
+        class="primary text-center">
+        <v-card-text class="white--text">
+          <strong>Sandbox Environment</strong> — Reset in {{ timer }} —
+          <a href="//github.com/fair-data-austria/dbrepo/issues/new" class="white--text">Report a bug</a>
         </v-card-text>
       </v-card>
     </v-footer>
@@ -119,6 +132,9 @@ export default {
     sandbox () {
       return true
     },
+    nextTheme () {
+      return this.$vuetify.theme.dark ? 'Light' : 'Dark'
+    },
     container () {
       return this.$store.state.container
     },
@@ -152,6 +168,9 @@ export default {
     authenticate () {
       window.location.href = '/api/auth'
     },
+    switchTheme () {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+    },
     initDownTimer () {
       const two = new Date()
       two.setDate(new Date().getDate() + 1)
@@ -180,4 +199,10 @@ export default {
 }
 </script>
 <style scoped>
+.tu-logo {
+  margin: 1em 1em 0;
+}
+.univie-logo {
+  margin: 1em 1em .5em;
+}
 </style>

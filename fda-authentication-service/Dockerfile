@@ -15,8 +15,6 @@ COPY ./rest-service ./rest-service
 COPY ./services ./services
 COPY ./report ./report
 
-ARG CI_JOB_STAGE
-
 # Make sure it compiles
 RUN mvn -q clean package -DskipTests > /dev/null
 
@@ -25,11 +23,13 @@ FROM openjdk:11-jre-slim as runtime
 
 VOLUME /tmp
 
-COPY --from=build ./rest-service/target/rest-service-*.jar ./rest-service.jar
 COPY ./service_ready /usr/bin
+RUN chmod +x /usr/bin/service_ready
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
 
-EXPOSE 9091
+COPY --from=build ./rest-service/target/rest-service-*.jar ./rest-service.jar
+
+EXPOSE 9097
 
 ENTRYPOINT ["java", "-jar", "./rest-service.jar"]

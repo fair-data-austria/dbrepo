@@ -22,13 +22,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	    NO MAXVALUE
 	    CACHE 1;
 
-	CREATE SEQUENCE public.mdb_files_seq
-	    START WITH 1
-	    INCREMENT BY 1
-	    NO MINVALUE
-	    NO MAXVALUE
-	    CACHE 1;
-
 	CREATE TABLE public.mdb_image_environment_item (
 	    id bigint NOT NULL DEFAULT nextval('mdb_image_environment_item_seq'),
 	    created timestamp without time zone NOT NULL,
@@ -197,12 +190,14 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE TABLE IF NOT EXISTS mdb_queries (
     ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
+		qdbid bigint NOT NULL,
+		qtid bigint NOT NULL,
     execution_timestamp timestamp without time zone,
 		deposit_id bigint NULL UNIQUE,
-		qdbid bigint NOT NULL,
     title character varying(255) NULL,
     doi character varying(255),
     query TEXT NULL,
+    description TEXT NULL,
     query_normalized TEXT NULL,
     query_hash character varying(255) NULL,
     result_hash character varying(255) NULL,
@@ -210,31 +205,21 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     created timestamp without time zone NOT NULL,
     last_modified timestamp without time zone,
 		FOREIGN KEY (qdbid) REFERENCES mdb_DATABASES(ID),
-    PRIMARY KEY(qdbid, ID)
+		FOREIGN KEY (qdbid, qtid) REFERENCES mdb_TABLES(tDBID, ID),
+    PRIMARY KEY (qdbid, qtid, ID)
   );
-
-	CREATE TABLE IF NOT EXISTS mdb_files (
-		id bigint DEFAULT nextval('mdb_files_seq'),
-		fdbid bigint NOT NULL,
-		fqid bigint NOT NULL,
-		ref_id varchar(255) NOT NULL,
-    created timestamp without time zone NOT NULL,
-    last_modified timestamp without time zone,
-		FOREIGN KEY (fdbid) REFERENCES mdb_DATABASES(ID),
-		FOREIGN KEY (fdbid, fqid) REFERENCES mdb_queries(qdbid, ID),
-		PRIMARY KEY (fdbid, fqid, id)
-	);
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS ( 
 		ID bigint DEFAULT nextval('mdb_columns_seq'), 
 		cDBID bigint, 
 		tID bigint, 
-		cName VARCHAR(50),
-    internal_name VARCHAR(50) NOT NULL,
+		cName VARCHAR(100),
+    internal_name VARCHAR(100) NOT NULL,
 		Datatype VARCHAR(50), 
 		ordinal_position INTEGER,
 		is_primary_key BOOLEAN,
 		is_unique BOOLEAN,
+		auto_generated BOOLEAN DEFAULT false,
 		is_null_allowed BOOLEAN,
 		foreign_key VARCHAR(255),
 		reference_table VARCHAR(255),

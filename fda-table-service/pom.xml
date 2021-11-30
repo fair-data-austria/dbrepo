@@ -34,6 +34,7 @@
         <opencsv.version>5.4</opencsv.version>
         <super-csv.version>2.4.0</super-csv.version>
         <btrace-client.version>2.2.0</btrace-client.version>
+        <unleash.version>5.0.1</unleash.version>
     </properties>
 
     <dependencies>

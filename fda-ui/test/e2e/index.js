@@ -6,5 +6,5 @@ test.after(after)
 
 test('visit homepage', pageMacro, async (t, page) => {
   await page.go('/')
-  t.is(await page.title(), 'fda-ui - fda-ui')
+  t.is(await page.title(), 'FAIR Data Austria - Database Repository (Sandbox)')
 })

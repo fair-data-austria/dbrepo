@@ -1,7 +1,7 @@
 <template>
   <div v-if="db">
     <DBToolbar />
-    <v-tabs-items v-model="tab">
+    <v-tabs-items v-if="!loading" v-model="tab">
       <v-tab-item>
         <v-card flat>
           <v-card-title>
@@ -16,17 +16,19 @@
               <p>{{ description }}</p>
             </blockquote>
             <span>
-              Created {{ db.created }}
+              Created {{ formatDate(db.created) }}
             </span>
           </v-card-text>
         </v-card>
       </v-tab-item>
     </v-tabs-items>
+    <v-breadcrumbs :items="items" class="pa-0 mt-2" />
   </div>
 </template>
 
 <script>
 import DBToolbar from '@/components/DBToolbar'
+import { format } from 'date-fns'
 
 export default {
   components: {
@@ -34,7 +36,11 @@ export default {
   },
   data () {
     return {
-      loading: false
+      loading: false,
+      items: [
+        { text: 'Databases', href: '/databases' },
+        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` }
+      ]
     }
   },
   computed: {
@@ -56,11 +62,12 @@ export default {
   },
   methods: {
     async init () {
-      if (this.db != null) {
+      this.loading = true
+      if (this.db != null && this.db.id === this.$route.params.database_id) {
+        this.loading = false
         return
       }
       try {
-        this.loading = true
         const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
         console.debug('database', res.data)
         this.$store.commit('SET_DATABASE', res.data)
@@ -69,6 +76,9 @@ export default {
         this.$toast.error('Could not load database.')
         this.loading = false
       }
+    },
+    formatDate (d) {
+      return format(new Date(d), 'dd.MM.yyyy HH:mm:ss.SSS')
     }
   }
 }
