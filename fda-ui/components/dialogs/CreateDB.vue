@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
     <v-card>
+      <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
       <v-card-title>
         Create Database
       </v-card-title>
