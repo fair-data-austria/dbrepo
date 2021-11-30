@@ -5,16 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/api/auth")
 @Log4j2
+@RestController
+@CrossOrigin(origins = "*")
 public class AuthenticationEndpoint {
 
-    @GetMapping("/")
+    @GetMapping("/api/auth")
     public String index() {
         return "Index";
     }
 
-    @GetMapping("/info")
+    @GetMapping("/api/auth/info")
     public ResponseEntity<Object> info(Authentication authentication) {
         return ResponseEntity.ok(authentication.getName());
     }

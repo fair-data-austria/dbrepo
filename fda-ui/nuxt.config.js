@@ -1,4 +1,3 @@
-import fs from 'fs'
 import path from 'path'
 import colors from 'vuetify/es5/util/colors'
 
@@ -11,17 +10,21 @@ if (!process.env.API) {
 Have you passed env vars from docker-compose or defined them in your .env file?`)
 }
 
-let serv = {
-  port: 3000,
-  host: '0.0.0.0',
-  timing: false
+if (process.env.SANDBOX) {
+  console.info('[FDA] Running in sandbox environment')
 }
-if (process.env.SECURE) {
+
+let serv = {
+  https: {
+    key: process.env.KEY,
+    cert: process.env.CERT
+  }
+}
+if (!process.env.KEY || !process.env.CERT) {
   serv = {
-    https: {
-      key: fs.readFileSync('/certs/privkey.pem'),
-      cert: fs.readFileSync('/certs/cert.pem')
-    }
+    port: 3000,
+    host: '0.0.0.0',
+    timing: false
   }
 }
 
@@ -91,7 +94,7 @@ export default {
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
-      light: true,
+      dark: false,
       themes: {
         light: {
           primary: colors.blue.darken2,

@@ -11,6 +11,7 @@
         </v-card-text>
       </v-card>
     </v-tabs-items>
+    <v-breadcrumbs :items="items" class="pa-0 mt-2" />
     <v-dialog v-model="dialogDelete" max-width="500">
       <v-card>
         <v-card-title class="headline">
@@ -45,7 +46,11 @@ export default {
   data () {
     return {
       dialogDelete: false,
-      confirm: null
+      confirm: null,
+      items: [
+        { text: 'Databases', href: '/databases' },
+        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` }
+      ]
     }
   },
   computed: {

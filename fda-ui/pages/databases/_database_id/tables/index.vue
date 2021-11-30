@@ -4,6 +4,7 @@
     <v-tabs-items v-model="tab">
       <TableList />
     </v-tabs-items>
+    <v-breadcrumbs :items="items" class="pa-0 mt-2" />
   </div>
 </template>
 <script>
@@ -18,7 +19,11 @@ export default {
   },
   data () {
     return {
-      db: null
+      db: null,
+      items: [
+        { text: 'Databases', href: '/databases' },
+        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/tables` }
+      ]
     }
   },
   computed: {

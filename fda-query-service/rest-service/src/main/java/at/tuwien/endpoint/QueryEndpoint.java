@@ -1,5 +1,6 @@
 package at.tuwien.endpoint;
 
+import at.tuwien.api.database.query.QueryBriefDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
@@ -37,11 +38,11 @@ public class QueryEndpoint {
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
     @Transactional
-    public ResponseEntity<List<QueryDto>> findAll(@PathVariable("id") Long databaseId)
+    public ResponseEntity<List<QueryBriefDto>> findAll(@PathVariable("id") Long databaseId)
             throws DatabaseNotFoundException {
         final List<Query> queries = queryService.findAll(databaseId);
         return ResponseEntity.ok(queries.stream()
-                .map(queryMapper::queryToQueryDto)
+                .map(queryMapper::queryToQueryBriefDto)
                 .collect(Collectors.toList()));
     }
 

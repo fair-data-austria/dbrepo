@@ -105,6 +105,10 @@ public class DatabaseService extends JdbcConnector {
     @Transactional
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException {
+        if (createDto.getName().contains("-")) {
+            log.error("Database name cannot contain -");
+            throw new DatabaseMalformedException("Database name cannot contain -");
+        }
         final Optional<Container> containerResponse = containerRepository.findById(createDto.getContainerId());
         if (containerResponse.isEmpty()) {
             log.warn("Container with id {} does not exist", createDto.getContainerId());

@@ -15,17 +15,23 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class TableInsertDto {
 
-    @ApiModelProperty(name = "null element", example = "NA")
-    private String nullElement;
+    @ApiModelProperty(name = "null element", example = "NA", required = true)
+    private String nullElement = null;
 
-    @ApiModelProperty(name = "delimiting character", example = ";")
+    @ApiModelProperty(name = "delimiting character", example = ",", required = true)
     private Character delimiter = ',';
 
-    @ApiModelProperty(name = "skip the first line", example = "false")
+    @ApiModelProperty(name = "skip the first line", example = "false", required = true)
     private Boolean skipHeader = false;
 
+    @ApiModelProperty(name = "element for true", example = "1")
+    private String trueElement = "1";
+
+    @ApiModelProperty(name = "element for false", example = "0")
+    private String falseElement = "0";
+
     @NotBlank
-    @ApiModelProperty(name = "csv file location")
+    @ApiModelProperty(name = "csv file location", required = true)
     private String csvLocation;
 
 }

@@ -40,6 +40,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fda
+    logging:
+      driver: json-file
 
   fda-discovery-service:
     restart: on-failure
@@ -53,6 +55,8 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - "9090:9090"
+    logging:
+      driver: json-file
 
   fda-gateway-service:
     restart: on-failure
@@ -70,6 +74,8 @@ services:
       - "9095:9095"
     depends_on:
       fda-container-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-database-service:
         condition: service_healthy
@@ -129,27 +135,27 @@ services:
     logging:
       driver: json-file
 
-#  fda-authentication-service:
-#    restart: on-failure
-#    container_name: fda-authentication-service
-#    hostname: fda-authentication-service
-#    build: ./fda-authentication-service
-#    image: fda-authentication-service
-#    networks:
-#      - fda-public
-#    volumes:
-#      - /tmp:/tmp
-#    environment:
-#      SERVER_NAME: dbrepo.local
-#      SPRING_PROFILES_ACTIVE: docker
-#      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
-#    ports:
-#      - "9097:9097"
-#    depends_on:
-#      fda-discovery-service:
-#        condition: service_healthy
-#    logging:
-#      driver: json-file
+  fda-authentication-service:
+    restart: on-failure
+    container_name: fda-authentication-service
+    hostname: fda-authentication-service
+    build: ./fda-authentication-service
+    image: fda-authentication-service
+    networks:
+      - fda-public
+    volumes:
+      - /tmp:/tmp
+    environment:
+      SERVER_NAME: dbrepo.local
+      SPRING_PROFILES_ACTIVE: docker
+      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD:-dbrepo}
+    ports:
+      - "9097:9097"
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
 
   fda-query-service:
     restart: on-failure
@@ -161,7 +167,7 @@ services:
       - fda-public
       - fda-userdb
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,seeder
     ports:
       - "9093:9093"
     volumes:
@@ -170,6 +176,8 @@ services:
       fda-discovery-service:
         condition: service_healthy
       fda-container-service:
+        condition: service_healthy
+      fda-table-service:
         condition: service_healthy
       fda-metadata-db:
         condition: service_healthy
@@ -186,7 +194,7 @@ services:
       - fda-public
       - fda-userdb
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,seeder
       multipart.location: /tmp
     ports:
       - "9094:9094"
@@ -204,6 +212,8 @@ services:
         condition: service_healthy
       fda-search-service:
         condition: service_started
+    logging:
+      driver: json-file
 
 #  fda-citation-service:
 #    restart: on-failure
@@ -264,6 +274,8 @@ services:
       - "15672:15672"
     volumes:
       - fda-broker-service-data:/var/lib/rabbitmq/
+    logging:
+      driver: json-file
 
   fda-search-service:
     restart: always
@@ -301,6 +313,10 @@ services:
     depends_on:
       fda-gateway-service:
         condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
+    logging:
+      driver: json-file

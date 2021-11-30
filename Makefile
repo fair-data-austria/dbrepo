@@ -3,13 +3,14 @@ REGISTRY=docker.ossdip.at
 all:
 
 config-backend:
-	./.rhel-prod/install_cert
+	./.rhel-prod/fda-authentication-service/install_cert
 
 config-registry:
 	./.rhel-registry/install_cert
 
 config-frontend:
-	./.gitlab-ci/frontend/install_cert
+	./.rhel-prod/fda-ui/install_cert
+	docker-compose -f docker-compose.prod.yml config
 
 config-docker:
 	docker image pull -q postgres:13.4-alpine || true > /dev/null
@@ -23,28 +24,28 @@ build-backend-metadata:
 	mvn -f ./fda-metadata-db/pom.xml clean install
 
 build-backend-authentication:
-	mvn -f ./fda-authentication-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-authentication-service/pom.xml clean package -DskipTests
 
 build-backend-citation:
-	mvn -f ./fda-citation-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-citation-service/pom.xml clean package -DskipTests
 
 build-backend-container:
-	mvn -f ./fda-container-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-container-service/pom.xml clean package -DskipTests
 
 build-backend-database:
-	mvn -f ./fda-database-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-database-service/pom.xml clean package -DskipTests
 
 build-backend-discovery:
-	mvn -f ./fda-discovery-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-discovery-service/pom.xml clean package -DskipTests
 
 build-backend-gateway:
-	mvn -f ./fda-gateway-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-gateway-service/pom.xml clean package -DskipTests
 
 build-backend-query:
-	mvn -f ./fda-query-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-query-service/pom.xml clean package -DskipTests
 
 build-backend-table:
-	mvn -f ./fda-table-service/pom.xml -q clean package -DskipTests > /dev/null
+	mvn -f ./fda-table-service/pom.xml clean package -DskipTests
 
 build-backend: build-backend-metadata build-backend-authentication build-backend-citation build-backend-container build-backend-database build-backend-discovery build-backend-gateway build-backend-query build-backend-table
 
@@ -52,11 +53,17 @@ build-docker: config-docker
 	docker-compose build fda-metadata-db
 	docker-compose build
 
+build-docker-sandbox: config-docker
+	docker-compose -f docker-compose.prod.yml build fda-metadata-db
+	docker-compose -f docker-compose.prod.yml build
+
 build-frontend:
 	npm --prefix ./fda-ui install
 	npm --prefix ./fda-ui run build
 
 build: clean build-backend build-frontend build-docker
+
+build-sandbox: clean build-backend build-frontend build-docker-sandbox
 
 test-backend: test-backend-auth test-backend-citation test-backend-container test-backend-database test-backend-discovery test-backend-gateway test-backend-query test-backend-table
 
@@ -100,7 +107,7 @@ run-frontend:
 run:
 	docker-compose up -d
 
-run-sandbox:
+run-sandbox: config-frontend
 	docker-compose -f docker-compose.prod.yml up -d
 
 deploy-registry: config-registry
@@ -169,7 +176,7 @@ teardown:
 re-deploy: teardown deploy-staging
 
 deploy-stable: registry-stable
-	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
+	./.gitlab-ci/deploy
 
 deploy-staging: registry-staging
-	ENV=prod NGINX_PORT=443 ./.gitlab-ci/deploy
+	./.gitlab-ci/deploy
