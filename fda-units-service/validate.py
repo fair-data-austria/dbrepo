@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Dec  2 23:31:39 2021
+
+@author: Cornelia Michlits
+"""
+import rdflib
+g = rdflib.Graph()
+g.namespace_manager.bind('om', 'http://www.ontology-of-units-of-measure.org/resource/om-2/')
+g.parse('onto/om-2.ttl', format='turtle')
+
+om = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+_exhausted = object()
+def validator(value):
+    #input str
+    tmp = str(om)+value
+    t_uri = rdflib.term.URIRef(tmp)
+    if next(g.triples((t_uri,None,None)), _exhausted) is _exhausted:
+        return 'invalid unit'
+    else:
+        return 'valid unit'
