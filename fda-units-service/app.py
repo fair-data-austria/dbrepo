@@ -33,7 +33,7 @@ template = dict(
 app.json_encoder = LazyJSONEncoder
 swagger = Swagger(app, config=swagger_config, template=template)
 
-@app.route('/units/suggest', methods=["POST"], endpoint='suggest')
+@app.route('/api/units/suggest', methods=["POST"], endpoint='suggest')
 @swag_from('suggest.yml')
 def suggest():
     input_json = request.get_json()
@@ -48,7 +48,7 @@ def suggest():
         res = {"success": False, "message": "Unknown error"+str(e)+unit}
         return jsonify(res)
 
-@app.route('/units/validate', methods=["POST"], endpoint='validate')
+@app.route('/api/units/validate', methods=["POST"], endpoint='validate')
 @swag_from('validate.yml')
 def suggest():
     input_json = request.get_json()
