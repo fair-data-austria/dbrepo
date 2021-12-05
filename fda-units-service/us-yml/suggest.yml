@@ -1,0 +1,25 @@
+summary: "Autosuggest units"
+description: "This is a simple API which returns a list of suggested units."
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "to-do description"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      ustring:
+        type: "string"
+        example : "met"
+      offset: 
+        type: "integer"
+        example: 0
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"

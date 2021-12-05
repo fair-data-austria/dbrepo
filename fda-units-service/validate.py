@@ -17,6 +17,6 @@ def validator(value):
     tmp = str(om)+value
     t_uri = rdflib.term.URIRef(tmp)
     if next(g.triples((t_uri,None,om.Unit)), _exhausted) is _exhausted and next(g.triples((t_uri,None,om.PrefixedUnit)),_exhausted) is _exhausted and next(g.triples((t_uri,None,om.UnitDivision)),_exhausted) is _exhausted:
-        return 'invalid'
+        return {"valid": False}
     else:
-        return 'valid'
+        return {"valid": True}
