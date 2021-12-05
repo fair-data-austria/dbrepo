@@ -15,8 +15,10 @@ g.parse('onto/om-2.ttl', format='turtle')
 om = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 rdf_schema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
 
-def list_units(string):
-    if bool(re.match('^[a-zA-Z0-9]+$',string)): 
+r={}
+
+def list_units(string,offset=0):
+    if bool(re.match('^[a-zA-Z0-9]+$',string)):
         l_query = """
         SELECT ?symbol ?name ?comment
         WHERE {
@@ -24,9 +26,26 @@ def list_units(string):
             ?unit <http://www.w3.org/2000/01/rdf-schema#label> ?name .
             ?unit <http://www.w3.org/2000/01/rdf-schema#comment> ?comment .
             FILTER regex(str(?unit),\""""+string+"""\","i")
-            } LIMIT 10 """
+            } LIMIT 10 OFFSET """+str(offset)
         qres = g.query(l_query)
+        units = list()
+        for row in qres:
+            units.append({"symbol": str(row.symbol), "name": str(row.name), "comment": str(row.comment)})
+        return units
+    else:
+        return None
+
+def get_uri(name):
+    if bool(re.match('^[a-zA-Z0-9]+$',name)):
+        uri_query = """
+        SELECT ?uri
+        WHERE {
+            ?uri <http://www.w3.org/2000/01/rdf-schema#label> ?o .
+            FILTER (str(?o)=\""""+name+"""\")
+            } LIMIT 1
+        """
+        qres = g.query(uri_query)
         for row in qres: 
-            print(f"{row.symbol} | {row.name} | {row.comment}")
-    else: 
-        return 'not alphanumeric'
+            return {"URI": row.uri}
+    else:
+        return None
