@@ -23,6 +23,6 @@ def validator(value):
 
 def stringmapper(thisstring):
     if ' ' in thisstring: 
-        return thisstring.split(" ",1)[0]+thisstring.split(" ",1)[1].title().replace(" ","")
+        return thisstring.split(" ",1)[0].lower()+thisstring.split(" ",1)[1].title().replace(" ","")
     else: 
         return thisstring
