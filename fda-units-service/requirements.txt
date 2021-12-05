@@ -3,4 +3,4 @@ flasgger==0.9.5
 py-eureka-client==0.9.1
 docker==5.0.0
 gevent==21.8.0
-rdflib==6.0.1
+rdflib==6.0.2
