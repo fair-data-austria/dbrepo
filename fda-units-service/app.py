@@ -7,7 +7,7 @@ from flasgger import Swagger
 from flasgger.utils import swag_from
 from flasgger import LazyString, LazyJSONEncoder
 from list import list_units, get_uri
-from validate import validator
+from validate import validator, stringmapper
 
 app = Flask(__name__)
 app.config["SWAGGER"] = {"title": "FDA-Units-Service", "uiversion": 3}
@@ -50,11 +50,23 @@ def suggest():
 
 @app.route('/api/units/validate', methods=["POST"], endpoint='validate')
 @swag_from('validate.yml')
-def suggest():
+def valitate():
     input_json = request.get_json()
     try:
         unit = str(input_json['ustring'])
-        res = validator(unit)
+        res = validator(stringmapper(unit))
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"+str(e)+unit}
+    return jsonify(res)
+
+@app.route('/api/units/geturi', methods=["POST"], endpoint='geturi')
+@swag_from('geturi.yml')
+def geturi():
+    input_json = request.get_json()
+    try:
+        name = str(input_json['uname'])
+        res = get_uri(name)
     except Exception as e:
         print(e)
         res = {"success": False, "message": "Unknown error"+str(e)+unit}

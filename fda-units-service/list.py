@@ -36,12 +36,12 @@ def list_units(string,offset=0):
         return None
 
 def get_uri(name):
-    if bool(re.match('^[a-zA-Z0-9]+$',name)):
+    if bool(re.match('^[a-zA-Z0-9\\s]+$',name)):
         uri_query = """
-        SELECT ?uri
+        SELECT ?uri ?o
         WHERE {
             ?uri <http://www.w3.org/2000/01/rdf-schema#label> ?o .
-            FILTER (str(?o)=\""""+name+"""\")
+            FILTER regex(str(?o),\"^"""+name+"""$\","i")
             } LIMIT 1
         """
         qres = g.query(uri_query)
