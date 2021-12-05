@@ -12,7 +12,8 @@ COPY requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt > /dev/null
 
-COPY ./us-yml ./
+COPY ./us-yml/*.yml ./
+COPY ./onto/*.ttl ./onto/
 COPY ./*.py ./
 COPY ./service_ready ./
 

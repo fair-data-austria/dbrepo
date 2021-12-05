@@ -6,6 +6,8 @@ import json
 from flasgger import Swagger
 from flasgger.utils import swag_from
 from flasgger import LazyString, LazyJSONEncoder
+from list import list_units, get_uri
+from validate import validator
 
 app = Flask(__name__)
 app.config["SWAGGER"] = {"title": "FDA-Units-Service", "uiversion": 3}
@@ -31,10 +33,32 @@ template = dict(
 app.json_encoder = LazyJSONEncoder
 swagger = Swagger(app, config=swagger_config, template=template)
 
-@app.route('/api/units/suggest', methods=["POST"], endpoint='units_suggest')
-#@swag_from('/as-yml/suggest.yml')
+@app.route('/units/suggest', methods=["POST"], endpoint='suggest')
+@swag_from('suggest.yml')
 def suggest():
-    return 200
+    input_json = request.get_json()
+    try:
+        unit = str(input_json['ustring'])
+        offset = int(input_json['offset'])
+        res = list_units(unit,offset)
+        return jsonify(res),200
+    except Exception as e:
+        print(e)
+        #str(print_exc())
+        res = {"success": False, "message": "Unknown error"+str(e)+unit}
+        return jsonify(res)
+
+@app.route('/units/validate', methods=["POST"], endpoint='validate')
+@swag_from('validate.yml')
+def suggest():
+    input_json = request.get_json()
+    try:
+        unit = str(input_json['ustring'])
+        res = validator(unit)
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": "Unknown error"+str(e)+unit}
+    return jsonify(res)
 
 rest_server_port = 5010
 eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
