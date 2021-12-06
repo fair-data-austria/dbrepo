@@ -18,7 +18,7 @@ FROM openjdk:11-jre-slim as runtime
 COPY ./service_ready /usr/bin
 RUN chmod +x /usr/bin/service_ready
 
-HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD service_ready
+HEALTHCHECK --interval=10s --timeout=5s --retries=12 CMD service_ready
 
 COPY --from=build ./discovery/target/discovery-*.jar ./discovery.jar
 

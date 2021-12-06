@@ -169,6 +169,8 @@ logs:
 clean:
 	docker-compose down
 	docker volume rm fda-services_fda-metadata-db-data || true
+	docker volume rm fda-public || true
+	docker volume rm fda-userdb || true
 
 teardown:
 	./.rhel-prod/teardown

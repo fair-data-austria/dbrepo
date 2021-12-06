@@ -19,7 +19,7 @@ RUN mvn -q clean install > /dev/null
 FROM postgres:latest as runtime
 
 # Scripts are copied to /docker-entrypoint-initdb.d/ in docker-compose from analyze service
-HEALTHCHECK --interval=10s --timeout=3s --retries=6 CMD pg_isready
+HEALTHCHECK --interval=10s --timeout=5s --retries=12 CMD pg_isready
 
 COPY ./initi.sh /docker-entrypoint-initdb.d/
 RUN chmod +x /docker-entrypoint-initdb.d/initi.sh
