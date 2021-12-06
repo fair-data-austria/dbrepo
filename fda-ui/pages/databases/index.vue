@@ -49,7 +49,7 @@
         v-model="createDbDialog"
         persistent
         max-width="640">
-        <CreateDB @refresh="refresh" />
+        <CreateDB @close="createDbDialog = false" />
       </v-dialog>
     </v-card>
   </div>

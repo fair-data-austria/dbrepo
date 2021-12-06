@@ -180,7 +180,7 @@ export default {
       }
       this.loading = false
       this.$toast.success(`Database "${res.data.name}" created.`)
-      // this.$emit('refresh')
+      this.$emit('close')
       await this.$router.push(`/databases/${containerId}/info`)
     }
   }
