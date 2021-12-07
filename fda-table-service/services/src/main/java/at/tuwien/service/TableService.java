@@ -1,9 +1,15 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
+import com.opencsv.exceptions.CsvException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface TableService {
@@ -62,4 +68,9 @@ public interface TableService {
      */
     Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException;
+
+    Database findDatabase(Long id) throws DatabaseNotFoundException;
+
+    TableCsvDto readCsv(Table table, TableInsertDto data, MultipartFile file) throws IOException, CsvException,
+            ArrayIndexOutOfBoundsException;
 }

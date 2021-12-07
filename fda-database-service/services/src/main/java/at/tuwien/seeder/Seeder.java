@@ -6,9 +6,11 @@ import at.tuwien.exception.DatabaseMalformedException;
 import at.tuwien.exception.ImageNotSupportedException;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @Component
 public interface Seeder {
 
-    void seed() throws ImageNotSupportedException, AmqpException, ContainerNotFoundException, DatabaseMalformedException;
+    void seed() throws ImageNotSupportedException, AmqpException, ContainerNotFoundException, IOException;
 
 }

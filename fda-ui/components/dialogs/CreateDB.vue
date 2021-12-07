@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
     <v-card>
+      <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
       <v-card-title>
         Create Database
       </v-card-title>
@@ -180,7 +180,7 @@ export default {
       }
       this.loading = false
       this.$toast.success(`Database "${res.data.name}" created.`)
-      // this.$emit('refresh')
+      this.$emit('close')
       await this.$router.push(`/databases/${containerId}/info`)
     }
   }

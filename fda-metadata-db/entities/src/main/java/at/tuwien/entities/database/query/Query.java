@@ -37,6 +37,11 @@ public class Query {
     @ToString.Include
     private Long qdbid;
 
+    @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Long qtid;
+
     @Column
     private String doi;
 
@@ -47,19 +52,23 @@ public class Query {
     private String query;
 
     @Column
+    private String description;
+
+    @Column
     private String queryNormalized;
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "query")
-    private List<File> files;
-
-    @Column(name = "deposit_id", unique = true)
-    private Long depositId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumns({
             @JoinColumn(name = "qdbid", referencedColumnName = "id", insertable = false, updatable = false)
     })
     private Database database;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "qdbid", referencedColumnName = "tdbid", insertable = false, updatable = false),
+            @JoinColumn(name = "qtid", referencedColumnName = "id", insertable = false, updatable = false)
+    })
+    private at.tuwien.entities.database.table.Table table;
 
     @Column
     private Instant executionTimestamp;

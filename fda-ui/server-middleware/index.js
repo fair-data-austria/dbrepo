@@ -31,12 +31,12 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
       body: JSON.stringify({ filepath: path }),
       headers: { 'Content-Type': 'application/json' }
     })
-    analysis = await analysis.json()
-    if (!analysis.success) {
-      console.error('Failed to determine datatypes', analysis.message)
-      return res.json({ success: false, message: analysis.message })
+    console.debug('analyzed', analysis)
+    analysis = JSON.parse(await analysis.json())
+    console.log(analysis)
+    if (!analysis.columns) {
+      return res.json({ success: false, message: 'Columns array missing' })
     }
-    // analysis = JSON.parse(analysis)
   } catch (error) {
     console.error('failed to analyze', error)
     return res.json({ success: false, error })

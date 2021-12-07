@@ -8,10 +8,11 @@
         {{ table.description }}
       </v-card-subtitle>
       <v-data-table
+        dense
         :headers="headers"
         :items="rows"
         :loading="loading"
-        :items-per-page="30"
+        :items-per-page="15"
         class="elevation-1" />
     </v-card>
     <div class="mt-3">
@@ -26,6 +27,7 @@
         † Unique Column
       </v-chip>
     </div>
+    <v-breadcrumbs :items="items" class="pa-0 mt-2" />
   </div>
 </template>
 <script>
@@ -36,7 +38,17 @@ export default {
   data () {
     return {
       loading: true,
-      table: null,
+      page: 0,
+      table: {
+        name: null,
+        description: null
+      },
+      items: [
+        { text: 'Databases', href: '/databases' },
+        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` },
+        { text: 'Tables', href: `/databases/${this.$route.params.database_id}/tables` },
+        { text: `${this.$route.params.table_id}`, href: `/databases/${this.$route.params.database_id}/tables/${this.$route.params.table_id}` }
+      ],
       headers: [],
       rows: []
     }
@@ -64,7 +76,9 @@ export default {
     },
     async loadData () {
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`)
+        let url = `/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
+        url += `?page=${this.page}&size=10`
+        const res = await this.$axios.get(url)
         this.rows = res.data.result
         console.debug('table data', res.data)
       } catch (err) {
