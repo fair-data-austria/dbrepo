@@ -4,7 +4,7 @@
       <v-card-title v-if="!loading">
         Import Data
       </v-card-title>
-      <v-card-subtitle>{{ table.name }} ({{ table.internal_name }})</v-card-subtitle>
+      <v-card-subtitle>{{ table.name }} ({{ table.internalName }})</v-card-subtitle>
       <v-card-text>
         <v-checkbox
           v-model="tableInsert.skipHeader"
@@ -43,7 +43,7 @@ export default {
       loading: false,
       table: {
         name: null,
-        internal_name: null
+        internalName: null
       },
       tableInsert: {
         skipHeader: false,
@@ -76,6 +76,7 @@ export default {
       } catch (err) {
         console.error('Could not insert data.', err)
       }
+      this.loading = false
     },
     async upload () {
       this.loading = true
@@ -97,7 +98,7 @@ export default {
         console.error('Could not upload data.', err)
         return
       }
-      const insertUrl = `/api/database/${this.databaseId}/table/${this.tableId}/data`
+      const insertUrl = `/api/database/${this.databaseId}/table/${this.tableId}/data/csv`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)

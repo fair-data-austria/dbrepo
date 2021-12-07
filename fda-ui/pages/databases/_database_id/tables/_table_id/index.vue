@@ -38,6 +38,7 @@ export default {
   data () {
     return {
       loading: true,
+      page: 0,
       table: {
         name: null,
         description: null
@@ -75,7 +76,9 @@ export default {
     },
     async loadData () {
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`)
+        let url = `/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
+        url += `?page=${this.page}&size=10`
+        const res = await this.$axios.get(url)
         this.rows = res.data.result
         console.debug('table data', res.data)
       } catch (err) {
