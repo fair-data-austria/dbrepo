@@ -18,14 +18,14 @@ rdf_schema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
 r={}
 
 def list_units(string,offset=0):
-    if bool(re.match('^[a-zA-Z0-9]+$',string)):
+    if bool(re.match('^[a-zA-Z0-9\\s]+$',string)):
         l_query = """
         SELECT ?symbol ?name ?comment
         WHERE {
             ?unit om:symbol ?symbol .
             ?unit <http://www.w3.org/2000/01/rdf-schema#label> ?name .
             ?unit <http://www.w3.org/2000/01/rdf-schema#comment> ?comment .
-            FILTER regex(str(?unit),\""""+string+"""\","i")
+            FILTER (regex(str(?unit),\""""+string+"""\","i") && lang(?name)="en")
             } LIMIT 10 OFFSET """+str(offset)
         qres = g.query(l_query)
         units = list()

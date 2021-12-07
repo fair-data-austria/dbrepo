@@ -40,13 +40,12 @@ def suggest():
     try:
         unit = str(input_json['ustring'])
         offset = int(input_json['offset'])
-        res = list_units(unit,offset)
-        return jsonify(res),200
+        res = list_units(stringmapper(unit),offset)
+        return jsonify(res), 200
     except Exception as e:
         print(e)
-        #str(print_exc())
-        res = {"success": False, "message": "Unknown error"+str(e)+unit}
-        return jsonify(res)
+        res = {"success": False, "message": str(e)}
+        return jsonify(res), 500
 
 @app.route('/api/units/validate', methods=["POST"], endpoint='validate')
 @swag_from('validate.yml')
@@ -55,10 +54,11 @@ def valitate():
     try:
         unit = str(input_json['ustring'])
         res = validator(stringmapper(unit))
+        return str(res), 200
     except Exception as e:
         print(e)
-        res = {"success": False, "message": "Unknown error"+str(e)+unit}
-    return jsonify(res)
+        res = {"success": False, "message": str(e)}
+        return jsonify(res)
 
 @app.route('/api/units/geturi', methods=["POST"], endpoint='geturi')
 @swag_from('geturi.yml')
@@ -67,10 +67,11 @@ def geturi():
     try:
         name = str(input_json['uname'])
         res = get_uri(name)
+        return jsonify(res), 200
     except Exception as e:
         print(e)
-        res = {"success": False, "message": "Unknown error"+str(e)+unit}
-    return jsonify(res)
+        res = {"success": False, "message": str(e)}
+        return jsonify(res), 500
 
 rest_server_port = 5010
 eureka_client.init(eureka_server=os.getenv('EUREKA_SERVER', 'http://localhost:9090/eureka/'),
