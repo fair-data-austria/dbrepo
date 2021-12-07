@@ -161,13 +161,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MAXVALUE
 		CACHE 1;
 
-	CREATE SEQUENCE public.mdb_concept_seq
-		START WITH 1
-		INCREMENT BY 1
-		NO MINVALUE
-		NO MAXVALUE
-		CACHE 1;
-
 	CREATE TABLE IF NOT EXISTS mdb_DATABASES (
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'),
 		container_id bigint REFERENCES mdb_CONTAINER(id),
@@ -302,17 +295,16 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_concepts (
-		oID bigint DEFAULT nextval('mdb_concept_seq'),
-		name TEXT,
 		URI TEXT,
-		PRIMARY KEY(oID)
+		name TEXT,
+		PRIMARY KEY(URI)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_columns_concepts (
 		cDBID bigint,
 		tID bigint,
 		cID bigint,
-		oID bigint REFERENCES mdb_concepts(oID),
+		URI TEXT REFERENCES mdb_concepts(URI),
 		FOREIGN KEY (cDBID,tID, cID) REFERENCES mdb_COLUMNS(cDBID,tID,ID),
 		PRIMARY KEY(cDBID,tID,cID)
 	);
