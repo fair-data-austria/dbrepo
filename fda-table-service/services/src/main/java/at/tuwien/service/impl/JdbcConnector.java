@@ -112,6 +112,8 @@ public abstract class JdbcConnector implements DatabaseConnector {
             log.warn("No data provided.");
             throw new TableMalformedException("No data provided");
         }
+        log.info("First row {}", data.getData().get(0));
+        log.info("Table columns {}", table.getColumns());
         if (data.getData().get(0).size() != table.getColumns().size()) {
             log.error("Provided columns differ from table columns found in metadata db.");
             throw new TableMalformedException("Provided columns differ from table columns found in metadata db.");
@@ -138,9 +140,11 @@ public abstract class JdbcConnector implements DatabaseConnector {
                     .values(row));
         }
         try {
+            log.trace("insertCsv statements {}", statements);
             context.batch(statements)
                     .execute();
         } catch (DataAccessException e) {
+            log.error("DataAccessException {}", e);
             throw new TableMalformedException("Columns seem to differ or other problem with jOOQ mapper, most commonly it is a data type issue try with type 'STRING'", e);
         }
     }
