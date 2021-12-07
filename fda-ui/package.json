@@ -62,7 +62,6 @@
     "jest": "^27.0.2",
     "jsdom": "^16.6.0",
     "jsdom-global": "^3.0.2",
-    "node-sass": "^5.0.0",
     "nyc": "^15.1.0",
     "playwright": "^1.14.0",
     "require-extension-hooks": "^0.3.3",

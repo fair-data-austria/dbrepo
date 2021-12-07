@@ -111,14 +111,6 @@ export default {
   },
 
   build: {
-    loaders: {
-      sass: {
-        implementation: require('sass')
-      },
-      scss: {
-        implementation: require('sass')
-      }
-    },
     babel: {
       presets (env, [preset, options]) {
         return [
