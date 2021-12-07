@@ -227,23 +227,6 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_mariadb_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, InterruptedException, AmqpException {
-        createContainer2(true);
-        final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(CONTAINER_2_ID)
-                .name(DATABASE_2_NAME)
-                .isPublic(DATABASE_2_PUBLIC)
-                .build();
-
-        /* test */
-        final Database response = databaseService.create(request);
-        assertEquals(DATABASE_2_NAME, response.getName());
-        assertEquals(DATABASE_2_PUBLIC, response.getIsPublic());
-        assertEquals(CONTAINER_2_ID, response.getContainer().getId());
-    }
-
-    @Test
     public void create_notFound_fails() {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(9999L)

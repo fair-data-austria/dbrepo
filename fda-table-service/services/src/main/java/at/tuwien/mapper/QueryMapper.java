@@ -20,6 +20,7 @@ public interface QueryMapper {
         for (Record record : data) {
             final Map<String, Object> map = new HashMap<>();
             for (Field<?> column : record.fields()) {
+                System.out.println("Columnname: "+column);
                 map.put(column.getName(), record.get(column.getName()));
             }
             result.add(map);

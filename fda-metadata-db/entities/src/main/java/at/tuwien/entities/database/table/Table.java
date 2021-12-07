@@ -23,7 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @Document(indexName = "tblindex", createIndex = false)
 @IdClass(TableKey.class)
-@ToString(onlyExplicitlyIncluded = true)
+@ToString
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @javax.persistence.Table(name = "mdb_tables")

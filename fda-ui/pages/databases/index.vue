@@ -40,7 +40,7 @@
               </td>
               <td>{{ item.description }}</td>
               <td>{{ item.engine }}</td>
-              <td>{{ item.created }}</td>
+              <td>{{ formatDate(item.created) }}</td>
             </tr>
           </tbody>
         </template>
@@ -49,7 +49,7 @@
         v-model="createDbDialog"
         persistent
         max-width="640">
-        <CreateDB @refresh="refresh" />
+        <CreateDB @close="createDbDialog = false" />
       </v-dialog>
     </v-card>
   </div>
@@ -100,7 +100,7 @@ export default {
       return s.slice(0, 12)
     },
     formatDate (d) {
-      return format(new Date(d), 'dd/MM/yyyy HH:mm')
+      return format(new Date(d), 'dd.MM.yyyy HH:mm')
     },
     relativeDate (d) {
       let options = { addSuffix: true }

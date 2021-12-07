@@ -162,9 +162,9 @@ export default {
         if (res.status === 201) {
           this.error = false
           this.$toast.success('Table created.')
-          // this.$root.$emit('table-create', res.data)
           const tableId = res.data.id
           await this.$router.push(`/databases/${this.databaseId}/tables/${tableId}/import`)
+          this.$root.$emit('table-create', res.data)
         } else {
           this.error = true
           this.$toast.error(`Could not create table: status ${res.status}`)

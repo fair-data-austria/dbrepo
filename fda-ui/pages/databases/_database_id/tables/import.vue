@@ -178,6 +178,8 @@ export default {
         const res = await this.$axios.post(url, data, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
+        console.log(res.data)
+
         if (res.data.success) {
           this.tableCreate.columns = res.data.columns
           this.fileLocation = res.data.file.filename

@@ -7,9 +7,10 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 COPY ./package.json ./
+COPY ./yarn.lock ./
 
-# Install npm dependencies
-RUN npm install > /dev/null 2>&1
+# Install yarn dependencies
+RUN yarn install --frozen-lockfile > /dev/null 2>&1
 
 COPY ./nuxt.config.js ./
 COPY ./.env-docker ./.env
@@ -24,7 +25,6 @@ COPY ./plugins ./plugins
 COPY ./server-middleware ./server-middleware
 COPY ./static ./static
 COPY ./store ./store
-COPY ./yarn.lock ./
 
 RUN yarn build > /dev/null
 

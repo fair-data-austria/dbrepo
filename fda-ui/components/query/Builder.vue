@@ -31,6 +31,17 @@
           </v-row>
           <v-row class="mt-2">
             <v-col cols="6">
+              <v-textarea
+                v-model="description"
+                :rules="[rules.required]"
+                rows="3"
+                class="pa-0"
+                label="Query Description"
+                required />
+            </v-col>
+          </v-row>
+          <v-row class="mt-2">
+            <v-col cols="6">
               <v-select
                 v-model="table"
                 :rules="[rules.required]"
@@ -53,10 +64,10 @@
                 @change="buildQuery" />
             </v-col>
           </v-row>
-          <!--    <QueryFilters-->
-          <!--      v-if="table"-->
-          <!--      v-model="clauses"-->
-          <!--      :columns="columnNames" />-->
+          <QueryFilters
+            v-if="table"
+            v-model="clauses"
+            :columns="columnNames" />
           <v-row v-if="query.formatted">
             <v-col>
               <highlightjs autodetect :code="query.formatted" />
@@ -95,6 +106,7 @@ export default {
       table: null,
       tables: [],
       title: null,
+      description: null,
       tableDetails: null,
       queryId: null,
       query: {
@@ -119,7 +131,7 @@ export default {
       return columns || []
     },
     columnNames () {
-      return this.selectItems && this.selectItems.map(s => s.name)
+      return this.selectItems && this.selectItems.map(s => s.internalName)
     },
     databaseId () {
       return this.$route.params.database_id
@@ -162,7 +174,7 @@ export default {
         this.loading = false
         this.queryId = res.data.id
         this.result.headers = this.select.map((s) => {
-          return { text: s.name, value: 'mdb_' + s.name, sortable: false }
+          return { text: s.name, value: s.name, sortable: false }
         })
         this.result.rows = res.data.result
       } catch (err) {
@@ -196,7 +208,7 @@ export default {
       const url = '/server-middleware/query/build'
       const data = {
         table: this.table.internalName,
-        select: this.select.map(s => 'mdb_' + s.name),
+        select: this.select.map(s => s.name),
         clauses: this.clauses
       }
       try {
