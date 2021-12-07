@@ -58,7 +58,7 @@ build-docker-sandbox: config-docker
 	docker-compose -f docker-compose.prod.yml build
 
 build-frontend:
-	npm --prefix ./fda-ui clean-install
+	npm --prefix ./fda-ui install
 	npm --prefix ./fda-ui run build
 
 build: clean build-backend build-frontend build-docker
