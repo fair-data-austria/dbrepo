@@ -49,11 +49,11 @@ build-backend-table:
 
 build-backend: build-backend-metadata build-backend-authentication build-backend-citation build-backend-container build-backend-database build-backend-discovery build-backend-gateway build-backend-query build-backend-table
 
-build-docker: config-docker
+build-docker:
 	docker-compose build fda-metadata-db
 	docker-compose build
 
-build-docker-sandbox: config-docker
+build-docker-sandbox:
 	docker-compose -f docker-compose.prod.yml build fda-metadata-db
 	docker-compose -f docker-compose.prod.yml build
 

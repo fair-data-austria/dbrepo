@@ -40,6 +40,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fda
+      TZ: Europe/Vienna
     logging:
       driver: json-file
 
@@ -53,6 +54,7 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
     ports:
       - "9090:9090"
     logging:
@@ -70,6 +72,7 @@ services:
           - fda-gateway-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
     ports:
       - "9095:9095"
     depends_on:
@@ -97,6 +100,7 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder
+      TZ: Europe/Vienna
     ports:
       - "9092:9092"
     volumes:
@@ -123,6 +127,7 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder
+      TZ: Europe/Vienna
     ports:
       - "9091:9091"
     volumes:
@@ -149,6 +154,7 @@ services:
       SERVER_NAME: dbrepo.local
       SPRING_PROFILES_ACTIVE: docker
       KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD:-dbrepo}
+      TZ: Europe/Vienna
     ports:
       - "9097:9097"
     depends_on:
@@ -168,6 +174,7 @@ services:
       - fda-userdb
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder
+      TZ: Europe/Vienna
     ports:
       - "9093:9093"
     volumes:
@@ -196,6 +203,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder
       multipart.location: /tmp
+      TZ: Europe/Vienna
     ports:
       - "9094:9094"
     volumes:
@@ -226,6 +234,7 @@ services:
 #    environment:
 #      SPRING_PROFILES_ACTIVE: docker
 #      ZENODO_API_KEY: "${ZENODO_API_KEY}"
+#      TZ: Europe/Vienna
 #    ports:
 #      - "9096:9096"
 #    depends_on:
@@ -271,6 +280,7 @@ services:
       - fda-public
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
+      TZ: Europe/Vienna
     ports:
       - "5010:5010"
     volumes:
@@ -288,6 +298,8 @@ services:
     hostname: fda-broker-service
     build: ./fda-broker-service
     image: fda-broker-service
+    environment:
+      TZ: Europe/Vienna
     networks:
       - fda-public
     ports:
@@ -339,5 +351,6 @@ services:
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
+      TZ: Europe/Vienna
     logging:
       driver: json-file
