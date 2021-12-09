@@ -163,9 +163,9 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public ExtendedMetadata extendedMetadata() {
         final ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setIdpDiscoveryEnabled(true);
-        extendedMetadata.setSignMetadata(false); // TODO
-        extendedMetadata.setSigningKey(samlSignKey);
-//        extendedMetadata.setEncryptionKey(samlSignKey);
+//        extendedMetadata.setSignMetadata(false); // TODO
+//        extendedMetadata.setSigningKey(samlSignKey); // TODO
+//        extendedMetadata.setEncryptionKey(samlSignKey); // TODO
         return extendedMetadata;
     }
 
@@ -276,16 +276,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public MetadataProvider metadataProvider() throws MetadataProviderException {
-        InputStream stream;
-        File file;
-        try {
-            stream = new ClassPathResource(idpProviderMetadata).getInputStream();
-            file = new File("./id_metadata.xml");
-            FileUtils.copyInputStreamToFile(stream, file);
-        } catch (IOException e) {
-            throw new MetadataProviderException("Could not read file", e);
-        }
-        final FilesystemMetadataProvider provider = new FilesystemMetadataProvider(timer(), file);
+        final HTTPMetadataProvider provider = new HTTPMetadataProvider(timer(), httpClient(), idpProviderMetadata);
         provider.setParserPool(parserPool());
         return provider;
     }

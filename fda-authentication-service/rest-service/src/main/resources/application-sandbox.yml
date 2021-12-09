@@ -35,6 +35,6 @@ fda:
   ready.path: /ready
   idp:
     entity-id: "at:tuwien"
-    metadata: "classpath:saml/idp_metadata.xml"
+    metadata: https://idp.zid.tuwien.ac.at/saml2
   saml.signkey: saml
   base-url: https://dbrepo.ossdip.at:9097
