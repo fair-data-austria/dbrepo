@@ -39,5 +39,5 @@ sudo keytool -noprompt -importcert -file "${TU_SAML_CERT}" -storepass "${KEY_STO
   -keystore "${KEY_STORE_LOCATION}" -alias tu
 
 # TRUST LET'S ENCRYPT
-sudo keytool -noprompt -import -alias letsencrypt -keystore "${KEY_STORE_LOCATION}" \
+sudo keytool -noprompt -import -alias letsencrypt -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \
   -file "${CERT_LOCATION}/chain.pem"
