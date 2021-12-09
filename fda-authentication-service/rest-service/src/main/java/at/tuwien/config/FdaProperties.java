@@ -32,6 +32,6 @@ public class FdaProperties {
     private String logoutSuccessUrl;
 
     @Value("${fda.saml.sign-password}")
-    private String samlSignPassword;
+    private String signKeyPassword;
 
 }
