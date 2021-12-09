@@ -24,10 +24,13 @@ public class FdaProperties {
     @Value("${fda.sp.base-url}")
     private String baseUrl;
 
-    @Value("${fda.sp.success-url}")
-    private String successRedirectUrl;
+    @Value("${fda.sp.login.success-url}")
+    private String loginSuccessUrl;
 
-    @Value("${fda.sp.failure-url}")
-    private String failureRedirectUrl;
+    @Value("${fda.sp.login.failure-url}")
+    private String loginFailureUrl;
+
+    @Value("${fda.sp.logout.success-url}")
+    private String logoutSuccessUrl;
 
 }
