@@ -2,14 +2,13 @@ package at.tuwien.config;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.io.FileUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.saml2.metadata.provider.*;
 import org.opensaml.xml.parse.StaticBasicParserPool;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -17,6 +16,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.context.SAMLContextProvider;
 import org.springframework.security.saml.context.SAMLContextProviderImpl;
@@ -35,14 +35,15 @@ import org.springframework.security.saml.util.VelocityFactory;
 import org.springframework.security.saml.websso.*;
 import org.springframework.security.web.*;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 @Configuration
@@ -50,17 +51,7 @@ import java.util.*;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SamlConfig extends WebSecurityConfigurerAdapter {
 
-    @Value("${fda.idp.metadata}")
-    private String idpProviderMetadata;
-
-    @Value("${fda.idp.entity-id}")
-    private String idpEntityId;
-
-    @Value("${fda.saml.signkey}")
-    private String samlSignKey;
-
-    @Value("${fda.base-url}")
-    private String baseUrl;
+    private final FdaProperties fdaProperties;
 
     @Value("${server.ssl.key-store}")
     private String samlKeystoreLocation;
@@ -76,6 +67,11 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${server.ssl.key-store-password}")
     private String samlKeystorePassword;
+
+    @Autowired
+    public SamlConfig(FdaProperties fdaProperties) {
+        this.fdaProperties = fdaProperties;
+    }
 
     @Bean
     public static SAMLBootstrap sAMLBootstrap() {
@@ -273,7 +269,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public MetadataProvider metadataProvider() throws MetadataProviderException {
-        final HTTPMetadataProvider provider = new HTTPMetadataProvider(timer(), httpClient(), idpProviderMetadata);
+        final HTTPMetadataProvider provider = new HTTPMetadataProvider(timer(), httpClient(), fdaProperties.getMetadataUrl());
         provider.setParserPool(parserPool());
         return provider;
     }
@@ -281,12 +277,12 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public MetadataGenerator metadataGenerator() {
         final MetadataGenerator metadataGenerator = new MetadataGenerator();
-        metadataGenerator.setEntityId(idpEntityId);
+        metadataGenerator.setEntityId(fdaProperties.getEntityId());
         metadataGenerator.setRequestSigned(false);
         metadataGenerator.setExtendedMetadata(extendedMetadata());
         metadataGenerator.setIncludeDiscoveryExtension(false);
         metadataGenerator.setKeyManager(keyManager());
-        metadataGenerator.setEntityBaseURL(baseUrl);
+        metadataGenerator.setEntityBaseURL(fdaProperties.getBaseUrl());
         metadataGenerator.setWantAssertionSigned(false);
         return metadataGenerator;
     }
@@ -319,6 +315,18 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
         passwords.put(samlKeystoreAlias, samlKeystorePassword);
         passwords.put("saml", samlKeystorePassword);
         return new JKSKeyManager(storeFile, samlKeystorePassword, passwords, samlKeystoreAlias);
+    }
+
+    @Bean
+    public SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler() {
+        SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler = new SavedRequestAwareAuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException, ServletException {
+                super.onAuthenticationSuccess(request, response, authentication);
+            }
+        };
+        successRedirectHandler.setDefaultTargetUrl("/");
+        return successRedirectHandler;
     }
 
     @Override

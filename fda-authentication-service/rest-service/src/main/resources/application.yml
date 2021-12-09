@@ -31,4 +31,4 @@ logging:
 eureka:
   instance.hostname: fda-authentication-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
-fda.ready.path: /ready
+fda.ready.path: ./ready
