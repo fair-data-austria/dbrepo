@@ -2,7 +2,9 @@ package at.tuwien.config;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.io.FileUtils;
 import org.apache.velocity.app.VelocityEngine;
+import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
@@ -10,6 +12,7 @@ import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -38,7 +41,11 @@ import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 @Configuration
@@ -269,7 +276,16 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public MetadataProvider metadataProvider() throws MetadataProviderException {
-        final HTTPMetadataProvider provider = new HTTPMetadataProvider(timer(), httpClient(), idpProviderMetadata);
+        InputStream stream;
+        File file;
+        try {
+            stream = new ClassPathResource(idpProviderMetadata).getInputStream();
+            file = new File("./id_metadata.xml");
+            FileUtils.copyInputStreamToFile(stream, file);
+        } catch (IOException e) {
+            throw new MetadataProviderException("Could not read file", e);
+        }
+        final FilesystemMetadataProvider provider = new FilesystemMetadataProvider(timer(), file);
         provider.setParserPool(parserPool());
         return provider;
     }
