@@ -136,7 +136,8 @@ services:
     environment:
       SERVER_NAME: dbrepo.ossdip.at
       SPRING_PROFILES_ACTIVE: sandbox
-      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+      KEY_STORE_PASSWORD: "${KEY_STORE_PASSWORD:-dbrepo}"
+      SAML_SIGN_PASSWORD: "${SAML_SIGN_PASSWORD}"
     ports:
       - "9097:9097"
     depends_on:
