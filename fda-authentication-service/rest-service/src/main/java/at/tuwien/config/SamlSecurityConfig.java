@@ -1,6 +1,5 @@
 package at.tuwien.config;
 
-import at.tuwien.bootstrap.FdaSamlBootstrap;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
@@ -65,11 +64,6 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
-    }
-
-    @Bean
-    public static SAMLBootstrap samlBootstrap() {
-        return new FdaSamlBootstrap();
     }
 
     @Bean
