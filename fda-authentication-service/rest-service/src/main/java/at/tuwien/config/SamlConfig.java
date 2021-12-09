@@ -4,10 +4,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
-import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
-import org.opensaml.saml2.metadata.provider.MetadataProvider;
-import org.opensaml.saml2.metadata.provider.MetadataProviderException;
+import org.opensaml.saml2.metadata.provider.*;
 import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -178,8 +175,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public ExtendedMetadataDelegate extendedMetadataProvider() throws MetadataProviderException {
         ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(metadataProvider(),
                 extendedMetadata());
-        extendedMetadataDelegate.setMetadataTrustCheck(true);
-        extendedMetadataDelegate.setMetadataRequireSignature(true);
+        extendedMetadataDelegate.setMetadataTrustCheck(false); // TODO
+        extendedMetadataDelegate.setMetadataRequireSignature(false); // TODO
         return extendedMetadataDelegate;
     }
 
