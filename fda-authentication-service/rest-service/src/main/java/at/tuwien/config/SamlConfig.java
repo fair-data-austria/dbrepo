@@ -325,7 +325,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
                 super.onAuthenticationSuccess(request, response, authentication);
             }
         };
-        successRedirectHandler.setDefaultTargetUrl("/");
+        successRedirectHandler.setDefaultTargetUrl(fdaProperties.getSuccessRedirectUrl());
         return successRedirectHandler;
     }
 
