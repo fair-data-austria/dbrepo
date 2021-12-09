@@ -31,10 +31,4 @@ logging:
 eureka:
   instance.hostname: fda-authentication-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
-fda:
-  ready.path: /ready
-  idp:
-    entity-id: "at:tuwien"
-    metadata: https://idp.zid.tuwien.ac.at/saml2
-  saml.signkey: saml
-  base-url: https://dbrepo.ossdip.at:9097
+fda.ready.path: /ready
