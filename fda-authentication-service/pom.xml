@@ -28,8 +28,9 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <spring-saml.version>2.0.0.M31</spring-saml.version>
+        <spring-saml.version>1.0.10.RELEASE</spring-saml.version>
         <javax-rs.version>2.1.1</javax-rs.version>
+        <opensaml.version>2.6.4</opensaml.version>
     </properties>
 
     <dependencies>
@@ -56,6 +57,18 @@
             <groupId>org.springframework.security.extensions</groupId>
             <artifactId>spring-security-saml2-core</artifactId>
             <version>${spring-saml.version}</version>
+            <exclusions>
+                <!-- override since 2.6.6 is not available anymore -->
+                <exclusion>
+                    <groupId>org.opensaml</groupId>
+                    <artifactId>opensaml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml</artifactId>
+            <version>${opensaml.version}</version>
         </dependency>
         <!-- Entity and API -->
         <dependency>
@@ -136,11 +149,6 @@
             <artifactId>swagger-annotations</artifactId>
             <version>${swagger.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-models</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -177,13 +185,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>spring</id>
-            <name>Spring milestone repo</name>
-            <url>https://repo.spring.io/milestone/</url>
-        </repository>
-    </repositories>
 
 </project>
