@@ -156,7 +156,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public ExtendedMetadata extendedMetadata() {
         final ExtendedMetadata extendedMetadata = new ExtendedMetadata();
         extendedMetadata.setIdpDiscoveryEnabled(true);
-        extendedMetadata.setSignMetadata(true);
+        extendedMetadata.setSignMetadata(false); // TODO
         extendedMetadata.setSigningKey(samlSignKey);
 //        extendedMetadata.setEncryptionKey(samlSignKey);
         return extendedMetadata;

@@ -15,6 +15,17 @@ spring:
     name: fda-authentication-service
   cloud:
     loadbalancer.ribbon.enabled: false
+  security:
+    saml2:
+      relyingparty:
+        registration:
+          tu-saml:
+            identityprovider:
+              verification:
+                credentials:
+                  - certificate-location: "classpath:saml/tu.crt"
+              entity-id: at:tuwien
+              sso-url: https://idp.zid.tuwien.ac.at/simplesaml/saml2/idp/SSOService.php
 server:
   port: 9097
   ssl:
