@@ -27,3 +27,5 @@ The key store is a secure container that contains the SSL/TLS certificate:
 Context metadata for IdP: `http://localhost:9097/saml/metadata`
 
 - The authentication is valid for 2 hours (default SAML2.0)
+- Login: `https://dbrepo.ossdip.at:9097/saml/login?local=true` -> success -> `https://dbrepo.ossdip.at/dashboard`
+- Logout: `https://dbrepo.ossdip.at:9097/saml/logout?local=true` -> success -> 

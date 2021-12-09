@@ -143,7 +143,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     public SimpleUrlAuthenticationFailureHandler failureRedirectHandler() {
         SimpleUrlAuthenticationFailureHandler simpleUrlAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler();
         simpleUrlAuthenticationFailureHandler.setUseForward(true);
-        simpleUrlAuthenticationFailureHandler.setDefaultFailureUrl(fdaProperties.getFailureRedirectUrl());
+        simpleUrlAuthenticationFailureHandler.setDefaultFailureUrl(fdaProperties.getLoginFailureUrl());
         return simpleUrlAuthenticationFailureHandler;
     }
 
@@ -160,7 +160,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public SimpleUrlLogoutSuccessHandler successLogoutHandler() {
         SimpleUrlLogoutSuccessHandler simpleUrlLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
-        simpleUrlLogoutSuccessHandler.setDefaultTargetUrl("/login");
+        simpleUrlLogoutSuccessHandler.setDefaultTargetUrl(fdaProperties.getLogoutSuccessUrl());
         simpleUrlLogoutSuccessHandler.setAlwaysUseDefaultTargetUrl(true);
         return simpleUrlLogoutSuccessHandler;
     }
@@ -352,7 +352,7 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
                 super.onAuthenticationSuccess(request, response, authentication);
             }
         };
-        successRedirectHandler.setDefaultTargetUrl(fdaProperties.getSuccessRedirectUrl());
+        successRedirectHandler.setDefaultTargetUrl(fdaProperties.getLoginSuccessUrl());
         return successRedirectHandler;
     }
 
