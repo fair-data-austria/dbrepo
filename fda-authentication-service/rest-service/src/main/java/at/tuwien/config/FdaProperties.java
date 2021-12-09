@@ -27,4 +27,7 @@ public class FdaProperties {
     @Value("${fda.sp.success-url}")
     private String successRedirectUrl;
 
+    @Value("${fda.sp.failure-url}")
+    private String failureRedirectUrl;
+
 }

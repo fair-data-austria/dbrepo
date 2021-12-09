@@ -36,6 +36,9 @@ import org.springframework.security.saml.websso.*;
 import org.springframework.security.web.*;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -121,20 +124,58 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public WebSSOProfileOptions defaultWebSSOProfileOptions() {
+        WebSSOProfileOptions webSSOProfileOptions = new WebSSOProfileOptions();
+        webSSOProfileOptions.setIncludeScoping(false);
+        return webSSOProfileOptions;
+    }
+
+    @Bean
+    public SAMLProcessingFilter samlWebSSOProcessingFilter() throws Exception {
+        SAMLProcessingFilter samlWebSSOProcessingFilter = new SAMLProcessingFilter();
+        samlWebSSOProcessingFilter.setAuthenticationManager(authenticationManager());
+        samlWebSSOProcessingFilter.setAuthenticationSuccessHandler(successRedirectHandler());
+        samlWebSSOProcessingFilter.setAuthenticationFailureHandler(failureRedirectHandler());
+        return samlWebSSOProcessingFilter;
+    }
+
+    @Bean
+    public SimpleUrlAuthenticationFailureHandler failureRedirectHandler() {
+        SimpleUrlAuthenticationFailureHandler simpleUrlAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler();
+        simpleUrlAuthenticationFailureHandler.setUseForward(true);
+        simpleUrlAuthenticationFailureHandler.setDefaultFailureUrl(fdaProperties.getFailureRedirectUrl());
+        return simpleUrlAuthenticationFailureHandler;
+    }
+
+    @Bean
     public WebSSOProfile webSSOprofile() {
         return new WebSSOProfileImpl();
     }
 
     @Bean
-    public SingleLogoutProfile logoutProfile() {
-        return new SingleLogoutProfileImpl();
+    public SAMLLogoutFilter samlLogoutFilter() {
+        return new SAMLLogoutFilter(successLogoutHandler(), new LogoutHandler[]{logoutHandler()}, new LogoutHandler[]{logoutHandler()});
     }
 
     @Bean
-    public WebSSOProfileOptions defaultWebSSOProfileOptions() {
-        final WebSSOProfileOptions webSSOProfileOptions = new WebSSOProfileOptions();
-        webSSOProfileOptions.setIncludeScoping(false);
-        return webSSOProfileOptions;
+    public SimpleUrlLogoutSuccessHandler successLogoutHandler() {
+        SimpleUrlLogoutSuccessHandler simpleUrlLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
+        simpleUrlLogoutSuccessHandler.setDefaultTargetUrl("/login");
+        simpleUrlLogoutSuccessHandler.setAlwaysUseDefaultTargetUrl(true);
+        return simpleUrlLogoutSuccessHandler;
+    }
+
+    @Bean
+    public SecurityContextLogoutHandler logoutHandler() {
+        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+        logoutHandler.setInvalidateHttpSession(true);
+        logoutHandler.setClearAuthentication(true);
+        return logoutHandler;
+    }
+
+    @Bean
+    public SingleLogoutProfile logoutProfile() {
+        return new SingleLogoutProfileImpl();
     }
 
     @Bean
@@ -194,22 +235,8 @@ public class SamlConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public SAMLProcessingFilter samlWebSSOProcessingFilter() throws Exception {
-        final SAMLProcessingFilter samlWebSSOProcessingFilter = new SAMLProcessingFilter();
-        samlWebSSOProcessingFilter.setAuthenticationManager(authenticationManager());
-        return samlWebSSOProcessingFilter;
-    }
-
-    @Bean
     public MetadataGeneratorFilter metadataGeneratorFilter() {
         return new MetadataGeneratorFilter(metadataGenerator());
-    }
-
-    @Bean
-    public SimpleUrlLogoutSuccessHandler successLogoutHandler() {
-        final SimpleUrlLogoutSuccessHandler successLogoutHandler = new SimpleUrlLogoutSuccessHandler();
-        successLogoutHandler.setDefaultTargetUrl("/");
-        return successLogoutHandler;
     }
 
     @Bean

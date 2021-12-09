@@ -25,3 +25,5 @@ The key store is a secure container that contains the SSL/TLS certificate:
 ## Development
 
 Context metadata for IdP: `http://localhost:9097/saml/metadata`
+
+- The authentication is valid for 2 hours (default SAML2.0)
