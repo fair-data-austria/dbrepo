@@ -1,7 +1,7 @@
 package at.tuwien.config;
 
 import at.tuwien.bootstrap.FdaSamlBootstrap;
-import at.tuwien.service.UserService;
+import at.tuwien.service.impl.AuthenticationServiceImpl;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
@@ -54,12 +54,12 @@ import java.util.*;
 @ComponentScan(basePackages = {"org.springframework.security.saml"})
 public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final UserService userService;
+    private final AuthenticationServiceImpl userService;
     private final FdaProperties fdaProperties;
     private final SslProperties sslProperties;
 
     @Autowired
-    public SamlSecurityConfig(UserService userService, FdaProperties fdaProperties, SslProperties sslProperties) {
+    public SamlSecurityConfig(AuthenticationServiceImpl userService, FdaProperties fdaProperties, SslProperties sslProperties) {
         this.userService = userService;
         this.fdaProperties = fdaProperties;
         this.sslProperties = sslProperties;

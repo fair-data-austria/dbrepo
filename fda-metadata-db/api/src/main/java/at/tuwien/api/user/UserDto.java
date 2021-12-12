@@ -12,7 +12,11 @@ public class UserDto {
 
     private String id;
 
-    private String givenName;
+    private String oId;
+
+    private String samlId;
+
+    private String firstname;
 
     private String surname;
 

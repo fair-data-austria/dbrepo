@@ -34,16 +34,11 @@ public class User {
     private Long id;
 
     @EqualsAndHashCode.Include
-    @Column(name = "tiss_id", unique = true)
-    private Long tissId;
+    @Column(name = "oid", unique = true)
+    private Long oId;
 
-    @EqualsAndHashCode.Include
-    @Column(name = "oid", nullable = false)
-    private Long organizationId;
-
-    @EqualsAndHashCode.Include
-    @Column(name = "external_id", nullable = false, unique = true)
-    private String externalId;
+    @Column(name = "saml_id", unique = true)
+    private Long samlId;
 
     @Column(name = "first_name", nullable = false)
     private String firstname;
