@@ -22,4 +22,6 @@ HEALTHCHECK --interval=10s --timeout=5s --retries=12 CMD service_ready
 
 COPY --from=build ./discovery/target/discovery-*.jar ./discovery.jar
 
+EXPOSE 9090
+
 ENTRYPOINT ["java", "-jar", "./discovery.jar"]
