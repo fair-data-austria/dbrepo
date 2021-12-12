@@ -49,6 +49,8 @@ services:
     image: fda-discovery-service
     networks:
       - fda-public
+    ports:
+      - "9090:9090"
     environment:
       SPRING_PROFILES_ACTIVE: docker
     logging:
