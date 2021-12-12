@@ -63,13 +63,14 @@ public class AuthenticationServiceImpl implements SAMLUserDetailsService {
         try {
             return userService.findByOid(oid);
         } catch (UserNotFoundException e) {
-            log.debug("User not present, adding to metadata database");
+            log.debug("user not present, adding to metadata database");
             final at.tuwien.entities.user.User user = at.tuwien.entities.user.User.builder()
                     .oId(oid)
                     .firstname(firstname)
                     .lastname(lastname)
                     .email(mail)
                     .build();
+            log.debug("adding user {}", user);
             return userService.save(user); // TODO mw: is this a good software pattern, please provide input
         }
     }
