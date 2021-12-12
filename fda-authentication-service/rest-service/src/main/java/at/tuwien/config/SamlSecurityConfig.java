@@ -156,7 +156,7 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
     public SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler() {
         SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler =
                 new SavedRequestAwareAuthenticationSuccessHandler();
-        successRedirectHandler.setDefaultTargetUrl("/");
+        successRedirectHandler.setDefaultTargetUrl(fdaProperties.getLoginSuccessUrl());
         return successRedirectHandler;
     }
 
