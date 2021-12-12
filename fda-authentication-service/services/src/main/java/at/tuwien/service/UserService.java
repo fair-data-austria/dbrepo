@@ -53,6 +53,9 @@ public class UserService implements SAMLUserDetailsService {
 
     private SimpleValue getSimpleValue(SAMLCredential credential, String attribute) throws SamlObjectException {
         final Attribute attr = credential.getAttribute(attribute);
+        if (attr == null) {
+            throw new SamlObjectException("Attribute is empty");
+        }
         if (attr.getAttributeValues() == null) {
             throw new SamlObjectException("Attribute '" + attr + "' has empty value");
         }
