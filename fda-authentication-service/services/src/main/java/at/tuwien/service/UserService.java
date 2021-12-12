@@ -22,46 +22,22 @@ public class UserService implements SAMLUserDetailsService {
 
     @Override
     public Object loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
-        Long oid;
+        final String oid = credential.getAttributeAsString("oid");
         String surname;
         String firstname;
         String mail;
-        try {
-            oid = getLong(credential, "oid");
-            surname = getString(credential, "sn");
-            firstname = getString(credential, "givenName");
-            mail = getString(credential, "mail");
-        } catch (SamlObjectException e) {
-            throw new UsernameNotFoundException("Failed to get all attributes", e);
-        }
-        log.debug("user details are oid {} firstname {} surname {} mail {}", oid, firstname, surname, mail);
+//        try {
+//            oid = getLong(credential, "oid");
+//            surname = getString(credential, "sn");
+//            firstname = getString(credential, "givenName");
+//            mail = getString(credential, "mail");
+//        } catch (SamlObjectException e) {
+//            throw new UsernameNotFoundException("Failed to get all attributes", e);
+//        }
+        log.debug("user detail id {}", oid);
         final List<GrantedAuthority> authorities = new ArrayList<>();
         final GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
         authorities.add(authority);
-        return new User(mail, "", true, true, true, true, authorities);
-    }
-
-    protected String getString(SAMLCredential credential, String attribute) throws SamlObjectException {
-        return getSimpleValue(credential, attribute)
-                .getStringValue();
-    }
-
-    protected Long getLong(SAMLCredential credential, String attribute) throws SamlObjectException {
-        return getSimpleValue(credential, attribute)
-                .getLongValue();
-    }
-
-    private SimpleValue getSimpleValue(SAMLCredential credential, String attribute) throws SamlObjectException {
-        final Attribute attr = credential.getAttribute(attribute);
-        if (attr == null) {
-            throw new SamlObjectException("Attribute is empty");
-        }
-        if (attr.getAttributeValues() == null) {
-            throw new SamlObjectException("Attribute '" + attr + "' has empty value");
-        }
-        if (attr.getAttributeValues().size() == 0) {
-            throw new SamlObjectException("Attribute '" + attr + "' has empty value");
-        }
-        return (SimpleValue) attr.getAttributeValues().get(0);
+        return new User(oid, "", true, true, true, true, authorities);
     }
 }
