@@ -24,7 +24,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE TABLE public.mdb_image_environment_item (
 	    id bigint NOT NULL DEFAULT nextval('mdb_image_environment_item_seq'),
-	    created timestamp without time zone NOT NULL,
+		  created timestamp without time zone NOT NULL DEFAULT NOW(),
 	    last_modified timestamp without time zone,
 	    key character varying(255) NOT NULL,
 	    value character varying(255) NOT NULL,
@@ -40,7 +40,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE TABLE public.mdb_image (
 		id bigint PRIMARY KEY DEFAULT nextval('mdb_image_seq'),
-		created timestamp without time zone NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		last_modified timestamp without time zone,
 		compiled timestamp without time zone NOT NULL,
 		default_port integer NOT NULL,
@@ -77,7 +77,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE TABLE IF NOT EXISTS mdb_CONTAINER (
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_container_seq'),
 		CONTAINER_CREATED timestamp without time zone NOT NULL,
-		CREATED timestamp without time zone NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		HASH character varying(255) NOT NULL,
 		INTERNAL_NAME character varying(255) NOT NULL,
 		LAST_MODIFIED timestamp without time zone,
@@ -114,7 +114,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		Preceding_titles VARCHAR(50),
 		Postpositioned_title VARCHAR(50),
 		Main_Email TEXT,
-		created timestamp without time zone NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		last_modified timestamp without time zone
 	);
 
@@ -156,7 +156,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE TABLE IF NOT EXISTS mdb_DATABASES (
 		ID bigint PRIMARY KEY DEFAULT nextval('mdb_databases_seq'),
 		container_id bigint REFERENCES mdb_CONTAINER(id),
-		created timestamp without time zone NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		deleted timestamp without time zone NULL,
 		name character varying(255) NOT NULL,
 		internal_name character varying(255) NOT NULL,
@@ -175,7 +175,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE TABLE IF NOT EXISTS mdb_TABLES (
 		ID bigint NOT NULL DEFAULT nextval('mdb_tables_seq'),
 		tDBID bigint REFERENCES mdb_DATABASES(id),
-		created timestamp without time zone NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		internal_name character varying(255) NOT NULL,
 		topic character varying(255) NOT NULL,
 		last_modified timestamp without time zone,
@@ -201,7 +201,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     query_hash character varying(255) NULL,
     result_hash character varying(255) NULL,
     result_number bigint NULL,
-    created timestamp without time zone NOT NULL,
+    created timestamp without time zone NOT NULL DEFAULT NOW(),
     last_modified timestamp without time zone,
 		FOREIGN KEY (qdbid) REFERENCES mdb_DATABASES(ID),
 		FOREIGN KEY (qdbid, qtid) REFERENCES mdb_TABLES(tDBID, ID),
@@ -223,7 +223,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		foreign_key VARCHAR(255),
 		reference_table VARCHAR(255),
 		check_expression character varying(255),
-		created timestamp without time zone NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		last_modified timestamp without time zone,
 		FOREIGN KEY (cDBID,tID) REFERENCES mdb_TABLES(tDBID,ID), 
 		PRIMARY KEY(cDBID, tID, ID)
@@ -235,7 +235,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		tID bigint,
 		cID bigint,
 		enum_values CHARACTER VARYING(255) NOT NULL,
-		created timestamp without time zone NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		last_modified timestamp without time zone,
 		FOREIGN KEY (eDBID, tID, cID) REFERENCES mdb_COLUMNS(cDBID, tID, ID),
 		PRIMARY KEY (ID)
@@ -247,6 +247,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		cID bigint, 
 		maxlength INTEGER,
 		last_modified timestamp without time zone,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		FOREIGN KEY (cDBID,tID, cID) REFERENCES mdb_COLUMNS(cDBID,tID, ID), 
 		PRIMARY KEY(cDBID, tID, cID)
 	);
@@ -263,6 +264,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		Sd Numeric, 
 		Histogram INTEGER[],
 		last_modified timestamp without time zone,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		FOREIGN KEY (cDBID,tID, cID) REFERENCES mdb_COLUMNS(cDBID,tID,ID),
 		PRIMARY KEY(cDBID, tID, cID)
 	);
@@ -274,6 +276,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		num_cat INTEGER, 
 		cat_array TEXT[],
 		last_modified timestamp without time zone,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		FOREIGN KEY (cDBID,tID, cID) REFERENCES mdb_COLUMNS(cDBID,tID,ID),
 		PRIMARY KEY(cDBID, tID, cID)
 	);
@@ -281,6 +284,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE TABLE IF NOT EXISTS mdb_concepts (
 		URI TEXT,
 		name TEXT,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		PRIMARY KEY(URI)
 	);
 
@@ -289,6 +293,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		tID bigint,
 		cID bigint,
 		URI TEXT REFERENCES mdb_concepts(URI),
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		FOREIGN KEY (cDBID,tID, cID) REFERENCES mdb_COLUMNS(cDBID,tID,ID),
 		PRIMARY KEY(cDBID,tID,cID)
 	);
@@ -306,13 +311,15 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		Query TEXT, 
 		Public BOOLEAN , 
 		NumCols INTEGER, 
-		NumRows INTEGER, 
+		NumRows INTEGER,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		InitialView BOOLEAN
 	);
 	
 	CREATE TABLE IF NOT EXISTS mdb_views_databases( 
 		mdb_view_id bigint REFERENCES mdb_VIEW(id), 
-		databases_id bigint REFERENCES mdb_DATABASES(id), 
+		databases_id bigint REFERENCES mdb_DATABASES(id),
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		PRIMARY KEY (mdb_view_id, databases_id)
 	);
 
@@ -320,14 +327,16 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		fDBID bigint, 
 		fID bigint,
 		fUserId INTEGER REFERENCES mdb_USERS(UserID), 
-		fDataID INTEGER REFERENCES mdb_DATA(ID), 
+		fDataID INTEGER REFERENCES mdb_DATA(ID),
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		FOREIGN KEY (fDBID,fID) REFERENCES mdb_TABLES(tDBID,ID), 
 		PRIMARY KEY (fDBID,fID,fUserId, fDataID)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_update ( 
 		uUserID INTEGER REFERENCES mdb_USERS(UserID),
-		uDBID bigint REFERENCES mdb_DATABASES(id), 
+		uDBID bigint REFERENCES mdb_DATABASES(id),
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		PRIMARY KEY (uUserID,uDBID)
 	); 
 
@@ -335,7 +344,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		aUserID INTEGER REFERENCES mdb_USERS(UserID),
 		aDBID bigint REFERENCES mdb_DATABASES(id),
 		attime TIMESTAMP, 
-		download BOOLEAN, 
+		download BOOLEAN,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		PRIMARY KEY (aUserID, aDBID)
 	);
 
@@ -343,12 +353,14 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		hUserID INTEGER REFERENCES mdb_USERS(UserID),
 		hDBID bigint REFERENCES mdb_DATABASES(id),
 		hType accesstype,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		PRIMARY KEY (hUserID,hDBID)
 	);
 	
 	CREATE TABLE IF NOT EXISTS mdb_owns (
 		oUserID INTEGER REFERENCES mdb_USERS(UserID),
 		oDBID bigint REFERENCES mdb_DATABASES(ID),
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		PRIMARY KEY (oUserID,oDBID)
 	);
 
