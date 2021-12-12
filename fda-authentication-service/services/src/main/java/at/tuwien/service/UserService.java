@@ -1,6 +1,10 @@
 package at.tuwien.service;
 
+import at.tuwien.exceptions.SamlObjectException;
 import lombok.extern.log4j.Log4j2;
+import org.apache.xmlbeans.SimpleValue;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.xml.XMLObject;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -18,11 +22,43 @@ public class UserService implements SAMLUserDetailsService {
 
     @Override
     public Object loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
-        final String userID = credential.getNameID().getValue();
-        log.debug("user with id {} is logged in", userID);
+        Long oid;
+        String surname;
+        String firstname;
+        String mail;
+        try {
+            oid = getLong(credential, "oid");
+            surname = getString(credential, "sn");
+            firstname = getString(credential, "givenName");
+            mail = getString(credential, "mail");
+        } catch (SamlObjectException e) {
+            throw new UsernameNotFoundException("Failed to get all attributes", e);
+        }
+        log.debug("user details are oid {} firstname {} surname {} mail {}", oid, firstname, surname, mail);
         final List<GrantedAuthority> authorities = new ArrayList<>();
         final GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
         authorities.add(authority);
-        return new User(userID, "<abc123>", true, true, true, true, authorities);
+        return new User(mail, "", true, true, true, true, authorities);
+    }
+
+    protected String getString(SAMLCredential credential, String attribute) throws SamlObjectException {
+        return getSimpleValue(credential, attribute)
+                .getStringValue();
+    }
+
+    protected Long getLong(SAMLCredential credential, String attribute) throws SamlObjectException {
+        return getSimpleValue(credential, attribute)
+                .getLongValue();
+    }
+
+    private SimpleValue getSimpleValue(SAMLCredential credential, String attribute) throws SamlObjectException {
+        final Attribute attr = credential.getAttribute(attribute);
+        if (attr.getAttributeValues() == null) {
+            throw new SamlObjectException("Attribute '" + attr + "' has empty value");
+        }
+        if (attr.getAttributeValues().size() == 0) {
+            throw new SamlObjectException("Attribute '" + attr + "' has empty value");
+        }
+        return (SimpleValue) attr.getAttributeValues().get(0);
     }
 }

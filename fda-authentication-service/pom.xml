@@ -31,6 +31,7 @@
         <spring-saml.version>1.0.10.RELEASE</spring-saml.version>
         <javax-rs.version>2.1.1</javax-rs.version>
         <opensaml.version>2.6.4</opensaml.version>
+        <xml-beans.version>5.0.2</xml-beans.version>
     </properties>
 
     <dependencies>
@@ -69,6 +70,11 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml</artifactId>
             <version>${opensaml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>${xml-beans.version}</version>
         </dependency>
         <!-- Entity and API -->
         <dependency>
