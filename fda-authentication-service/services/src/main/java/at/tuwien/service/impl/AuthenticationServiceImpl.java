@@ -2,10 +2,7 @@ package at.tuwien.service.impl;
 
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.apache.xmlbeans.SimpleValue;
-import org.opensaml.saml2.core.Attribute;
 import org.opensaml.xml.schema.XSString;
-import org.opensaml.xml.security.credential.Credential;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
