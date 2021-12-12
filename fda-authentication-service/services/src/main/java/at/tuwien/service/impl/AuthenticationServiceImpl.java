@@ -1,8 +1,10 @@
 package at.tuwien.service.impl;
 
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.xmlbeans.SimpleValue;
 import org.opensaml.saml2.core.Attribute;
+import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.security.credential.Credential;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,8 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -42,32 +42,12 @@ public class AuthenticationServiceImpl implements SAMLUserDetailsService {
         }
     }
 
+    @SneakyThrows
     protected void printAttributes(SAMLCredential credential) {
-        credential.getAuthenticationAssertion()
-                .getAttributeStatements()
-                .forEach(s -> {
-                    if (s.getAttributes() == null) {
-                        log.warn("attributes are null");
-                    }
-                    if (s.getAttributes().size() == 0) {
-                        log.warn("attributes are 0");
-                    }
-                    s.getAttributes()
-                            .forEach(a -> {
-                                if (a.getAttributeValues() == null) {
-                                    log.warn("values are null");
-                                    return;
-                                }
-                                if (a.getAttributeValues().size() == 0) {
-                                    log.warn("values are 0");
-                                    return;
-                                }
-                                if (a.getAttributeValues().get(0) == null) {
-                                    log.warn("value[0] is null");
-                                    return;
-                                }
-                                log.debug("===> {} is {}", a.getName(), ((SimpleValue) a.getAttributeValues().get(0)).getStringValue());
-                            });
-                });
+        final String oid = ((XSString) credential.getAttribute("urn:oid:0.9.2342.19200300.100.1.1").getAttributeValues().get(0)).getValue();
+        final String lastname = ((XSString) credential.getAttribute("urn:oid:2.5.4.4").getAttributeValues().get(0)).getValue();
+        final String firstname = ((XSString) credential.getAttribute("urn:oid:2.5.4.42").getAttributeValues().get(0)).getValue();
+        final String mail = ((XSString) credential.getAttribute("urn:oid:0.9.2342.19200300.100.1.3").getAttributeValues().get(0)).getValue();
+        log.debug("====> INFO: oid {}, lastname {}, firstname {}, mail {}", oid, lastname, firstname, mail);
     }
 }
