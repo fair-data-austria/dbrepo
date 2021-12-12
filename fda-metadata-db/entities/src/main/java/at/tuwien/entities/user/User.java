@@ -52,12 +52,12 @@ public class User {
     @Column(name = "main_email")
     private String email;
 
-    @Column(nullable = false, updatable = false)
     @CreatedDate
+    @Column(nullable = false, updatable = false)
     private Instant created;
 
-    @Column
     @LastModifiedDate
+    @Column(nullable = false)
     private Instant lastModified;
 
 }

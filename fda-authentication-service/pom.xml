@@ -31,6 +31,7 @@
         <spring-saml.version>1.0.10.RELEASE</spring-saml.version>
         <javax-rs.version>2.1.1</javax-rs.version>
         <opensaml.version>2.6.4</opensaml.version>
+        <docker.version>3.2.7</docker.version>
     </properties>
 
     <dependencies>
@@ -104,6 +105,23 @@
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>${jacoco.version}</version>
+        </dependency>
+        <!-- Docker -->
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>${docker.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>jsr311-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-httpclient5</artifactId>
+            <version>${docker.version}</version>
         </dependency>
         <!-- DataSource -->
         <dependency>
