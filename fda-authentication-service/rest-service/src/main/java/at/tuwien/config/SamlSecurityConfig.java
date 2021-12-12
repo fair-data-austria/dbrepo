@@ -1,6 +1,5 @@
 package at.tuwien.config;
 
-import at.tuwien.bootstrap.FdaSamlBootstrap;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
@@ -65,11 +64,6 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
-    }
-
-    @Bean
-    public static SAMLBootstrap samlBootstrap() {
-        return new FdaSamlBootstrap();
     }
 
     @Bean
@@ -162,7 +156,7 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
     public SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler() {
         SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler =
                 new SavedRequestAwareAuthenticationSuccessHandler();
-        successRedirectHandler.setDefaultTargetUrl("/");
+        successRedirectHandler.setDefaultTargetUrl(fdaProperties.getLoginSuccessUrl());
         return successRedirectHandler;
     }
 
@@ -207,9 +201,8 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
         final DefaultResourceLoader loader = new DefaultResourceLoader();
         final Resource storeFile = loader.getResource(sslProperties.getSslKeyStore());
         final Map<String, String> passwords = new HashMap<>();
-//        passwords.put(samlKeystoreAlias, samlKeystorePassword);
         passwords.put(sslProperties.getSslKeyAlias(), sslProperties.getSslKeyStorePassword());
-        passwords.put("saml", fdaProperties.getSamlSignPassword());
+        passwords.put(fdaProperties.getSignKeyAlias(), fdaProperties.getSignKeyPassword());
         return new JKSKeyManager(storeFile, sslProperties.getSslKeyStorePassword(), passwords,
                 sslProperties.getSslKeyAlias());
     }
