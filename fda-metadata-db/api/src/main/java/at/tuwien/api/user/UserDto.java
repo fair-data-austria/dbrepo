@@ -14,8 +14,6 @@ public class UserDto {
 
     private String oId;
 
-    private String samlId;
-
     private String firstname;
 
     private String surname;

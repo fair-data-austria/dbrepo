@@ -37,9 +37,6 @@ public class User {
     @Column(name = "oid", unique = true)
     private Long oId;
 
-    @Column(name = "saml_id", unique = true)
-    private Long samlId;
-
     @Column(name = "first_name", nullable = false)
     private String firstname;
 

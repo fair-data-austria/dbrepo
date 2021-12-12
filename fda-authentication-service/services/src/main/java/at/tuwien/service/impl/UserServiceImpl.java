@@ -35,4 +35,20 @@ public class UserServiceImpl implements UserService {
         }
         return user.get();
     }
+
+    @Override
+    public User findByOid(Long oid) throws UserNotFoundException {
+        final Optional<User> user = userRepository.findByOId(oid);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("No user with this oid");
+        }
+        return user.get();
+    }
+
+    @Override
+    public User save(User user) {
+        final User out = userRepository.save(user);
+        log.info("Added/updated user with id {}", out.getId());
+        return out;
+    }
 }

@@ -22,4 +22,21 @@ public interface UserService {
      * @throws UserNotFoundException
      */
     User findById(Long id) throws UserNotFoundException;
+
+    /**
+     * Retrieve a specific user with oid that is known to the metadata database
+     *
+     * @param oid The oid.
+     * @return The user.
+     * @throws UserNotFoundException
+     */
+    User findByOid(Long oid) throws UserNotFoundException;
+
+    /**
+     * Save or update a user in the metadata database
+     *
+     * @param user The user.
+     * @return The saved/updated user.
+     */
+    User save(User user);
 }
