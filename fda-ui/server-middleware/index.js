@@ -26,13 +26,17 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
   // send path to analyse service
   let analysis
   try {
-    analysis = await fetch(`${process.env.API}/api/analyse/determinedt`, {
+    const url = `${process.env.API}/api/analyse/determinedt`
+    console.log('analyse service url', url)
+    analysis = await fetch(url, {
       method: 'post',
       body: JSON.stringify({ filepath: path }),
       headers: { 'Content-Type': 'application/json' }
     })
     console.debug('analyzed', analysis)
-    analysis = JSON.parse(await analysis.json())
+    const json = await analysis.json()
+    console.log('json', json)
+    analysis = JSON.parse(json)
     console.log(analysis)
     if (!analysis.columns) {
       return res.json({ success: false, message: 'Columns array missing' })

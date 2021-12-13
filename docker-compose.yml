@@ -330,6 +330,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      - /tmp:/tmp
       - "./fda-ui/.prod:/certs"
     depends_on:
       fda-gateway-service:

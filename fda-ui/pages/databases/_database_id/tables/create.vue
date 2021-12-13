@@ -100,6 +100,20 @@ export default {
     },
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
+    },
+    canCreateTable () {
+      if (this.name === null) { return false }
+      if (this.description === '') { return false }
+      if (!this.columns.length) { return false }
+      for (let i = 0; i < this.columns.length; i++) {
+        const col = this.columns[i]
+        if (col.name === '') { return false }
+        if (col.type === '') { return false }
+        if (col.name === 'id' && (!col.primaryKey)) {
+          return false
+        }
+      }
+      return true
     }
   },
   mounted () {
@@ -138,17 +152,6 @@ export default {
     },
     removeColumn (idx) {
       this.columns.splice(idx, 1)
-    },
-    canCreateTable () {
-      if (this.name === null) { return false }
-      if (this.description === '') { return false }
-      if (!this.columns.length) { return false }
-      for (let i = 0; i < this.columns.length; i++) {
-        const col = this.columns[i]
-        if (col.name === '') { return false }
-        if (col.type === '') { return false }
-      }
-      return true
     },
     async createTable () {
       const data = {
