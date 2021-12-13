@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,12 +30,15 @@ public class QueryStoreServiceUnitTest extends BaseUnitTest {
     @Autowired
     private QueryService queryService;
 
+    @Autowired
+    private QueryMapper queryMapper;
+
     @MockBean
     private DatabaseRepository databaseRepository;
 
     @Test
     public void normalizeQuery_succeeds() {
-        assertEquals(QUERY_1_NORMALIZED,queryStoreService.normalizeQuery(QUERY_1));
+        assertEquals(QUERY_1_NORMALIZED,queryMapper.normalizeQuery(QUERY_1));
     }
 
     /*

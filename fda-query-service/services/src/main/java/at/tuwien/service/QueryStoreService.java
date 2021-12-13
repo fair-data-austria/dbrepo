@@ -175,12 +175,7 @@ public class QueryStoreService extends JdbcConnector {
      */
     public QueryDto persistQueryResult(Database database, QueryDto query, QueryResultDto queryResult)
             throws ImageNotSupportedException, QueryStoreException {
-        // TODO map in mapper next iteration
-        query.setExecutionTimestamp(Instant.now());
-        query.setQueryNormalized(normalizeQuery(query.getQuery()));
-        query.setQueryHash(String.valueOf(query.getQueryNormalized().toLowerCase(Locale.ROOT).hashCode()));
-        query.setResultHash(query.getQueryHash());
-        query.setResultNumber(0L);
+        query = queryMapper.queryDtoToQueryDto(query, queryResult);
         try {
             final DSLContext context = open(database);
             final BigInteger idVal = nextSequence(database);
@@ -211,39 +206,7 @@ public class QueryStoreService extends JdbcConnector {
         return query;
     }
 
-    // FIXME mw: lel
-    public String normalizeQuery(String query) {
-        String[] columns = query.split("SELECT ")[1].split("FROM")[0].split(",");
-        for(String c: columns) {
-            c.trim();
-        }
-        Arrays.sort(columns);
-        for(String s: columns) {
-            log.debug(s);
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ");
-        for(String c: columns) {
-            sb.append(c.trim());
-            sb.append(",");
-        }
-        sb.deleteCharAt(sb.length()-1);
-        sb.append(" FROM");
-        sb.append(query.split("FROM")[1]);
-        log.debug(sb.toString());
-        return sb.toString();
 
-    }
-
-    /**
-     * Retrieve the result hash
-     *
-     * @param result The result.
-     * @return The hash.
-     */
-    private String getResultHash(QueryResultDto result) {
-        return "sha256:" + DigestUtils.sha256Hex(result.getResult().toString());
-    }
 
     /**
      * Executes a query on a database and table.
@@ -580,4 +543,13 @@ public class QueryStoreService extends JdbcConnector {
         return queryMapper.recordListToQueryResultDto(result, query.getId());
     }
 
+    /**
+     *
+     * Retrieve the result hash
+     * @param result The result.
+     * @return The hash.
+     */
+    private String getResultHash(QueryResultDto result) {
+        return "sha256:" + DigestUtils.sha256Hex(result.getResult().toString());
+    }
 }
