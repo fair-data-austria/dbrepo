@@ -74,12 +74,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-        <!-- TODO: do we really need this? -->
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-dbcp</artifactId>
-            <version>9.0.33</version>
-        </dependency>
         <!-- Entity and API -->
         <dependency>
             <groupId>at.tuwien</groupId>

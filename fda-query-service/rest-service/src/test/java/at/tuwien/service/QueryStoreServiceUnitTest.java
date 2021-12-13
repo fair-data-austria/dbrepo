@@ -32,6 +32,11 @@ public class QueryStoreServiceUnitTest extends BaseUnitTest {
     @MockBean
     private DatabaseRepository databaseRepository;
 
+    @Test
+    public void normalizeQuery_succeeds() {
+        assertEquals(QUERY_1_NORMALIZED,queryStoreService.normalizeQuery(QUERY_1));
+    }
+
     /*
     @Test
     public void findAll_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,

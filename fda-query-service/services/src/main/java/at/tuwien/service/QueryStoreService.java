@@ -37,10 +37,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
@@ -213,8 +212,27 @@ public class QueryStoreService extends JdbcConnector {
     }
 
     // FIXME mw: lel
-    private String normalizeQuery(String query) {
-        return query;
+    public String normalizeQuery(String query) {
+        String[] columns = query.split("SELECT ")[1].split("FROM")[0].split(",");
+        for(String c: columns) {
+            c.trim();
+        }
+        Arrays.sort(columns);
+        for(String s: columns) {
+            log.debug(s);
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT ");
+        for(String c: columns) {
+            sb.append(c.trim());
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        sb.append(" FROM");
+        sb.append(query.split("FROM")[1]);
+        log.debug(sb.toString());
+        return sb.toString();
+
     }
 
     /**
@@ -225,16 +243,6 @@ public class QueryStoreService extends JdbcConnector {
      */
     private String getResultHash(QueryResultDto result) {
         return "sha256:" + DigestUtils.sha256Hex(result.getResult().toString());
-    }
-
-    @Deprecated
-    private boolean checkValidity(String query) {
-        String queryparts[] = query.toLowerCase().split("from");
-        if (queryparts[0].contains("select")) {
-            //TODO add more checks
-            return true;
-        }
-        return false;
     }
 
     /**
