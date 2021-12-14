@@ -87,7 +87,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .withHostName(CONTAINER_1_INTERNALNAME)
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb",
                         "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
+                .withBinds(Bind.parse(new File("./weather").toPath().toAbsolutePath()
                         + ":/docker-entrypoint-initdb.d"))
                 .exec();
         /* set hash */
@@ -189,7 +189,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
                 .delimiter(',')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/csv/csv_01.csv")
+                .csvLocation("test:csv/csv_01.csv")
                 .build();
 
         /* mock */

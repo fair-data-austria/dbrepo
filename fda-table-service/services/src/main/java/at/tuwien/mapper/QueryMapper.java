@@ -13,6 +13,8 @@ import java.util.Map;
 @Mapper(componentModel = "spring")
 public interface QueryMapper {
 
+    org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QueryMapper.class);
+
     QueryResultDto queryResultToQueryResultDto(QueryResultDto queryResult);
 
     default QueryResultDto recordListToQueryResultDto(List<Record> data) {
@@ -20,7 +22,7 @@ public interface QueryMapper {
         for (Record record : data) {
             final Map<String, Object> map = new HashMap<>();
             for (Field<?> column : record.fields()) {
-                System.out.println("Columnname: "+column);
+                log.debug("column name: {}", column);
                 map.put(column.getName(), record.get(column.getName()));
             }
             result.add(map);

@@ -226,9 +226,9 @@ public interface TableMapper {
     }
 
     default Field<?> primaryKeyField(ColumnCreateDto column) {
-        if (column.getType().equals(ColumnTypeDto.TEXT) || column.getType().equals(ColumnTypeDto.BLOB)) {
-            return field(sql(nameToInternalName(column.getName()) + "(255)"));
-        }
+//        if (column.getType().equals(ColumnTypeDto.TEXT) || column.getType().equals(ColumnTypeDto.BLOB)) {
+//            return field(sql(nameToInternalName(column.getName()) + "(255)"));
+//        }
         return field(nameToInternalName(column.getName()));
     }
 

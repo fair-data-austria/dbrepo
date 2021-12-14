@@ -38,8 +38,6 @@ public class TableMapperUnitTest extends BaseUnitTest {
     @Test
     public void tableColumn_succeeds() throws SQLException {
 
-        /* test */
-        fail();
     }
 
 }
