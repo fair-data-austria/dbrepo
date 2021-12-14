@@ -53,6 +53,7 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
+        afterAll();
         final DockerConfig dockerConfig = new DockerConfig();
         final HostConfig hostConfig = dockerConfig.hostConfig();
         final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();

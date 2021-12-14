@@ -10,9 +10,11 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.Objects;
 
+@Log4j2
 public class DockerConfig {
 
     private final static DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -34,12 +36,14 @@ public class DockerConfig {
     public static void startContainer(Container container) throws InterruptedException {
         final InspectContainerResponse inspect = dockerClient.inspectContainerCmd(container.getHash())
                 .exec();
+        log.trace("container {} state {}", container.getHash(), inspect.getState().getStatus());
         if (Objects.equals(inspect.getState().getStatus(), "running")) {
             return;
         }
+        log.trace("container {} needs to be started", container.getHash());
         dockerClient.startContainerCmd(container.getHash())
                 .exec();
-        Thread.sleep(6 * 1000L);
+        Thread.sleep(12 * 1000L);
     }
 
     public static void stopContainer(Container container) {

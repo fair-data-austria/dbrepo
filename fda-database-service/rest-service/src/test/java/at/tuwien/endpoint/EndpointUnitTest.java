@@ -9,6 +9,7 @@ import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.DatabaseEndpoint;
 import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.service.DatabaseService;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -16,8 +17,10 @@ import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,16 +28,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.nio.channels.Channel;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.when;
 
+@Log4j2
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class EndpointUnitTest extends BaseUnitTest {
@@ -43,13 +45,16 @@ public class EndpointUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @MockBean
-    private Channel channel;
-
-    @MockBean
     private DatabaseService databaseService;
 
     @Autowired
     private DatabaseEndpoint databaseEndpoint;
+
+    @MockBean
+    private RabbitTemplate rabbitTemplate;
+
+    @MockBean
+    private DatabaseRepository databaseRepository;
 
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
@@ -79,7 +84,8 @@ public class EndpointUnitTest extends BaseUnitTest {
                 .withIpv4Address(BROKER_IP)
                 .withHostName(BROKER_HOSTNAME)
                 .exec();
-        dockerClient.startContainerCmd(request.getId()).exec();
+        dockerClient.startContainerCmd(request.getId())
+                .exec();
         Thread.sleep(5 * 1000);
     }
 
@@ -92,7 +98,7 @@ public class EndpointUnitTest extends BaseUnitTest {
                 .withShowAll(true)
                 .exec()
                 .forEach(container -> {
-                    System.out.println("DELETE CONTAINER " + Arrays.toString(container.getNames()));
+                    log.debug("Delete container " + Arrays.toString(container.getNames()));
                     try {
                         dockerClient.stopContainerCmd(container.getId()).exec();
                     } catch (NotModifiedException e) {
@@ -110,7 +116,7 @@ public class EndpointUnitTest extends BaseUnitTest {
                 .stream()
                 .filter(n -> n.getName().startsWith("fda"))
                 .forEach(network -> {
-                    System.out.println("DELETE NETWORK " + network.getName());
+                    log.debug("Delete network " + network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
     }

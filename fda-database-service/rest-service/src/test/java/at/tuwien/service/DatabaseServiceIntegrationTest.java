@@ -75,7 +75,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     private CreateContainerResponse response1;
 
     @BeforeAll
-    public static void beforeAll() {
+    public static void beforeAll() throws InterruptedException {
         afterAll();
         final DockerConfig dockerConfig = new DockerConfig();
         final HostConfig hostConfig = dockerConfig.hostConfig();
@@ -112,6 +112,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
                 .exec();
         /* start container */
         dockerClient.startContainerCmd(request.getId()).exec();
+        Thread.sleep(5 * 1000);
     }
 
     @AfterAll

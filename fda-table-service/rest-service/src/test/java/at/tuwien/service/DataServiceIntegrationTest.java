@@ -77,23 +77,26 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
+        /* create container */
+        final String bind = new File("./src/test/resources/weather").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
+        log.trace("container bind {}", bind);
         final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
-                        + ":/docker-entrypoint-initdb.d"))
+                .withBinds(Bind.parse(bind))
                 .exec();
+        final String bind3 = new File("./src/test/resources/species").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
+        log.trace("container 3 bind {}", bind3);
         final CreateContainerResponse request3 = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_3_INTERNALNAME)
                 .withIpv4Address(CONTAINER_3_IP)
                 .withHostName(CONTAINER_3_INTERNALNAME)
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=biomedical")
-                .withBinds(Bind.parse(new File("./src/test/resources/species").toPath().toAbsolutePath()
-                        + ":/docker-entrypoint-initdb.d"))
+                .withBinds(Bind.parse(bind3))
                 .exec();
         /* set hash */
         CONTAINER_1.setHash(request.getId());
@@ -147,7 +150,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .delimiter(',')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/csv/csv_01.csv")
+                .csvLocation("test:csv/csv_01.csv")
                 .build();
 
         /* mock */
@@ -169,7 +172,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .delimiter(',')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/csv/csv_01.csv")
+                .csvLocation("test:csv/csv_01.csv")
                 .build();
 
         /* mock */
@@ -190,7 +193,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/csv/csv_01.csv")
+                .csvLocation("test:csv/csv_01.csv")
                 .build();
 
         /* mock */
@@ -212,7 +215,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .delimiter(',')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/csv/csv_02.csv")
+                .csvLocation("test:csv/csv_02.csv")
                 .build();
 
         /* mock */
@@ -232,7 +235,7 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/csv/csv_09.csv")
+                .csvLocation("test:csv/csv_09.csv")
                 .build();
 
         /* mock */
@@ -246,12 +249,12 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void insertFromFile_notRunning_fails() throws SQLException {
+    public void insertFromFile_notRunning_fails() {
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(';')
                 .skipHeader(true)
                 .nullElement("NA")
-                .csvLocation("test:src/test/resources/csv/csv_01.csv")
+                .csvLocation("test:csv/csv_01.csv")
                 .build();
 
         /* mock */

@@ -15,6 +15,8 @@ import at.tuwien.exception.TableMalformedException;
 import org.apache.commons.lang.WordUtils;
 import org.jooq.*;
 import org.jooq.impl.DefaultDataType;
+import org.jooq.meta.jaxb.CustomType;
+import org.jooq.meta.jaxb.ForcedType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -110,7 +112,7 @@ public interface TableMapper {
     }
 
     default String columnCreateDtoToEnumTypeName(TableCreateDto table, ColumnCreateDto data) {
-        return "__" + nameToInternalName(table.getName()) + "_" + nameToInternalName(data.getName());
+        return nameToInternalName(table.getName()) + "_" + nameToInternalName(data.getName());
     }
 
     // FIXME
@@ -175,10 +177,11 @@ public interface TableMapper {
             if (!column.getType().equals(ColumnTypeDto.ENUM)) {
                 continue;
             }
+            throw new ImageNotSupportedException("Currently enums are not supported");
             /* create type */
-            context.createType(columnCreateDtoToEnumTypeName(data, column))
-                    .asEnum(column.getEnumValues())
-                    .execute();
+//            context.createType(columnCreateDtoToEnumTypeName(data, column))
+//                    .asEnum(column.getEnumValues())
+//                    .execute();
         }
         /* columns */
         for (ColumnCreateDto column : data.getColumns()) {
@@ -226,9 +229,9 @@ public interface TableMapper {
     }
 
     default Field<?> primaryKeyField(ColumnCreateDto column) {
-//        if (column.getType().equals(ColumnTypeDto.TEXT) || column.getType().equals(ColumnTypeDto.BLOB)) {
-//            return field(sql(nameToInternalName(column.getName()) + "(255)"));
-//        }
+        if (column.getType().equals(ColumnTypeDto.TEXT) || column.getType().equals(ColumnTypeDto.BLOB)) {
+            return field(sql(nameToInternalName(column.getName()) + " (255)"));
+        }
         return field(nameToInternalName(column.getName()));
     }
 
@@ -245,6 +248,15 @@ public interface TableMapper {
                 .stream()
                 .map((Function<Map<String, Object>, List<Object>>) stringObjectMap -> new ArrayList<>(stringObjectMap.values()))
                 .collect(Collectors.toList());
+    }
+
+    default ForcedType columnCreateDtoToForcedType(TableCreateDto data, ColumnCreateDto column) {
+        final String name = columnCreateDtoToEnumTypeName(data, column);
+        final ForcedType type = new ForcedType()
+                .withName(name)
+                .withTypes("varchar")
+                .withExpression(".*" + name + ".*");
+        return type;
     }
 
     default DataType<?> columnTypeDtoToDataType(TableCreateDto table, ColumnCreateDto data) {

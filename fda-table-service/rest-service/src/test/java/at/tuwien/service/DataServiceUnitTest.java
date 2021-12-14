@@ -70,14 +70,15 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .withEnableIpv6(false)
                 .exec();
         /* create container */
+        final String bind = new File("./src/test/resources/weather").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
+        log.trace("container bind {}", bind);
         final CreateContainerResponse response = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
                 .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(new File("./src/test/resources/weather").toPath().toAbsolutePath()
-                        + ":/docker-entrypoint-initdb.d"))
+                .withBinds(Bind.parse(bind))
                 .exec();
         /* start */
         CONTAINER_1.setHash(response.getId());
