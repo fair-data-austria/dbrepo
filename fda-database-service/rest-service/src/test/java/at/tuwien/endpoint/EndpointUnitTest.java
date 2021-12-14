@@ -43,6 +43,9 @@ public class EndpointUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @MockBean
+    private Channel channel;
+
+    @MockBean
     private DatabaseService databaseService;
 
     @Autowired

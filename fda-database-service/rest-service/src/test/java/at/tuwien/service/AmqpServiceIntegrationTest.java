@@ -22,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Log4j2
 @SpringBootTest
@@ -82,10 +83,16 @@ public class AmqpServiceIntegrationTest extends BaseUnitTest {
         final DockerConfig dockerConfig = new DockerConfig();
         final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
         /* stop containers and remove them */
-        dockerClient.stopContainerCmd(BROKER_NAME)
-                .exec();
-        dockerClient.removeContainerCmd(BROKER_NAME)
-                .exec();
+        dockerClient.listContainersCmd()
+                .withShowAll(true)
+                .exec()
+                .forEach(container -> {
+                    log.info("Delete Container {}", Arrays.asList(container.getNames()));
+                    if (container.getState().equals("running")) {
+                        dockerClient.stopContainerCmd(container.getId()).exec();
+                    }
+                    dockerClient.removeContainerCmd(container.getId()).exec();
+                });
         /* remove networks */
         dockerClient.listNetworksCmd()
                 .exec()
