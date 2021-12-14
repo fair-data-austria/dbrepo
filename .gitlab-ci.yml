@@ -110,11 +110,26 @@ test-frontend:
       - "fda-ui/coverage/*.xml"
       - "fda-ui/coverage/*.info"
     expire_in: 1 week
+
+coverage-frontend:
+  stage: test-frontend
+  dependencies:
+    - build-frontend
+  needs:
+    - build-frontend
+  script:
+    - make coverage-frontend
+  artifacts:
+    when: always
+    paths:
+      - "fda-ui/videos/*"
+      - "fda-ui/coverage/lcov-report/*"
+      - "fda-ui/coverage/*.xml"
+      - "fda-ui/coverage/*.info"
+    expire_in: 1 week
     reports:
       cobertura:
         - fda-ui/coverage/cobertura-coverage.xml
-  variables:
-    CI_DEBUG_TRACE: "true"
 
 test-backend-container:
   stage: test-backend

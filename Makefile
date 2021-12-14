@@ -91,6 +91,9 @@ test-backend-query: config-docker
 test-backend-table: config-docker
 	mvn -f ./fda-table-service/pom.xml clean test verify
 
+coverage-frontend: clean build-frontend
+	yarn --cwd ./fda-ui run coverage || true
+
 test-frontend: clean build-frontend
 	yarn --cwd ./fda-ui install
 	docker-compose up -d
