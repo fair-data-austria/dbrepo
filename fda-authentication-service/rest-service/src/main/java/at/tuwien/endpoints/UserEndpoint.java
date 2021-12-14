@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Log4j2
-@RestController("/api/auth")
+@RestController
 @CrossOrigin(origins = "*")
+@ControllerAdvice
+@RequestMapping("/api/auth")
 public class UserEndpoint {
 
     private final UserMapper userMapper;

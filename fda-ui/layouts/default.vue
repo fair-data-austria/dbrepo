@@ -166,7 +166,7 @@ export default {
   },
   methods: {
     authenticate () {
-      window.location.href = '/api/auth'
+      window.location.href = 'https://dbrepo.ossdip.at:9097'
     },
     switchTheme () {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark
