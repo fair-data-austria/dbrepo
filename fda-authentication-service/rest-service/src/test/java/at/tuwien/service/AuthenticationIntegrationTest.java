@@ -18,30 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class PersistenceIntegrationTest extends BaseUnitTest {
+public class AuthenticationIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private ReadyConfig readyConfig;
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Test
-    public void addUser_hasCreated_succeeds() {
-        final User user = User.builder()
-                .oId(USER_1_OID)
-                .firstname(USER_1_FIRSTNAME)
-                .lastname(USER_1_LASTNAME)
-                .email(USER_1_EMAIL)
-                .build();
-
-        /* test */
-        final User out = userRepository.save(user);
-        assertEquals(USER_1_OID, out.getOId());
-        assertEquals(USER_1_FIRSTNAME, out.getFirstname());
-        assertEquals(USER_1_LASTNAME, out.getLastname());
-        assertEquals(USER_1_EMAIL, out.getEmail());
-        assertNotNull(out.getCreated());
-    }
 
 }

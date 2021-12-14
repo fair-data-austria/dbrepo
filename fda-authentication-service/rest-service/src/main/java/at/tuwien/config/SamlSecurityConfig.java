@@ -211,9 +211,9 @@ public class SamlSecurityConfig extends WebSecurityConfigurerAdapter {
         final DefaultResourceLoader loader = new DefaultResourceLoader();
         final Resource storeFile = loader.getResource(sslProperties.getSslKeyStore());
         final Map<String, String> passwords = new HashMap<>();
-//        passwords.put(samlKeystoreAlias, samlKeystorePassword);
         passwords.put(sslProperties.getSslKeyAlias(), sslProperties.getSslKeyStorePassword());
         passwords.put("saml", fdaProperties.getSamlSignPassword());
+        passwords.put("saml-test", fdaProperties.getSamlSignPassword());
         return new JKSKeyManager(storeFile, sslProperties.getSslKeyStorePassword(), passwords,
                 sslProperties.getSslKeyAlias());
     }

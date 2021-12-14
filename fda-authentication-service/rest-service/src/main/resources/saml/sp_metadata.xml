@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" validUntil="2021-11-14T08:52:19Z" cacheDuration="PT604800S" entityID="at:tuwien" ID="pfx8af29355-cf6e-b1f2-3624-7381e4de4ebe"><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" validUntil="2021-12-16T08:52:19Z" cacheDuration="PT604800S" entityID="at:tuwien" ID="pfx8af29355-cf6e-b1f2-3624-7381e4de4ebe"><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
     <ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
         <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
         <ds:Reference URI="#pfx8af29355-cf6e-b1f2-3624-7381e4de4ebe"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><ds:DigestValue>7sdg0oGKivb4Scou7O0SGJzI0G8=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>GHuxE4g0OCnzMN2RDlerdcwHNjXcyhFQUhccAlHxT3c8uu+70A+ki1bbOdH8BPuMmRXpUUEhguL5d81DtSY4P6P/0Yj7UOF7/0qOZpiBxUnD82xh42SX3QzjZ7xxqkJYvUXPyeJJ3xD4tjBfcYHZJiYEjAUcd2yYJg8/EBpGWg+VwpJ5wPkBK0NSOZDGTEHTwNufkOxBbUWcvfrMxp1nFwCC/EHfx5S+njJ1yy1u18CPUejCxs9jzSdMZ6PCTx0k+W5DTezouImClYC4CeZERtxrO0W3wVJfGkyDNDXjlktM7q/1TlIFxqnZ8SDaQ1TknJu/4bYmuPlTibE08J7M/VG8ZjLYkK09bhWOqVtyxwIsoMiuSYdBI9FeNErDbaMVyjmN5YiJZVb7BdOZ8ezVZJ9rL6udxplXClgvGPZBw80CEFP/n2JyHmBkBvKOIkffmTmSNRqbL59lVt6hgFVggQBCrDpyfCe62xro9xzFDNCw7ecKYCvu/2PNJhV9HaCwy86/t9Ml5BvM3COecB6Ya3w17iGvZY4jXTUlBiyIk5s89hr9FOlTHkPiU1bfGgooIMOzciXiMpIsQzXqQAsFuEc4+Wl0+t/i4W1dPf97m0gIO2zCoQLMsYCD/WsLbqFN6ulw3mZaK/GHf3dBECLy2msoGn6XUVpa0guzoCTuET8=</ds:SignatureValue>
@@ -20,7 +20,7 @@
             </ds:KeyInfo>
         </md:KeyDescriptor>
         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
-        <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://dbrepo.ossdip.at:9097/api/auth" index="1"/>
+        <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://dbrepo-test.ossdip.at:9097/api/auth" index="1"/>
     </md:SPSSODescriptor>
     <md:Organization>
         <md:OrganizationName xml:lang="en-US">Technische Universit&#xE4;t Wien</md:OrganizationName>
