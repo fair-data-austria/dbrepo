@@ -58,8 +58,8 @@ build-docker-sandbox:
 	docker-compose -f docker-compose.prod.yml build
 
 build-frontend:
-	npm --prefix ./fda-ui install --legacy-peer-deps
-	npm --prefix ./fda-ui run build
+	yarn --cwd ./fda-ui install --legacy-peer-deps
+	yarn --cwd ./fda-ui run build
 
 build: clean build-backend build-frontend build-docker
 
@@ -92,9 +92,9 @@ test-backend-table: config-docker
 	mvn -f ./fda-table-service/pom.xml clean test verify
 
 test-frontend: clean build-frontend
-	npm --prefix ./fda-ui install
+	yarn --cwd ./fda-ui install
 	docker-compose up -d
-	npm --prefix ./fda-ui run test
+	yarn --cwd ./fda-ui run test
 
 test: test-backend test-frontend
 
@@ -167,10 +167,11 @@ logs:
 	docker-compose -f docker-compose.prod.yml logs
 
 clean:
-	docker-compose down
+	docker-compose down || true
 	docker volume rm fda-services_fda-metadata-db-data || true
 	docker volume rm fda-public || true
 	docker volume rm fda-userdb || true
+	rm -f ./fda-ui/videos/*.webm
 
 teardown:
 	./.rhel-prod/teardown
