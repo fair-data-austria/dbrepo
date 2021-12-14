@@ -38,6 +38,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fda
+      TZ: Europe/Vienna
     logging:
       driver: json-file
 
@@ -51,6 +52,7 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
     ports:
       - "9090:9090"
     logging:
@@ -68,8 +70,11 @@ services:
           - fda-gateway-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
     depends_on:
       fda-container-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-database-service:
         condition: service_healthy
@@ -91,6 +96,7 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      TZ: Europe/Vienna
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -115,6 +121,7 @@ services:
       - fda-public
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      TZ: Europe/Vienna
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -140,6 +147,7 @@ services:
       SPRING_PROFILES_ACTIVE: sandbox
       KEY_STORE_PASSWORD: "${KEY_STORE_PASSWORD:-dbrepo}"
       SAML_SIGN_PASSWORD: "${SAML_SIGN_PASSWORD}"
+      TZ: Europe/Vienna
     ports:
       - "9097:9097"
     depends_on:
@@ -159,6 +167,7 @@ services:
       - fda-userdb
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
+      TZ: Europe/Vienna
     volumes:
       - /tmp:/tmp
     depends_on:
@@ -185,6 +194,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder,sandbox
       multipart.location: /tmp
+      TZ: Europe/Vienna
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
@@ -213,6 +223,7 @@ services:
 #    environment:
 #      SPRING_PROFILES_ACTIVE: docker
 #      ZENODO_API_KEY: "${ZENODO_API_KEY}"
+#      TZ: Europe/Vienna
 #    ports:
 #      - "9096:9096"
 #    depends_on:
@@ -246,12 +257,36 @@ services:
     logging:
       driver: json-file
 
+#  fda-units-service:
+#    restart: on-failure
+#    container_name: fda-units-service
+#    hostname: fda-units-service
+#    build: ./fda-units-service
+#    image: fda-units-service
+#    networks:
+#      - fda-public
+#    environment:
+#      EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
+#      TZ: Europe/Vienna
+#    ports:
+#      - "5010:5010"
+#    volumes:
+#      - /tmp:/tmp
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    depends_on:
+#      fda-discovery-service:
+#        condition: service_healthy
+#    logging:
+#      driver: json-file
+
   fda-broker-service:
     restart: on-failure
     container_name: fda-broker-service
     hostname: fda-broker-service
     build: ./fda-broker-service
     image: fda-broker-service
+    environment:
+      TZ: Europe/Vienna
     networks:
       - fda-public
     volumes:
