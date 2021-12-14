@@ -24,4 +24,4 @@ COPY --from=build ./gateway/target/gateway-*.jar ./gateway.jar
 
 EXPOSE 9095
 
-ENTRYPOINT ["java", "-jar", "./gateway.jar"]
+ENTRYPOINT ["java", "-Dlog4j2.formatMsgNoLookups=true", "-jar", "./gateway.jar"]
