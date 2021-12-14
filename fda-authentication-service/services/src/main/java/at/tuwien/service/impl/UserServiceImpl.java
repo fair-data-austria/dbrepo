@@ -1,7 +1,7 @@
 package at.tuwien.service.impl;
 
 import at.tuwien.entities.user.User;
-import at.tuwien.exceptions.UserNotFoundException;
+import at.tuwien.exception.UserNotFoundException;
 import at.tuwien.repositories.UserRepository;
 import at.tuwien.service.UserService;
 import lombok.extern.log4j.Log4j2;

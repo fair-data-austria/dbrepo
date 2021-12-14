@@ -1,7 +1,7 @@
 package at.tuwien.endpoints;
 
 import at.tuwien.api.user.UserDto;
-import at.tuwien.exceptions.UserNotFoundException;
+import at.tuwien.exception.UserNotFoundException;
 import at.tuwien.mapper.UserMapper;
 import at.tuwien.service.UserService;
 import lombok.extern.log4j.Log4j2;

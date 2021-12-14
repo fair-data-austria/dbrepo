@@ -1,7 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.entities.user.User;
-import at.tuwien.exceptions.UserNotFoundException;
+import at.tuwien.exception.UserNotFoundException;
 
 import java.util.List;
 

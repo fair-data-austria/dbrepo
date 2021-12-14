@@ -1,7 +1,7 @@
 package at.tuwien.service.impl;
 
-import at.tuwien.exceptions.SamlObjectException;
-import at.tuwien.exceptions.UserNotFoundException;
+import at.tuwien.exception.SamlObjectException;
+import at.tuwien.exception.UserNotFoundException;
 import at.tuwien.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.opensaml.saml2.core.Attribute;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Log4j2
 @Service
