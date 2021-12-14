@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin(origins = "*")
 @ControllerAdvice
-@RequestMapping("/api/auth")
+@RequestMapping("/api/user")
 public class UserEndpoint {
 
     private final UserMapper userMapper;
