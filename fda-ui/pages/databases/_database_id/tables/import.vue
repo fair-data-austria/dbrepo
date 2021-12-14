@@ -135,7 +135,7 @@ export default {
     return {
       step: 1,
       tableInsert: {
-        skipHeader: false,
+        skipHeader: true,
         nullElement: null,
         delimiter: null,
         csvLocation: null
@@ -163,10 +163,8 @@ export default {
   },
   computed: {
     step1Valid () {
-      return this.tableName !== null
+      return this.tableCreate.name !== null && this.tableCreate.name.length > 0
     }
-  },
-  mounted () {
   },
   methods: {
     async upload () {
@@ -206,6 +204,11 @@ export default {
     async createTable () {
       /* make enum values to array */
       this.tableCreate.columns.forEach((column) => {
+        // validate `id` column: must be a PK
+        if (column.name === 'id' && (!column.primaryKey)) {
+          this.$toast.error('Column `id` has to be a Primary Key')
+          return
+        }
         if (column.enumValues == null) {
           return
         }

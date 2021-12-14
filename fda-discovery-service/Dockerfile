@@ -24,4 +24,4 @@ COPY --from=build ./discovery/target/discovery-*.jar ./discovery.jar
 
 EXPOSE 9090
 
-ENTRYPOINT ["java", "-jar", "./discovery.jar"]
+ENTRYPOINT ["java", "-Dlog4j2.formatMsgNoLookups=true", "-jar", "./discovery.jar"]

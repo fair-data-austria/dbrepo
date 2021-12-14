@@ -1,5 +1,6 @@
 export default function ({ $axios, redirect }) {
-  console.log('axios intercepter args', arguments)
+  // TODO show a toast error when something goes wrong
+  // TODO console.log('axios intercepter args', arguments)
 }
 
 // export default function (item) {
