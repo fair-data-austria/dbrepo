@@ -28,8 +28,8 @@ test('create database', pageMacro, async (t, page) => {
   // Click submit button
   await page.click('#createDB')
 
-  // See notification
-  const success = await page.waitForSelector('.v-toast-text')
+  // See page load
+  const success = await page.waitForSelector('.v-toolbar__title')
   t.true(!!success, `Database ${database} seems not to be created, notification not found`)
 
   // // make sure row exists
