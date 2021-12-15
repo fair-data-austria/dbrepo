@@ -148,7 +148,6 @@ public class EndpointUnitTest extends BaseUnitTest {
         assertEquals(DATABASE_1_NAME, Objects.requireNonNull(response.getBody()).getName());
     }
 
-    @Test
     public void create_containerNotFound_fails() throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
