@@ -148,22 +148,22 @@ public class EndpointUnitTest extends BaseUnitTest {
         assertEquals(DATABASE_1_NAME, Objects.requireNonNull(response.getBody()).getName());
     }
 
-//    @Test
-//    public void create_containerNotFound_fails() throws ImageNotSupportedException, ContainerNotFoundException,
-//            DatabaseMalformedException, AmqpException {
-//        final DatabaseCreateDto request = DatabaseCreateDto.builder()
-//                .containerId(CONTAINER_1_ID)
-//                .name(CONTAINER_1_NAME)
-//                .build();
-//
-//        when(databaseService.create(request))
-//                .thenThrow(ContainerNotFoundException.class);
-//
-//        /* test */
-//        assertThrows(ContainerNotFoundException.class, () -> {
-//            databaseEndpoint.create(request);
-//        });
-//    }
+    @Test
+    public void create_containerNotFound_fails() throws ImageNotSupportedException, ContainerNotFoundException,
+            DatabaseMalformedException, AmqpException {
+        final DatabaseCreateDto request = DatabaseCreateDto.builder()
+                .containerId(CONTAINER_1_ID)
+                .name(CONTAINER_1_NAME)
+                .build();
+
+        when(databaseService.create(request))
+                .thenThrow(ContainerNotFoundException.class);
+
+        /* test */
+        assertThrows(ContainerNotFoundException.class, () -> {
+            databaseEndpoint.create(request);
+        });
+    }
 
     @Test
     public void create_imageNotSupported_fails() throws ImageNotSupportedException, ContainerNotFoundException,
