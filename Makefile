@@ -118,7 +118,6 @@ registry-stable-tag: config-registry
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db:${VERSION}
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service:${VERSION}
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service:${VERSION}
-	docker tag fda-citation-service:latest ${REGISTRY}/fda-citation-service:${VERSION}
 	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service:${VERSION}
 	docker tag fda-database-service:latest ${REGISTRY}/fda-database-service:${VERSION}
 	docker tag fda-discovery-service:latest ${REGISTRY}/fda-discovery-service:${VERSION}
@@ -130,7 +129,6 @@ registry-stable-push: registry-stable-tag registry-stable-tag
 	docker push ${REGISTRY}/fda-metadata-db:${VERSION}
 	docker push ${REGISTRY}/fda-authentication-service:${VERSION}
 	docker push ${REGISTRY}/fda-broker-service:${VERSION}
-	docker push ${REGISTRY}/fda-citation-service:${VERSION}
 	docker push ${REGISTRY}/fda-container-service:${VERSION}
 	docker push ${REGISTRY}/fda-database-service:${VERSION}
 	docker push ${REGISTRY}/fda-discovery-service:${VERSION}
@@ -143,7 +141,6 @@ registry-staging-tag: config-registry
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db:latest
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service:latest
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service:latest
-	docker tag fda-citation-service:latest ${REGISTRY}/fda-citation-service:latest
 	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service:latest
 	docker tag fda-database-service:latest ${REGISTRY}/fda-database-service:latest
 	docker tag fda-discovery-service:latest ${REGISTRY}/fda-discovery-service:latest
@@ -155,7 +152,6 @@ registry-staging-push: registry-staging-tag
 	docker push ${REGISTRY}/fda-metadata-db:latest
 	docker push ${REGISTRY}/fda-authentication-service:latest
 	docker push ${REGISTRY}/fda-broker-service:latest
-	docker push ${REGISTRY}/fda-citation-service:latest
 	docker push ${REGISTRY}/fda-container-service:latest
 	docker push ${REGISTRY}/fda-database-service:latest
 	docker push ${REGISTRY}/fda-discovery-service:latest
