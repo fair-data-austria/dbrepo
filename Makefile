@@ -112,10 +112,13 @@ run-sandbox: config-frontend
 	docker-compose -f docker-compose.prod.yml up -d
 
 deploy-registry: config-registry
-	docker-compose -f ./.rhel-registry/docker-compose.yml up -d
+	docker-compose -f ./.fda-builder/docker-compose.yml up -d
 
 registry-stable-tag: config-registry
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db:${VERSION}
+	docker tag fda-analyse-service:latest ${REGISTRY}/fda-analyse-service:${VERSION}
+	#docker tag fda-citation-service:latest ${REGISTRY}/fda-citation-service:${VERSION}
+	#docker tag fda-units-service:latest ${REGISTRY}/fda-units-service:${VERSION}
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service:${VERSION}
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service:${VERSION}
 	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service:${VERSION}
@@ -124,21 +127,30 @@ registry-stable-tag: config-registry
 	docker tag fda-gateway-service:latest ${REGISTRY}/fda-gateway-service:${VERSION}
 	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service:${VERSION}
 	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service:${VERSION}
+	docker tag fda-ui:latest ${REGISTRY}/fda-ui:${VERSION}
 
 registry-stable-push: registry-stable-tag registry-stable-tag
 	docker push ${REGISTRY}/fda-metadata-db:${VERSION}
+	docker push ${REGISTRY}/fda-analyse-db:${VERSION}
+	#docker push ${REGISTRY}/fda-citation-db:${VERSION}
+	#docker push ${REGISTRY}/fda-units-db:${VERSION}
 	docker push ${REGISTRY}/fda-authentication-service:${VERSION}
 	docker push ${REGISTRY}/fda-broker-service:${VERSION}
 	docker push ${REGISTRY}/fda-container-service:${VERSION}
 	docker push ${REGISTRY}/fda-database-service:${VERSION}
 	docker push ${REGISTRY}/fda-discovery-service:${VERSION}
+	docker push ${REGISTRY}/fda-gateway-service:${VERSION}
 	docker push ${REGISTRY}/fda-query-service:${VERSION}
 	docker push ${REGISTRY}/fda-table-service:${VERSION}
+	docker push ${REGISTRY}/fda-ui:${VERSION}
 
 registry-stable: registry-stable-tag registry-stable-push
 
 registry-staging-tag: config-registry
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db:latest
+	docker tag fda-analyse-service:latest ${REGISTRY}/fda-analyse-service:latest
+	#docker tag fda-citation-service:latest ${REGISTRY}/fda-citation-service:latest
+	#docker tag fda-units-service:latest ${REGISTRY}/fda-units-service:latest
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service:latest
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service:latest
 	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service:latest
@@ -147,16 +159,22 @@ registry-staging-tag: config-registry
 	docker tag fda-gateway-service:latest ${REGISTRY}/fda-gateway-service:latest
 	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service:latest
 	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service:latest
+	docker tag fda-ui:latest ${REGISTRY}/fda-ui:latest
 
 registry-staging-push: registry-staging-tag
 	docker push ${REGISTRY}/fda-metadata-db:latest
+	docker push ${REGISTRY}/fda-analyse-service:latest
+	#docker push ${REGISTRY}/fda-citation-service:latest
+	#docker push ${REGISTRY}/fda-units-service:latest
 	docker push ${REGISTRY}/fda-authentication-service:latest
 	docker push ${REGISTRY}/fda-broker-service:latest
 	docker push ${REGISTRY}/fda-container-service:latest
 	docker push ${REGISTRY}/fda-database-service:latest
 	docker push ${REGISTRY}/fda-discovery-service:latest
+	docker push ${REGISTRY}/fda-gateway-service:latest
 	docker push ${REGISTRY}/fda-query-service:latest
 	docker push ${REGISTRY}/fda-table-service:latest
+	docker push ${REGISTRY}/fda-ui:latest
 
 registry-staging: registry-staging-tag registry-staging-push
 
@@ -171,12 +189,4 @@ clean:
 	rm -f ./fda-ui/videos/*.webm
 
 teardown:
-	./.rhel-prod/teardown
-
-re-deploy: teardown deploy-staging
-
-deploy-stable: registry-stable
-	./.gitlab-ci/deploy
-
-deploy-staging: registry-staging
-	./.gitlab-ci/deploy
+	./.fda-deployment/teardown

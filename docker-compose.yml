@@ -224,26 +224,26 @@ services:
     logging:
       driver: json-file
 
-#  fda-citation-service:
-#    restart: on-failure
-#    container_name: fda-citation-service
-#    hostname: fda-citation-service
-#    build: ./fda-citation-service
-#    image: fda-citation-service
-#    networks:
-#      - fda-public
-#    environment:
-#      SPRING_PROFILES_ACTIVE: docker
-#      TZ: Europe/Vienna
-#    ports:
-#      - "9096:9096"
-#    depends_on:
-#      fda-metadata-db:
-#        condition: service_healthy
-#      fda-discovery-service:
-#        condition: service_healthy
-#      fda-table-service:
-#        condition: service_healthy
+  fda-citation-service:
+    restart: on-failure
+    container_name: fda-citation-service
+    hostname: fda-citation-service
+    build: ./fda-citation-service
+    image: fda-citation-service
+    networks:
+      - fda-public
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
+    ports:
+      - "9096:9096"
+    depends_on:
+      fda-metadata-db:
+        condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
+      fda-table-service:
+        condition: service_healthy
 
   fda-analyse-service:
     restart: on-failure

@@ -1,3 +1,0 @@
-# Add these addresses to your /etc/hosts file to pass the Docker name resolution during testing
-172.28.0.5  fda-userdb-u01
-172.28.0.6  fda-userdb-u02
