@@ -56,8 +56,8 @@ build-docker-sandbox:
 	docker-compose -f docker-compose.prod.yml build
 
 build-frontend:
-	API="${GATEWAY}" yarn --cwd ./fda-ui install --legacy-peer-deps
-	API="${GATEWAY}" yarn --cwd ./fda-ui run build
+	yarn --cwd ./fda-ui install --legacy-peer-deps
+	yarn --cwd ./fda-ui run build
 
 build: clean build-backend build-frontend build-docker
 
@@ -93,9 +93,9 @@ coverage-frontend: clean build-frontend
 	yarn --cwd ./fda-ui run coverage || true
 
 test-frontend: clean build-frontend
-	API="${GATEWAY}" yarn --cwd ./fda-ui install
+	yarn --cwd ./fda-ui install
 	docker-compose up -d
-	API="${GATEWAY}" yarn --cwd ./fda-ui run test
+	yarn --cwd ./fda-ui run test
 
 test: test-backend test-frontend
 
