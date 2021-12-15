@@ -246,7 +246,7 @@ test-backend-citation:
   dependencies:
     - build-backend-citation
   script:
-    - "ZENODO_API_KEY=${ZENODO_API_KEY} mvn -f fda-citation-service/pom.xml clean test verify"
+    - mvn -f fda-citation-service/pom.xml clean test verify
     - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
   artifacts:
     when: always

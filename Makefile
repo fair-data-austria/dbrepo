@@ -1,15 +1,13 @@
-REGISTRY=docker.ossdip.at
-
 all:
 
 config-backend:
-	./.rhel-prod/fda-authentication-service/install_cert
+	./.fda-deployment/fda-authentication-service/install_cert
 
 config-registry:
-	./.rhel-registry/install_cert
+	./.fda-builder/registry/install_cert
 
 config-frontend:
-	./.rhel-prod/fda-ui/install_cert
+	./.fda-deployment/fda-ui/install_cert
 	docker-compose -f docker-compose.prod.yml config
 
 config-docker:
@@ -58,8 +56,8 @@ build-docker-sandbox:
 	docker-compose -f docker-compose.prod.yml build
 
 build-frontend:
-	yarn --cwd ./fda-ui install --legacy-peer-deps
-	yarn --cwd ./fda-ui run build
+	API="${GATEWAY}" yarn --cwd ./fda-ui install --legacy-peer-deps
+	API="${GATEWAY}" yarn --cwd ./fda-ui run build
 
 build: clean build-backend build-frontend build-docker
 
@@ -95,9 +93,9 @@ coverage-frontend: clean build-frontend
 	yarn --cwd ./fda-ui run coverage || true
 
 test-frontend: clean build-frontend
-	yarn --cwd ./fda-ui install
+	API="${GATEWAY}" yarn --cwd ./fda-ui install
 	docker-compose up -d
-	yarn --cwd ./fda-ui run test
+	API="${GATEWAY}" yarn --cwd ./fda-ui run test
 
 test: test-backend test-frontend
 

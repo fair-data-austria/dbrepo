@@ -234,7 +234,6 @@ services:
 #      - fda-public
 #    environment:
 #      SPRING_PROFILES_ACTIVE: docker
-#      ZENODO_API_KEY: "${ZENODO_API_KEY}"
 #      TZ: Europe/Vienna
 #    ports:
 #      - "9096:9096"

@@ -29,6 +29,3 @@ fda:
   mapping.path: /root
   table.path: /root
   query.endpoint: fda-table-service:9093
-zenodo:
-  endpoint: https://sandbox.zenodo.org/
-  api_key: "${ZENODO_API_KEY}"
