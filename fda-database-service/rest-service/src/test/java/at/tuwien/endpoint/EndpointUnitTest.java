@@ -5,11 +5,11 @@ import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.api.database.DatabaseDto;
 import at.tuwien.api.database.DatabaseModifyDto;
+import at.tuwien.config.AmqpConfig;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.DatabaseEndpoint;
 import at.tuwien.exception.*;
-import at.tuwien.service.AmqpService;
 import at.tuwien.service.DatabaseService;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.channels.Channel;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -83,7 +84,7 @@ public class EndpointUnitTest extends BaseUnitTest {
                 .exec();
         dockerClient.startContainerCmd(request.getId())
                 .exec();
-        Thread.sleep(5 * 1000);
+        Thread.sleep(12 * 1000);
     }
 
     @AfterAll
@@ -148,6 +149,7 @@ public class EndpointUnitTest extends BaseUnitTest {
         assertEquals(DATABASE_1_NAME, Objects.requireNonNull(response.getBody()).getName());
     }
 
+    @Test
     public void create_containerNotFound_fails() throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
