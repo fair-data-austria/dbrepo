@@ -9,6 +9,7 @@ import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.DatabaseEndpoint;
 import at.tuwien.exception.*;
+import at.tuwien.service.AmqpService;
 import at.tuwien.service.DatabaseService;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -54,7 +55,7 @@ public class EndpointUnitTest extends BaseUnitTest {
     private RabbitTemplate rabbitTemplate;
 
     @MockBean
-    private Channel channel;
+    private AmqpService amqpService;
 
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
