@@ -114,53 +114,53 @@ run-sandbox: config-frontend
 deploy-registry: config-registry
 	docker-compose -f ./.rhel-registry/docker-compose.yml up -d
 
-registry-stable-tag: config-registry build test
-	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db
-	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service
-	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service
-	docker tag fda-citation-service:latest ${REGISTRY}/fda-citation-service
-	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service
-	docker tag fda-database-service:latest ${REGISTRY}/fda-database-service
-	docker tag fda-discovery-service:latest ${REGISTRY}/fda-discovery-service
-	docker tag fda-gateway-service:latest ${REGISTRY}/fda-gateway-service
-	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service
-	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service
+registry-stable-tag: config-registry
+	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db:${VERSION}
+	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service:${VERSION}
+	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service:${VERSION}
+	docker tag fda-citation-service:latest ${REGISTRY}/fda-citation-service:${VERSION}
+	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service:${VERSION}
+	docker tag fda-database-service:latest ${REGISTRY}/fda-database-service:${VERSION}
+	docker tag fda-discovery-service:latest ${REGISTRY}/fda-discovery-service:${VERSION}
+	docker tag fda-gateway-service:latest ${REGISTRY}/fda-gateway-service:${VERSION}
+	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service:${VERSION}
+	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service:${VERSION}
 
 registry-stable-push: registry-stable-tag registry-stable-tag
-	docker push ${REGISTRY}/fda-metadata-db
-	docker push ${REGISTRY}/fda-authentication-service
-	docker push ${REGISTRY}/fda-broker-service
-	docker push ${REGISTRY}/fda-citation-service
-	docker push ${REGISTRY}/fda-container-service
-	docker push ${REGISTRY}/fda-database-service
-	docker push ${REGISTRY}/fda-discovery-service
-	docker push ${REGISTRY}/fda-query-service
-	docker push ${REGISTRY}/fda-table-service
+	docker push ${REGISTRY}/fda-metadata-db:${VERSION}
+	docker push ${REGISTRY}/fda-authentication-service:${VERSION}
+	docker push ${REGISTRY}/fda-broker-service:${VERSION}
+	docker push ${REGISTRY}/fda-citation-service:${VERSION}
+	docker push ${REGISTRY}/fda-container-service:${VERSION}
+	docker push ${REGISTRY}/fda-database-service:${VERSION}
+	docker push ${REGISTRY}/fda-discovery-service:${VERSION}
+	docker push ${REGISTRY}/fda-query-service:${VERSION}
+	docker push ${REGISTRY}/fda-table-service:${VERSION}
 
 registry-stable: registry-stable-tag registry-stable-push
 
-registry-staging-tag: config-registry build test
-	docker tag fda-metadata-db:staging ${REGISTRY}/fda-metadata-db
-	docker tag fda-authentication-service:staging ${REGISTRY}/fda-authentication-service
-	docker tag fda-broker-service:staging ${REGISTRY}/fda-broker-service
-	docker tag fda-citation-service:staging ${REGISTRY}/fda-citation-service
-	docker tag fda-container-service:staging ${REGISTRY}/fda-container-service
-	docker tag fda-database-service:staging ${REGISTRY}/fda-database-service
-	docker tag fda-discovery-service:staging ${REGISTRY}/fda-discovery-service
-	docker tag fda-gateway-service:staging ${REGISTRY}/fda-gateway-service
-	docker tag fda-query-service:staging ${REGISTRY}/fda-query-service
-	docker tag fda-table-service:staging ${REGISTRY}/fda-table-service
+registry-staging-tag: config-registry
+	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db:latest
+	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service:latest
+	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service:latest
+	docker tag fda-citation-service:latest ${REGISTRY}/fda-citation-service:latest
+	docker tag fda-container-service:latest ${REGISTRY}/fda-container-service:latest
+	docker tag fda-database-service:latest ${REGISTRY}/fda-database-service:latest
+	docker tag fda-discovery-service:latest ${REGISTRY}/fda-discovery-service:latest
+	docker tag fda-gateway-service:latest ${REGISTRY}/fda-gateway-service:latest
+	docker tag fda-query-service:latest ${REGISTRY}/fda-query-service:latest
+	docker tag fda-table-service:latest ${REGISTRY}/fda-table-service:latest
 
-registry-staging-push: registry-staging-tag registry-staging-tag
-	docker push ${REGISTRY}/fda-metadata-db
-	docker push ${REGISTRY}/fda-authentication-service
-	docker push ${REGISTRY}/fda-broker-service
-	docker push ${REGISTRY}/fda-citation-service
-	docker push ${REGISTRY}/fda-container-service
-	docker push ${REGISTRY}/fda-database-service
-	docker push ${REGISTRY}/fda-discovery-service
-	docker push ${REGISTRY}/fda-query-service
-	docker push ${REGISTRY}/fda-table-service
+registry-staging-push: registry-staging-tag
+	docker push ${REGISTRY}/fda-metadata-db:latest
+	docker push ${REGISTRY}/fda-authentication-service:latest
+	docker push ${REGISTRY}/fda-broker-service:latest
+	docker push ${REGISTRY}/fda-citation-service:latest
+	docker push ${REGISTRY}/fda-container-service:latest
+	docker push ${REGISTRY}/fda-database-service:latest
+	docker push ${REGISTRY}/fda-discovery-service:latest
+	docker push ${REGISTRY}/fda-query-service:latest
+	docker push ${REGISTRY}/fda-table-service:latest
 
 registry-staging: registry-staging-tag registry-staging-push
 
