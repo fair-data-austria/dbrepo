@@ -1,20 +1,19 @@
 #!/bin/bash
 CA_PATH="/etc/letsencrypt/live/docker.ossdip.at"
-CERT_PATH="./.rhel-registry/certs"
-USER="rocky"
+CERT_PATH="/tmp/certs"
+USER="gitlab-runner"
 
 if [ "$ENV" != "prod" ]; then
   echo "WARN: environment must be prod"
   exit 0
 fi
 
+# create directory
+sudo mkdir -p "$CERT_PATH"
+
+# request new certificate if necessary
 sudo certbot certonly --standalone --preferred-challenges http -d docker.ossdip.at \
                 -m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
 
-sudo cp "${CA_PATH}/privkey.pem" "${CERT_PATH}"
-sudo cp "${CA_PATH}/fullchain.pem" "${CERT_PATH}"
-
-mkdir -p "${CERT_PATH}"
+# make acessible to docker
 sudo chown -R "${USER}:docker" "${CERT_PATH}"
-
-ls -la "${CERT_PATH}"

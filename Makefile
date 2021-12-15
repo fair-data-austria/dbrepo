@@ -116,7 +116,7 @@ run-sandbox: config-frontend
 deploy-registry: config-registry
 	docker-compose -f ./.rhel-registry/docker-compose.yml up -d
 
-registry-stable-tag: config build test
+registry-stable-tag: config-registry build test
 	docker tag fda-metadata-db:latest ${REGISTRY}/fda-metadata-db
 	docker tag fda-authentication-service:latest ${REGISTRY}/fda-authentication-service
 	docker tag fda-broker-service:latest ${REGISTRY}/fda-broker-service
@@ -141,7 +141,7 @@ registry-stable-push: registry-stable-tag registry-stable-tag
 
 registry-stable: registry-stable-tag registry-stable-push
 
-registry-staging-tag: config build test
+registry-staging-tag: config-registry build test
 	docker tag fda-metadata-db:staging ${REGISTRY}/fda-metadata-db
 	docker tag fda-authentication-service:staging ${REGISTRY}/fda-authentication-service
 	docker tag fda-broker-service:staging ${REGISTRY}/fda-broker-service
