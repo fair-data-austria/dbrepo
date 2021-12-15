@@ -76,7 +76,7 @@ public class AmqpServiceIntegrationTest extends BaseUnitTest {
                 .exec();
         dockerClient.startContainerCmd(request.getId())
                 .exec();
-        Thread.sleep(5 * 1000);
+        Thread.sleep(12 * 1000);
     }
 
     @AfterAll
