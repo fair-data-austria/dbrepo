@@ -24,8 +24,8 @@ build-backend-metadata:
 build-backend-authentication:
 	mvn -f ./fda-authentication-service/pom.xml clean package -DskipTests
 
-build-backend-citation:
-	mvn -f ./fda-citation-service/pom.xml clean package -DskipTests
+#build-backend-citation:
+#	mvn -f ./fda-citation-service/pom.xml clean package -DskipTests
 
 build-backend-container:
 	mvn -f ./fda-container-service/pom.xml clean package -DskipTests
@@ -45,7 +45,7 @@ build-backend-query:
 build-backend-table:
 	mvn -f ./fda-table-service/pom.xml clean package -DskipTests
 
-build-backend: build-backend-metadata build-backend-authentication build-backend-citation build-backend-container build-backend-database build-backend-discovery build-backend-gateway build-backend-query build-backend-table
+build-backend: build-backend-metadata build-backend-authentication build-backend-container build-backend-database build-backend-discovery build-backend-gateway build-backend-query build-backend-table
 
 build-docker:
 	docker-compose build fda-metadata-db
@@ -63,13 +63,13 @@ build: clean build-backend build-frontend build-docker
 
 build-sandbox: clean build-backend build-frontend build-docker-sandbox
 
-test-backend: test-backend-auth test-backend-citation test-backend-container test-backend-database test-backend-discovery test-backend-gateway test-backend-query test-backend-table
+test-backend: test-backend-auth test-backend-container test-backend-database test-backend-discovery test-backend-gateway test-backend-query test-backend-table
 
 test-backend-auth:
 	mvn -f ./fda-authentication-service/pom.xml clean test verify
 
-test-backend-citation: config-docker
-	mvn -f ./fda-citation-service/pom.xml clean test verify
+#test-backend-citation: config-docker
+#	mvn -f ./fda-citation-service/pom.xml clean test verify
 
 test-backend-container: config-docker
 	mvn -f ./fda-container-service/pom.xml clean test verify
