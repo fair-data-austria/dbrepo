@@ -33,12 +33,12 @@ build-backend-authentication:
   script:
     - "make build-backend-authentication"
 
-build-backend-citation:
-  stage: build
-  needs:
-    - build-backend-metadata
-  script:
-    - "make build-backend-citation"
+#build-backend-citation:
+#  stage: build
+#  needs:
+#    - build-backend-metadata
+#  script:
+#    - "make build-backend-citation"
 
 build-backend-container:
   stage: build
@@ -239,23 +239,23 @@ test-backend-table:
       junit:
         - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
 
-test-backend-citation:
-  stage: test-backend
-  needs:
-    - build-backend-citation
-  dependencies:
-    - build-backend-citation
-  script:
-    - mvn -f fda-citation-service/pom.xml clean test verify
-    - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
-  artifacts:
-    when: always
-    paths:
-      - fda-citation-service/rest-service/target/site/jacoco/jacoco.xml
-      - fda-citation-service/rest-service/target/site/jacoco/index.html
-    reports:
-      junit:
-        - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
+#test-backend-citation:
+#  stage: test-backend
+#  needs:
+#    - build-backend-citation
+#  dependencies:
+#    - build-backend-citation
+#  script:
+#    - mvn -f fda-citation-service/pom.xml clean test verify
+#    - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
+#  artifacts:
+#    when: always
+#    paths:
+#      - fda-citation-service/rest-service/target/site/jacoco/jacoco.xml
+#      - fda-citation-service/rest-service/target/site/jacoco/index.html
+#    reports:
+#      junit:
+#        - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-authentication:
   stage: test-backend
@@ -282,7 +282,7 @@ registry-stable:
   needs:
     - test-frontend
     - test-backend-authentication
-    - test-backend-citation
+#    - test-backend-citation
     - test-backend-container
     - test-backend-database
     - test-backend-discovery
@@ -292,7 +292,7 @@ registry-stable:
   dependencies:
     - test-frontend
     - test-backend-authentication
-    - test-backend-citation
+#    - test-backend-citation
     - test-backend-container
     - test-backend-database
     - test-backend-discovery
@@ -312,7 +312,7 @@ registry-staging:
   needs:
     - test-frontend
     - test-backend-authentication
-    - test-backend-citation
+#    - test-backend-citation
     - test-backend-container
     - test-backend-database
     - test-backend-discovery
@@ -322,7 +322,7 @@ registry-staging:
   dependencies:
     - test-frontend
     - test-backend-authentication
-    - test-backend-citation
+#    - test-backend-citation
     - test-backend-container
     - test-backend-database
     - test-backend-discovery
