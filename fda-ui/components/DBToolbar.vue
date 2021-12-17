@@ -54,7 +54,9 @@ export default {
       return this.$route.params.database_id
     },
     loadingColor () {
-      return this.error ? 'red lighten-2' : 'primary'
+      return 'primary'
+      // XXX we have no `error` here...
+      // return this.error ? 'red lighten-2' : 'primary'
     }
   },
   mounted () {
