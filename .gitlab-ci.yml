@@ -22,23 +22,17 @@ stages:
   - registry
   - deploy
 
-clean-maven:
+clean:
   stage: clean
+  needs:
+    - clean
   script:
-    - "make clean-maven"
-
-clean-frontend:
-  stage: clean
-  script:
-    - "make clean-frontend"
-
-clean-docker:
-  stage: clean
-  script:
-    - "make clean-docker"
+    - "make clean"
 
 build-backend-metadata:
   stage: build
+  needs:
+    - clean
   script:
     - "make build-backend-metadata"
 
@@ -100,11 +94,15 @@ build-backend-table:
 
 build-docker:
   stage: build
+  needs:
+    - clean
   script:
     - make build-docker
 
 build-frontend:
   stage: build
+  needs:
+    - clean
   script:
     - make build-frontend
 
