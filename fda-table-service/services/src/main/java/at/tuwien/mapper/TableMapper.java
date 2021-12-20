@@ -139,7 +139,9 @@ public interface TableMapper {
 
     /* create sequence nonetheless, if it is used or not */
     default CreateSequenceFlagsStep tableCreateDtoToCreateSequenceFlagsStep(DSLContext context, TableCreateDto data) {
-        return context.createSequenceIfNotExists(tableNameToSequenceName(data.getName()));
+        final String sequenceName = tableNameToSequenceName(data.getName());
+        log.trace("create sequence {}", sequenceName);
+        return context.createSequenceIfNotExists(sequenceName);
     }
 
     default CreateTableColumnStep tableCreateDtoToCreateTableColumnStep(DSLContext context, TableCreateDto data)
@@ -238,7 +240,7 @@ public interface TableMapper {
     default List<Field<?>> tableToFieldList(Table data) {
         return data.getColumns()
                 .stream()
-                .sorted(Comparator.comparing(TableColumn::getOrdinalPosition))
+                .sorted()
                 .map(c -> field(c.getInternalName()))
                 .collect(Collectors.toList());
     }
@@ -248,15 +250,6 @@ public interface TableMapper {
                 .stream()
                 .map((Function<Map<String, Object>, List<Object>>) stringObjectMap -> new ArrayList<>(stringObjectMap.values()))
                 .collect(Collectors.toList());
-    }
-
-    default ForcedType columnCreateDtoToForcedType(TableCreateDto data, ColumnCreateDto column) {
-        final String name = columnCreateDtoToEnumTypeName(data, column);
-        final ForcedType type = new ForcedType()
-                .withName(name)
-                .withTypes("varchar")
-                .withExpression(".*" + name + ".*");
-        return type;
     }
 
     default DataType<?> columnTypeDtoToDataType(TableCreateDto table, ColumnCreateDto data) {

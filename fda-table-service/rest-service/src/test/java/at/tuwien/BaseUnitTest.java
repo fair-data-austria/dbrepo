@@ -1,7 +1,5 @@
 package at.tuwien;
 
-import at.tuwien.api.container.image.ImageEnvItemDto;
-import at.tuwien.api.container.image.ImageEnvItemTypeDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
@@ -22,6 +20,13 @@ import static java.time.temporal.ChronoUnit.HOURS;
 
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseUnitTest extends CsvUnitTest {
+
+    public final static String DATABASE_NET = "fda-userdb";
+
+    public final static String BROKER_IMAGE = "fda-broker-service:latest";
+    public final static String BROKER_INTERNALNAME = "fda-broker-service";
+    public final static String BROKER_NET = "fda-public";
+    public final static String BROKER_IP = "172.29.0.2";
 
     public final static Long DATABASE_1_ID = 1L;
     public final static String DATABASE_1_NAME = "Weather";
@@ -60,7 +65,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Integer COLUMN_1_1_ORDINALPOS = 0;
     public final static Boolean COLUMN_1_1_PRIMARY = true;
     public final static String COLUMN_1_1_NAME = "id";
-    public final static String COLUMN_1_1_INTERNAL_NAME = "mdb_id";
+    public final static String COLUMN_1_1_INTERNAL_NAME = "id";
     public final static TableColumnType COLUMN_1_1_TYPE = TableColumnType.NUMBER;
     public final static ColumnTypeDto COLUMN_1_1_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_1_1_NULL = false;
@@ -74,7 +79,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Integer COLUMN_1_2_ORDINALPOS = 1;
     public final static Boolean COLUMN_1_2_PRIMARY = false;
     public final static String COLUMN_1_2_NAME = "Date";
-    public final static String COLUMN_1_2_INTERNAL_NAME = "mdb_date";
+    public final static String COLUMN_1_2_INTERNAL_NAME = "date";
     public final static TableColumnType COLUMN_1_2_TYPE = TableColumnType.DATE;
     public final static ColumnTypeDto COLUMN_1_2_TYPE_DTO = ColumnTypeDto.DATE;
     public final static Boolean COLUMN_1_2_NULL = true;
@@ -88,7 +93,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Integer COLUMN_1_3_ORDINALPOS = 2;
     public final static Boolean COLUMN_1_3_PRIMARY = false;
     public final static String COLUMN_1_3_NAME = "Location";
-    public final static String COLUMN_1_3_INTERNAL_NAME = "mdb_location";
+    public final static String COLUMN_1_3_INTERNAL_NAME = "location";
     public final static TableColumnType COLUMN_1_3_TYPE = TableColumnType.STRING;
     public final static ColumnTypeDto COLUMN_1_3_TYPE_DTO = ColumnTypeDto.STRING;
     public final static Boolean COLUMN_1_3_NULL = true;
@@ -102,7 +107,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Integer COLUMN_1_4_ORDINALPOS = 3;
     public final static Boolean COLUMN_1_4_PRIMARY = false;
     public final static String COLUMN_1_4_NAME = "MinTemp";
-    public final static String COLUMN_1_4_INTERNAL_NAME = "mdb_mintemp";
+    public final static String COLUMN_1_4_INTERNAL_NAME = "mintemp";
     public final static TableColumnType COLUMN_1_4_TYPE = TableColumnType.STRING;
     public final static ColumnTypeDto COLUMN_1_4_TYPE_DTO = ColumnTypeDto.STRING;
     public final static Boolean COLUMN_1_4_NULL = true;
@@ -116,7 +121,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Integer COLUMN_1_5_ORDINALPOS = 4;
     public final static Boolean COLUMN_1_5_PRIMARY = false;
     public final static String COLUMN_1_5_NAME = "Rainfall";
-    public final static String COLUMN_1_5_INTERNAL_NAME = "mdb_rainfall";
+    public final static String COLUMN_1_5_INTERNAL_NAME = "rainfall";
     public final static TableColumnType COLUMN_1_5_TYPE = TableColumnType.NUMBER;
     public final static ColumnTypeDto COLUMN_1_5_TYPE_DTO = ColumnTypeDto.NUMBER;
     public final static Boolean COLUMN_1_5_NULL = true;
@@ -130,7 +135,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Integer COLUMN_3_1_ORDINALPOS = 0;
     public final static Boolean COLUMN_3_1_PRIMARY = false;
     public final static String COLUMN_3_1_NAME = "qu";
-    public final static String COLUMN_3_1_INTERNAL_NAME = "mdb_qu";
+    public final static String COLUMN_3_1_INTERNAL_NAME = "qu";
     public final static TableColumnType COLUMN_3_1_TYPE = TableColumnType.STRING;
     public final static ColumnTypeDto COLUMN_3_1_TYPE_DTO = ColumnTypeDto.STRING;
     public final static Boolean COLUMN_3_1_NULL = false;
@@ -144,7 +149,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Integer COLUMN_3_2_ORDINALPOS = 1;
     public final static Boolean COLUMN_3_2_PRIMARY = false;
     public final static String COLUMN_3_2_NAME = "species";
-    public final static String COLUMN_3_2_INTERNAL_NAME = "mdb_species";
+    public final static String COLUMN_3_2_INTERNAL_NAME = "species";
     public final static TableColumnType COLUMN_3_2_TYPE = TableColumnType.ENUM;
     public final static ColumnTypeDto COLUMN_3_2_TYPE_DTO = ColumnTypeDto.ENUM;
     public final static Boolean COLUMN_3_2_NULL = false;
@@ -158,7 +163,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Integer COLUMN_3_3_ORDINALPOS = 2;
     public final static Boolean COLUMN_3_3_PRIMARY = false;
     public final static String COLUMN_3_3_NAME = "score";
-    public final static String COLUMN_3_3_INTERNAL_NAME = "mdb_score";
+    public final static String COLUMN_3_3_INTERNAL_NAME = "score";
     public final static TableColumnType COLUMN_3_3_TYPE = TableColumnType.STRING;
     public final static ColumnTypeDto COLUMN_3_3_TYPE_DTO = ColumnTypeDto.STRING;
     public final static Boolean COLUMN_3_3_NULL = false;
@@ -283,6 +288,16 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String CONTAINER_3_IP = "172.28.0.7";
     public final static Instant CONTAINER_3_CREATED = Instant.now().minus(1, HOURS);
 
+    public final static Long CONTAINER_NGINX_ID = 4L;
+    public final static String CONTAINER_NGINX_HASH = "deadbeef";
+    public final static String CONTAINER_NGINX_IMAGE = "nginx";
+    public final static String CONTAINER_NGINX_TAG = "1.20-alpine";
+    public final static String CONTAINER_NGINX_NET = "fda-public";
+    public final static String CONTAINER_NGINX_NAME = "file-service";
+    public final static String CONTAINER_NGINX_INTERNALNAME = "fda-test-file-service";
+    public final static String CONTAINER_NGINX_IP = "172.29.0.3";
+    public final static Instant CONTAINER_NGINX_CREATED = Instant.now().minus(3, HOURS);
+
     public final static Container CONTAINER_1 = Container.builder()
             .id(CONTAINER_1_ID)
             .name(CONTAINER_1_NAME)
@@ -308,6 +323,14 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .image(CONTAINER_3_IMAGE)
             .hash(CONTAINER_3_HASH)
             .containerCreated(CONTAINER_3_CREATED)
+            .build();
+
+    public final static Container CONTAINER_NGINX = Container.builder()
+            .id(CONTAINER_NGINX_ID)
+            .name(CONTAINER_NGINX_NAME)
+            .internalName(CONTAINER_NGINX_INTERNALNAME)
+            .hash(CONTAINER_NGINX_HASH)
+            .containerCreated(CONTAINER_NGINX_CREATED)
             .build();
 
     public final static List<TableColumn> TABLE_3_COLUMNS = List.of(TableColumn.builder()

@@ -5,10 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 
 @Log4j2
@@ -30,6 +27,17 @@ public class MariaDbConfig {
         final Statement statement = connection.createStatement();
         statement.execute("DELETE FROM " + table.getInternalName() + ";");
         connection.close();
+    }
+
+    public static boolean contains(Table table, String column, Object expected) throws SQLException {
+        final String jdbc = "jdbc:mariadb://" + table.getDatabase().getContainer().getInternalName() + "/" + table.getDatabase().getInternalName();
+        log.trace("connect to database {}", jdbc);
+        final Connection connection = DriverManager.getConnection(jdbc, "mariadb", "mariadb");
+        final Statement statement = connection.createStatement();
+        final ResultSet result = statement.executeQuery("SELECT `" + column + "` FROM " + table.getInternalName() +
+                " WHERE `" + column + "` = " + expected.toString() + ";");
+        connection.close();
+        return result.next();
     }
 
 }

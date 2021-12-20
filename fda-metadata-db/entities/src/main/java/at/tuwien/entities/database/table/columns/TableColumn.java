@@ -22,7 +22,7 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @javax.persistence.Table(name = "mdb_columns")
-public class TableColumn {
+public class TableColumn implements Comparable<TableColumn> {
 
     @Id
     @EqualsAndHashCode.Include
@@ -104,4 +104,8 @@ public class TableColumn {
     @LastModifiedDate
     private Instant lastModified;
 
+    @Override
+    public int compareTo(TableColumn tableColumn) {
+        return Integer.compare(this.ordinalPosition, tableColumn.getOrdinalPosition());
+    }
 }

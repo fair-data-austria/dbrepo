@@ -34,7 +34,7 @@
         <opencsv.version>5.4</opencsv.version>
         <super-csv.version>2.4.0</super-csv.version>
         <btrace-client.version>2.2.0</btrace-client.version>
-        <unleash.version>5.0.1</unleash.version>
+        <random-utils.version>2.0.0</random-utils.version>
     </properties>
 
     <dependencies>
@@ -100,6 +100,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aventrix.jnanoid</groupId>
+            <artifactId>jnanoid</artifactId>
+            <scope>test</scope>
+            <version>${random-utils.version}</version>
         </dependency>
         <!-- AMPQ -->
         <dependency>

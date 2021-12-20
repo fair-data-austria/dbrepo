@@ -67,9 +67,9 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
     private MariaDataService dataService;
 
     @BeforeAll
-    public static void beforeAll() throws InterruptedException {
+    public static void beforeAll() {
         afterAll();
-        /* create network */
+        /* create networks */
         dockerClient.createNetworkCmd()
                 .withName("fda-userdb")
                 .withIpam(new Network.Ipam()
@@ -77,7 +77,14 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
-        /* create container */
+        dockerClient.createNetworkCmd()
+                .withName("fda-public")
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.29.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+        /* create weather container */
         final String bind = new File("./src/test/resources/weather").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
         log.trace("container bind {}", bind);
         final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
@@ -88,19 +95,19 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(bind))
                 .exec();
-        final String bind3 = new File("./src/test/resources/species").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
-        log.trace("container 3 bind {}", bind3);
-        final CreateContainerResponse request3 = dockerClient.createContainerCmd(IMAGE_2_REPOSITORY + ":" + IMAGE_2_TAG)
-                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
-                .withName(CONTAINER_3_INTERNALNAME)
-                .withIpv4Address(CONTAINER_3_IP)
-                .withHostName(CONTAINER_3_INTERNALNAME)
-                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=biomedical")
-                .withBinds(Bind.parse(bind3))
+        /* create file container */
+        final String bind2 = new File("./src/test/resources/csv").toPath().toAbsolutePath() + ":/usr/share/nginx/html:ro";
+        log.trace("container bind2 {}", bind2);
+        final CreateContainerResponse request2 = dockerClient.createContainerCmd(CONTAINER_NGINX_IMAGE + ":" + CONTAINER_NGINX_TAG)
+                .withHostConfig(hostConfig.withNetworkMode(CONTAINER_NGINX_NET))
+                .withName(CONTAINER_NGINX_NAME)
+                .withIpv4Address(CONTAINER_NGINX_IP)
+                .withHostName(CONTAINER_NGINX_INTERNALNAME)
+                .withBinds(Bind.parse(bind2))
                 .exec();
         /* set hash */
         CONTAINER_1.setHash(request.getId());
-        CONTAINER_3.setHash(request3.getId());
+        CONTAINER_NGINX.setHash(request2.getId());
     }
 
     @AfterAll
@@ -272,15 +279,17 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
             SQLException {
         final TableInsertDto request = TableInsertDto.builder()
                 .skipHeader(true)
-                .csvLocation("https://sandbox.zenodo.org/api/files/6aca3421-add3-489b-8c4a-35228fe5c683/species_id.csv")
+                .nullElement("NA")
+                .csvLocation("http://172.29.0.3/csv_01.csv")
                 .build();
 
         /* mock */
-        DockerConfig.startContainer(CONTAINER_3);
-        MariaDbConfig.clearDatabase(TABLE_3);
+        DockerConfig.startContainer(CONTAINER_1);
+        DockerConfig.startContainer(CONTAINER_NGINX);
+        MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        dataService.insertCsv(DATABASE_3_ID, TABLE_3_ID, request);
+        dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, request);
     }
 
 }

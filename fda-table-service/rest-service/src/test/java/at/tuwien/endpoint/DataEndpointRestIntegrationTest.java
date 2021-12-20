@@ -49,7 +49,7 @@ import static org.mockito.ArgumentMatchers.any;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class DataEndpointIntegrationTest extends BaseUnitTest {
+public class DataEndpointRestIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -100,6 +100,7 @@ public class DataEndpointIntegrationTest extends BaseUnitTest {
     public void beforeEach() {
         imageRepository.save(IMAGE_1);
         databaseRepository.save(DATABASE_1);
+        TABLE_1.setDatabase(DATABASE_1);
         tableRepository.save(TABLE_1);
     }
 

@@ -123,7 +123,7 @@ public class MariaDataService extends JdbcConnector implements DataService {
     }
 
     protected TableCsvDto readCsv(Table table, TableInsertDto data) throws IOException, CsvException,
-            ArrayIndexOutOfBoundsException, TableMalformedException, FileStorageException, SQLException, ImageNotSupportedException {
+            ArrayIndexOutOfBoundsException, TableMalformedException, SQLException {
         log.trace("insert into table {} with params {}", table, data);
         if (data.getDelimiter() == null) {
             log.warn("No delimiter provided, using comma ','");
@@ -171,7 +171,12 @@ public class MariaDataService extends JdbcConnector implements DataService {
                 .build();
         final List<List<String>> rows = new LinkedList<>();
         reader.readAll()
-                .forEach(x -> rows.add(new ArrayList<>(List.of(x))));
+                .forEach(x -> {
+                    final ArrayList<String> row = new ArrayList<>();
+                    Collections.addAll(row, x);
+                    log.trace("add row {}", row);
+                    rows.add(row);
+                });
         log.trace("csv rows {}", rows.size());
         /* generic header, ref issue #95 */
         List<String> headers = TableUtils.fill(0, rows.get(0).size());

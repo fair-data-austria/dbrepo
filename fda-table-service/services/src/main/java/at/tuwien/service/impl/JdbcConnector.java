@@ -13,26 +13,19 @@ import at.tuwien.mapper.ImageMapper;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.service.DatabaseConnector;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.server.Encoding;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -76,7 +69,6 @@ public abstract class JdbcConnector implements DatabaseConnector {
         final CreateSequenceFlagsStep createSequenceFlagsStep = tableMapper.tableCreateDtoToCreateSequenceFlagsStep(context,
                 createDto);
         createSequenceFlagsStep.execute();
-        log.debug("created id sequence");
         final CreateTableColumnStep createTableColumnStep = tableMapper.tableCreateDtoToCreateTableColumnStep(context,
                 createDto);
         log.trace("before execution: {} ", createTableColumnStep.getSQL());
@@ -112,15 +104,13 @@ public abstract class JdbcConnector implements DatabaseConnector {
             log.warn("No data provided.");
             throw new TableMalformedException("No data provided");
         }
-        log.info("First row {}", data.getData().get(0));
-        log.info("Table columns {}", table.getColumns());
-        if (data.getData().get(0).size() != table.getColumns().size()) {
-            log.error("Provided columns differ from table columns found in metadata db.");
-            throw new TableMalformedException("Provided columns differ from table columns found in metadata db.");
-        }
         final List<Field<?>> headers = tableMapper.tableToFieldList(table);
-        log.trace("headers received {}", headers.stream().map(Field::getName).collect(Collectors.toList()));
-        log.trace("first row received {}", data.getData().size() > 0 ? data.getData().get(0) : null);
+        log.trace("first row {}", data.getData()
+                .get(0));
+        log.trace("table columns {}", table.getColumns()
+                .stream()
+                .map(TableColumn::getInternalName)
+                .collect(Collectors.toList()));
         final DSLContext context = open(table.getDatabase());
         final List<InsertValuesStepN<Record>> statements = new LinkedList<>();
         final Optional<TableColumn> idxColumn = table.getColumns()
@@ -136,15 +126,19 @@ public abstract class JdbcConnector implements DatabaseConnector {
                 log.trace("set auto-generated sequence value {}", idVal);
                 row.set(idx, idVal);
             }
-            statements.add(context.insertInto(table(table.getInternalName()), headers)
-                    .values(row));
+            try {
+                statements.add(context.insertInto(table(table.getInternalName()), headers)
+                        .values(row));
+            } catch (IllegalArgumentException e) {
+                throw new TableMalformedException("metadata field number differs from actual data field number", e);
+            }
         }
         try {
             log.trace("insertCsv statements {}", statements);
             context.batch(statements)
                     .execute();
         } catch (DataAccessException e) {
-            log.error("DataAccessException {}", e);
+            log.error("data access failed {}", e.getMessage());
             throw new TableMalformedException("Columns seem to differ or other problem with jOOQ mapper, most commonly it is a data type issue try with type 'STRING'", e);
         }
     }

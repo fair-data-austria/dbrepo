@@ -44,11 +44,20 @@ public class DockerConfig {
         dockerClient.startContainerCmd(container.getHash())
                 .exec();
         Thread.sleep(12 * 1000L);
+        log.debug("container {} was started", container.getHash());
     }
 
     public static void stopContainer(Container container) {
+        final InspectContainerResponse inspect = dockerClient.inspectContainerCmd(container.getHash())
+                .exec();
+        log.trace("container {} state {}", container.getHash(), inspect.getState().getStatus());
+        if (!Objects.equals(inspect.getState().getStatus(), "running")) {
+            return;
+        }
+        log.trace("container {} needs to be stopped", container.getHash());
         dockerClient.stopContainerCmd(container.getHash())
                 .exec();
+        log.debug("container {} was stopped", container.getHash());
     }
 
 }

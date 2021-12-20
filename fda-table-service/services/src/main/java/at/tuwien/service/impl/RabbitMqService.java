@@ -84,6 +84,7 @@ public class RabbitMqService implements MessageQueueService {
         log.debug("declare fanout exchange {}", database.getExchange());
         channel.exchangeBind(database.getExchange(), AMQP_EXCHANGE, database.getExchange());
         log.debug("bind exchange {} to {}", database.getExchange(), AMQP_EXCHANGE);
+        log.info("Declared database exchange {} and bound to root exchange {}", database.getExchange(), AMQP_EXCHANGE);
     }
 
     @Override
@@ -93,6 +94,7 @@ public class RabbitMqService implements MessageQueueService {
         log.debug("declare queue {}", table.getTopic());
         channel.queueBind(table.getTopic(), table.getDatabase().getExchange(), table.getTopic());
         log.debug("bind queue {} to {}", table.getTopic(), table.getDatabase().getExchange());
+        log.info("Declared queue {} and bound to database exchange {}", table.getTopic(), table.getDatabase().getExchange());
     }
 
     @Override

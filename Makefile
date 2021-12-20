@@ -15,6 +15,7 @@ config-docker:
 	docker image pull -q mysql:8.0 || true > /dev/null
 	docker image pull -q mariadb:10.5 || true > /dev/null
 	docker image pull -q rabbitmq:3-alpine || true > /dev/null
+	docker image pull -q nginx:1.20-alpine || true > /dev/null
 
 config: config-backend config-docker config-frontend
 
@@ -181,7 +182,17 @@ registry-staging: registry-staging-tag registry-staging-push
 logs:
 	docker-compose -f docker-compose.prod.yml logs
 
-clean:
+clean-maven:
+	mvn -f ./fda-authentication-service/pom.xml clean
+	#mvn -f ./fda-citation-service/pom.xml clean
+	mvn -f ./fda-container-service/pom.xml clean
+	mvn -f ./fda-database-service/pom.xml clean
+	mvn -f ./fda-discovery-service/pom.xml clean
+	mvn -f ./fda-gateway-service/pom.xml clean
+	mvn -f ./fda-query-service/pom.xml clean
+	mvn -f ./fda-table-service/pom.xml clean
+
+clean: clean-maven
 	docker-compose down || true
 	docker volume rm fda-services_fda-metadata-db-data || true
 	docker volume rm fda-public || true
