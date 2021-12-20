@@ -192,12 +192,13 @@ clean-maven:
 	mvn -f ./fda-query-service/pom.xml clean
 	mvn -f ./fda-table-service/pom.xml clean
 
-clean: clean-maven
-	docker-compose down || true
-	docker volume rm fda-services_fda-metadata-db-data || true
-	docker volume rm fda-public || true
-	docker volume rm fda-userdb || true
+clean-docker:
+	yes | docker system prune -a
+
+clean-frontend:
 	rm -f ./fda-ui/videos/*.webm
+
+clean: clean-maven clean-frontend clean-docker
 
 teardown:
 	./.fda-deployment/teardown
