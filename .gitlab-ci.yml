@@ -15,24 +15,14 @@ cache:
 image: "docker/compose:latest"
 
 stages:
-  - clean
   - build
   - test-frontend
   - test-backend
   - registry
   - deploy
 
-clean:
-  stage: clean
-  needs:
-    - clean
-  script:
-    - "make clean"
-
 build-backend-metadata:
   stage: build
-  needs:
-    - clean
   script:
     - "make build-backend-metadata"
 
@@ -94,15 +84,11 @@ build-backend-table:
 
 build-docker:
   stage: build
-  needs:
-    - clean
   script:
     - make build-docker
 
 build-frontend:
   stage: build
-  needs:
-    - clean
   script:
     - make build-frontend
 
