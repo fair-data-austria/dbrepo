@@ -14,12 +14,28 @@ cache:
 
 image: "docker/compose:latest"
 
-stages: 
+stages:
+  - clean
   - build
   - test-frontend
   - test-backend
   - registry
   - deploy
+
+clean-maven:
+  stage: clean
+  script:
+    - "make clean-maven"
+
+clean-frontend:
+  stage: clean
+  script:
+    - "make clean-frontend"
+
+clean-docker:
+  stage: clean
+  script:
+    - "make clean-docker"
 
 build-backend-metadata:
   stage: build
