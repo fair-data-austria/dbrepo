@@ -9,7 +9,6 @@ import at.tuwien.exception.TableMalformedException;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.DataService;
 import at.tuwien.service.MessageQueueService;
-import at.tuwien.service.impl.MariaDataService;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.sql.SQLException;
 import java.util.List;
 
 @Log4j2
