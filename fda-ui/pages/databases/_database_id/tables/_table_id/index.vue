@@ -2,7 +2,7 @@
   <div>
     <v-card>
       <v-row dense>
-        <v-col cols="6">
+        <v-col cols="">
           <v-card-title v-if="table.name">
             {{ table.name }}
           </v-card-title>
@@ -10,9 +10,9 @@
             {{ table.description }}
           </v-card-subtitle>
         </v-col>
-        <v-col class="text-right" cols="6">
+        <v-col class="text-right pr-4" cols="4">
           <v-row dense>
-            <v-col>
+            <v-col cols="7">
               <v-menu
                 ref="dateMenu"
                 v-model="dateMenu"
