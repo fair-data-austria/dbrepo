@@ -7,7 +7,6 @@ import at.tuwien.endpoints.ContainerEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.service.ContainerService;
-import com.github.dockerjava.api.DockerClient;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,22 +39,19 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     @MockBean
     private ImageRepository imageRepository;
 
-    @MockBean
-    private DockerClient dockerClient;
-
     @Autowired
     private ContainerEndpoint containerEndpoint;
 
     @Test
     public void listAllDatabases_succeeds() {
         when(containerService.getAll())
-                .thenReturn(List.of(CONTAINER_1, CONTAINER_2));
+                .thenReturn(List.of(CONTAINER_1));
 
         final ResponseEntity<List<ContainerBriefDto>> response = containerEndpoint.findAll();
 
         /* test */
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, Objects.requireNonNull(response.getBody()).size());
+        assertEquals(1, Objects.requireNonNull(response.getBody()).size());
     }
 
     @Test

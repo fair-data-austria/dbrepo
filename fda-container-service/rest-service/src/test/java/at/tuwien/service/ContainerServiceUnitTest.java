@@ -51,16 +51,14 @@ public class ContainerServiceUnitTest extends BaseUnitTest {
     @Test
     public void listAllDatabases_succeeds() {
         when(containerRepository.findAll())
-                .thenReturn(List.of(CONTAINER_1, CONTAINER_2));
+                .thenReturn(List.of(CONTAINER_1));
 
         final List<Container> response = containerService.getAll();
 
         /* test */
-        assertEquals(2, response.size());
+        assertEquals(1, response.size());
         assertEquals(CONTAINER_1_ID, response.get(0).getId());
         assertEquals(CONTAINER_1_NAME, response.get(0).getName());
-        assertEquals(CONTAINER_2_ID, response.get(1).getId());
-        assertEquals(CONTAINER_2_NAME, response.get(1).getName());
     }
 
     @Test

@@ -192,13 +192,24 @@ clean-maven:
 	mvn -f ./fda-query-service/pom.xml clean
 	mvn -f ./fda-table-service/pom.xml clean
 
+clean-ide:
+	rm -rf .idea/
+	rm -rf ./fda-authentication-service/.idea/
+	#rm -rf ./fda-citation-service/.idea/
+	rm -rf ./fda-container-service/.idea/
+	rm -rf ./fda-database-service/.idea/
+	rm -rf ./fda-discovery-service/.idea/
+	rm -rf ./fda-gateway-service/.idea/
+	rm -rf ./fda-query-service/.idea/
+	rm -rf ./fda-table-service/.idea/
+
 clean-docker:
-	yes | docker system prune -a
+	yes | docker system prune
 
 clean-frontend:
 	rm -f ./fda-ui/videos/*.webm
 
-clean: clean-maven clean-frontend clean-docker
+clean: clean-ide clean-maven clean-frontend clean-docker
 
 teardown:
 	./.fda-deployment/teardown

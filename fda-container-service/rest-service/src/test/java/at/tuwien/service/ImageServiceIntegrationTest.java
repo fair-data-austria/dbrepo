@@ -92,11 +92,11 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void delete_noContainer_succeeds() throws ImageNotFoundException, PersistenceException {
-        imageRepository.save(IMAGE_2);
+        imageRepository.save(IMAGE_1);
 
         /* test */
-        imageService.delete(IMAGE_2_ID);
-        assertTrue(imageRepository.findById(IMAGE_2_ID).isEmpty());
+        imageService.delete(IMAGE_1_ID);
+        assertTrue(imageRepository.findById(IMAGE_1_ID).isEmpty());
     }
 
 }
