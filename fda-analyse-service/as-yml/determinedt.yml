@@ -1,0 +1,30 @@
+summary: "Determine datatypes"
+description: "This is a simple API which returns the datatypes of a (path) csv file"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "to-do description"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      filepath:
+        type: "string"
+        example : "/data/testdt08.csv"
+      enum: 
+        type: "boolean"
+        example: true 
+      enum_tol: 
+        example: 0.1
+      seperator: 
+        type: "string"
+        example: ","
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"

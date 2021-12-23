@@ -1,0 +1,28 @@
+summary: "Update entity mdb_columns from metadatabase"
+description: "Updates entity mdb_columns and mdb_columns_num, mdb_columns_nom and mdb_columns_cat in metadatabase"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "Updates entity mdb_columns attributes (datatype, ordinal_position, is_nullable) and automatically updates mdb_columns_nom (attribute max_length), mdb_columns_num (min, max, mean, sd, histogram) and mdb_columns_cat (num_cat, cat_array). The attribute 'histogram' describes a equi-width histogram with a fix number of 10 buckets. The last value in this numeric array is the width of one bucket. The attribute cat_array contains an array with the names of the categories."
+  required: true
+  schema:
+    type: "object"
+    properties:
+      dbid:
+        type: "integer"
+        example: 1
+      tid: 
+        type: "integer"
+        example: 1
+      cid:
+        type: "integer"
+        example: 1
+responses:
+  200:
+    description: "OK"
+  405:
+    description: "Invalid input"

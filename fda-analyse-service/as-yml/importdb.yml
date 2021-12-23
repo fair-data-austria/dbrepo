@@ -1,0 +1,32 @@
+summary: "Update entity mdb_databases in metadatabase"
+description: "This is a simple API which updates attributes 'description', 'resourcetype' and 'publisher' of a database in the metadatabase. "
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "Updates attributes 'description', 'resourcetype' and 'publisher' of a certain database in the metadatabase."
+  required: true
+  schema:
+    type: "object"
+    properties:
+      dbid: 
+        type: "integer"
+        example: 1
+      resourcetype: 
+        type: "string"
+        example: "Census Data"
+      description: 
+        type: "string"
+        example: "Here goes a detailed description of the data set."
+      publisher: 
+        type: "string"
+        example: "Geological Institute, University of Tokyo"
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
+    

@@ -1,0 +1,6 @@
+flask==1.1.2
+flasgger==0.9.5
+py-eureka-client==0.9.1
+docker==5.0.0
+gevent==21.8.0
+rdflib==6.0.2

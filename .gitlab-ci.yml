@@ -1,0 +1,347 @@
+before_script: 
+  - "docker version"
+  - "docker-compose version"
+  - "mvn --version"
+
+variables:
+  HOSTALIASES: ./hosts
+  DOCKER_TLS_CERTDIR: /certs
+
+cache:
+  paths: 
+    - /root/.m2/repository/
+    - /root/.npm/
+
+image: "docker/compose:latest"
+
+stages:
+  - build
+  - test-frontend
+  - test-backend
+  - registry
+  - deploy
+
+build-backend-metadata:
+  stage: build
+  script:
+    - "make build-backend-metadata"
+
+build-backend-authentication:
+  stage: build
+  needs:
+    - build-backend-metadata
+  script:
+    - "make build-backend-authentication"
+
+#build-backend-citation:
+#  stage: build
+#  needs:
+#    - build-backend-metadata
+#  script:
+#    - "make build-backend-citation"
+
+build-backend-container:
+  stage: build
+  needs:
+    - build-backend-metadata
+  script:
+    - "make build-backend-container"
+
+build-backend-database:
+  stage: build
+  needs:
+    - build-backend-metadata
+  script:
+    - "make build-backend-database"
+
+build-backend-discovery:
+  stage: build
+  needs:
+    - build-backend-metadata
+  script:
+    - "make build-backend-discovery"
+
+build-backend-gateway:
+  stage: build
+  needs:
+    - build-backend-metadata
+  script:
+    - "make build-backend-gateway"
+
+build-backend-query:
+  stage: build
+  needs:
+    - build-backend-metadata
+  script:
+    - "make build-backend-query"
+
+build-backend-table:
+  stage: build
+  needs:
+    - build-backend-metadata
+  script:
+    - "make build-backend-table"
+
+build-docker:
+  stage: build
+  script:
+    - make build-docker
+
+build-frontend:
+  stage: build
+  script:
+    - make build-frontend
+
+test-frontend:
+  stage: test-frontend
+  dependencies:
+    - build-docker
+    - build-frontend
+  needs:
+    - build-docker
+    - build-frontend
+  script:
+    - make test-frontend
+  artifacts:
+    when: always
+    paths:
+      - "fda-ui/videos/*"
+      - "fda-ui/coverage/lcov-report/*"
+      - "fda-ui/coverage/*.xml"
+      - "fda-ui/coverage/*.info"
+    expire_in: 1 week
+
+coverage-frontend:
+  stage: test-frontend
+  dependencies:
+    - build-frontend
+  needs:
+    - build-frontend
+  script:
+    - make coverage-frontend
+  artifacts:
+    when: always
+    paths:
+      - "fda-ui/videos/*"
+      - "fda-ui/coverage/lcov-report/*"
+      - "fda-ui/coverage/*.xml"
+      - "fda-ui/coverage/*.info"
+    expire_in: 1 week
+    reports:
+      cobertura:
+        - fda-ui/coverage/cobertura-coverage.xml
+
+test-backend-container:
+  stage: test-backend
+  needs:
+    - build-backend-container
+  dependencies:
+    - build-backend-container
+  script:
+    - make test-backend-container
+    - cat ./fda-container-service/report/target/site/jacoco-aggregate/index.html
+  artifacts:
+    when: always
+    paths:
+      - fda-container-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-container-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-container-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-database:
+  stage: test-backend
+  needs:
+    - build-backend-database
+  dependencies:
+    - build-backend-database
+  script:
+    - mvn -f fda-database-service/pom.xml clean test verify
+    - cat ./fda-database-service/report/target/site/jacoco-aggregate/index.html
+  artifacts:
+    when: always
+    paths:
+      - fda-database-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-database-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-database-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-discovery:
+  stage: test-backend
+  needs:
+    - build-backend-discovery
+  dependencies:
+    - build-backend-discovery
+  script:
+    - mvn -f fda-discovery-service/pom.xml clean test verify
+    - cat ./fda-discovery-service/report/target/site/jacoco-aggregate/index.html
+  artifacts:
+    when: always
+    paths:
+      - fda-discovery-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-discovery-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-discovery-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-gateway:
+  stage: test-backend
+  needs:
+    - build-backend-gateway
+  dependencies:
+    - build-backend-gateway
+  script:
+    - mvn -f fda-gateway-service/pom.xml clean test verify
+    - cat ./fda-gateway-service/report/target/site/jacoco-aggregate/index.html
+  artifacts:
+    when: always
+    paths:
+      - fda-gateway-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-gateway-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-gateway-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-query:
+  stage: test-backend
+  needs:
+    - build-backend-query
+  dependencies:
+    - build-backend-query
+  script:
+    - mvn -f fda-query-service/pom.xml clean test verify
+    - cat ./fda-query-service/report/target/site/jacoco-aggregate/index.html
+  artifacts:
+    when: always
+    paths:
+      - fda-query-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-query-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-query-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-table:
+  stage: test-backend
+  needs:
+    - build-backend-table
+  dependencies:
+    - build-backend-table
+  script:
+    - mvn -f fda-table-service/pom.xml clean test verify
+    - cat ./fda-table-service/report/target/site/jacoco-aggregate/index.html
+  artifacts:
+    when: always
+    paths:
+      - fda-table-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-table-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
+
+#test-backend-citation:
+#  stage: test-backend
+#  needs:
+#    - build-backend-citation
+#  dependencies:
+#    - build-backend-citation
+#  script:
+#    - mvn -f fda-citation-service/pom.xml clean test verify
+#    - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
+#  artifacts:
+#    when: always
+#    paths:
+#      - fda-citation-service/rest-service/target/site/jacoco/jacoco.xml
+#      - fda-citation-service/rest-service/target/site/jacoco/index.html
+#    reports:
+#      junit:
+#        - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
+
+test-backend-authentication:
+  stage: test-backend
+  needs:
+    - build-backend-authentication
+  dependencies:
+    - build-backend-authentication
+  script:
+    - mvn -f fda-authentication-service/pom.xml clean test verify
+    - cat ./fda-authentication-service/report/target/site/jacoco-aggregate/index.html
+  artifacts:
+    when: always
+    paths:
+      - fda-authentication-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-authentication-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-authentication-service/rest-service/target/surefire-reports/TEST-*.xml
+
+registry-stable:
+  stage: registry
+  only:
+    - master
+  needs:
+    - test-frontend
+    - test-backend-authentication
+#    - test-backend-citation
+    - test-backend-container
+    - test-backend-database
+    - test-backend-discovery
+    - test-backend-gateway
+    - test-backend-query
+    - test-backend-table
+  dependencies:
+    - test-frontend
+    - test-backend-authentication
+#    - test-backend-citation
+    - test-backend-container
+    - test-backend-database
+    - test-backend-discovery
+    - test-backend-gateway
+    - test-backend-query
+    - test-backend-table
+  script:
+    - make registry-stable
+
+registry-staging:
+  stage: registry
+  environment:
+    name: staging
+    url: https://staging.ossdip.at
+  only:
+    - dev
+  needs:
+    - test-frontend
+    - test-backend-authentication
+#    - test-backend-citation
+    - test-backend-container
+    - test-backend-database
+    - test-backend-discovery
+    - test-backend-gateway
+    - test-backend-query
+    - test-backend-table
+  dependencies:
+    - test-frontend
+    - test-backend-authentication
+#    - test-backend-citation
+    - test-backend-container
+    - test-backend-database
+    - test-backend-discovery
+    - test-backend-gateway
+    - test-backend-query
+    - test-backend-table
+  script:
+    - make registry-staging
+
+deploy-stable:
+  stage: deploy
+  environment:
+    name: stable
+    url: https://dbrepo.ossdip.at
+  only:
+    - master
+  needs:
+    - registry-stable
+  dependencies:
+    - registry-stable
+  script:
+    - make deploy-stable
