@@ -45,6 +45,9 @@ public class TableServiceUnitTest extends BaseUnitTest {
     @Autowired
     private TableServiceImpl tableService;
 
+    @Autowired
+    private TextDataService textDataService;
+
     @MockBean
     private DatabaseRepository databaseRepository;
 
@@ -140,7 +143,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
+        final TableCsvDto response = textDataService.read(TABLE_1, request, file);
         assertEquals(1000, response.getData().size());
     }
 
@@ -154,7 +157,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
+        final TableCsvDto response = textDataService.read(TABLE_1, request, file);
         assertEquals(1000, response.getData().size());
     }
 
@@ -168,7 +171,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
+        final TableCsvDto response = textDataService.read(TABLE_1, request, file);
         assertEquals(1001, response.getData().size());
     }
 

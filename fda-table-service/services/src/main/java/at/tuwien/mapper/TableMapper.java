@@ -2,7 +2,6 @@ package at.tuwien.mapper;
 
 import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnDto;
@@ -10,29 +9,15 @@ import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
-import at.tuwien.exception.ArbitraryPrimaryKeysException;
 import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableMalformedException;
-import org.apache.commons.lang.WordUtils;
-import org.jooq.*;
-import org.jooq.impl.DefaultDataType;
-import org.jooq.meta.jaxb.CustomType;
-import org.jooq.meta.jaxb.ForcedType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
-import java.math.BigInteger;
 import java.text.Normalizer;
 import java.util.*;
-import java.util.Comparator;
-import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static org.jooq.impl.SQLDataType.*;
-import static org.jooq.impl.DSL.*;
 
 @Mapper(componentModel = "spring")
 public interface TableMapper {
@@ -114,18 +99,20 @@ public interface TableMapper {
         return "seq_" + nameToInternalName(data.getName());
     }
 
-    default String columnTypeDtoToDataType(ColumnCreateDto data) {
-        if (data.getPrimaryKey()) {
-            if (data.getType().equals(ColumnTypeDto.NUMBER)) {
-                return "BIGINT UNSIGNED";
-            }
-            if (data.getType().equals(ColumnTypeDto.BLOB)) {
-                return "BLOB(65535)";
-            }
-            if (data.getType().equals(ColumnTypeDto.TEXT)) {
-                return "TEXT(65535)";
-            }
+    default String columnCreateDtoToPrimaryKeyLengthSpecification(ColumnCreateDto data) {
+        if (!data.getPrimaryKey()) {
+            throw new IllegalArgumentException("Not a primary key");
         }
+        if (data.getType().equals(ColumnTypeDto.BLOB)) {
+            return "(255)";
+        }
+        if (data.getType().equals(ColumnTypeDto.TEXT)) {
+            return "(255)";
+        }
+        return "";
+    }
+
+    default String columnTypeDtoToDataType(ColumnCreateDto data) {
         switch (data.getType()) {
             case BLOB:
                 return "BLOB";
@@ -142,10 +129,9 @@ public interface TableMapper {
             case BOOLEAN:
                 return "BOOLEAN";
             case ENUM:
-//                return DefaultDataType.getDefaultDataType(columnCreateDtoToEnumTypeName(table, data));
-                return "OTHER";
+                return "ENUM (" + String.join(",", data.getEnumValues()) + ")";
             default:
-                return "OTHER";
+                throw new IllegalArgumentException("Invalid data type");
         }
     }
 
@@ -179,17 +165,41 @@ public interface TableMapper {
                 .append(nameToInternalName(data.getName()))
                 .append("` (");
         /* create columns */
-        for (int i = 0; i < data.getColumns().length; i++) {
-            final ColumnCreateDto column = data.getColumns()[i];
-            query.append("`")
-                    .append(nameToInternalName(column.getName()))
-                    .append("` ")
-                    .append(columnTypeDtoToDataType(column))
-                    .append(column.getNullAllowed() ? " NULL" : " NOT NULL")
-                    .append(i != data.getColumns().length - 1 ? ", " : "");
-        }
-        /* create constraints */
-        /* create indices */
+        int[] idx = {0};
+        Arrays.stream(data.getColumns())
+                .forEach(c -> query.append(idx[0]++ > 0 ? ", " : "")
+                        .append("`")
+                        .append(nameToInternalName(c.getName()))
+                        .append("` ")
+                        .append(columnTypeDtoToDataType(c))
+                        .append(c.getNullAllowed() ? " NULL" : " NOT NULL")
+                        .append(c.getCheckExpression() != null &&
+                                !c.getCheckExpression().isEmpty() ? " CHECK (" + c.getCheckExpression() + ")" : ""));
+        /* create primary key index */
+        query.append(", PRIMARY KEY (")
+                .append(String.join(",", Arrays.stream(data.getColumns())
+                        .filter(ColumnCreateDto::getPrimaryKey)
+                        .map(c -> "`" + nameToInternalName(c.getName()) + "`" + columnCreateDtoToPrimaryKeyLengthSpecification(c))
+                        .toArray(String[]::new)))
+                .append(")");
+        /* create unique indices */
+        Arrays.stream(data.getColumns())
+                .filter(ColumnCreateDto::getUnique)
+                .filter(c -> !c.getPrimaryKey())
+                .forEach(c -> query.append(", ")
+                        .append("UNIQUE KEY (`")
+                        .append(nameToInternalName(c.getName()))
+                        .append("`)"));
+        /* create foreign key indices */
+        Arrays.stream(data.getColumns())
+                .filter(c -> Objects.nonNull(c.getForeignKey()))
+                .forEach(c -> query.append(", FOREIGN KEY (`")
+                        .append(nameToInternalName(c.getName()))
+                        .append("`) REFERENCES ")
+                        .append(nameToInternalName(c.getReferences()))
+                        .append(" (`")
+                        .append(nameToInternalName(c.getForeignKey()))
+                        .append("`) ON DELETE CASCADE ON UPDATE RESTRICT"));
         query.append(") WITH SYSTEM VERSIONING;");
         log.debug("create table query built with {} columns and system versioning", data.getColumns().length);
         log.trace("raw create table query: [{}]", query);

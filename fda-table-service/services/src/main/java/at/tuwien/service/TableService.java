@@ -60,8 +60,12 @@ public interface TableService {
     Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException;
 
+    /**
+     * Finds a database by id.
+     *
+     * @param id The id.
+     * @return Return the database if found.
+     * @throws DatabaseNotFoundException
+     */
     Database findDatabase(Long id) throws DatabaseNotFoundException;
-
-    TableCsvDto readCsv(Table table, TableInsertDto data, MultipartFile file) throws IOException, CsvException,
-            ArrayIndexOutOfBoundsException;
 }

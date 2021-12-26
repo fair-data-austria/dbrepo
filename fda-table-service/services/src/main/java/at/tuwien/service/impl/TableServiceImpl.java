@@ -1,26 +1,20 @@
 package at.tuwien.service.impl;
 
 import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
-import at.tuwien.repository.jpa.TableColumnRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.TableService;
-import com.opencsv.exceptions.CsvException;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,15 +25,13 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     private final TableMapper tableMapper;
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
-    private final TableColumnRepository tableColumnRepository;
 
     @Autowired
     public TableServiceImpl(TableMapper tableMapper, TableRepository tableRepository,
-                            DatabaseRepository databaseRepository, TableColumnRepository tableColumnRepository) {
+                            DatabaseRepository databaseRepository) {
         this.tableMapper = tableMapper;
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
-        this.tableColumnRepository = tableColumnRepository;
     }
 
     @Override
@@ -50,7 +42,8 @@ public class TableServiceImpl extends HibernateConnector implements TableService
 
     @Override
     @Transactional
-    public void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException {
+    public void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException {
         final Database database = findDatabase(databaseId);
         final Table table = findById(databaseId, tableId);
         final Session session = getSessionFactory(database)
@@ -105,10 +98,5 @@ public class TableServiceImpl extends HibernateConnector implements TableService
             throw new DatabaseNotFoundException("Database not found");
         }
         return optional.get();
-    }
-
-    @Override
-    public TableCsvDto readCsv(Table table, TableInsertDto data, MultipartFile file) throws IOException, CsvException, ArrayIndexOutOfBoundsException {
-        return null;
     }
 }
