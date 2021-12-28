@@ -10,6 +10,7 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableMalformedException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -18,6 +19,7 @@ import org.mapstruct.Named;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface TableMapper {
@@ -157,15 +159,34 @@ public interface TableMapper {
      * @param data     The table
      * @return The create table query
      */
-    default String tableToCreateTableRawQuery(Database database, TableCreateDto data) throws ImageNotSupportedException {
+    default String tableToCreateTableRawQuery(Database database, TableCreateDto data) throws ImageNotSupportedException,
+            TableMalformedException {
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         final StringBuilder query = new StringBuilder("CREATE TABLE `")
                 .append(nameToInternalName(data.getName()))
                 .append("` (");
+        /* internal checks */
+        final boolean primaryColumnExists = Arrays.stream(data.getColumns())
+                .anyMatch(ColumnCreateDto::getPrimaryKey);
         /* create columns */
-        int[] idx = {0};
+        if (!primaryColumnExists) {
+            final ColumnCreateDto idColumn = ColumnCreateDto.builder()
+                    .name("id")
+                    .primaryKey(true)
+                    .type(ColumnTypeDto.NUMBER)
+                    .nullAllowed(false)
+                    .unique(true)
+                    .build();
+            if (Arrays.stream(data.getColumns()).anyMatch(c -> c.getName().equals("id"))) {
+                throw new TableMalformedException("Cannot create id column: it already exists");
+            }
+            final ColumnCreateDto[] tmp = Arrays.copyOf(data.getColumns(), data.getColumns().length + 1);
+            tmp[data.getColumns().length] = idColumn;
+            data.setColumns(tmp);
+        }
+        final int[] idx = {0};
         Arrays.stream(data.getColumns())
                 .forEach(c -> query.append(idx[0]++ > 0 ? ", " : "")
                         .append("`")
