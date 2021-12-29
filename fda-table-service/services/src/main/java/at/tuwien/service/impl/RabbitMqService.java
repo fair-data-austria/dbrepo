@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
-import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -105,7 +104,7 @@ public class RabbitMqService implements MessageQueueService {
             } catch (ConnectException e) {
                 log.warn("Could not redirect AMQP payload {}", e.getMessage());
                 /* ignore */
-            } catch (ImageNotSupportedException | DataAccessException | TableMalformedException
+            } catch (ImageNotSupportedException | TableMalformedException
                     | DatabaseNotFoundException | TableNotFoundException e) {
                 log.warn("Could not insert AMQP payload {}", e.getMessage());
                 if (e.getCause() instanceof DatabaseNotFoundException) {
