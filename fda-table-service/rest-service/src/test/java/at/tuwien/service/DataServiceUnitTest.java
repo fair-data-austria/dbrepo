@@ -25,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -119,7 +120,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void selectAll_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException {
+            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, PaginationException {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -130,7 +131,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        dataService.selectAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+        dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
     }
 
     @Test
@@ -146,7 +147,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            dataService.selectAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -163,7 +164,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            dataService.selectAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -179,8 +180,8 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            dataService.selectAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+        assertThrows(PaginationException.class, () -> {
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -196,8 +197,8 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            dataService.selectAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+        assertThrows(PaginationException.class, () -> {
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -217,6 +218,102 @@ public class DataServiceUnitTest extends BaseUnitTest {
         assertThrows(TableMalformedException.class, () -> {
             dataService.insert(TABLE_1, request);
         });
+    }
+
+    @Test
+    public void findAll_noPagination_succeeds() throws TableNotFoundException, DatabaseConnectionException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+        final Long page = null;
+        final Long size = null;
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+    }
+
+    @Test
+    public void findAll_negativePage_fails() {
+        final Long page = -1L;
+        final Long size = 1L /* arbitrary */;
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        assertThrows(PaginationException.class, () -> {
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        });
+    }
+
+    @Test
+    public void findAll_sizeZero_fails() {
+        final Long page = 1L /* arbitrary */;
+        final Long size = 0L;
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        assertThrows(PaginationException.class, () -> {
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        });
+    }
+
+    @Test
+    public void findAll_sizeNegative_fails() {
+        final Long page = 1L /* arbitrary */;
+        final Long size = -1L;
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        assertThrows(PaginationException.class, () -> {
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        });
+    }
+
+    @Test
+    public void findAll_timestampMissing_succeeds() throws TableNotFoundException, DatabaseConnectionException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        dataService.findAll(DATABASE_1_ID, TABLE_1_ID, null, null, null);
+    }
+
+    @Test
+    public void findAll_timestampBeforeCreation_succeeds() throws TableNotFoundException, DatabaseConnectionException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+        final Instant timestamp = DATABASE_1_CREATED.minus(1, ChronoUnit.SECONDS);
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        dataService.findAll(DATABASE_1_ID, TABLE_1_ID, timestamp, null, null);
     }
 
 }

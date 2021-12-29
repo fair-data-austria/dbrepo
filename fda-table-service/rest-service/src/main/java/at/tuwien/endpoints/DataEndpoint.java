@@ -46,7 +46,7 @@ public class DataEndpoint {
                                             @PathVariable Long tableId,
                                             @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException {
-        dataService.insertCsv(databaseId, tableId, data);
+//        dataService.insertCsv(databaseId, tableId, data);
         return ResponseEntity.accepted()
                 .build();
     }
@@ -66,7 +66,7 @@ public class DataEndpoint {
                                              @PathVariable Long tableId,
                                              @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
             TableMalformedException, TableNotFoundException, DatabaseNotFoundException {
-        final Table table = dataService.findById(databaseId, tableId);
+        final Table table = dataService.find(databaseId, tableId);
         dataService.insert(table, data);
         return ResponseEntity.accepted()
                 .build();
@@ -87,8 +87,8 @@ public class DataEndpoint {
                                                  @RequestParam(required = false) Long page,
                                                  @RequestParam(required = false) Long size)
             throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
-            ImageNotSupportedException, TableMalformedException {
-        final QueryResultDto data = dataService.selectAll(databaseId, tableId, timestamp, page, size);
+            ImageNotSupportedException, TableMalformedException, PaginationException {
+        final QueryResultDto data = dataService.findAll(databaseId, tableId, timestamp, page, size);
         return ResponseEntity.ok(data);
     }
 

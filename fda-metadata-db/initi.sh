@@ -180,6 +180,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		topic character varying(255) NOT NULL,
 		last_modified timestamp without time zone,
 		tName VARCHAR(50),
+		date_format VARCHAR(255),
 		tDescription TEXT,
 		NumCols INTEGER,
 		NumRows INTEGER, 

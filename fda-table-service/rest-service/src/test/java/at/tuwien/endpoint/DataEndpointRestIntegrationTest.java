@@ -147,7 +147,8 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void insertFromTuple_empty_fails() throws SQLException {
+    public void insertFromTuple_empty_succeeds() throws SQLException, TableNotFoundException, TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of())
                 .build();
@@ -156,13 +157,12 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
-        });
+        dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
     }
 
     @Test
-    public void insertFromTuple_empty2_fails() throws SQLException, InterruptedException {
+    public void insertFromTuple_empty2_succeeds() throws SQLException, InterruptedException, TableNotFoundException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of(Map.of()))
                 .build();
@@ -172,14 +172,13 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
-        });
+        dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
     }
 
     @Test
     public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, SQLException, InterruptedException {
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, SQLException,
+            InterruptedException {
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(',')
                 .skipHeader(true)
@@ -198,7 +197,8 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
 
     @Test
     public void getAll_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, SQLException, DatabaseConnectionException, InterruptedException {
+            DatabaseNotFoundException, ImageNotSupportedException, SQLException, DatabaseConnectionException,
+            InterruptedException, PaginationException {
         final Instant timestamp = Instant.now();
         final Long page = 0L;
         final Long size = 1L;

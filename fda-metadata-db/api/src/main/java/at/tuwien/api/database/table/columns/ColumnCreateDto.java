@@ -30,6 +30,10 @@ public class ColumnCreateDto {
     @ApiModelProperty(name = "null value", example = "false")
     private Boolean nullAllowed = true;
 
+    @NotBlank
+    @ApiModelProperty(name = "date format", example = "YYYY-mm-dd")
+    private String dateFormat;
+
     @NotNull
     @ApiModelProperty(name = "unique", example = "true")
     private Boolean unique = false;

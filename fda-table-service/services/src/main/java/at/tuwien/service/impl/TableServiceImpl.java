@@ -1,8 +1,10 @@
 package at.tuwien.service.impl;
 
+import at.tuwien.CreateTableRawQuery;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
@@ -72,7 +74,13 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         final Session session = getSessionFactory(database)
                 .openSession();
         final Transaction transaction = session.beginTransaction();
-        session.createSQLQuery(tableMapper.tableToCreateTableRawQuery(database, createDto))
+        final CreateTableRawQuery query = tableMapper.tableToCreateTableRawQuery(database, createDto);
+        if (query.getGenerated()) {
+            /* in case the id column needs to be generated, we need to generate the sequence too */
+            session.createSQLQuery(tableMapper.tableToCreateSequenceRawQuery(database, createDto))
+                    .executeUpdate();
+        }
+        session.createSQLQuery(query.getQuery())
                 .executeUpdate();
         transaction.commit();
         session.close();
@@ -83,10 +91,13 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         final Table table = tableRepository.save(prototype);
         table.setColumns(Arrays.stream(createDto.getColumns())
                 .map(tableMapper::columnCreateDtoToTableColumn)
-                .map(c -> tableMapper.tableColumnToTableColumn(table, c))
+                .map(column -> tableMapper.tableColumnToTableColumn(table, column, query))
                 .collect(Collectors.toList()));
+        /* set the ordinal position for the columns */
         table.getColumns()
-                .forEach(c -> c.setOrdinalPosition(idx[0]++));
+                .forEach(column -> {
+                    column.setOrdinalPosition(idx[0]++);
+                });
         return tableRepository.save(table);
     }
 

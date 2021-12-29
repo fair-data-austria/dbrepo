@@ -58,12 +58,12 @@ public class DataSeeder implements Seeder {
     @Override
     public void seed() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
             ImageNotSupportedException, FileStorageException {
-        dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT);
-        log.info("Seeded table {}", TABLE_1_ID);
-        dataService.insertCsv(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT);
-        log.info("Seeded table {}", TABLE_2_ID);
-        dataService.insertCsv(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT);
-        log.info("Seeded table {}", TABLE_3_ID);
+//        dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT);
+//        log.info("Seeded table {}", TABLE_1_ID);
+//        dataService.insertCsv(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT);
+//        log.info("Seeded table {}", TABLE_2_ID);
+//        dataService.insertCsv(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT);
+//        log.info("Seeded table {}", TABLE_3_ID);
     }
 
 }
