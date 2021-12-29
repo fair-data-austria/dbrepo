@@ -13,6 +13,7 @@ import at.tuwien.service.DataService;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +61,8 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
         final Database database = findDatabase(databaseId);
         final Table table = findById(databaseId, tableId);
         /* run query */
-        final Session session = getSessionFactory(database)
-                .openSession();
+        final SessionFactory factory = getSessionFactory(database);
+        final Session session = factory.openSession();
         final Transaction transaction = session.beginTransaction();
         final NativeQuery<?> query = session.createSQLQuery(dataMapper.tableToRawFindAllQuery(table, timestamp, size,
                 page));
@@ -75,6 +76,7 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
             throw new TableMalformedException("Could not parse date from format", e);
         }
         session.close();
+        factory.close();
         return result;
     }
 
@@ -86,8 +88,8 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
         final Table table = findById(databaseId, tableId);
         /* run query */
         if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return;
-        final Session session = getSessionFactory(database)
-                .openSession();
+        final SessionFactory factory = getSessionFactory(database);
+        final Session session = factory.openSession();
         final Transaction transaction = session.beginTransaction();
         /* prepare the statement */
         final InsertTableRawQuery raw = dataMapper.tableTableCsvDtoToRawInsertQuery(table, data);
@@ -99,9 +101,12 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
             log.info("Inserted {} tuples", query.executeUpdate());
         } catch (PersistenceException e) {
             log.error("Could not insert data");
+            transaction.rollback();
             throw new TableMalformedException("Could not insert data", e);
         }
         transaction.commit();
+        session.close();
+        factory.close();
     }
 
     /**
