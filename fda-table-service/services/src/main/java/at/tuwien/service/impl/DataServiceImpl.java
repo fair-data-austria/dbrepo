@@ -1,6 +1,6 @@
 package at.tuwien.service.impl;
 
-import at.tuwien.CreateTableRawQuery;
+import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
@@ -18,11 +18,10 @@ import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
-import java.sql.ResultSet;
 import java.time.DateTimeException;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 @Log4j2
@@ -46,7 +45,6 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
     public QueryResultDto findAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp, Long page,
                                   Long size) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException {
-        /* param check */
         if ((page == null && size != null) || (page != null && size == null)) {
             log.error("Cannot perform pagination with only one of page/size set.");
             log.debug("invalid pagination specification, one of page/size is null, either both should be null or none.");
@@ -58,8 +56,10 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
         if (size != null && size <= 0) {
             throw new PaginationException("Page number cannot be lower or equal to 0");
         }
+        /* find */
         final Database database = findDatabase(databaseId);
         final Table table = findById(databaseId, tableId);
+        /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
         final Transaction transaction = session.beginTransaction();
@@ -79,13 +79,29 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
     }
 
     @Override
-    public Table find(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException {
-        return null;
-    }
-
-    @Override
-    public void insert(Table table, TableCsvDto data) throws ImageNotSupportedException, TableMalformedException {
-
+    public void insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
+            TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
+        /* find */
+        final Database database = findDatabase(databaseId);
+        final Table table = findById(databaseId, tableId);
+        /* run query */
+        if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return;
+        final Session session = getSessionFactory(database)
+                .openSession();
+        final Transaction transaction = session.beginTransaction();
+        /* prepare the statement */
+        final InsertTableRawQuery raw = dataMapper.tableTableCsvDtoToRawInsertQuery(table, data);
+        final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
+        final int[] idx = {1} /* this needs to be >0 */;
+        raw.getValues()
+                .forEach(row -> query.setParameterList(idx[0]++, row));
+        try {
+            log.info("Inserted {} tuples", query.executeUpdate());
+        } catch (PersistenceException e) {
+            log.error("Could not insert data");
+            throw new TableMalformedException("Could not insert data", e);
+        }
+        transaction.commit();
     }
 
     /**

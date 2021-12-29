@@ -1,10 +1,12 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.DataMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -13,6 +15,7 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.query.NativeQuery;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -216,7 +220,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            dataService.insert(TABLE_1, request);
+            dataService.insert(DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
@@ -234,6 +238,40 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+    }
+
+    @Test
+    public void findAll_pageNull_fails() {
+        final Long page = null;
+        final Long size = 1L;
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        assertThrows(PaginationException.class, () -> {
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        });
+    }
+
+    @Test
+    public void findAll_sizeNull_fails() {
+        final Long page = 1L;
+        final Long size = null;
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        assertThrows(PaginationException.class, () -> {
+            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        });
     }
 
     @Test

@@ -33,23 +33,14 @@ public interface DataService {
             ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException;
 
     /**
-     * Find a table by database-table id pair
+     * Insert data from AMQP client into a table of a table-database id tuple
      *
-     * @param databaseId The database-table id pair.
-     * @param tableId    The database-table id pair.
-     * @return The table.
-     * @throws TableNotFoundException    The table was not found.
-     * @throws DatabaseNotFoundException The database was not found.
-     */
-    Table find(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException;
-
-    /**
-     * Insert data from AMQP client into a table of a database
-     *
-     * @param table The table.
-     * @param data  The data.
+     * @param databaseId The database id.
+     * @param tableId    The table id.
+     * @param data       The data.
      * @throws ImageNotSupportedException The image is not supported.
      * @throws TableMalformedException    The table does not exist in the metadata database.
      */
-    void insert(Table table, TableCsvDto data) throws ImageNotSupportedException, TableMalformedException;
+    void insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
+            TableMalformedException, DatabaseNotFoundException, TableNotFoundException;
 }

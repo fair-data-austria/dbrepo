@@ -162,7 +162,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void readCsv_skipheader_succeeds() throws IOException, CsvException {
+    public void readCsv_skipHeader_succeeds() throws IOException, CsvException {
         final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
         final TableInsertDto request = TableInsertDto.builder()
                 .delimiter(',')
@@ -173,60 +173,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
         /* test */
         final TableCsvDto response = textDataService.read(TABLE_1, request, file);
         assertEquals(1001, response.getData().size());
-    }
-
-    @Test
-    public void createTable_issue106_fails() {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name("Table")
-                .description(TABLE_2_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
-                .build();
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableService.createTable(DATABASE_1_ID, request);
-        });
-    }
-
-    @Test
-    public void createTable_emptyName_fails() {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name("")
-                .description(TABLE_2_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
-                .build();
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableService.createTable(DATABASE_1_ID, request);
-        });
-    }
-
-    @Test
-    public void createTable_nameContainsMinus_fails() {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name("COVID-19")
-                .description(TABLE_2_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
-                .build();
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableService.createTable(DATABASE_1_ID, request);
-        });
     }
 
 }

@@ -19,6 +19,7 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.HibernateException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +33,12 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -358,7 +361,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
         assertEquals(DATABASE_1_ID, response.getTdbid());
         assertEquals(2, response.getColumns().size());
-        assertEquals(List.of("A","B","C"), response.getColumns().get(1).getEnumValues());
+        assertEquals(List.of("A", "B", "C"), response.getColumns().get(1).getEnumValues());
     }
 
     @Test
@@ -490,15 +493,15 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            InterruptedException, SQLException, DataProcessingException {
+    public void deleteTable_notRunning_fails() {
 
         /* start */
-        DockerConfig.startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(TABLE_1);
+        DockerConfig.stopContainer(CONTAINER_1);
 
         /* test */
-        tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+        assertThrows(HibernateException.class, () -> {
+            tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+        });
     }
 
     @Test
@@ -517,6 +520,23 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         tableService.createTable(DATABASE_1_ID, request);
+    }
+
+    @Test
+    public void createTable_emptyName_fails() throws InterruptedException {
+        final TableCreateDto request = TableCreateDto.builder()
+                .name("")
+                .description(TABLE_2_DESCRIPTION)
+                .columns(COLUMNS_CSV01)
+                .build();
+
+        /* start */
+        DockerConfig.startContainer(CONTAINER_1);
+
+        /* test */
+        assertThrows(TableMalformedException.class, () -> {
+            tableService.createTable(DATABASE_1_ID, request);
+        });
     }
 
 }

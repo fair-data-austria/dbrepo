@@ -4,11 +4,16 @@ import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.IOUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -44,5 +49,18 @@ public abstract class HibernateConnector {
                 .setProperty("hibernate.current_session_context_class", SESSION_CONTEXT);
         return configuration.buildSessionFactory();
     }
+
+    /**
+     * Checks if the word is in the reserved word csv (i.e. an SQL keyword), solves issue 106
+     *
+     * @param word The word
+     * @return True if it is reserved word
+     */
+    public static Boolean isReserved(String word) throws IOException {
+        final InputStream stream = new ClassPathResource("mariadb/reserved.csv").getInputStream();
+        final List<String> reserved = IOUtils.readLines(stream, "UTF-8");
+        return reserved.contains(word.toUpperCase());
+    }
+
 
 }

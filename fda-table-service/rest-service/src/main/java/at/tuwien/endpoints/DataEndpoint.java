@@ -46,7 +46,7 @@ public class DataEndpoint {
                                             @PathVariable Long tableId,
                                             @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException {
-//        dataService.insertCsv(databaseId, tableId, data);
+//        dataService.insert(databaseId, tableId, data);
         return ResponseEntity.accepted()
                 .build();
     }
@@ -66,8 +66,7 @@ public class DataEndpoint {
                                              @PathVariable Long tableId,
                                              @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
             TableMalformedException, TableNotFoundException, DatabaseNotFoundException {
-        final Table table = dataService.find(databaseId, tableId);
-        dataService.insert(table, data);
+        dataService.insert(databaseId, tableId, data);
         return ResponseEntity.accepted()
                 .build();
     }

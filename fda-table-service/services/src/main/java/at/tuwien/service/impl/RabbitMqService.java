@@ -3,9 +3,7 @@ package at.tuwien.service.impl;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.exception.AmqpException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableMalformedException;
+import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.DataService;
 import at.tuwien.service.MessageQueueService;
@@ -100,15 +98,22 @@ public class RabbitMqService implements MessageQueueService {
     public void createUserConsumer(Table table) throws IOException {
         channel.basicConsume(table.getTopic(), true, (consumerTag, response) -> {
             try {
-                dataService.insert(table, objectMapper.readValue(response.getBody(), TableCsvDto.class));
+                dataService.insert(table.getDatabase().getId(), table.getId(), objectMapper.readValue(response.getBody(), TableCsvDto.class));
             } catch (JsonParseException | MismatchedInputException e) {
                 log.warn("Could not parse AMQP payload {}", e.getMessage());
                 /* ignore */
             } catch (ConnectException e) {
                 log.warn("Could not redirect AMQP payload {}", e.getMessage());
                 /* ignore */
-            } catch (ImageNotSupportedException | DataAccessException | TableMalformedException e) {
+            } catch (ImageNotSupportedException | DataAccessException | TableMalformedException
+                    | DatabaseNotFoundException | TableNotFoundException e) {
                 log.warn("Could not insert AMQP payload {}", e.getMessage());
+                if (e.getCause() instanceof DatabaseNotFoundException) {
+                    log.info("Database id {} not found", table.getDatabase().getId());
+                }
+                if (e.getCause() instanceof TableNotFoundException) {
+                    log.info("Table id {} not found", table.getDatabase().getId());
+                }
                 /* ignore */
             }
         }, consumerTag -> {/* */});

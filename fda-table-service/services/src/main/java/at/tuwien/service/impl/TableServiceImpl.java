@@ -46,8 +46,10 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     @Transactional
     public void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException {
+        /* find */
         final Database database = findDatabase(databaseId);
         final Table table = findById(databaseId, tableId);
+        /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
         final Transaction transaction = session.beginTransaction();
@@ -69,8 +71,11 @@ public class TableServiceImpl extends HibernateConnector implements TableService
 
     @Override
     @Transactional
-    public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
+    public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
+            DatabaseNotFoundException, TableMalformedException {
+        /* find */
         final Database database = findDatabase(databaseId);
+        /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
         final Transaction transaction = session.beginTransaction();

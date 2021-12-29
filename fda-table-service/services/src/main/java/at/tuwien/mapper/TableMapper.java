@@ -17,6 +17,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
+import javax.validation.Valid;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -99,10 +100,6 @@ public interface TableMapper {
     })
     TableColumn columnCreateDtoToTableColumn(ColumnCreateDto data);
 
-    default String tableNameToSequenceName(TableCreateDto data) {
-        return "seq_" + nameToInternalName(data.getName());
-    }
-
     default String columnCreateDtoToPrimaryKeyLengthSpecification(ColumnCreateDto data) {
         if (!data.getPrimaryKey()) {
             throw new IllegalArgumentException("Not a primary key");
@@ -166,6 +163,9 @@ public interface TableMapper {
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
+        if (data.getName().isBlank()) {
+            throw new TableMalformedException("Table name cannot be blank");
+        }
         final StringBuilder query = new StringBuilder("CREATE TABLE `")
                 .append(nameToInternalName(data.getName()))
                 .append("` (");
@@ -194,8 +194,13 @@ public interface TableMapper {
                         .append("`")
                         .append(nameToInternalName(c.getName()))
                         .append("` ")
+                        /* data type */
                         .append(columnTypeDtoToDataType(c))
+                        /* null expressions */
                         .append(c.getNullAllowed() ? " NULL" : " NOT NULL")
+                        /* default expressions */
+                        .append(!primaryColumnExists && c.getName().equals("id") ? " DEFAULT NEXTVAL(`seq_id`)" : "")
+                        /* check expressions */
                         .append(c.getCheckExpression() != null &&
                                 !c.getCheckExpression().isEmpty() ? " CHECK (" + c.getCheckExpression() + ")" : ""));
         /* create primary key index */

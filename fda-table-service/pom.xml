@@ -214,10 +214,14 @@
                         <exclude>at/tuwien/mapper/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
                         <exclude>at/tuwien/utils/**/*</exclude>
+                        <exclude>at/tuwien/api/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>
                         <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>**/FdaTableServiceApplication.class</exclude>
                         <exclude>**/RabbitMqService.class</exclude>
+                        <exclude>**/TableSeeder.class</exclude>
+                        <exclude>**/DataSeeder.class</exclude>
+                        <exclude>**/ServiceSeeder.class</exclude>
                         <exclude>**/JdbcConnector.class</exclude>
                     </excludes>
                 </configuration>
