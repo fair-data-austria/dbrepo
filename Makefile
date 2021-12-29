@@ -203,13 +203,10 @@ clean-ide:
 	rm -rf ./fda-query-service/.idea/
 	rm -rf ./fda-table-service/.idea/
 
-clean-docker:
-	yes | docker system prune
-
 clean-frontend:
 	rm -f ./fda-ui/videos/*.webm
 
-clean: clean-ide clean-maven clean-frontend clean-docker
+clean: clean-ide clean-maven clean-frontend
 
 teardown:
 	./.fda-deployment/teardown
