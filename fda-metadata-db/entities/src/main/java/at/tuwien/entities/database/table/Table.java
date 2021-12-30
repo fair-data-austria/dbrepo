@@ -3,6 +3,7 @@ package at.tuwien.entities.database.table;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.columns.TableColumn;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,6 +14,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.List;
 
@@ -63,6 +65,21 @@ public class Table {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
     @Field(type = FieldType.Nested)
     private List<TableColumn> columns;
+
+    @Column(name = "separator")
+    private Character separator = ',';
+
+    @Column(name = "element_null")
+    private String nullElement = null;
+
+    @Column(name = "skip_headers")
+    private Boolean skipHeaders = true;
+
+    @Column(name = "element_true")
+    private String trueElement = "1";
+
+    @Column(name = "element_false")
+    private String falseElement = "0";
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

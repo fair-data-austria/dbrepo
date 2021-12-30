@@ -3,7 +3,6 @@ package at.tuwien.service.impl;
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
@@ -11,12 +10,9 @@ import at.tuwien.mapper.DataMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.DataService;
-import at.tuwien.service.TextDataService;
-import com.opencsv.exceptions.CsvException;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.Optional;
@@ -34,15 +29,13 @@ import java.util.Optional;
 public class DataServiceImpl extends HibernateConnector implements DataService {
 
     private final DataMapper dataMapper;
-    private final TextDataService textDataService;
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
 
     @Autowired
-    public DataServiceImpl(DataMapper dataMapper, TextDataService textDataService, TableRepository tableRepository,
+    public DataServiceImpl(DataMapper dataMapper, TableRepository tableRepository,
                            DatabaseRepository databaseRepository) {
         this.dataMapper = dataMapper;
-        this.textDataService = textDataService;
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
     }
@@ -67,8 +60,8 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
         final Database database = findDatabase(databaseId);
         final Table table = findById(databaseId, tableId);
         /* run query */
-        final SessionFactory factory = getSessionFactory(database);
-        final Session session = factory.openSession();
+        final Session session = getSessionFactory(database)
+                .openSession();
         final Transaction transaction = session.beginTransaction();
         final NativeQuery<?> query = session.createSQLQuery(dataMapper.tableToRawFindAllQuery(table, timestamp, size,
                 page));
@@ -82,20 +75,7 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
             throw new TableMalformedException("Could not parse date from format", e);
         }
         session.close();
-        factory.close();
         return result;
-    }
-
-    @Override
-    public void insert(Long databaseId, Long tableId, TableInsertDto data) throws ImageNotSupportedException,
-            TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
-        final TableCsvDto csv;
-        try {
-            csv = textDataService.read(databaseId, tableId, data);
-        } catch (IOException | CsvException e) {
-            throw new TableMalformedException("Failed to parse the csv with the provided information", e);
-        }
-        insert(databaseId, tableId, csv);
     }
 
     @Override
@@ -106,14 +86,14 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
         final Table table = findById(databaseId, tableId);
         /* run query */
         if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return;
-        final SessionFactory factory = getSessionFactory(database);
-        final Session session = factory.openSession();
+        final Session session = getSessionFactory(database)
+                .openSession();
         final Transaction transaction = session.beginTransaction();
         /* prepare the statement */
         final InsertTableRawQuery raw = dataMapper.tableTableCsvDtoToRawInsertQuery(table, data);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
         final int[] idx = {1} /* this needs to be >0 */;
-        raw.getValues()
+        raw.getValues() /* set values */
                 .forEach(row -> query.setParameterList(idx[0]++, row));
         try {
             log.info("Inserted {} tuples", query.executeUpdate());
@@ -124,7 +104,6 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
         }
         transaction.commit();
         session.close();
-        factory.close();
     }
 
     /**

@@ -183,6 +183,11 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		tDescription TEXT,
 		NumCols INTEGER,
 		NumRows INTEGER, 
+		separator CHAR(1),
+		element_null VARCHAR(50),
+		skip_headers BOOLEAN,
+		element_true VARCHAR(50),
+		element_false VARCHAR(50),
 		Version TEXT,
 		PRIMARY KEY(tDBID,ID)
 	);

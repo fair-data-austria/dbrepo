@@ -6,13 +6,11 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.TableService;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,15 +26,13 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     private final TableMapper tableMapper;
     private final TableRepository tableRepository;
     private final DatabaseService databaseService;
-    private final DatabaseRepository databaseRepository;
 
     @Autowired
     public TableServiceImpl(TableMapper tableMapper, TableRepository tableRepository,
-                            DatabaseService databaseService, DatabaseRepository databaseRepository) {
+                            DatabaseService databaseService) {
         this.tableMapper = tableMapper;
         this.tableRepository = tableRepository;
         this.databaseService = databaseService;
-        this.databaseRepository = databaseRepository;
     }
 
     @Override
@@ -53,13 +49,12 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         final Database database = databaseService.findDatabase(databaseId);
         final Table table = findById(databaseId, tableId);
         /* run query */
-        final SessionFactory factory = getSessionFactory(database);
-        final Session session = factory.openSession();
+        final Session session = getSessionFactory(database)
+                .openSession();
         final Transaction transaction = session.beginTransaction();
         session.createSQLQuery(tableMapper.tableToDropTableRawQuery(table));
         transaction.commit();
         session.close();
-        factory.close();
     }
 
     @Override
@@ -80,8 +75,8 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         /* find */
         final Database database = databaseService.findDatabase(databaseId);
         /* run query */
-        final SessionFactory factory = getSessionFactory(database);
-        final Session session = factory.openSession();
+        final Session session = getSessionFactory(database)
+                .openSession();
         final Transaction transaction = session.beginTransaction();
         final CreateTableRawQuery query = tableMapper.tableToCreateTableRawQuery(database, createDto);
         if (query.getGenerated()) {
@@ -93,7 +88,6 @@ public class TableServiceImpl extends HibernateConnector implements TableService
                 .executeUpdate();
         transaction.commit();
         session.close();
-        factory.close();
         int[] idx = {0};
         /* save in metadata database */
         final Table prototype = tableMapper.tableCreateDtoToTable(database, createDto);

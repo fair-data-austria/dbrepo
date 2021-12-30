@@ -1,11 +1,15 @@
 package at.tuwien.seeder;
 
-import at.tuwien.api.database.table.TableInsertDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
 import at.tuwien.service.DataService;
+import at.tuwien.service.TextDataService;
+import com.opencsv.exceptions.CsvException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -20,42 +24,27 @@ public class DataSeeder implements Seeder {
     private final static Long TABLE_3_ID = 3L;
     private final static Long DATABASE_3_ID = 3L;
 
-    private final static TableInsertDto TABLE_1_INSERT = TableInsertDto.builder()
-            .csvLocation("test:seed/weather-small.csv")
-            .nullElement("NA")
-            .skipHeader(true)
-            .trueElement("Yes")
-            .falseElement("No")
-            .delimiter(',')
-            .build();
-
-    private final static TableInsertDto TABLE_2_INSERT = TableInsertDto.builder()
-            .csvLocation("test:seed/infection-small.csv")
-            .skipHeader(true)
-            .delimiter(',')
-            .build();
-
-    private final static TableInsertDto TABLE_3_INSERT = TableInsertDto.builder()
-            .csvLocation("test:seed/air-small.csv")
-            .skipHeader(true)
-            .delimiter(';')
-            .build();
+    private final static String TABLE_1_INSERT = "test:seed/weather-small.csv";
+    private final static String TABLE_2_INSERT = "test:seed/infection-small.csv";
+    private final static String TABLE_3_INSERT = "test:seed/air-small.csv";
 
     private final DataService dataService;
+    private final TextDataService textDataService;
 
     @Autowired
-    public DataSeeder(DataService dataService) {
+    public DataSeeder(DataService dataService, TextDataService textDataService) {
         this.dataService = dataService;
+        this.textDataService = textDataService;
     }
 
     @Override
     public void seed() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
-            ImageNotSupportedException {
-        dataService.insert(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT);
+            ImageNotSupportedException, IOException, CsvException {
+        dataService.insert(DATABASE_1_ID, TABLE_1_ID, textDataService.read(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT));
         log.info("Seeded table {}", TABLE_1_ID);
-        dataService.insert(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT);
+        dataService.insert(DATABASE_2_ID, TABLE_2_ID, textDataService.read(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT));
         log.info("Seeded table {}", TABLE_2_ID);
-        dataService.insert(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT);
+        dataService.insert(DATABASE_3_ID, TABLE_3_ID, textDataService.read(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT));
         log.info("Seeded table {}", TABLE_3_ID);
     }
 

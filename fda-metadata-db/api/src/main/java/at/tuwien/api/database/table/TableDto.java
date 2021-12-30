@@ -40,6 +40,23 @@ public class TableDto {
     @ApiModelProperty(name = "table description", example = "Predict next-day rain in Australia", notes = "https://www.kaggle.com/jsphyg/weather-dataset-rattle-package")
     private String description;
 
+    @NotBlank
+    @ApiModelProperty(name = "table csv separator", example = ",")
+    private Character separator = ',';
+
+    @NotBlank
+    @ApiModelProperty(name = "table csv null element", example = "NA")
+    private String nullElement = null;
+
+    @ApiModelProperty(name = "table csv contains a header row", example = "true")
+    private Boolean skipHeaders = true;
+
+    @ApiModelProperty(name = "table csv element for boolean true", example = "1")
+    private String trueElement = "1";
+
+    @ApiModelProperty(name = "table csv element for boolean false", example = "0")
+    private String falseElement = "0";
+
     @NotNull
     @ApiModelProperty(name = "table columns")
     private ColumnDto[] columns;

@@ -2,19 +2,22 @@ package at.tuwien.endpoints;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.exception.*;
 import at.tuwien.service.DataService;
+import at.tuwien.service.TextDataService;
+import com.opencsv.exceptions.CsvException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.time.Instant;
 
 @Log4j2
@@ -24,10 +27,12 @@ import java.time.Instant;
 public class DataEndpoint {
 
     private final DataService dataService;
+    private final TextDataService textDataService;
 
     @Autowired
-    public DataEndpoint(DataService dataService) {
+    public DataEndpoint(DataService dataService, TextDataService textDataService) {
         this.dataService = dataService;
+        this.textDataService = textDataService;
     }
 
     @Transactional
@@ -43,11 +48,32 @@ public class DataEndpoint {
     })
     public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
                                     @PathVariable Long tableId,
-                                    @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException {
+                                    @RequestParam String location) throws TableNotFoundException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException {
+        final TableCsvDto data;
+        try {
+            data = textDataService.read(databaseId, tableId, location);
+        } catch (IOException | CsvException e) {
+            throw new FileStorageException("File not readable", e);
+        }
         dataService.insert(databaseId, tableId, data);
         return ResponseEntity.accepted()
                 .build();
+    }
+
+    @Transactional
+    @GetMapping("/csv")
+    @ApiOperation(value = "Download table", notes = "Download Data from a Table in the database.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "The csv is downloaded."),
+            // TODO
+    })
+    public ResponseEntity<Resource> export(@PathVariable("id") Long databaseId,
+                                           @PathVariable Long tableId,
+                                           @RequestParam(required = false) Instant timestamp) throws TableNotFoundException,
+            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
+            FileStorageException, PaginationException {
+        return ResponseEntity.ok(textDataService.write(databaseId, tableId, timestamp));
     }
 
     @Transactional

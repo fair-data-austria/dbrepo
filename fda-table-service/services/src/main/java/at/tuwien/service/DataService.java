@@ -2,13 +2,13 @@ package at.tuwien.service;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.exception.*;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+// TODO Refactor to Query Service
 @Service
 public interface DataService {
 
@@ -32,18 +32,6 @@ public interface DataService {
             ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException;
 
     /**
-     * Insert data from the frontend into a table of a table-database id tuple
-     *
-     * @param databaseId The database id.
-     * @param tableId    The table id.
-     * @param data       The data.
-     * @throws ImageNotSupportedException The image is not supported.
-     * @throws TableMalformedException    The table does not exist in the metadata database.
-     */
-    void insert(Long databaseId, Long tableId, TableInsertDto data) throws ImageNotSupportedException,
-            TableMalformedException, DatabaseNotFoundException, TableNotFoundException;
-
-    /**
      * Insert data from AMQP client into a table of a table-database id tuple
      *
      * @param databaseId The database id.
@@ -54,4 +42,5 @@ public interface DataService {
      */
     void insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
             TableMalformedException, DatabaseNotFoundException, TableNotFoundException;
+
 }

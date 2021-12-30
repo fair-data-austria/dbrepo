@@ -177,12 +177,7 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
     public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, SQLException,
             InterruptedException {
-        final TableInsertDto request = TableInsertDto.builder()
-                .delimiter(',')
-                .skipHeader(true)
-                .nullElement("NA")
-                .csvLocation("test:csv/csv_01.csv")
-                .build();
+        final String request = "test:csv/csv_01.csv";
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);

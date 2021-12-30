@@ -2,6 +2,7 @@ package at.tuwien.seeder;
 
 import at.tuwien.exception.*;
 import com.google.common.io.Files;
+import com.opencsv.exceptions.CsvException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,8 +37,8 @@ public class ServiceSeeder implements Seeder {
     @Override
     @PostConstruct
     public void seed() throws TableMalformedException, ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableNotFoundException, FileStorageException,
-            IOException {
+            ImageNotSupportedException, DataProcessingException, TableNotFoundException,
+            IOException, CsvException {
         if (Arrays.asList(environment.getActiveProfiles()).contains("sandbox")) {
             tableSeeder.seed();
             dataSeeder.seed();

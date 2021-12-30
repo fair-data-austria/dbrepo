@@ -50,18 +50,36 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String TABLE_1_INTERNALNAME = "weather_aus";
     public final static String TABLE_1_DESCRIPTION = "Weather in the world";
     public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNALNAME;
+    public final static Instant TABLE_1_LAST_MODIFIED = Instant.now();
+    public final static Boolean TABLE_1_SKIP_HEADERS = true;
+    public final static String TABLE_1_NULL_ELEMENT = "NA";
+    public final static Character TABLE_1_SEPARATOR = ',';
+    public final static String TABLE_1_TRUE_ELEMENT = null;
+    public final static String TABLE_1_FALSE_ELEMENT = null;
 
     public final static Long TABLE_2_ID = 2L;
     public final static String TABLE_2_NAME = "Weather AT";
     public final static String TABLE_2_INTERNALNAME = "weather_at";
     public final static String TABLE_2_DESCRIPTION = "Weather in austria";
     public final static String TABLE_2_TOPIC = DATABASE_2_EXCHANGE + "." + TABLE_2_INTERNALNAME;
+    public final static Instant TABLE_2_LAST_MODIFIED = Instant.now();
+    public final static Boolean TABLE_2_SKIP_HEADERS = true;
+    public final static String TABLE_2_NULL_ELEMENT = null;
+    public final static Character TABLE_2_SEPARATOR = ';';
+    public final static String TABLE_2_TRUE_ELEMENT = null;
+    public final static String TABLE_2_FALSE_ELEMENT = null;
 
     public final static Long TABLE_3_ID = 3L;
     public final static String TABLE_3_NAME = "MALDI MS Data";
     public final static String TABLE_3_INTERNALNAME = "maldi_ms_data";
     public final static String TABLE_3_DESCRIPTION = "See Ruffini-Ronzani et al. (https://doi.org/10.1098/rsos.210210)";
     public final static String TABLE_3_TOPIC = DATABASE_3_EXCHANGE + "." + TABLE_3_INTERNALNAME;
+    public final static Instant TABLE_3_LAST_MODIFIED = Instant.now();
+    public final static Boolean TABLE_3_SKIP_HEADERS = false;
+    public final static String TABLE_3_NULL_ELEMENT = null;
+    public final static Character TABLE_3_SEPARATOR = ',';
+    public final static String TABLE_3_TRUE_ELEMENT = null;
+    public final static String TABLE_3_FALSE_ELEMENT = null;
 
     public final static Long COLUMN_1_1_ID = 1L;
     public final static Integer COLUMN_1_1_ORDINALPOS = 0;
@@ -122,7 +140,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String COLUMN_1_4_FOREIGN_KEY = null;
     public final static String COLUMN_1_4_CHECK = null;
     public final static List<String> COLUMN_1_4_ENUM_VALUES = null;
-    
+
     public final static Long COLUMN_1_5_ID = 5L;
     public final static Integer COLUMN_1_5_ORDINALPOS = 4;
     public final static Boolean COLUMN_1_5_PRIMARY = false;
@@ -422,10 +440,15 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .internalName(TABLE_1_INTERNALNAME)
             .description(TABLE_1_DESCRIPTION)
             .name(TABLE_1_NAME)
-            .lastModified(Instant.now())
+            .lastModified(TABLE_1_LAST_MODIFIED)
             .columns(TABLE_1_COLUMNS)
             .tdbid(DATABASE_1_ID)
             .topic(TABLE_1_TOPIC)
+            .separator(TABLE_1_SEPARATOR)
+            .nullElement(TABLE_1_NULL_ELEMENT)
+            .trueElement(TABLE_1_TRUE_ELEMENT)
+            .falseElement(TABLE_1_FALSE_ELEMENT)
+            .skipHeaders(TABLE_1_SKIP_HEADERS)
             .build();
 
     public final static Table TABLE_2 = Table.builder()
@@ -434,9 +457,14 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .internalName(TABLE_2_INTERNALNAME)
             .description(TABLE_2_DESCRIPTION)
             .name(TABLE_2_NAME)
-            .lastModified(Instant.now())
+            .lastModified(TABLE_2_LAST_MODIFIED)
             .tdbid(DATABASE_2_ID)
             .topic(TABLE_2_TOPIC)
+            .separator(TABLE_2_SEPARATOR)
+            .nullElement(TABLE_2_NULL_ELEMENT)
+            .trueElement(TABLE_2_TRUE_ELEMENT)
+            .falseElement(TABLE_2_FALSE_ELEMENT)
+            .skipHeaders(TABLE_2_SKIP_HEADERS)
             .build();
 
 
@@ -447,9 +475,14 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .internalName(TABLE_3_INTERNALNAME)
             .description(TABLE_3_DESCRIPTION)
             .name(TABLE_3_NAME)
-            .lastModified(Instant.now())
+            .lastModified(TABLE_3_LAST_MODIFIED)
             .columns(TABLE_3_COLUMNS)
             .topic(TABLE_3_TOPIC)
+            .separator(TABLE_3_SEPARATOR)
+            .nullElement(TABLE_3_NULL_ELEMENT)
+            .trueElement(TABLE_3_TRUE_ELEMENT)
+            .falseElement(TABLE_3_FALSE_ELEMENT)
+            .skipHeaders(TABLE_3_SKIP_HEADERS)
             .build();
 
     public final static Database DATABASE_1 = Database.builder()
