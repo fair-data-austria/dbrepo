@@ -1,21 +1,20 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
-import at.tuwien.mapper.DataMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
+import com.opencsv.exceptions.CsvException;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
-import org.hibernate.query.NativeQuery;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +26,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
-import java.time.DateTimeException;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -50,6 +49,9 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
     @Autowired
     private DataService dataService;
+
+    @Autowired
+    private TextDataService textDataService;
 
     @MockBean
     private DatabaseRepository databaseRepository;
@@ -352,6 +354,68 @@ public class DataServiceUnitTest extends BaseUnitTest {
 
         /* test */
         dataService.findAll(DATABASE_1_ID, TABLE_1_ID, timestamp, null, null);
+    }
+
+    @Test
+    public void readCsv_succeeds() throws IOException, CsvException, TableNotFoundException, DatabaseNotFoundException {
+        final TableInsertDto request = TableInsertDto.builder()
+                .csvLocation("test:csv/csv_01.csv")
+                .delimiter(',')
+                .skipHeader(true)
+                .nullElement("NA")
+                .build();
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, request);
+        assertEquals(1000, response.getData().size());
+    }
+
+    @Test
+    public void readCsv_nullElement_succeeds() throws IOException, CsvException, TableNotFoundException,
+            DatabaseNotFoundException {
+        final TableInsertDto request = TableInsertDto.builder()
+                .csvLocation("test:csv/csv_01.csv")
+                .delimiter(',')
+                .skipHeader(true)
+                .nullElement(null)
+                .build();
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, request);
+        assertEquals(1000, response.getData().size());
+    }
+
+    @Test
+    public void readCsv_skipHeader_succeeds() throws IOException, CsvException, TableNotFoundException,
+            DatabaseNotFoundException {
+        final TableInsertDto request = TableInsertDto.builder()
+                .csvLocation("test:csv/csv_01.csv")
+                .delimiter(',')
+                .skipHeader(false)
+                .nullElement(null)
+                .build();
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, request);
+        assertEquals(1001, response.getData().size());
     }
 
 }

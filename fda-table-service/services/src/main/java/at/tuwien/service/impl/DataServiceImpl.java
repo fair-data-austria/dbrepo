@@ -3,6 +3,7 @@ package at.tuwien.service.impl;
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
@@ -10,6 +11,8 @@ import at.tuwien.mapper.DataMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.DataService;
+import at.tuwien.service.TextDataService;
+import com.opencsv.exceptions.CsvException;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.Optional;
@@ -30,13 +34,15 @@ import java.util.Optional;
 public class DataServiceImpl extends HibernateConnector implements DataService {
 
     private final DataMapper dataMapper;
+    private final TextDataService textDataService;
     private final TableRepository tableRepository;
     private final DatabaseRepository databaseRepository;
 
     @Autowired
-    public DataServiceImpl(DataMapper dataMapper, TableRepository tableRepository,
+    public DataServiceImpl(DataMapper dataMapper, TextDataService textDataService, TableRepository tableRepository,
                            DatabaseRepository databaseRepository) {
         this.dataMapper = dataMapper;
+        this.textDataService = textDataService;
         this.tableRepository = tableRepository;
         this.databaseRepository = databaseRepository;
     }
@@ -78,6 +84,18 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
         session.close();
         factory.close();
         return result;
+    }
+
+    @Override
+    public void insert(Long databaseId, Long tableId, TableInsertDto data) throws ImageNotSupportedException,
+            TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
+        final TableCsvDto csv;
+        try {
+            csv = textDataService.read(databaseId, tableId, data);
+        } catch (IOException | CsvException e) {
+            throw new TableMalformedException("Failed to parse the csv with the provided information", e);
+        }
+        insert(databaseId, tableId, csv);
     }
 
     @Override

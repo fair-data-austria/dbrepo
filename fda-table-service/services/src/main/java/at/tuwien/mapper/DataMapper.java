@@ -3,6 +3,7 @@ package at.tuwien.mapper;
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ImageNotSupportedException;
@@ -154,6 +155,25 @@ public interface DataMapper {
                 .query(query.toString())
                 .values(values)
                 .build();
+    }
+
+    default Object tableKeyObjectToObject(List<String> booleanColumns, TableInsertDto meta, String key, Object data) {
+        /* null mapping */
+        if (data == null || meta.getNullElement() == null || meta.getNullElement().isEmpty()
+                || meta.getNullElement().isBlank() || data.equals(meta.getNullElement())) {
+            return null;
+        }
+        /* boolean mapping */
+        if (booleanColumns.size() == 0) {
+            return data;
+        }
+        if (meta.getTrueElement() != null && booleanColumns.contains(key) && data.equals(meta.getTrueElement())) {
+            return true;
+        } else if (meta.getFalseElement() != null && booleanColumns.contains(key)
+                && data.equals(meta.getFalseElement())) {
+            return false;
+        }
+        return data;
     }
 
 }

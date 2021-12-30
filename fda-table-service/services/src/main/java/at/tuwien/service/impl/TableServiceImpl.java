@@ -4,11 +4,11 @@ import at.tuwien.CreateTableRawQuery;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.service.DatabaseService;
 import at.tuwien.service.TableService;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
@@ -27,19 +27,21 @@ public class TableServiceImpl extends HibernateConnector implements TableService
 
     private final TableMapper tableMapper;
     private final TableRepository tableRepository;
+    private final DatabaseService databaseService;
     private final DatabaseRepository databaseRepository;
 
     @Autowired
     public TableServiceImpl(TableMapper tableMapper, TableRepository tableRepository,
-                            DatabaseRepository databaseRepository) {
+                            DatabaseService databaseService, DatabaseRepository databaseRepository) {
         this.tableMapper = tableMapper;
         this.tableRepository = tableRepository;
+        this.databaseService = databaseService;
         this.databaseRepository = databaseRepository;
     }
 
     @Override
     public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
-        final Database database = findDatabase(databaseId);
+        final Database database = databaseService.findDatabase(databaseId);
         return tableRepository.findByDatabase(database);
     }
 
@@ -48,7 +50,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     public void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException {
         /* find */
-        final Database database = findDatabase(databaseId);
+        final Database database = databaseService.findDatabase(databaseId);
         final Table table = findById(databaseId, tableId);
         /* run query */
         final SessionFactory factory = getSessionFactory(database);
@@ -62,7 +64,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
 
     @Override
     public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException {
-        final Database database = findDatabase(databaseId);
+        final Database database = databaseService.findDatabase(databaseId);
         final Optional<Table> optional = tableRepository.findByDatabaseAndId(database, tableId);
         if (optional.isEmpty()) {
             log.error("Failed to find table with id {} in metadata database", tableId);
@@ -76,7 +78,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseNotFoundException, TableMalformedException {
         /* find */
-        final Database database = findDatabase(databaseId);
+        final Database database = databaseService.findDatabase(databaseId);
         /* run query */
         final SessionFactory factory = getSessionFactory(database);
         final Session session = factory.openSession();
@@ -107,15 +109,5 @@ public class TableServiceImpl extends HibernateConnector implements TableService
                     column.setOrdinalPosition(idx[0]++);
                 });
         return tableRepository.save(table);
-    }
-
-    @Override
-    public Database findDatabase(Long id) throws DatabaseNotFoundException {
-        final Optional<Database> optional = databaseRepository.findById(id);
-        if (optional.isEmpty()) {
-            log.error("Failed to find database with id {} in metadata database", id);
-            throw new DatabaseNotFoundException("Database not found");
-        }
-        return optional.get();
     }
 }

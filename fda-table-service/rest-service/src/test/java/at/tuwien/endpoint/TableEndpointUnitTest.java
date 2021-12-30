@@ -12,7 +12,6 @@ import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.MessageQueueService;
 import at.tuwien.service.impl.TableServiceImpl;
 import com.rabbitmq.client.Channel;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +72,8 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException, AmqpException, IOException {
+            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
+            AmqpException, IOException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -96,7 +96,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_databaseNotFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException {
+            TableMalformedException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -127,8 +127,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
+    public void findById_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException {
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.empty());
         doThrow(TableNotFoundException.class)
@@ -143,7 +142,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException {
+            ImageNotSupportedException {
         doThrow(TableNotFoundException.class)
                 .when(tableService)
                 .deleteTable(DATABASE_1_ID, TABLE_1_ID);

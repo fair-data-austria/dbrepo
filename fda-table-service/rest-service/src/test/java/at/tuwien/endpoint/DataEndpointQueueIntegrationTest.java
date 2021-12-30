@@ -158,7 +158,7 @@ public class DataEndpointQueueIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
         assertTrue(MariaDbConfig.contains(TABLE_1, COLUMN_1_1_NAME, 1L));
         assertFalse(MariaDbConfig.contains(TABLE_1, COLUMN_1_1_NAME, 2L));
     }
@@ -190,7 +190,7 @@ public class DataEndpointQueueIntegrationTest extends BaseUnitTest {
 
         /* test */
         final long start = System.currentTimeMillis();
-        dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
         final long end = System.currentTimeMillis();
         log.info("Inserted {}k records in {} seconds", limit / 1000, (end - start) / 1000.0);
         assertTrue(MariaDbConfig.contains(TABLE_1, COLUMN_1_1_NAME, 1L), "id 1 missing");

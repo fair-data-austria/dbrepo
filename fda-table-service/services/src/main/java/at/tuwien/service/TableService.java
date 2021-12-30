@@ -1,15 +1,9 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.api.database.table.TableInsertDto;
-import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
-import com.opencsv.exceptions.CsvException;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface TableService {
@@ -60,12 +54,4 @@ public interface TableService {
     Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException;
 
-    /**
-     * Finds a database by id.
-     *
-     * @param id The id.
-     * @return Return the database if found.
-     * @throws DatabaseNotFoundException
-     */
-    Database findDatabase(Long id) throws DatabaseNotFoundException;
 }

@@ -1,16 +1,11 @@
 package at.tuwien.seeder;
 
 import at.tuwien.api.database.table.TableInsertDto;
-import at.tuwien.entities.database.Database;
-import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
-import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.DataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Slf4j
 @Component
@@ -47,23 +42,21 @@ public class DataSeeder implements Seeder {
             .build();
 
     private final DataService dataService;
-    private final TableRepository tableRepository;
 
     @Autowired
-    public DataSeeder(DataService dataService, TableRepository tableRepository) {
+    public DataSeeder(DataService dataService) {
         this.dataService = dataService;
-        this.tableRepository = tableRepository;
     }
 
     @Override
     public void seed() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
-            ImageNotSupportedException, FileStorageException {
-//        dataService.insertCsv(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT);
-//        log.info("Seeded table {}", TABLE_1_ID);
-//        dataService.insertCsv(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT);
-//        log.info("Seeded table {}", TABLE_2_ID);
-//        dataService.insertCsv(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT);
-//        log.info("Seeded table {}", TABLE_3_ID);
+            ImageNotSupportedException {
+        dataService.insert(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT);
+        log.info("Seeded table {}", TABLE_1_ID);
+        dataService.insert(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT);
+        log.info("Seeded table {}", TABLE_2_ID);
+        dataService.insert(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT);
+        log.info("Seeded table {}", TABLE_3_ID);
     }
 
 }

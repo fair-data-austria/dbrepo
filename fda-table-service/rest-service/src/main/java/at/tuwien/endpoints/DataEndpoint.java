@@ -3,7 +3,6 @@ package at.tuwien.endpoints;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.api.database.table.TableInsertDto;
-import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.service.DataService;
 import io.swagger.annotations.ApiOperation;
@@ -40,13 +39,13 @@ public class DataEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
             @ApiResponse(code = 415, message = "The file provided is not in csv format"),
-            @ApiResponse(code = 422, message = "The csv was not processible."),
+            @ApiResponse(code = 422, message = "The csv was not processable."),
     })
-    public ResponseEntity<?> insertFromFile(@PathVariable("id") Long databaseId,
-                                            @PathVariable Long tableId,
-                                            @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException {
-//        dataService.insert(databaseId, tableId, data);
+    public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
+                                    @PathVariable Long tableId,
+                                    @Valid @RequestBody TableInsertDto data) throws TableNotFoundException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException {
+        dataService.insert(databaseId, tableId, data);
         return ResponseEntity.accepted()
                 .build();
     }
@@ -60,11 +59,11 @@ public class DataEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
             @ApiResponse(code = 404, message = "The table is not found in database."),
             @ApiResponse(code = 415, message = "The file provided is not in csv format"),
-            @ApiResponse(code = 422, message = "The csv was not processible."),
+            @ApiResponse(code = 422, message = "The csv was not processable."),
     })
-    public ResponseEntity<?> insertFromTuple(@PathVariable("id") Long databaseId,
-                                             @PathVariable Long tableId,
-                                             @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
+    public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
+                                    @PathVariable Long tableId,
+                                    @Valid @RequestBody TableCsvDto data) throws ImageNotSupportedException,
             TableMalformedException, TableNotFoundException, DatabaseNotFoundException {
         dataService.insert(databaseId, tableId, data);
         return ResponseEntity.accepted()

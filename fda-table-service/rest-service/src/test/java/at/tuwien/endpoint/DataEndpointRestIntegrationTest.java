@@ -35,8 +35,6 @@ import java.util.*;
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 
 @Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -142,7 +140,7 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        final ResponseEntity<?> response = dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<?> response = dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
 
@@ -157,7 +155,7 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
     }
 
     @Test
@@ -172,7 +170,7 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        dataEndpoint.insertFromTuple(DATABASE_1_ID, TABLE_1_ID, request);
+        dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
     }
 
     @Test
@@ -191,7 +189,7 @@ public class DataEndpointRestIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        final ResponseEntity<?> response = dataEndpoint.insertFromFile(DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<?> response = dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
 
