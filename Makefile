@@ -210,6 +210,7 @@ clean-docker:
 	docker container stop $(docker container ls -aq) || true
 	docker container rm $(docker container ls -aq) || true
 	docker volume rm fda-services_fda-broker-service-data fda-services_fda-metadata-db-data || true
+	yes | docker system prune
 
 clean: clean-ide clean-maven clean-frontend clean-docker
 
