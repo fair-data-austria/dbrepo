@@ -55,12 +55,6 @@ public class CsvServiceUnitTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
-    /**
-     * We need a container to test the CRUD operations as of now it is unfeasible to determine the correctness of the
-     * operations without a live container
-     *
-     * @throws InterruptedException Sleep interrupted.
-     */
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
         afterAll();
@@ -139,6 +133,21 @@ public class CsvServiceUnitTest extends BaseUnitTest {
         final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
                 nullElement, trueElement, falseElement);
         assertEquals(1000, response.getData().size());
+    }
+
+    @Test
+    public void read2_succeeds() throws IOException, CsvException, TableNotFoundException, DatabaseNotFoundException {
+        final String location = "test:csv/csv_01.csv";
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location);
+        assertEquals(1001, response.getData().size());
     }
 
     @Test

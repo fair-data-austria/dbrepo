@@ -11,11 +11,13 @@ import at.tuwien.service.DatabaseService;
 import at.tuwien.service.StoreService;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.PersistenceException;
+import java.math.BigInteger;
 import java.util.List;
 
 @Log4j2
@@ -34,50 +36,60 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
     }
 
     @Override
+    @Transactional
     public List<QueryDto> findAll(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
             QueryStoreException {
         /* find */
         final Database database = databaseService.find(databaseId);
-        if (database.getContainer().getImage().getRepository().equals("mariadb")) {
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
-        final Transaction transaction = session.beginTransaction();
+        session.beginTransaction();
         /* prepare the statement */
         final NativeQuery<?> query = session.createSQLQuery(storeMapper.findAllRawQueryStoreQuery());
-        log.info("Found {} query(s)", query.executeUpdate());
-        transaction.commit();
+        try {
+            log.info("Found {} query(s)", query.executeUpdate());
+        } catch (PersistenceException e) {
+            log.error("Query execution failed");
+            throw new QueryStoreException("Failed to execute query", e);
+        }
+        session.getTransaction()
+                .commit();
         final List<QueryDto> queries = queryMapper.resultListToQueryStoreQueryList(query.getResultList());
         session.close();
         return queries;
     }
 
     @Override
+    @Transactional
     public QueryDto findOne(Long databaseId, Long queryId) throws DatabaseNotFoundException, ImageNotSupportedException,
             QueryStoreException, QueryNotFoundException {
         /* find */
         final Database database = databaseService.find(databaseId);
-        if (database.getContainer().getImage().getRepository().equals("mariadb")) {
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
-        final Transaction transaction = session.beginTransaction();
+        session.beginTransaction();
         /* prepare the statement */
         final NativeQuery<?> query = session.createSQLQuery(storeMapper.findOneRawQueryStoreQuery());
         query.setParameter(1, queryId);
-        log.info("Found {} query(s)", query.executeUpdate());
-        transaction.commit();
-        final List<QueryDto> queries = queryMapper.resultListToQueryStoreQueryList(query.getResultList());
-        if (queries.size() == 0) {
-            throw new QueryNotFoundException("Query was not found");
+        try {
+            log.info("Found {} query(s)", query.executeUpdate());
+        } catch (PersistenceException e) {
+            log.error("Query execution failed");
+            throw new QueryStoreException("Failed to execute query", e);
         }
+        session.getTransaction()
+                .commit();
+        final List<QueryDto> queries = queryMapper.resultListToQueryStoreQueryList(query.getResultList());
         if (queries.size() != 1) {
-            log.error("Invalid state, either 1 or 0 results, got {}", queries.size());
-            throw new QueryStoreException("Impossible state reached");
+            throw new QueryNotFoundException("Query was not found");
         }
         session.close();
         return queries.get(0);
@@ -85,60 +97,79 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
 
 
     @Override
+    @Transactional
     public void create(Long databaseId) throws ImageNotSupportedException, DatabaseNotFoundException {
         /* find */
         final Database database = databaseService.find(databaseId);
-        if (database.getContainer().getImage().getRepository().equals("mariadb")) {
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
-        final Transaction transaction = session.beginTransaction();
+        session.beginTransaction();
         /* prepare the statement */
-        session.createSQLQuery(storeMapper.createRawQueryStoreSequenceQuery());
-        session.createSQLQuery(storeMapper.createRawQueryStoreQuery());
-        transaction.commit();
+        session.createSQLQuery(storeMapper.createRawQueryStoreSequenceQuery())
+                .executeUpdate();
+        session.createSQLQuery(storeMapper.createRawQueryStoreQuery())
+                .executeUpdate();
+        session.getTransaction()
+                .commit();
         session.close();
     }
 
     @Override
+    @Transactional
     public void delete(Long databaseId) throws ImageNotSupportedException, DatabaseNotFoundException {
         /* find */
         final Database database = databaseService.find(databaseId);
-        if (database.getContainer().getImage().getRepository().equals("mariadb")) {
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
-        final Transaction transaction = session.beginTransaction();
+        session.beginTransaction();
         /* prepare the statement */
-        session.createSQLQuery(storeMapper.deleteRawQueryStoreSequenceQuery());
-        session.createSQLQuery(storeMapper.deleteRawQueryStoreQuery());
-        transaction.commit();
+        session.createSQLQuery(storeMapper.deleteRawQueryStoreSequenceQuery())
+                .executeUpdate();
+        session.createSQLQuery(storeMapper.deleteRawQueryStoreQuery())
+                .executeUpdate();
+        session.getTransaction()
+                .commit();
         session.close();
     }
 
     @Override
-    public QueryDto insert(Long databaseId, QueryResultDto query, ExecuteQueryDto metadata) throws QueryStoreException,
+    @Transactional
+    public QueryDto insert(Long databaseId, QueryResultDto result, ExecuteQueryDto metadata) throws QueryStoreException,
             DatabaseNotFoundException, ImageNotSupportedException {
         /* find */
         final Database database = databaseService.find(databaseId);
-        if (database.getContainer().getImage().getRepository().equals("mariadb")) {
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
-        final Transaction transaction = session.beginTransaction();
-        /* prepare the statement */
-        final QueryDto data = queryMapper.queryResultDtoToQueryDto(query, metadata);
-        final NativeQuery<?> query1 = session.createSQLQuery(storeMapper.insertRawQueryStoreQuery(data));
-        log.debug("Inserted {} query(s)", query1.executeUpdate());
-        transaction.commit();
-        final Object[] row = (Object[]) query1.getResultList().get(0);
-        data.setId(Long.valueOf(String.valueOf(row[0])));
+        session.beginTransaction();
+        /* execute the statement */
+        final QueryDto data = queryMapper.queryResultDtoToQueryDto(result, metadata);
+        /* store the result in the query store */
+        final NativeQuery<?> query = session.createSQLQuery(storeMapper.insertRawQueryStoreQuery());
+        query.setParameterList(1, data.getPreparedValues());
+        try {
+            log.debug("Inserted {} query(s)", query.executeUpdate());
+        } catch (PersistenceException e) {
+            log.error("Query execution failed");
+            throw new QueryStoreException("Failed to execute query", e);
+        }
+        session.getTransaction()
+                .commit();
+        if (query.getResultList().size() != 1) {
+            throw new QueryStoreException("Failed to get query result");
+        }
+        data.setId(((BigInteger) query.getResultList().get(0)).longValue());
         session.close();
         return data;
     }

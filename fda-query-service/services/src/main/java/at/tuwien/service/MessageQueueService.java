@@ -1,7 +1,6 @@
 package at.tuwien.service;
 
 import at.tuwien.entities.database.table.Table;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 

@@ -14,7 +14,6 @@ import at.tuwien.service.TableService;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.exception.SQLGrammarException;
 import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceException;
-import javax.validation.Valid;
 import java.time.DateTimeException;
 import java.time.Instant;
 
@@ -64,12 +62,13 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         /* run query */
         final Session session = getSessionFactory(table.getDatabase())
                 .openSession();
-        final Transaction transaction = session.beginTransaction();
+        session.beginTransaction();
         /* prepare the statement */
         final NativeQuery<?> query = session.createSQLQuery(data.getQuery());
         try {
             log.info("Query affected {} rows", query.executeUpdate());
-            transaction.commit();
+            session.getTransaction()
+                    .commit();
         } catch (SQLGrammarException e) {
             throw new QueryMalformedException("Query not valid for this database", e);
         }
@@ -81,7 +80,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     }
 
     @Override
-    @javax.transaction.Transactional
+    @Transactional
     public QueryResultDto findAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp, Long page,
                                   Long size) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException {
@@ -102,11 +101,12 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
-        final Transaction transaction = session.beginTransaction();
+        session.beginTransaction();
         final NativeQuery<?> query = session.createSQLQuery(queryMapper.tableToRawFindAllQuery(table, timestamp, size,
                 page));
         query.executeUpdate();
-        transaction.commit();
+        session.getTransaction()
+                .commit();
         final QueryResultDto result;
         try {
             result = queryMapper.queryTableToQueryResultDto(query.getResultList(), table);
@@ -128,7 +128,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return;
         final Session session = getSessionFactory(database)
                 .openSession();
-        final Transaction transaction = session.beginTransaction();
+        session.beginTransaction();
         /* prepare the statement */
         final InsertTableRawQuery raw = queryMapper.tableTableCsvDtoToRawInsertQuery(table, data);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
@@ -139,10 +139,12 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
             log.info("Inserted {} tuples", query.executeUpdate());
         } catch (PersistenceException e) {
             log.error("Could not insert data");
-            transaction.rollback();
+            session.getTransaction()
+                    .rollback();
             throw new TableMalformedException("Could not insert data", e);
         }
-        transaction.commit();
+        session.getTransaction()
+                .commit();
         session.close();
     }
 

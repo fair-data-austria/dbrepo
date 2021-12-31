@@ -8,6 +8,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
@@ -67,4 +68,23 @@ public class QueryDto {
 
     @NotNull
     private Instant lastModified;
+
+    /**
+     * Returns the ordered list of prepared values for the {@link org.hibernate.query.NativeQuery}.
+     *
+     * @return The ordered list of prepared values
+     */
+    public String[] getPreparedValues() {
+        return new String[]{
+                this.getDoi(),
+                this.getTitle(),
+                this.getDescription(),
+                this.getQuery(),
+                this.getQueryHash(),
+                Timestamp.from(this.getExecutionTimestamp())
+                        .toString(),
+                this.getResultHash(),
+                String.valueOf(this.getResultNumber())
+        };
+    }
 }

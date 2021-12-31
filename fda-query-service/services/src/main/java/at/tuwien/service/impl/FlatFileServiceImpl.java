@@ -50,12 +50,14 @@ public class FlatFileServiceImpl implements DataService {
     }
 
     @Override
+    @Transactional
     public TableCsvDto read(Long databaseId, Long tableId, String location) throws TableNotFoundException,
             DatabaseNotFoundException, IOException, CsvException {
         return read(databaseId, tableId, location, ',', false, null, "0", "1");
     }
 
     @Override
+    @Transactional
     public TableCsvDto read(Long databaseId, Long tableId, String location, Character separator, Boolean skipHeader, String nullElement,
                             String falseElement, String trueElement) throws TableNotFoundException,
             DatabaseNotFoundException, IOException, CsvException {

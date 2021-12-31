@@ -11,20 +11,17 @@ import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryStoreException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mariadb.jdbc.MariaDbBlob;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -62,7 +59,7 @@ public interface QueryMapper {
         return slug.toLowerCase(Locale.ENGLISH);
     }
 
-    default List<QueryDto> resultListToQueryStoreQueryList(List<?> data) throws QueryStoreException {
+    default List<QueryDto> resultListToQueryStoreQueryList(List<?> data) {
         final List<QueryDto> queries = new LinkedList<>();
         final Iterator<?> iterator = data.iterator();
         while (iterator.hasNext()) {
@@ -71,12 +68,15 @@ public interface QueryMapper {
                     .id(Long.valueOf(String.valueOf(row[0])))
                     .doi(String.valueOf(row[1]))
                     .title(String.valueOf(row[2]))
-                    .query(String.valueOf(row[3]))
-                    .queryHash(String.valueOf(row[4]))
-                    .executionTimestamp(Instant.parse(String.valueOf(row[5])))
-                    .resultHash(String.valueOf(row[6]))
-                    .resultNumber(Long.valueOf(String.valueOf(row[7])))
-                    .created(Instant.parse(String.valueOf(row[8])))
+                    .description(String.valueOf(row[3]))
+                    .query(String.valueOf(row[4]))
+                    .queryHash(String.valueOf(row[5]))
+                    .executionTimestamp(Timestamp.valueOf(String.valueOf(row[6]))
+                            .toInstant())
+                    .resultHash(String.valueOf(row[7]))
+                    .resultNumber(Long.valueOf(String.valueOf(row[8])))
+                    .created(Timestamp.valueOf(String.valueOf(row[9]))
+                            .toInstant())
                     .build());
         }
         return queries;
@@ -217,21 +217,17 @@ public interface QueryMapper {
         }
     }
 
-    default QueryDto queryResultDtoToQueryDto(QueryResultDto data, ExecuteQueryDto metadata) throws QueryStoreException {
-        try {
-            return QueryDto.builder()
-                    .title(metadata.getTitle())
-                    .description(metadata.getDescription())
-                    .resultNumber(Long.parseLong(String.valueOf(data.getResult().size())))
-                    .resultHash(Arrays.toString(MessageDigest.getInstance("SHA256")
-                            .digest(data.getResult()
-                                    .toString()
-                                    .getBytes())))
-                    .executionTimestamp(Instant.now())
-                    .build();
-        } catch (NoSuchAlgorithmException e) {
-            throw new QueryStoreException("Failed to find sha256 algorithm", e);
-        }
+    default QueryDto queryResultDtoToQueryDto(QueryResultDto data, ExecuteQueryDto metadata) {
+        final QueryDto query = QueryDto.builder()
+                .title(metadata.getTitle())
+                .description(metadata.getDescription())
+                .query(metadata.getQuery())
+                .resultNumber(Long.parseLong(String.valueOf(data.getResult().size())))
+                .resultHash(DigestUtils.sha256Hex(data.getResult().toString()))
+                .executionTimestamp(Instant.now())
+                .build();
+        log.trace("map to query {}", query);
+        return query;
     }
 
 }

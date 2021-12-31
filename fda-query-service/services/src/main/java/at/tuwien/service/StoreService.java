@@ -55,6 +55,17 @@ public interface StoreService {
      */
     void delete(Long databaseId) throws ImageNotSupportedException, DatabaseNotFoundException;
 
+    /**
+     * Inserts a query and metadata to the query store of a given database id
+     *
+     * @param databaseId The database id.
+     * @param query      The query.
+     * @param metadata   The metadata.
+     * @return The stored query on success
+     * @throws QueryStoreException        The query store raised some error
+     * @throws DatabaseNotFoundException  The database id was not found in the metadata database
+     * @throws ImageNotSupportedException The image is not supported
+     */
     QueryDto insert(Long databaseId, QueryResultDto query, ExecuteQueryDto metadata) throws QueryStoreException,
             DatabaseNotFoundException, ImageNotSupportedException;
 }

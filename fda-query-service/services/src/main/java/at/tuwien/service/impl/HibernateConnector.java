@@ -44,6 +44,7 @@ public abstract class HibernateConnector {
                 .setProperty("hibernate.connection.password", password)
                 .setProperty("hibernate.connection.driver_class", database.getContainer().getImage().getDriverClass())
                 .setProperty("hibernate.connection.pool_size", String.valueOf(POOL_SIZE))
+                .setProperty("hibernate.generate_statistics", "true")
                 .setProperty("hibernate.dialect", database.getContainer().getImage().getDialect())
                 .setProperty("hibernate.current_session_context_class", SESSION_CONTEXT);
         return configuration.buildSessionFactory();
