@@ -5,14 +5,11 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.entities.database.table.columns.TableColumnType;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.mapper.DataMapper;
-import at.tuwien.service.FileService;
+import at.tuwien.service.DataService;
+import at.tuwien.service.QueryService;
 import at.tuwien.service.TableService;
-import at.tuwien.service.TextDataService;
 import at.tuwien.utils.FileUtils;
 import at.tuwien.utils.TableUtils;
 import com.opencsv.CSVParser;
@@ -26,6 +23,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -38,31 +36,31 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class FileServiceImpl implements FileService {
+public class FlatFileServiceImpl implements DataService {
 
     private final DataMapper dataMapper;
-    private final FileService dataService;
+    private final QueryService queryService;
     private final TableService tableService;
 
     @Autowired
-    public FileServiceImpl(DataMapper dataMapper, FileService dataService, TableService tableService) {
+    public FlatFileServiceImpl(DataMapper dataMapper, QueryService queryService, TableService tableService) {
         this.dataMapper = dataMapper;
-        this.dataService = dataService;
+        this.queryService = queryService;
         this.tableService = tableService;
     }
 
     @Override
-    public TableCsvDto read(Long databaseId, Long tableId, String location) throws IOException, CsvException,
-            TableNotFoundException, DatabaseNotFoundException {
+    public TableCsvDto read(Long databaseId, Long tableId, String location) throws TableNotFoundException,
+            DatabaseNotFoundException, IOException, CsvException {
         return read(databaseId, tableId, location, ',', false, null, "0", "1");
     }
 
     @Override
     public TableCsvDto read(Long databaseId, Long tableId, String location, Character separator, Boolean skipHeader, String nullElement,
-                            String falseElement, String trueElement) throws IOException, CsvException,
-            TableNotFoundException, DatabaseNotFoundException {
+                            String falseElement, String trueElement) throws TableNotFoundException,
+            DatabaseNotFoundException, IOException, CsvException {
         /* find */
-        final Table table = tableService.findById(databaseId, tableId);
+        final Table table = tableService.find(databaseId, tableId);
         /* set default parameters */
         log.trace("insert into table {} with separator {} and csv location {} and skip header {}", table, separator, location, skipHeader);
         /* correct the file path */
@@ -144,12 +142,13 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @Transactional
     public Resource write(Long databaseId, Long tableId, Instant timestamp) throws TableNotFoundException,
-            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
+            DatabaseNotFoundException, DatabaseConnectionException, TableMalformedException, ImageNotSupportedException,
             PaginationException, FileStorageException {
         /* find */
-        final Table table = tableService.findById(databaseId, tableId);
-        final QueryResultDto result = dataService.findAll(databaseId, tableId, timestamp, null, null);
+        final Table table = tableService.find(databaseId, tableId);
+        final QueryResultDto result = queryService.findAll(databaseId, tableId, timestamp, null, null);
         /* write */
         final Resource csv = dataMapper.resultTableToResource(result, table);
         log.trace("produced csv {}", csv);
@@ -157,8 +156,10 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @Transactional
     public Resource write(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException, FileStorageException {
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
+            PaginationException {
         return write(databaseId, tableId, Instant.now());
     }
 

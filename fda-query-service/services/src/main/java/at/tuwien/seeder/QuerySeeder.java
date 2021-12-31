@@ -2,9 +2,7 @@ package at.tuwien.seeder;
 
 import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.exception.*;
-import at.tuwien.service.impl.StoreServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,29 +42,26 @@ public class QuerySeeder implements Seeder {
     private final ExecuteQueryDto QUERY_EXECUTE_1 = ExecuteQueryDto.builder()
             .query(QUERY_1_QUERY)
             .title(QUERY_1_TITLE)
+            .description(QUERY_1_DESCRIPTION)
             .build();
 
     private final ExecuteQueryDto QUERY_EXECUTE_2 = ExecuteQueryDto.builder()
             .query(QUERY_2_QUERY)
             .title(QUERY_2_TITLE)
+            .description(QUERY_2_DESCRIPTION)
             .build();
 
     private final ExecuteQueryDto QUERY_EXECUTE_3 = ExecuteQueryDto.builder()
             .query(QUERY_3_QUERY)
             .title(QUERY_3_TITLE)
+            .description(QUERY_3_DESCRIPTION)
             .build();
 
     private final ExecuteQueryDto QUERY_EXECUTE_4 = ExecuteQueryDto.builder()
             .query(QUERY_4_QUERY)
             .title(QUERY_4_TITLE)
+            .description(QUERY_4_DESCRIPTION)
             .build();
-
-    private final StoreServiceImpl queryStoreService;
-
-    @Autowired
-    public QuerySeeder(StoreServiceImpl queryStoreService) {
-        this.queryStoreService = queryStoreService;
-    }
 
     @Override
     @Transactional

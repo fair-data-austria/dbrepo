@@ -4,16 +4,14 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableNotFoundException;
+import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
+import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,13 +42,13 @@ import static org.mockito.Mockito.when;
 public class QueryServiceUnitTest extends BaseUnitTest {
 
     @MockBean
+    private Channel channel;
+
+    @MockBean
     private ReadyConfig readyConfig;
 
     @Autowired
-    private FileService dataService;
-
-    @Autowired
-    private TextDataService textDataService;
+    private QueryService queryService;
 
     @MockBean
     private DatabaseRepository databaseRepository;
@@ -136,7 +134,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
     }
 
     @Test
@@ -152,7 +150,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -169,7 +167,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -186,7 +184,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -203,7 +201,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -221,7 +219,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            dataService.insert(DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.insert(DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
@@ -238,7 +236,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
     }
 
     @Test
@@ -254,7 +252,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
         });
     }
 
@@ -271,7 +269,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
         });
     }
 
@@ -288,7 +286,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
         });
     }
 
@@ -305,7 +303,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
         });
     }
 
@@ -322,7 +320,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
         });
     }
 
@@ -337,7 +335,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        dataService.findAll(DATABASE_1_ID, TABLE_1_ID, null, null, null);
+        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, null, null, null);
     }
 
     @Test
@@ -352,7 +350,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        dataService.findAll(DATABASE_1_ID, TABLE_1_ID, timestamp, null, null);
+        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, timestamp, null, null);
     }
 
 }

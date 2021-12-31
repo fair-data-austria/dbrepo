@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @Log4j2
-public class TextDataServiceUnitTest extends BaseUnitTest {
+public class CsvServiceUnitTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -48,9 +48,6 @@ public class TextDataServiceUnitTest extends BaseUnitTest {
 
     @Autowired
     private DataService dataService;
-
-    @Autowired
-    private TextDataService textDataService;
 
     @MockBean
     private DatabaseRepository databaseRepository;
@@ -139,7 +136,7 @@ public class TextDataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
+        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
                 nullElement, trueElement, falseElement);
         assertEquals(1000, response.getData().size());
     }
@@ -161,7 +158,7 @@ public class TextDataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
+        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
                 nullElement, trueElement, falseElement);
         assertEquals(1000, response.getData().size());
     }
@@ -183,7 +180,7 @@ public class TextDataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
+        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
                 nullElement, trueElement, falseElement);
         assertEquals(1001, response.getData().size());
     }
@@ -205,7 +202,7 @@ public class TextDataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
+        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
                 nullElement, trueElement, falseElement);
         assertEquals(1001, response.getData().size());
     }

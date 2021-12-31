@@ -9,15 +9,13 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>services</artifactId>
+    <artifactId>api</artifactId>
+    <name>fda-query-service-api</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>at.tuwien</groupId>
-            <artifactId>api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+    <properties>
+        <jacoco.version>0.8.7</jacoco.version>
+    </properties>
+
+    <dependencies />
 
 </project>

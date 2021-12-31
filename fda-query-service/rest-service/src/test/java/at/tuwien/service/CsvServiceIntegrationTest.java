@@ -3,11 +3,7 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableNotFoundException;
-import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -38,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class TextDataServiceIntegrationTest extends BaseUnitTest {
+public class CsvServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -48,12 +44,6 @@ public class TextDataServiceIntegrationTest extends BaseUnitTest {
 
     @Autowired
     private DataService dataService;
-
-    @Autowired
-    private TextDataService textDataService;
-
-    @Autowired
-    private DatabaseRepository databaseRepository;
 
     @Autowired
     private TableRepository tableRepository;
@@ -126,11 +116,10 @@ public class TextDataServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void write_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            FileStorageException, DatabaseConnectionException, TableMalformedException, PaginationException {
+    public void write_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException {
 
         /* test */
-        final Resource response = textDataService.write(DATABASE_1_ID, TABLE_1_ID);
+        final Resource response = dataService.write(DATABASE_1_ID, TABLE_1_ID);
         assertTrue(response.exists());
     }
 

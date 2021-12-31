@@ -1,49 +1,25 @@
 package at.tuwien.service;
 
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.exception.DatabaseConnectionException;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableNotFoundException;
-import lombok.NonNull;
-import org.springframework.stereotype.Service;
+import at.tuwien.exception.*;
+import com.opencsv.exceptions.CsvException;
+import org.springframework.core.io.Resource;
 
+import java.io.IOException;
 import java.time.Instant;
 
-// TODO Refactor to Query Service
-@Service
 public interface DataService {
+    TableCsvDto read(Long databaseId, Long tableId, String location) throws IOException, CsvException,
+            TableNotFoundException, DatabaseNotFoundException;
 
-    /**
-     * Select all data known in the database-table id tuple at a given time and return a page of specific size, using
-     * Instant to better abstract time concept (JDK 8) from SQL
-     *
-     * @param databaseId The database-table id tuple.
-     * @param tableId    The database-table id tuple.
-     * @param timestamp  The given time.
-     * @param page       The page.
-     * @param size       The page size.
-     * @return The select all data result
-     * @throws TableNotFoundException      The table was not found in the metadata database.
-     * @throws DatabaseNotFoundException   The database was not found in the remote database.
-     * @throws ImageNotSupportedException  The image is not supported.
-     * @throws DatabaseConnectionException The connection to the remote database was unsuccessful.
-     */
-    QueryResultDto findAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp,
-                           Long page, Long size) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException;
+    TableCsvDto read(Long databaseId, Long tableId, String location, Character separator, Boolean skipHeader, String nullElement,
+                     String falseElement, String trueElement) throws IOException,
+            TableNotFoundException, DatabaseNotFoundException, CsvException;
 
-    /**
-     * Insert data from AMQP client into a table of a table-database id tuple
-     *
-     * @param databaseId The database id.
-     * @param tableId    The table id.
-     * @param data       The data.
-     * @throws ImageNotSupportedException The image is not supported.
-     * @throws TableMalformedException    The table does not exist in the metadata database.
-     */
-    void insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
-            TableMalformedException, DatabaseNotFoundException, TableNotFoundException;
+    Resource write(Long databaseId, Long tableId, Instant timestamp) throws TableNotFoundException,
+            DatabaseConnectionException, DatabaseNotFoundException, ImageNotSupportedException,
+            PaginationException, FileStorageException, TableMalformedException;
 
+    Resource write(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException, FileStorageException;
 }

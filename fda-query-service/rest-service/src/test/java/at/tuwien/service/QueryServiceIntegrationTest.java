@@ -12,6 +12,7 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
+import com.rabbitmq.client.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.*;
@@ -44,6 +45,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class QueryServiceIntegrationTest extends BaseUnitTest {
+
+    @MockBean
+    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;
@@ -148,7 +152,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void execute_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException, QueryMalformedException, TableNotFoundException {
+    public void execute_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException, QueryMalformedException, TableNotFoundException, QueryStoreException {
         final ExecuteQueryDto request = ExecuteQueryDto.builder()
                 .title(QUERY_1_TITLE)
                 .description(QUERY_1_DESCRIPTION)
@@ -207,7 +211,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        assertThrows(TableNotFoundException.class, () -> {
+        assertThrows(DatabaseNotFoundException.class, () -> {
             queryService.execute(9999L, TABLE_1_ID, request);
         });
     }
@@ -292,7 +296,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        assertThrows(QueryStoreException.class, () -> {
+        assertThrows(QueryMalformedException.class, () -> {
             queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
         });
     }

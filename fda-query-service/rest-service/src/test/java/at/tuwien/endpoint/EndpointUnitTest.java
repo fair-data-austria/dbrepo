@@ -2,6 +2,7 @@ package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.config.ReadyConfig;
+import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +12,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class EndpointUnitTest extends BaseUnitTest {
+
+    @MockBean
+    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;

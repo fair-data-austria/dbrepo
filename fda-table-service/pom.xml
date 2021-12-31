@@ -31,7 +31,6 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <jooq.version>3.14.11</jooq.version>
         <opencsv.version>5.4</opencsv.version>
         <super-csv.version>2.4.0</super-csv.version>
         <btrace-client.version>2.2.0</btrace-client.version>

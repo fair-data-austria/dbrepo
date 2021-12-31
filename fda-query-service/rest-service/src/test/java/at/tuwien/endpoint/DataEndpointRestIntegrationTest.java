@@ -3,7 +3,6 @@ package at.tuwien.endpoint;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
-import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.DatabaseConnectionException;
 import at.tuwien.exception.DatabaseNotFoundException;
@@ -50,167 +49,167 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 public class DataEndpointRestIntegrationTest extends BaseUnitTest {
 
-    @MockBean
-    private Channel channel;
-
-    @MockBean
-    private ReadyConfig readyConfig;
-
-    @Autowired
-    private ImageRepository imageRepository;
-
-    @Autowired
-    private TableRepository tableRepository;
-
-    @Autowired
-    private DatabaseRepository databaseRepository;
-
-    @Autowired
-    private DataEndpoint dataEndpoint;
-
-    @BeforeAll
-    public static void beforeAll() throws InterruptedException {
-        afterAll();
-        /* create network */
-        dockerClient.createNetworkCmd()
-                .withName("fda-userdb")
-                .withIpam(new Network.Ipam()
-                        .withConfig(new Network.Ipam.Config()
-                                .withSubnet("172.28.0.0/16")))
-                .withEnableIpv6(false)
-                .exec();
-        /* create container */
-        final String bind = new File("./src/test/resources/weather").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
-        log.trace("container bind {}", bind);
-        final CreateContainerResponse response = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
-                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
-                .withName(CONTAINER_1_INTERNALNAME)
-                .withIpv4Address(CONTAINER_1_IP)
-                .withHostName(CONTAINER_1_INTERNALNAME)
-                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(bind))
-                .exec();
-        /* set hash */
-        CONTAINER_1.setHash(response.getId());
-    }
-
-    @Transactional
-    @BeforeEach
-    public void beforeEach() {
-        imageRepository.save(IMAGE_1);
-        databaseRepository.save(DATABASE_1);
-        TABLE_1.setDatabase(DATABASE_1);
-        tableRepository.save(TABLE_1);
-    }
-
-    @AfterAll
-    public static void afterAll() {
-        /* stop containers and remove them */
-        dockerClient.listContainersCmd()
-                .withShowAll(true)
-                .exec()
-                .forEach(container -> {
-                    log.info("Delete container {}", Arrays.asList(container.getNames()));
-                    try {
-                        dockerClient.stopContainerCmd(container.getId()).exec();
-                    } catch (NotModifiedException e) {
-                        // ignore
-                    }
-                    dockerClient.removeContainerCmd(container.getId()).exec();
-                });
-        /* remove networks */
-        dockerClient.listNetworksCmd()
-                .exec()
-                .stream()
-                .filter(n -> n.getName().startsWith("fda"))
-                .forEach(network -> {
-                    log.info("Delete network {}", network.getName());
-                    dockerClient.removeNetworkCmd(network.getId()).exec();
-                });
-    }
-
-    @Test
-    public void insertFromTuple_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, SQLException, InterruptedException {
-        final Map<String, Object> map = new LinkedHashMap<>() {{
-            put(COLUMN_1_1_NAME, 4);
-            put(COLUMN_1_2_NAME, "2020-11-01");
-            put(COLUMN_1_3_NAME, "Sydney");
-            put(COLUMN_1_4_NAME, 35.2);
-            put(COLUMN_1_5_NAME, 10.2);
-        }};
-        final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of(map))
-                .build();
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(TABLE_1);
-
-        /* test */
-        final ResponseEntity<?> response = dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
-        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-    }
-
-    @Test
-    public void insertFromTuple_empty_succeeds() throws SQLException, TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
-        final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of())
-                .build();
-
-        /* mock */
-        MariaDbConfig.clearDatabase(TABLE_1);
-
-        /* test */
-        dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
-    }
-
-    @Test
-    public void insertFromTuple_empty2_succeeds() throws SQLException, InterruptedException, TableNotFoundException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException {
-        final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of(Map.of()))
-                .build();
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(TABLE_1);
-
-        /* test */
-        dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
-    }
-
-    @Test
-    public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, SQLException,
-            InterruptedException {
-        final String request = "test:csv/csv_01.csv";
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(TABLE_1);
-
-        /* test */
-        final ResponseEntity<?> response = dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
-        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-    }
-
-    @Test
-    public void getAll_succeeds() throws TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, SQLException, DatabaseConnectionException,
-            InterruptedException, PaginationException {
-        final Instant timestamp = Instant.now();
-        final Long page = 0L;
-        final Long size = 1L;
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-        MariaDbConfig.clearDatabase(TABLE_1);
-
-        /* test */
-        final ResponseEntity<?> response = dataEndpoint.getAll(DATABASE_1_ID, TABLE_1_ID, timestamp, page, size);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
+//    @MockBean
+//    private Channel channel;
+//
+//    @MockBean
+//    private ReadyConfig readyConfig;
+//
+//    @Autowired
+//    private ImageRepository imageRepository;
+//
+//    @Autowired
+//    private TableRepository tableRepository;
+//
+//    @Autowired
+//    private DatabaseRepository databaseRepository;
+//
+//    @Autowired
+//    private DataEndpoint dataEndpoint;
+//
+//    @BeforeAll
+//    public static void beforeAll() throws InterruptedException {
+//        afterAll();
+//        /* create network */
+//        dockerClient.createNetworkCmd()
+//                .withName("fda-userdb")
+//                .withIpam(new Network.Ipam()
+//                        .withConfig(new Network.Ipam.Config()
+//                                .withSubnet("172.28.0.0/16")))
+//                .withEnableIpv6(false)
+//                .exec();
+//        /* create container */
+//        final String bind = new File("./src/test/resources/weather").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
+//        log.trace("container bind {}", bind);
+//        final CreateContainerResponse response = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+//                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+//                .withName(CONTAINER_1_INTERNALNAME)
+//                .withIpv4Address(CONTAINER_1_IP)
+//                .withHostName(CONTAINER_1_INTERNALNAME)
+//                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
+//                .withBinds(Bind.parse(bind))
+//                .exec();
+//        /* set hash */
+//        CONTAINER_1.setHash(response.getId());
+//    }
+//
+//    @Transactional
+//    @BeforeEach
+//    public void beforeEach() {
+//        imageRepository.save(IMAGE_1);
+//        databaseRepository.save(DATABASE_1);
+//        TABLE_1.setDatabase(DATABASE_1);
+//        tableRepository.save(TABLE_1);
+//    }
+//
+//    @AfterAll
+//    public static void afterAll() {
+//        /* stop containers and remove them */
+//        dockerClient.listContainersCmd()
+//                .withShowAll(true)
+//                .exec()
+//                .forEach(container -> {
+//                    log.info("Delete container {}", Arrays.asList(container.getNames()));
+//                    try {
+//                        dockerClient.stopContainerCmd(container.getId()).exec();
+//                    } catch (NotModifiedException e) {
+//                        // ignore
+//                    }
+//                    dockerClient.removeContainerCmd(container.getId()).exec();
+//                });
+//        /* remove networks */
+//        dockerClient.listNetworksCmd()
+//                .exec()
+//                .stream()
+//                .filter(n -> n.getName().startsWith("fda"))
+//                .forEach(network -> {
+//                    log.info("Delete network {}", network.getName());
+//                    dockerClient.removeNetworkCmd(network.getId()).exec();
+//                });
+//    }
+//
+//    @Test
+//    public void insertFromTuple_succeeds() throws TableNotFoundException, TableMalformedException,
+//            DatabaseNotFoundException, ImageNotSupportedException, SQLException, InterruptedException {
+//        final Map<String, Object> map = new LinkedHashMap<>() {{
+//            put(COLUMN_1_1_NAME, 4);
+//            put(COLUMN_1_2_NAME, "2020-11-01");
+//            put(COLUMN_1_3_NAME, "Sydney");
+//            put(COLUMN_1_4_NAME, 35.2);
+//            put(COLUMN_1_5_NAME, 10.2);
+//        }};
+//        final TableCsvDto request = TableCsvDto.builder()
+//                .data(List.of(map))
+//                .build();
+//
+//        /* mock */
+//        DockerConfig.startContainer(CONTAINER_1);
+//        MariaDbConfig.clearDatabase(TABLE_1);
+//
+//        /* test */
+//        final ResponseEntity<?> response = dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
+//        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+//    }
+//
+//    @Test
+//    public void insertFromTuple_empty_succeeds() throws SQLException, TableNotFoundException, TableMalformedException,
+//            DatabaseNotFoundException, ImageNotSupportedException {
+//        final TableCsvDto request = TableCsvDto.builder()
+//                .data(List.of())
+//                .build();
+//
+//        /* mock */
+//        MariaDbConfig.clearDatabase(TABLE_1);
+//
+//        /* test */
+//        dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
+//    }
+//
+//    @Test
+//    public void insertFromTuple_empty2_succeeds() throws SQLException, InterruptedException, TableNotFoundException,
+//            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException {
+//        final TableCsvDto request = TableCsvDto.builder()
+//                .data(List.of(Map.of()))
+//                .build();
+//
+//        /* mock */
+//        DockerConfig.startContainer(CONTAINER_1);
+//        MariaDbConfig.clearDatabase(TABLE_1);
+//
+//        /* test */
+//        dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
+//    }
+//
+//    @Test
+//    public void insertFromFile_succeeds() throws TableNotFoundException, TableMalformedException,
+//            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, SQLException,
+//            InterruptedException {
+//        final String request = "test:csv/csv_01.csv";
+//
+//        /* mock */
+//        DockerConfig.startContainer(CONTAINER_1);
+//        MariaDbConfig.clearDatabase(TABLE_1);
+//
+//        /* test */
+//        final ResponseEntity<?> response = dataEndpoint.insert(DATABASE_1_ID, TABLE_1_ID, request);
+//        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+//    }
+//
+//    @Test
+//    public void getAll_succeeds() throws TableNotFoundException, TableMalformedException,
+//            DatabaseNotFoundException, ImageNotSupportedException, SQLException, DatabaseConnectionException,
+//            InterruptedException, PaginationException {
+//        final Instant timestamp = Instant.now();
+//        final Long page = 0L;
+//        final Long size = 1L;
+//
+//        /* mock */
+//        DockerConfig.startContainer(CONTAINER_1);
+//        MariaDbConfig.clearDatabase(TABLE_1);
+//
+//        /* test */
+//        final ResponseEntity<?> response = dataEndpoint.getAll(DATABASE_1_ID, TABLE_1_ID, timestamp, page, size);
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//    }
 
 }
