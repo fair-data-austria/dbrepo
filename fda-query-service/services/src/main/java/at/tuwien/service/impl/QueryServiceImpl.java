@@ -2,6 +2,7 @@ package at.tuwien.service.impl;
 
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
@@ -11,6 +12,7 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.QueryService;
 import at.tuwien.service.TableService;
+import com.github.dockerjava.api.command.AuthCmd;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
@@ -41,6 +43,20 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
 
     @Override
     @Transactional
+    public QueryResultDto execute(Long databaseId, Long tableId, QueryDto query) throws TableNotFoundException,
+            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException {
+        final ExecuteQueryDto data = ExecuteQueryDto.builder()
+                .title(query.getTitle())
+                .description(query.getDescription())
+                .query(query.getQuery())
+                .build();
+        final QueryResultDto result = execute(databaseId, tableId, data);
+        result.setId(query.getId());
+        return result;
+    }
+
+    @Override
+    @Transactional
     public QueryResultDto execute(Long databaseId, Long tableId, ExecuteQueryDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryMalformedException,
             TableNotFoundException, QueryStoreException {
@@ -62,6 +78,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         /* run query */
         final Session session = getSessionFactory(table.getDatabase())
                 .openSession();
+        session.setDefaultReadOnly(true) /* important */;
         session.beginTransaction();
         /* prepare the statement */
         final NativeQuery<?> query = session.createSQLQuery(data.getQuery());

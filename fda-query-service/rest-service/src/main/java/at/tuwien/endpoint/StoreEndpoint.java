@@ -2,7 +2,7 @@ package at.tuwien.endpoint;
 
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.exception.*;
-import at.tuwien.service.impl.StoreServiceImpl;
+import at.tuwien.service.StoreService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -16,11 +16,11 @@ import java.util.List;
 @RequestMapping("/api/database/{id}/store")
 public class StoreEndpoint {
 
-    private StoreServiceImpl querystoreService;
+    private StoreService storeService;
 
     @Autowired
-    public StoreEndpoint(StoreServiceImpl queryService) {
-        this.querystoreService = queryService;
+    public StoreEndpoint(StoreService storeService) {
+        this.storeService = storeService;
     }
 
     @GetMapping
@@ -32,7 +32,7 @@ public class StoreEndpoint {
     })
     public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) throws QueryStoreException,
             DatabaseNotFoundException, ImageNotSupportedException {
-        return ResponseEntity.ok(querystoreService.findAll(id));
+        return ResponseEntity.ok(storeService.findAll(id));
     }
 
     @GetMapping("/{queryId}")
@@ -46,6 +46,6 @@ public class StoreEndpoint {
                                          @PathVariable Long queryId)
             throws DatabaseNotFoundException, ImageNotSupportedException,
             QueryStoreException, QueryNotFoundException {
-        return ResponseEntity.ok(querystoreService.findOne(id, queryId));
+        return ResponseEntity.ok(storeService.findOne(id, queryId));
     }
 }

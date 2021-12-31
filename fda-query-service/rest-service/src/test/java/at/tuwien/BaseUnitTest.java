@@ -1,5 +1,6 @@
 package at.tuwien;
 
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
@@ -214,6 +215,21 @@ public abstract class BaseUnitTest {
     public final static String QUERY_1_TITLE = "AAAA";
     public final static String QUERY_1_DESCRIPTION = "BBBBBBBB";
     public final static String QUERY_1_STATEMENT = "SELECT * FROM `weather_aus`;";
+    public final static String QUERY_1_DOI = "1111/1";
+    public final static String QUERY_1_RESULT_HASH = "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03";
+    public final static Instant QUERY_1_CREATED = Instant.now();
+    public final static Instant QUERY_1_EXECUTION = Instant.now();
+
+    public final static QueryDto QUERY_1 = QueryDto.builder()
+            .id(QUERY_1_ID)
+            .title(QUERY_1_TITLE)
+            .description(QUERY_1_DESCRIPTION)
+            .query(QUERY_1_STATEMENT)
+            .doi(QUERY_1_DOI)
+            .resultHash(QUERY_1_RESULT_HASH)
+            .created(QUERY_1_CREATED)
+            .executionTimestamp(QUERY_1_EXECUTION)
+            .build();
 
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .key("UZERNAME")

@@ -7,9 +7,11 @@ import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryNotFoundException;
 import at.tuwien.exception.QueryStoreException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public interface StoreService {
 
     /**
