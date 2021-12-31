@@ -23,13 +23,11 @@ public class ServiceSeeder implements Seeder {
     @Value("${fda.ready.path}")
     private String readyPath;
 
-    private final DataSeeder dataSeeder;
     private final TableSeeder tableSeeder;
     private final Environment environment;
 
     @Autowired
-    public ServiceSeeder(DataSeeder dataSeeder, TableSeeder tableSeeder, Environment environment) {
-        this.dataSeeder = dataSeeder;
+    public ServiceSeeder(TableSeeder tableSeeder, Environment environment) {
         this.tableSeeder = tableSeeder;
         this.environment = environment;
     }
@@ -37,11 +35,9 @@ public class ServiceSeeder implements Seeder {
     @Override
     @PostConstruct
     public void seed() throws TableMalformedException, ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableNotFoundException,
-            IOException, CsvException {
+            ImageNotSupportedException, DataProcessingException, IOException {
         if (Arrays.asList(environment.getActiveProfiles()).contains("sandbox")) {
             tableSeeder.seed();
-            dataSeeder.seed();
         }
         log.info("Seeding completed, service is ready");
         Files.touch(new File(readyPath));

@@ -5,9 +5,12 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.entities.database.table.columns.TableColumnType;
-import at.tuwien.exception.*;
+import at.tuwien.exception.DatabaseConnectionException;
+import at.tuwien.exception.DatabaseNotFoundException;
+import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableNotFoundException;
 import at.tuwien.mapper.DataMapper;
-import at.tuwien.service.DataService;
+import at.tuwien.service.FileService;
 import at.tuwien.service.TableService;
 import at.tuwien.service.TextDataService;
 import at.tuwien.utils.FileUtils;
@@ -35,14 +38,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class CsvServiceImpl implements TextDataService {
+public class FileServiceImpl implements FileService {
 
     private final DataMapper dataMapper;
-    private final DataService dataService;
+    private final FileService dataService;
     private final TableService tableService;
 
     @Autowired
-    public CsvServiceImpl(DataMapper dataMapper, DataService dataService, TableService tableService) {
+    public FileServiceImpl(DataMapper dataMapper, FileService dataService, TableService tableService) {
         this.dataMapper = dataMapper;
         this.dataService = dataService;
         this.tableService = tableService;

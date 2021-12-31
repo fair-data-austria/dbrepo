@@ -5,8 +5,9 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.endpoints.DataEndpoint;
-import at.tuwien.exception.*;
+import at.tuwien.exception.DatabaseNotFoundException;
+import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableNotFoundException;
 import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
@@ -33,8 +34,6 @@ import java.util.*;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)

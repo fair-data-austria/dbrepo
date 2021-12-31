@@ -1,9 +1,8 @@
 package at.tuwien.seeder;
 
-import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
 import at.tuwien.service.DataService;
-import at.tuwien.service.TextDataService;
+import at.tuwien.service.FileService;
 import com.opencsv.exceptions.CsvException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,22 +28,22 @@ public class DataSeeder implements Seeder {
     private final static String TABLE_3_INSERT = "test:seed/air-small.csv";
 
     private final DataService dataService;
-    private final TextDataService textDataService;
+    private final FileService fileService;
 
     @Autowired
-    public DataSeeder(DataService dataService, TextDataService textDataService) {
+    public DataSeeder(DataService dataService, FileService textDataService) {
         this.dataService = dataService;
-        this.textDataService = textDataService;
+        this.fileService = textDataService;
     }
 
     @Override
     public void seed() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
             ImageNotSupportedException, IOException, CsvException {
-        dataService.insert(DATABASE_1_ID, TABLE_1_ID, textDataService.read(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT));
+        dataService.insert(DATABASE_1_ID, TABLE_1_ID, fileService.read(DATABASE_1_ID, TABLE_1_ID, TABLE_1_INSERT));
         log.info("Seeded table {}", TABLE_1_ID);
-        dataService.insert(DATABASE_2_ID, TABLE_2_ID, textDataService.read(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT));
+        dataService.insert(DATABASE_2_ID, TABLE_2_ID, fileService.read(DATABASE_2_ID, TABLE_2_ID, TABLE_2_INSERT));
         log.info("Seeded table {}", TABLE_2_ID);
-        dataService.insert(DATABASE_3_ID, TABLE_3_ID, textDataService.read(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT));
+        dataService.insert(DATABASE_3_ID, TABLE_3_ID, fileService.read(DATABASE_3_ID, TABLE_3_ID, TABLE_3_INSERT));
         log.info("Seeded table {}", TABLE_3_ID);
     }
 

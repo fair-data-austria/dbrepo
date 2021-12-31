@@ -1,10 +1,9 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.entities.database.query.Query;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
-import org.junit.jupiter.api.Test;
+import at.tuwien.service.impl.StoreServiceImpl;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +22,7 @@ import static org.mockito.Mockito.when;
 public class QueryStoreServiceUnitTest extends BaseUnitTest {
 
     @Autowired
-    private QueryStoreService queryStoreService;
+    private StoreServiceImpl queryStoreService;
 
     @Autowired
     private QueryService queryService;

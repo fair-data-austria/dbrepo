@@ -5,30 +5,39 @@ import at.tuwien.api.database.query.QueryBriefDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.entities.database.query.Query;
-import org.jooq.Field;
-import org.jooq.Record;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
+import at.tuwien.exception.QueryStoreException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
-import org.mapstruct.Named;
+import org.mariadb.jdbc.MariaDbBlob;
 
-import java.sql.Timestamp;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface QueryMapper {
 
-    @Mappings({})
+    org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QueryMapper.class);
+
     Query queryDtotoQuery(QueryDto data);
 
-    @Mappings({})
     QueryDto queryToQueryDto(Query data);
 
-    @Mappings({})
     QueryBriefDto queryToQueryBriefDto(Query data);
 
     @Mappings({
@@ -36,50 +45,96 @@ public interface QueryMapper {
     })
     QueryDto executeQueryDtoToQueryDto(ExecuteQueryDto data);
 
-    default QueryResultDto recordListToQueryResultDto(List<Record> data, Long queryId) {
-        final List<Map<String, Object>> result = new LinkedList<>();
-        for (Record record : data) {
+    default List<QueryDto> resultListToQueryStoreQueryList(List<?> data) throws QueryStoreException {
+        final List<QueryDto> queries = new LinkedList<>();
+        final Iterator<?> iterator = data.iterator();
+        while (iterator.hasNext()) {
+            final Object[] row = (Object[]) iterator.next();
+            queries.add(QueryDto.builder()
+                    .id(Long.valueOf(String.valueOf(row[0])))
+                    .doi(String.valueOf(row[1]))
+                    .title(String.valueOf(row[2]))
+                    .query(String.valueOf(row[3]))
+                    .queryHash(String.valueOf(row[4]))
+                    .executionTimestamp(Instant.parse(String.valueOf(row[5])))
+                    .resultHash(String.valueOf(row[6]))
+                    .resultNumber(Long.valueOf(String.valueOf(row[7])))
+                    .created(Instant.parse(String.valueOf(row[8])))
+                    .build());
+        }
+        return queries;
+    }
+
+    default QueryResultDto resultListToQueryResultDto(Table table, List<?> result) {
+        final Iterator<?> iterator = result.iterator();
+        final List<Map<String, Object>> resultList = new LinkedList<>();
+        while (iterator.hasNext()) {
+            /* map the result set to the columns through the stored metadata in the metadata database */
+            int[] idx = new int[]{0};
+            final Object[] data = (Object[]) iterator.next();
             final Map<String, Object> map = new HashMap<>();
-            for (Field<?> column : record.fields()) {
-                map.put(column.getName(), record.get(column.getName()));
-            }
-            result.add(map);
+            table.getColumns()
+                    .forEach(column -> map.put(column.getName(), dataColumnToObject(data[idx[0]++], column)));
+            resultList.add(map);
         }
+        log.info("Selected {} records from table id {}", resultList.size(), table.getId());
+        log.debug("table {} contains {} records", table, resultList.size());
         return QueryResultDto.builder()
-                .id(queryId)
-                .result(result)
+                .result(resultList)
                 .build();
     }
 
-    default QueryDto recordToQueryDto(Record data) {
-        return QueryDto.builder()
-                .id(Long.parseLong(String.valueOf(data.get("id"))))
-                .query(String.valueOf(data.get("query")))
-                .queryHash(String.valueOf(data.get("query_hash")))
-                .executionTimestamp(objectToInstant(data.get("execution_timestamp")))
-                .resultHash(String.valueOf(data.get("result_hash")))
-                .resultNumber(Long.parseLong(String.valueOf(data.get("result_number"))))
-                .build();
-    }
-
-    default List<Query> recordListToQueryList(List<Record> data) {
-        return recordListToQueryResultDto(data, null)
-                .getResult()
-                .stream()
-                .map(row -> Query.builder()
-                        .id(Long.valueOf(String.valueOf(row.get("id"))))
-                        .resultHash(String.valueOf(row.get("result_hash")))
-                        .resultNumber(Long.valueOf(String.valueOf(row.get("result_number"))))
-                        .executionTimestamp(objectToInstant(row.get("execution_timestamp")))
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    default Instant objectToInstant(Object data) {
-        if (data == null) {
-            return null;
+    default Object dataColumnToObject(Object data, TableColumn column) throws DateTimeException {
+        switch (column.getColumnType()) {
+            case BLOB:
+                log.trace("mapping {} to blob", data);
+                return new MariaDbBlob((byte[]) data);
+            case DATE:
+                if (column.getDateFormat() == null) {
+                    throw new IllegalArgumentException("Missing date format");
+                }
+                final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                        .parseCaseInsensitive() /* case insensitive to parse JAN and FEB */
+                        .appendPattern(column.getDateFormat())
+                        .toFormatter(Locale.ENGLISH);
+                final LocalDate date = LocalDate.parse(String.valueOf(data), formatter);
+                final Instant val = date.atStartOfDay(ZoneId.of("UTC"))
+                        .toInstant();
+                log.trace("mapping {} to date with format '{}' to value {}", data, column.getDateFormat(), val);
+                return val;
+            case ENUM:
+            case TEXT:
+            case STRING:
+                log.trace("mapping {} to character array", data);
+                return String.valueOf(data);
+            case NUMBER:
+                log.trace("mapping {} to non-decimal number", data);
+                return new BigInteger(String.valueOf(data));
+            case DECIMAL:
+                log.trace("mapping {} to decimal number", data);
+                return Double.valueOf(String.valueOf(data));
+            case BOOLEAN:
+                return Boolean.valueOf(String.valueOf(data));
+            default:
+                throw new IllegalArgumentException("Column type not known");
         }
-        return Instant.parse(data.toString());
+    }
+
+    default QueryDto queryResultDtoToQueryDto(QueryResultDto data, ExecuteQueryDto metadata) throws QueryStoreException {
+        try {
+            return QueryDto.builder()
+                    .title(metadata.getTitle())
+                    .description(metadata.getDescription())
+                    .resultNumber(Long.parseLong(String.valueOf(data.getResult().size())))
+                    .resultHash(Arrays.toString(MessageDigest.getInstance("SHA256")
+                            .digest(data.getResult()
+                                    .toString()
+                                    .getBytes())))
+                    .executionTimestamp(Instant.now())
+                    .build();
+        } catch (NoSuchAlgorithmException e) {
+            throw new QueryStoreException("Failed to find sha256 algorithm", e);
+        }
     }
 
 }

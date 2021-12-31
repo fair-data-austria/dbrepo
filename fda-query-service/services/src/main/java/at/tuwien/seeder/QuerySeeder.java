@@ -2,7 +2,7 @@ package at.tuwien.seeder;
 
 import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.exception.*;
-import at.tuwien.service.QueryStoreService;
+import at.tuwien.service.impl.StoreServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,10 +61,10 @@ public class QuerySeeder implements Seeder {
             .title(QUERY_4_TITLE)
             .build();
 
-    private final QueryStoreService queryStoreService;
+    private final StoreServiceImpl queryStoreService;
 
     @Autowired
-    public QuerySeeder(QueryStoreService queryStoreService) {
+    public QuerySeeder(StoreServiceImpl queryStoreService) {
         this.queryStoreService = queryStoreService;
     }
 
@@ -72,10 +72,10 @@ public class QuerySeeder implements Seeder {
     @Transactional
     public void seed() throws QueryStoreException, DatabaseConnectionException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
-        log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_1_ID, TABLE_1_ID, QUERY_EXECUTE_1));
-        log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_2_ID, TABLE_2_ID, QUERY_EXECUTE_2));
-        log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_2_ID, TABLE_2_ID, QUERY_EXECUTE_3));
-        log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_3_ID, TABLE_3_ID, QUERY_EXECUTE_4));
+//        log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_1_ID, TABLE_1_ID, QUERY_EXECUTE_1));
+//        log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_2_ID, TABLE_2_ID, QUERY_EXECUTE_2));
+//        log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_2_ID, TABLE_2_ID, QUERY_EXECUTE_3));
+//        log.debug("seeded query {}", queryStoreService.saveWithoutExecution(DATABASE_3_ID, TABLE_3_ID, QUERY_EXECUTE_4));
     }
 
 }

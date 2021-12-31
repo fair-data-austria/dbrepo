@@ -4,7 +4,8 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.exception.*;
+import at.tuwien.exception.DatabaseNotFoundException;
+import at.tuwien.exception.TableNotFoundException;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -22,8 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.Resource;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
@@ -34,14 +33,12 @@ import java.util.Optional;
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-@Log4j2
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class TextDataServiceIntegrationTest extends BaseUnitTest {
+@ExtendWith(SpringExtension.class)
+@Log4j2
+public class TextDataServiceUnitTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -55,10 +52,10 @@ public class TextDataServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private TextDataService textDataService;
 
-    @Autowired
+    @MockBean
     private DatabaseRepository databaseRepository;
 
-    @Autowired
+    @MockBean
     private TableRepository tableRepository;
 
     /**
@@ -124,17 +121,93 @@ public class TextDataServiceIntegrationTest extends BaseUnitTest {
     public void beforeEach() {
         TABLE_1.setDatabase(DATABASE_1);
         TABLE_2.setDatabase(DATABASE_2);
-        tableRepository.save(TABLE_1);
-        tableRepository.save(TABLE_2);
     }
 
     @Test
-    public void write_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            FileStorageException, DatabaseConnectionException, TableMalformedException, PaginationException {
+    public void read_succeeds() throws IOException, CsvException, TableNotFoundException, DatabaseNotFoundException {
+        final String location = "test:csv/csv_01.csv";
+        final Character separator = ',';
+        final Boolean skipHeader = true;
+        final String nullElement = null;
+        final String trueElement = "1";
+        final String falseElement = "0";
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final Resource response = textDataService.write(DATABASE_1_ID, TABLE_1_ID);
-        assertTrue(response.exists());
+        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
+                nullElement, trueElement, falseElement);
+        assertEquals(1000, response.getData().size());
+    }
+
+    @Test
+    public void read_nullElement_succeeds() throws IOException, CsvException, TableNotFoundException,
+            DatabaseNotFoundException {
+        final String location = "test:csv/csv_01.csv";
+        final Character separator = ',';
+        final Boolean skipHeader = true;
+        final String nullElement = "NA";
+        final String trueElement = "1";
+        final String falseElement = "0";
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
+                nullElement, trueElement, falseElement);
+        assertEquals(1000, response.getData().size());
+    }
+
+    @Test
+    public void read_skipHeader_succeeds() throws IOException, CsvException, TableNotFoundException,
+            DatabaseNotFoundException {
+        final String location = "test:csv/csv_01.csv";
+        final Character separator = ',';
+        final Boolean skipHeader = false;
+        final String nullElement = null;
+        final String trueElement = "1";
+        final String falseElement = "0";
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
+                nullElement, trueElement, falseElement);
+        assertEquals(1001, response.getData().size());
+    }
+
+    @Test
+    public void read_skipHeaderYes_succeeds() throws IOException, CsvException, TableNotFoundException,
+            DatabaseNotFoundException {
+        final String location = "test:csv/csv_01.csv";
+        final Character separator = ',';
+        final Boolean skipHeader = false;
+        final String nullElement = null;
+        final String trueElement = "1";
+        final String falseElement = "0";
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_1_ID))
+                .thenReturn(Optional.of(DATABASE_1));
+        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
+                .thenReturn(Optional.of(TABLE_1));
+
+        /* test */
+        final TableCsvDto response = textDataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipHeader,
+                nullElement, trueElement, falseElement);
+        assertEquals(1001, response.getData().size());
     }
 
 }

@@ -36,9 +36,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
     @Autowired
     private TableServiceImpl tableService;
 
-    @Autowired
-    private TextDataService textDataService;
-
     @MockBean
     private DatabaseRepository databaseRepository;
 

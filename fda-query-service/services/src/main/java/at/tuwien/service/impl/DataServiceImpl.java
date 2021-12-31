@@ -5,7 +5,10 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.exception.*;
+import at.tuwien.exception.DatabaseConnectionException;
+import at.tuwien.exception.DatabaseNotFoundException;
+import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableNotFoundException;
 import at.tuwien.mapper.DataMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
@@ -69,7 +72,7 @@ public class DataServiceImpl extends HibernateConnector implements DataService {
         transaction.commit();
         final QueryResultDto result;
         try {
-            result = dataMapper.queryTableToQueryResultDto(query, table);
+            result = dataMapper.queryTableToQueryResultDto(query.getResultList(), table);
         } catch (DateTimeException e) {
             log.error("Failed to parse date from the one stored in the metadata database");
             throw new TableMalformedException("Could not parse date from format", e);

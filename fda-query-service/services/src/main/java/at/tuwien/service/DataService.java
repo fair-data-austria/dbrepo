@@ -2,7 +2,10 @@ package at.tuwien.service;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.exception.*;
+import at.tuwien.exception.DatabaseConnectionException;
+import at.tuwien.exception.DatabaseNotFoundException;
+import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.TableNotFoundException;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 

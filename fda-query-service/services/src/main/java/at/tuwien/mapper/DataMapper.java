@@ -8,7 +8,6 @@ import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.FileStorageException;
 import at.tuwien.exception.ImageNotSupportedException;
 import com.opencsv.CSVWriter;
-import org.hibernate.query.NativeQuery;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 import org.mariadb.jdbc.MariaDbBlob;
@@ -77,10 +76,9 @@ public interface DataMapper {
         return query.toString();
     }
 
-    default QueryResultDto queryTableToQueryResultDto(NativeQuery<?> query, Table table) throws DateTimeException {
-        final List<?> resultList = query.getResultList();
-        final Iterator<?> iterator = resultList.iterator();
-        final List<Map<String, Object>> result = new LinkedList<>();
+    default QueryResultDto queryTableToQueryResultDto(List<?> result, Table table) throws DateTimeException {
+        final Iterator<?> iterator = result.iterator();
+        final List<Map<String, Object>> queryResult = new LinkedList<>();
         while (iterator.hasNext()) {
             /* map the result set to the columns through the stored metadata in the metadata database */
             int[] idx = new int[]{0};
@@ -88,12 +86,12 @@ public interface DataMapper {
             final Map<String, Object> map = new HashMap<>();
             table.getColumns()
                     .forEach(column -> map.put(column.getName(), dataColumnToObject(data[idx[0]++], column)));
-            result.add(map);
+            queryResult.add(map);
         }
-        log.info("Selected {} records from table id {}", result.size(), table.getId());
-        log.debug("table {} contains {} records", table, result.size());
+        log.info("Selected {} records from table id {}", queryResult.size(), table.getId());
+        log.debug("table {} contains {} records", table, queryResult.size());
         return QueryResultDto.builder()
-                .result(result)
+                .result(queryResult)
                 .build();
     }
 
