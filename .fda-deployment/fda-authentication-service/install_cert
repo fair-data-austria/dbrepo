@@ -1,6 +1,6 @@
 #!/bin/bash
-TMP_CERT_LOCATION="/root/keys/cert.p12"
-TMP_SAML_LOCATION="/root/keys/saml.p12"
+TMP_CERT_LOCATION="/root/keys/"
+TMP_SAML_LOCATION="/root/keys/"
 KEY_STORE_LOCATION="/tmp/dbrepo.jks"
 KEY_STORE_PASS="dbrepo"
 CERT_LOCATION="/etc/letsencrypt/live/dbrepo.ossdip.at"
@@ -8,25 +8,29 @@ SAML_KEY="/root/keys/saml_sign.key"
 SAML_PUB="/root/keys/saml_sign.cer"
 TU_SAML_CERT="./fda-authentication-service/rest-service/src/main/resources/saml/tu.crt"
 
+# PLACE
+sudo mkdir -p "${TMP_CERT_LOCATION}"
+sudo mkdir -p "${TMP_SAML_LOCATION}"
+
 # REQUEST
 sudo certbot certonly --standalone --preferred-challenges http -d dbrepo.ossdip.at \
 		-m martin.weise@tuwien.ac.at --agree-tos --keep-until-expiring
 
 # CONVERT PKCS12
-sudo openssl pkcs12 -export -out "${TMP_SAML_LOCATION}" -in "${SAML_PUB}" \
+sudo openssl pkcs12 -export -out "${TMP_SAML_LOCATION}/saml.p12" -in "${SAML_PUB}" \
   -inkey "${SAML_KEY}" -passout "pass:${KEY_STORE_PASS}"
 
 # CONVERT PKCS12
-sudo openssl pkcs12 -export -out "${TMP_CERT_LOCATION}" -in "${CERT_LOCATION}/cert.pem" \
+sudo openssl pkcs12 -export -out "${TMP_CERT_LOCATION}/cert.p12" -in "${CERT_LOCATION}/cert.pem" \
   -inkey "${CERT_LOCATION}/privkey.pem" -passout "pass:${KEY_STORE_PASS}"
 
 # FIX PERMISSIONS
-sudo chmod 644 "${TMP_CERT_LOCATION}"
-sudo chmod 644 "${TMP_SAML_LOCATION}"
+sudo chmod -R 644 "${TMP_CERT_LOCATION}"
+sudo chmod -R 644 "${TMP_SAML_LOCATION}"
 
 # IMPORT SSL SIGN PRIVKEY
 sudo keytool -noprompt -importkeystore -deststorepass "${KEY_STORE_PASS}" -destkeypass "${KEY_STORE_PASS}" \
-  -destkeystore "${KEY_STORE_LOCATION}" -srckeystore "${TMP_CERT_LOCATION}" -srcstoretype PKCS12 \
+  -destkeystore "${KEY_STORE_LOCATION}" -srckeystore "${TMP_CERT_LOCATION}/cert.p12" -srcstoretype PKCS12 \
   -srcstorepass "${KEY_STORE_PASS}" -alias 1 -destalias ssl
 
 # IMPORT SAML MESSAGE SIGN PRIVKEY
