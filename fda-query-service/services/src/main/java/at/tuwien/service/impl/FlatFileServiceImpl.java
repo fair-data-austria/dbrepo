@@ -113,9 +113,11 @@ public class FlatFileServiceImpl implements DataService {
         reader.readAll()
                 .forEach(x -> rows.add(new ArrayList<>(List.of(x))));
         log.trace("csv rows {}", rows.size());
-        /* generic header, ref issue #95 */
-        List<String> headers = TableUtils.fill(0, rows.get(0).size());
-        if (skipHeader) {
+        List<String> headers;
+        if (!skipHeader) {
+            /* generic header, ref issue #95 */
+            headers = TableUtils.genericHeaders(rows.get(0).size());
+        } else {
             /* get header */
             headers = rows.get(0);
             log.trace("csv headers {}", headers);

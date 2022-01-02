@@ -1,17 +1,17 @@
 package at.tuwien.mapper;
 
 import at.tuwien.InsertTableRawQuery;
-import at.tuwien.api.database.query.ExecuteQueryDto;
-import at.tuwien.api.database.query.QueryBriefDto;
+import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.entities.database.query.Query;
+import at.tuwien.entities.Query;
+import org.apache.commons.codec.digest.DigestUtils;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.QueryStoreException;
-import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -19,9 +19,6 @@ import org.mapstruct.Named;
 import org.mariadb.jdbc.MariaDbBlob;
 
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -35,16 +32,26 @@ public interface QueryMapper {
 
     org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QueryMapper.class);
 
-    Query queryDtotoQuery(QueryDto data);
+    @Mappings({
+            @Mapping(source = "query", target = "statement")
+    })
+    ExecuteStatementDto queryDtoToExecuteStatementDto(QueryDto data);
+
+    @Mappings({
+            @Mapping(source = "statement", target = "statement")
+    })
+    ExecuteStatementDto saveStatementDtoToExecuteStatementDto(SaveStatementDto data);
+
+    @Mappings({
+            @Mapping(source = "statement", target = "query")
+    })
+    Query executeStatementDtoToQuery(ExecuteStatementDto data);
+
+    Query queryDtoToQuery(QueryDto data);
 
     QueryDto queryToQueryDto(Query data);
 
-    QueryBriefDto queryToQueryBriefDto(Query data);
-
-    @Mappings({
-            @Mapping(source = "query", target = "queryNormalized")
-    })
-    QueryDto executeQueryDtoToQueryDto(ExecuteQueryDto data);
+    List<QueryDto> queryListToQueryDtoList(List<Query> data);
 
     @Named("internalMapping")
     default String nameToInternalName(String data) {
@@ -57,29 +64,6 @@ public interface QueryMapper {
         String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
         String slug = NONLATIN.matcher(normalized).replaceAll("");
         return slug.toLowerCase(Locale.ENGLISH);
-    }
-
-    default List<QueryDto> resultListToQueryStoreQueryList(List<?> data) {
-        final List<QueryDto> queries = new LinkedList<>();
-        final Iterator<?> iterator = data.iterator();
-        while (iterator.hasNext()) {
-            final Object[] row = (Object[]) iterator.next();
-            queries.add(QueryDto.builder()
-                    .id(Long.valueOf(String.valueOf(row[0])))
-                    .doi(String.valueOf(row[1]))
-                    .title(String.valueOf(row[2]))
-                    .description(String.valueOf(row[3]))
-                    .query(String.valueOf(row[4]))
-                    .queryHash(String.valueOf(row[5]))
-                    .executionTimestamp(Timestamp.valueOf(String.valueOf(row[6]))
-                            .toInstant())
-                    .resultHash(String.valueOf(row[7]))
-                    .resultNumber(Long.valueOf(String.valueOf(row[8])))
-                    .created(Timestamp.valueOf(String.valueOf(row[9]))
-                            .toInstant())
-                    .build());
-        }
-        return queries;
     }
 
     default QueryResultDto resultListToQueryResultDto(Table table, List<?> result) {
@@ -217,17 +201,28 @@ public interface QueryMapper {
         }
     }
 
-    default QueryDto queryResultDtoToQueryDto(QueryResultDto data, ExecuteQueryDto metadata) {
+    default QueryDto queryResultDtoToQueryDto(QueryResultDto data, ExecuteStatementDto metadata) {
         final QueryDto query = QueryDto.builder()
-                .title(metadata.getTitle())
-                .description(metadata.getDescription())
-                .query(metadata.getQuery())
+                .query(metadata.getStatement())
+                .queryHash(DigestUtils.sha256Hex(metadata.getStatement()))
                 .resultNumber(Long.parseLong(String.valueOf(data.getResult().size())))
-                .resultHash(DigestUtils.sha256Hex(data.getResult().toString()))
-                .executionTimestamp(Instant.now())
+                .resultHash(getHash(data))
+                .execution(Instant.now())
                 .build();
         log.trace("map to query {}", query);
         return query;
     }
 
+    default String getHash(QueryResultDto data) {
+        if (data == null) {
+            return DigestUtils.sha256Hex(String.valueOf(RandomUtils.nextLong()));
+        }
+        if (data.getResult().size() == 0) {
+            return DigestUtils.sha256Hex(String.valueOf(RandomUtils.nextLong()));
+        }
+        if (data.getResult().size() == 1 && data.getResult().get(0).size() == 0) {
+            return DigestUtils.sha256Hex(String.valueOf(RandomUtils.nextLong()));
+        }
+        return DigestUtils.sha256Hex(data.getResult().toString());
+    }
 }

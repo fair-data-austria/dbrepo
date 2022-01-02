@@ -3,16 +3,13 @@ package at.tuwien.service.impl;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.Query;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -46,7 +43,9 @@ public abstract class HibernateConnector {
                 .setProperty("hibernate.connection.pool_size", String.valueOf(POOL_SIZE))
                 .setProperty("hibernate.generate_statistics", "true")
                 .setProperty("hibernate.dialect", database.getContainer().getImage().getDialect())
-                .setProperty("hibernate.current_session_context_class", SESSION_CONTEXT);
+                .setProperty("hibernate.current_session_context_class", SESSION_CONTEXT)
+                .setProperty("hibernate.hbm2ddl.auto", "create")
+                .addAnnotatedClass(Query.class);
         return configuration.buildSessionFactory();
     }
 

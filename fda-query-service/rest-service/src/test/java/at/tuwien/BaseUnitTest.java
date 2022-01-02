@@ -4,6 +4,7 @@ import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
+import at.tuwien.entities.Query;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
@@ -220,15 +221,22 @@ public abstract class BaseUnitTest {
     public final static Instant QUERY_1_CREATED = Instant.now();
     public final static Instant QUERY_1_EXECUTION = Instant.now();
 
-    public final static QueryDto QUERY_1 = QueryDto.builder()
+    public final static Query QUERY_1 = Query.builder()
             .id(QUERY_1_ID)
-            .title(QUERY_1_TITLE)
-            .description(QUERY_1_DESCRIPTION)
             .query(QUERY_1_STATEMENT)
             .doi(QUERY_1_DOI)
             .resultHash(QUERY_1_RESULT_HASH)
             .created(QUERY_1_CREATED)
-            .executionTimestamp(QUERY_1_EXECUTION)
+            .execution(QUERY_1_EXECUTION)
+            .build();
+
+    public final static QueryDto QUERY_1_DTO = QueryDto.builder()
+            .id(QUERY_1_ID)
+            .query(QUERY_1_STATEMENT)
+            .doi(QUERY_1_DOI)
+            .resultHash(QUERY_1_RESULT_HASH)
+            .created(QUERY_1_CREATED)
+            .execution(QUERY_1_EXECUTION)
             .build();
 
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()

@@ -1,9 +1,11 @@
 package at.tuwien.endpoint;
 
-import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.QueryService;
 import at.tuwien.service.StoreService;
 import io.swagger.annotations.ApiOperation;
@@ -20,11 +22,13 @@ import javax.validation.Valid;
 @RequestMapping("/api/database/{id}/query")
 public class QueryEndpoint {
 
+    private final QueryMapper queryMapper;
     private final QueryService queryService;
     private final StoreService storeService;
 
     @Autowired
-    public QueryEndpoint(QueryService queryService, StoreService storeService) {
+    public QueryEndpoint(QueryMapper queryMapper, QueryService queryService, StoreService storeService) {
+        this.queryMapper = queryMapper;
         this.queryService = queryService;
         this.storeService = storeService;
     }
@@ -38,11 +42,11 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<QueryResultDto> execute(@PathVariable("id") Long databaseId,
                                                   @PathVariable Long tableId,
-                                                  @RequestBody @Valid ExecuteQueryDto data)
+                                                  @RequestBody @Valid ExecuteStatementDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException, QueryMalformedException,
             TableNotFoundException {
         final QueryResultDto result = queryService.execute(databaseId, tableId, data);
-        final QueryDto query = storeService.insert(databaseId, result, data);
+        final QueryDto query = queryMapper.queryToQueryDto(storeService.insert(databaseId, result, data));
         result.setId(query.getId());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
@@ -57,10 +61,11 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<QueryDto> save(@PathVariable("id") Long databaseId,
                                          @PathVariable Long tableId,
-                                         @RequestBody ExecuteQueryDto data)
+                                         @RequestBody SaveStatementDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException {
+        final QueryDto query = queryMapper.queryToQueryDto(storeService.insert(databaseId, null, data));
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(storeService.insert(databaseId, null, data));
+                .body(query);
     }
 
     @PutMapping("/table/{tableId}/execute/{queryId}")
@@ -75,8 +80,8 @@ public class QueryEndpoint {
                                                     @PathVariable Long queryId)
             throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, QueryMalformedException {
-        final QueryDto query = storeService.findOne(id, queryId);
-        final QueryResultDto result = queryService.execute(id, tableId, query);
+        final QueryDto query = queryMapper.queryToQueryDto(storeService.findOne(id, queryId));
+        final QueryResultDto result = queryService.execute(id, tableId, queryMapper.queryDtoToExecuteStatementDto(query));
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
     }

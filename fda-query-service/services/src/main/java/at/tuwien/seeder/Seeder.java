@@ -9,6 +9,6 @@ import java.io.IOException;
 @Component
 public interface Seeder {
 
-    void seed() throws IOException, QueryStoreException, DatabaseConnectionException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException, CsvException, TableMalformedException;
+    void seed() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException, IOException;
 
 }

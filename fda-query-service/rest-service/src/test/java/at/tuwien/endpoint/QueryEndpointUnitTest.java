@@ -1,12 +1,13 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.config.ReadyConfig;
+import at.tuwien.entities.Query;
 import at.tuwien.exception.*;
-import at.tuwien.service.QueryService;
 import at.tuwien.service.StoreService;
 import at.tuwien.service.impl.QueryServiceImpl;
 import com.rabbitmq.client.Channel;
@@ -49,23 +50,19 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
     @Test
     public void execute_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
         final QueryResultDto result = QueryResultDto.builder()
                 .id(QUERY_1_ID)
                 .result(List.of(Map.of("key", "value")))
                 .build();
-        final QueryDto query = QueryDto.builder()
+        final Query query = Query.builder()
                 .query(QUERY_1_STATEMENT)
                 .doi(QUERY_1_DOI)
                 .resultHash(QUERY_1_RESULT_HASH)
-                .description(QUERY_1_DESCRIPTION)
-                .title(QUERY_1_TITLE)
                 .created(QUERY_1_CREATED)
-                .executionTimestamp(QUERY_1_EXECUTION)
+                .execution(QUERY_1_EXECUTION)
                 .build();
 
         /* mock */
@@ -83,23 +80,19 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
     @Test
     public void execute_emptyResult_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
         final QueryResultDto result = QueryResultDto.builder()
                 .id(QUERY_1_ID)
                 .result(List.of())
                 .build();
-        final QueryDto query = QueryDto.builder()
+        final Query query = Query.builder()
                 .query(QUERY_1_STATEMENT)
                 .doi(QUERY_1_DOI)
                 .resultHash(QUERY_1_RESULT_HASH)
-                .description(QUERY_1_DESCRIPTION)
-                .title(QUERY_1_TITLE)
                 .created(QUERY_1_CREATED)
-                .executionTimestamp(QUERY_1_EXECUTION)
+                .execution(QUERY_1_EXECUTION)
                 .build();
 
         /* mock */
@@ -117,10 +110,8 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
     @Test
     public void execute_tableNotFound_fails() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
@@ -135,19 +126,15 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void save_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final SaveStatementDto request = SaveStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
-        final QueryDto query = QueryDto.builder()
+        final Query query = Query.builder()
                 .query(QUERY_1_STATEMENT)
                 .doi(QUERY_1_DOI)
                 .resultHash(QUERY_1_RESULT_HASH)
-                .description(QUERY_1_DESCRIPTION)
-                .title(QUERY_1_TITLE)
                 .created(QUERY_1_CREATED)
-                .executionTimestamp(QUERY_1_EXECUTION)
+                .execution(QUERY_1_EXECUTION)
                 .build();
 
         /* mock */
@@ -157,15 +144,13 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
         /* test */
         final ResponseEntity<QueryDto> response = queryEndpoint.save(DATABASE_1_ID, TABLE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-        assertEquals(query, response.getBody());
+        assertEquals(QUERY_1_DTO, response.getBody());
     }
 
     @Test
     public void save_dbNotFound_fails() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final SaveStatementDto request = SaveStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
@@ -185,20 +170,21 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .id(QUERY_1_ID)
                 .result(List.of(Map.of("key", "value")))
                 .build();
-        final QueryDto query = QueryDto.builder()
+        final Query query = Query.builder()
                 .query(QUERY_1_STATEMENT)
                 .doi(QUERY_1_DOI)
                 .resultHash(QUERY_1_RESULT_HASH)
-                .description(QUERY_1_DESCRIPTION)
-                .title(QUERY_1_TITLE)
                 .created(QUERY_1_CREATED)
-                .executionTimestamp(QUERY_1_EXECUTION)
+                .execution(QUERY_1_EXECUTION)
+                .build();
+        final ExecuteStatementDto statement = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
         when(storeService.findOne(DATABASE_1_ID, QUERY_1_ID))
                 .thenReturn(query);
-        when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, query))
+        when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, statement))
                 .thenReturn(result);
 
         /* test */

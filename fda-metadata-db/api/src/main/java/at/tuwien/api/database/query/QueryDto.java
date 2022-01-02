@@ -1,8 +1,5 @@
 package at.tuwien.api.database.query;
 
-import at.tuwien.api.database.deposit.files.FileDto;
-import at.tuwien.api.database.table.TableDto;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -10,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.List;
 
 
 @Data
@@ -20,47 +16,34 @@ import java.util.List;
 public class QueryDto {
 
     @NotNull
+    @ApiModelProperty(name = "query id", example = "1")
     private Long id;
 
     @NotNull
-    private Long qdbid;
+    @ApiModelProperty(name = "database id", example = "1")
+    private Long databaseId;
 
-    @JsonProperty("execution_timestamp")
-    private Instant executionTimestamp;
+    @ApiModelProperty(name = "execution time", example = "2022-01-01 08:00:00.000")
+    private Instant execution;
 
     @NotBlank
     @ApiModelProperty(name = "query raw", example = "select * from table")
     private String query;
 
-    @NotBlank
-    @ApiModelProperty(name = "query title", example = "Select all weather events for 2012")
-    private String title;
-
-    @NotBlank
-    @ApiModelProperty(name = "query description", example = "Returns a list of measurements for the year 2012")
-    private String description;
-
     @ApiModelProperty(name = "doi", example = "Digital Object Identifier")
     private String doi;
 
-    @JsonProperty("deposit_id")
-    private Long depositId;
-
-    private List<FileDto> files;
-
-    private TableDto table;
-
-    @JsonProperty("query_normalized")
     @ApiModelProperty(name = "query normalized", example = "select id, name from table")
     private String queryNormalized;
 
-    @JsonProperty("query_hash")
+    @NotBlank
+    @ApiModelProperty(name = "query hash sha256", example = "17e682f060b5f8e47ea04c5c4855908b0a5ad612022260fe50e11ecb0cc0ab76")
     private String queryHash;
 
-    @JsonProperty("result_hash")
+    @ApiModelProperty(name = "result hash sha256", example = "17e682f060b5f8e47ea04c5c4855908b0a5ad612022260fe50e11ecb0cc0ab76")
     private String resultHash;
 
-    @JsonProperty("result_number")
+    @ApiModelProperty(name = "result number of records", example = "1")
     private Long resultNumber;
 
     @NotNull
@@ -76,12 +59,11 @@ public class QueryDto {
      */
     public String[] getPreparedValues() {
         return new String[]{
+                String.valueOf(this.getDatabaseId()),
                 this.getDoi(),
-                this.getTitle(),
-                this.getDescription(),
                 this.getQuery(),
                 this.getQueryHash(),
-                Timestamp.from(this.getExecutionTimestamp())
+                Timestamp.from(this.getExecution())
                         .toString(),
                 this.getResultHash(),
                 String.valueOf(this.getResultNumber())

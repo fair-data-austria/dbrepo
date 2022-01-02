@@ -1,7 +1,6 @@
 package at.tuwien.service;
 
-import at.tuwien.api.database.query.ExecuteQueryDto;
-import at.tuwien.api.database.query.QueryDto;
+import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
@@ -26,24 +25,8 @@ public interface QueryService {
      * @throws ImageNotSupportedException
      */
     @Transactional
-    QueryResultDto execute(Long databaseId, Long tableId, QueryDto query) throws TableNotFoundException,
+    QueryResultDto execute(Long databaseId, Long tableId, ExecuteStatementDto query) throws TableNotFoundException,
             QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException;
-
-    /**
-     * Executes a query on a given database id and table id on a read-only session
-     *
-     * @param databaseId The database id.
-     * @param tableId    The table id.
-     * @param query      The query.
-     * @return The result.
-     * @throws DatabaseNotFoundException
-     * @throws ImageNotSupportedException
-     * @throws QueryMalformedException
-     * @throws TableNotFoundException
-     * @throws QueryStoreException
-     */
-    QueryResultDto execute(Long databaseId, Long tableId, ExecuteQueryDto query) throws DatabaseNotFoundException,
-            ImageNotSupportedException, QueryMalformedException, TableNotFoundException, QueryStoreException;
 
     /**
      * Select all data known in the database-table id tuple at a given time and return a page of specific size, using

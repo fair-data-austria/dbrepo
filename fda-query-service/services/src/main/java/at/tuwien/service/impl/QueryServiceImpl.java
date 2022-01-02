@@ -1,8 +1,7 @@
 package at.tuwien.service.impl;
 
 import at.tuwien.InsertTableRawQuery;
-import at.tuwien.api.database.query.ExecuteQueryDto;
-import at.tuwien.api.database.query.QueryDto;
+import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
@@ -12,7 +11,6 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.QueryService;
 import at.tuwien.service.TableService;
-import com.github.dockerjava.api.command.AuthCmd;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
@@ -43,31 +41,11 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
 
     @Override
     @Transactional
-    public QueryResultDto execute(Long databaseId, Long tableId, QueryDto query) throws TableNotFoundException,
-            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException {
-        final ExecuteQueryDto data = ExecuteQueryDto.builder()
-                .title(query.getTitle())
-                .description(query.getDescription())
-                .query(query.getQuery())
-                .build();
-        final QueryResultDto result = execute(databaseId, tableId, data);
-        result.setId(query.getId());
-        return result;
-    }
-
-    @Override
-    @Transactional
-    public QueryResultDto execute(Long databaseId, Long tableId, ExecuteQueryDto data)
+    public QueryResultDto execute(Long databaseId, Long tableId, ExecuteStatementDto statement)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryMalformedException,
-            TableNotFoundException, QueryStoreException {
+            TableNotFoundException {
         /* validation */
-        if (data.getTitle() == null || data.getTitle().isBlank()) {
-            throw new QueryStoreException("Title cannot be blank");
-        }
-        if (data.getDescription() == null || data.getDescription().isBlank()) {
-            throw new QueryStoreException("Description cannot be blank");
-        }
-        if (data.getQuery() == null || data.getQuery().isBlank()) {
+        if (statement.getStatement() == null || statement.getStatement().isBlank()) {
             throw new QueryMalformedException("Query cannot be blank");
         }
         /* find */
@@ -81,7 +59,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         session.setDefaultReadOnly(true) /* important */;
         session.beginTransaction();
         /* prepare the statement */
-        final NativeQuery<?> query = session.createSQLQuery(data.getQuery());
+        final NativeQuery<?> query = session.createSQLQuery(statement.getStatement());
         try {
             log.info("Query affected {} rows", query.executeUpdate());
             session.getTransaction()

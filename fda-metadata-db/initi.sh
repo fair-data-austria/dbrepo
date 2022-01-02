@@ -139,13 +139,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NO MAXVALUE
 		CACHE 1;
 
-  CREATE SEQUENCE public.mdb_queries_seq
-		START WITH 1
-		INCREMENT BY 1
-		NO MINVALUE
-		NO MAXVALUE
-		CACHE 1;
-
   CREATE SEQUENCE public.mdb_columns_enum_seq
 		START WITH 1
 		INCREMENT BY 1
@@ -191,27 +184,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		Version TEXT,
 		PRIMARY KEY(tDBID,ID)
 	);
-
-	CREATE TABLE IF NOT EXISTS mdb_queries (
-    ID bigint NOT NULL DEFAULT nextval('mdb_queries_seq'),
-		qdbid bigint NOT NULL,
-		qtid bigint NOT NULL,
-    execution_timestamp timestamp without time zone,
-		deposit_id bigint NULL UNIQUE,
-    title character varying(255) NULL,
-    doi character varying(255),
-    query TEXT NULL,
-    description TEXT NULL,
-    query_normalized TEXT NULL,
-    query_hash character varying(255) NULL,
-    result_hash character varying(255) NULL,
-    result_number bigint NULL,
-    created timestamp without time zone NOT NULL DEFAULT NOW(),
-    last_modified timestamp without time zone,
-		FOREIGN KEY (qdbid) REFERENCES mdb_DATABASES(ID),
-		FOREIGN KEY (qdbid, qtid) REFERENCES mdb_TABLES(tDBID, ID),
-    PRIMARY KEY (qdbid, qtid, ID)
-  );
 
 	CREATE TABLE IF NOT EXISTS mdb_COLUMNS ( 
 		ID bigint DEFAULT nextval('mdb_columns_seq'), 
@@ -311,6 +283,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	    NO MAXVALUE
 	    CACHE 1;
 
+	CREATE SEQUENCE public.mdb_citation_seq
+	    START WITH 1
+	    INCREMENT BY 1
+	    NO MINVALUE
+	    NO MAXVALUE
+	    CACHE 1;
+
 	CREATE TABLE IF NOT EXISTS mdb_VIEW ( 
 		id bigint PRIMARY KEY DEFAULT nextval('mdb_view_seq'),
 		vName VARCHAR(50), 
@@ -320,6 +299,17 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		NumRows INTEGER,
 		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		InitialView BOOLEAN
+	);
+
+	CREATE TABLE IF NOT EXISTS mdb_CITATION (
+		id bigint PRIMARY KEY DEFAULT nextval('mdb_citation_seq'),
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    doi VARCHAR(255),
+    query TEXT NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
+		last_modified timestamp without time zone NOT NULL,
+		deleted timestamp without time zone,
 	);
 	
 	CREATE TABLE IF NOT EXISTS mdb_views_databases( 

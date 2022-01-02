@@ -2,11 +2,9 @@ package at.tuwien.api.database;
 
 import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.image.ImageDto;
-import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.table.TableDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
 
 import javax.validation.constraints.Min;
@@ -44,10 +42,6 @@ public class DatabaseDto {
     @NotNull
     @ApiModelProperty(name = "tables")
     private List<TableDto> tables;
-
-    @NotNull
-    @ApiModelProperty(name = "queries")
-    private List<QueryDto> queries;
 
     @NotBlank
     @ApiModelProperty(name = "database exchange", example = "fda.c1.d1")

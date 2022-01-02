@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExecuteStatementDto {
+public class SaveStatementDto {
 
     @NotBlank
     @ApiModelProperty(notes = "sql query")

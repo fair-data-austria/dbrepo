@@ -1,7 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.query.ExecuteQueryDto;
+import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
@@ -153,10 +153,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void execute_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException, QueryMalformedException, TableNotFoundException, QueryStoreException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
@@ -184,10 +182,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void execute_tableNotExists_fails() throws InterruptedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
@@ -201,10 +197,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void execute_databaseNotExists_fails() throws InterruptedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
@@ -217,11 +211,10 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
+    @Disabled
     public void execute_tableNotFound_fails() throws InterruptedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query("SELECT * FROM `weather_at`;")
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
@@ -235,10 +228,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void execute_columnNotFound_fails() throws InterruptedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query("SELECT `id`,`hello` FROM `weather_aus`;")
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
@@ -251,45 +242,9 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void execute_titleNull_fails() throws InterruptedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(null)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
-                .build();
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-
-        /* test */
-        assertThrows(QueryStoreException.class, () -> {
-            queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
-        });
-    }
-
-    @Test
-    public void execute_descriptionNull_fails() throws InterruptedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(null)
-                .query(QUERY_1_STATEMENT)
-                .build();
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-
-        /* test */
-        assertThrows(QueryStoreException.class, () -> {
-            queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
-        });
-    }
-
-    @Test
     public void execute_statementNull_fails() throws InterruptedException {
-        final ExecuteQueryDto request = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(null)
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement(null)
                 .build();
 
         /* mock */

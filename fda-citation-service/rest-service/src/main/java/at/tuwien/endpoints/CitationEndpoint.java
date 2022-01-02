@@ -12,8 +12,8 @@ import java.util.List;
 @Log4j2
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/database/{id}/cite/metadata")
-public class MetadataEndpoint {
+@RequestMapping("/api/database/{id}/cite")
+public class CitationEndpoint {
 
     @GetMapping
     @Transactional

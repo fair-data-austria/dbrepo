@@ -1,9 +1,7 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.query.ExecuteQueryDto;
 import at.tuwien.api.database.query.QueryDto;
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.service.QueryService;
@@ -20,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -57,7 +54,7 @@ public class StoreEndpointUnitTest extends BaseUnitTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
-        assertEquals(QUERY_1, response.getBody().get(0));
+        assertEquals(QUERY_1_DTO, response.getBody().get(0));
     }
 
     @Test
@@ -71,7 +68,7 @@ public class StoreEndpointUnitTest extends BaseUnitTest {
         /* test */
         final ResponseEntity<QueryDto> response = storeEndpoint.find(DATABASE_1_ID, QUERY_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(QUERY_1, response.getBody());
+        assertEquals(QUERY_1_DTO, response.getBody());
     }
 
     @Test

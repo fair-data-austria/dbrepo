@@ -35,8 +35,7 @@ public class ServiceSeeder implements Seeder {
     @Override
     @Transactional
     @PostConstruct
-    public void seed() throws IOException, QueryStoreException, DatabaseConnectionException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableNotFoundException {
+    public void seed() throws IOException, QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
         if (Arrays.asList(environment.getActiveProfiles()).contains("sandbox")) {
             querySeeder.seed();
         }

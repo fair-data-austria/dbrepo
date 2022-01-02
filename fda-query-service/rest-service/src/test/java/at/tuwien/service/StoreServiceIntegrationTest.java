@@ -1,11 +1,11 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.query.ExecuteQueryDto;
-import at.tuwien.api.database.query.QueryDto;
+import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
+import at.tuwien.entities.Query;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryNotFoundException;
@@ -33,7 +33,6 @@ import java.util.Map;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
-import static java.lang.Thread.activeCount;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Log4j2
@@ -119,25 +118,9 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void findAll_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
 
-        /* mock */
-        storeService.delete(DATABASE_1_ID);
-        storeService.create(DATABASE_1_ID);
-
         /* test */
-        final List<QueryDto> response = storeService.findAll(DATABASE_1_ID);
-        assertEquals(0, response.size());
-    }
-
-    @Test
-    public void findAll_noStore_fails() throws DatabaseNotFoundException, ImageNotSupportedException {
-
-        /* mock */
-        storeService.delete(DATABASE_1_ID);
-
-        /* test */
-        assertThrows(QueryStoreException.class, () -> {
-            storeService.findAll(DATABASE_1_ID);
-        });
+        final List<Query> response = storeService.findAll(DATABASE_1_ID);
+        assertEquals(1, response.size());
     }
 
     @Test
@@ -146,29 +129,22 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         final QueryResultDto request = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();
-        final ExecuteQueryDto query = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto query = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
-        storeService.delete(DATABASE_1_ID);
-        storeService.create(DATABASE_1_ID);
         storeService.insert(DATABASE_1_ID, request, query);
 
         /* test */
-        final QueryDto response = storeService.findOne(DATABASE_1_ID, QUERY_1_ID);
+        final Query response = storeService.findOne(DATABASE_1_ID, QUERY_1_ID);
         assertEquals(QUERY_1_ID, response.getId());
-        assertEquals(QUERY_1_TITLE, response.getTitle());
-        assertEquals(QUERY_1_DESCRIPTION, response.getDescription());
         assertEquals(QUERY_1_STATEMENT, response.getQuery());
         assertNotNull(response.getQueryHash());
     }
 
     @Test
-    public void findOne_notFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException {
-        storeService.create(DATABASE_1_ID);
+    public void findOne_notFound_fails() {
 
         /* test */
         assertThrows(QueryNotFoundException.class, () -> {
@@ -177,106 +153,32 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException {
-
-        /* mock */
-        storeService.delete(DATABASE_1_ID);
-
-        /* test */
-        storeService.create(DATABASE_1_ID);
-    }
-
-    @Test
-    public void create_dbNotFound() throws DatabaseNotFoundException, ImageNotSupportedException {
-
-        /* mock */
-        storeService.delete(DATABASE_1_ID);
-
-        /* test */
-        assertThrows(DatabaseNotFoundException.class, () -> {
-            storeService.create(9999L);
-        });
-    }
-
-    @Test
-    public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException {
-
-        /* test */
-        storeService.delete(DATABASE_1_ID);
-    }
-
-    @Test
-    public void delete_dbNotFound_succeeds() {
-
-        /* test */
-        assertThrows(DatabaseNotFoundException.class, () -> {
-            storeService.delete(9999L);
-        });
-    }
-
-    // FIXME somehow inserts 3 tuples at once
-    @Test
-    @Disabled
     public void insert_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException {
         final QueryResultDto request = QueryResultDto.builder()
                 .result(List.of(Map.of("id", "1")))
                 .build();
-        final ExecuteQueryDto query = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto query = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
 
-        /* mock */
-        storeService.delete(DATABASE_1_ID);
-        storeService.create(DATABASE_1_ID);
-
         /* test */
-        final QueryDto response = storeService.insert(DATABASE_1_ID, request, query);
+        final Query response = storeService.insert(DATABASE_1_ID, request, query);
         assertEquals(QUERY_1_ID, response.getId());
-        assertEquals(QUERY_1_TITLE, response.getTitle());
-        assertEquals(QUERY_1_DESCRIPTION, response.getDescription());
         assertEquals(QUERY_1_STATEMENT, response.getQuery());
     }
 
     @Test
-    public void insert_dbNotFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException {
+    public void insert_dbNotFound_fails() {
         final QueryResultDto request = QueryResultDto.builder()
                 .result(List.of(Map.of("id", "1")))
                 .build();
-        final ExecuteQueryDto query = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
+        final ExecuteStatementDto query = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
                 .build();
-
-        /* mock */
-        storeService.delete(DATABASE_1_ID);
-        storeService.create(DATABASE_1_ID);
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
             storeService.insert(9999L, request, query);
-        });
-    }
-
-    @Test
-    public void insert_noStore_fails() throws DatabaseNotFoundException, ImageNotSupportedException {
-        final QueryResultDto request = QueryResultDto.builder()
-                .result(List.of(Map.of("id", "1")))
-                .build();
-        final ExecuteQueryDto query = ExecuteQueryDto.builder()
-                .title(QUERY_1_TITLE)
-                .description(QUERY_1_DESCRIPTION)
-                .query(QUERY_1_STATEMENT)
-                .build();
-
-        /* mock */
-        storeService.delete(DATABASE_1_ID);
-
-        /* test */
-        assertThrows(QueryStoreException.class, () -> {
-            storeService.insert(DATABASE_1_ID, request, query);
         });
     }
 

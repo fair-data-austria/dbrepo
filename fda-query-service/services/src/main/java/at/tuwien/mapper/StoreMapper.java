@@ -1,11 +1,8 @@
 package at.tuwien.mapper;
 
-import at.tuwien.api.database.query.QueryDto;
 import org.mapstruct.Mapper;
 
-import java.sql.Timestamp;
-import java.util.List;
-
+@Deprecated
 @Mapper(componentModel = "spring")
 public interface StoreMapper {
 
@@ -33,44 +30,10 @@ public interface StoreMapper {
         return query.toString();
     }
 
-    default String findOneRawQueryStoreQuery() {
-        final StringBuilder query = new StringBuilder("SELECT ")
-                .append(String.join(",", List.of("`id`", "`doi`", "`title`", "`description`", "`query`", "`query_hash`", "`execution_timestamp`",
-                        "`result_hash`", "`result_number`", "`created_at`")))
-                .append(" FROM `userdb_querystore` WHERE `id` = ?1");
-        log.trace("find one '{}'", query);
-        return query.toString();
-    }
-
-    default String findAllRawQueryStoreQuery() {
-        final StringBuilder query = new StringBuilder("SELECT ")
-                .append(String.join(",", List.of("`id`", "`doi`", "`title`", "`description`", "`query`", "`query_hash`", "`execution_timestamp`",
-                        "`result_hash`", "`result_number`", "`created_at`")))
-                .append(" FROM `userdb_querystore`;");
-        log.trace("find all '{}'", query);
-        return query.toString();
-    }
-
     default String deleteRawQueryStoreSequenceQuery() {
         final String query = "DROP SEQUENCE IF EXISTS `seq_querystore_id`;";
         log.trace("delete store seq '{}'", query);
         return query;
-    }
-
-    default String insertRawQueryStoreQuery() {
-        final StringBuilder query = new StringBuilder("INSERT INTO `userdb_querystore` (")
-                .append(String.join(",", List.of("`doi`", "`title`", "`description`", "`query`", "`query_hash`", "`execution_timestamp`",
-                        "`result_hash`", "`result_number`")))
-                .append(") VALUES (?1) RETURNING id");
-        log.trace("insert '{}'", query);
-        return query.toString();
-    }
-
-    default String quote(String data) {
-        if (data == null) {
-            return null;
-        }
-        return "'" + data + "'";
     }
 
     default String deleteRawQueryStoreQuery() {

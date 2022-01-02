@@ -1,15 +1,11 @@
 package at.tuwien.mapper;
 
-import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.FileStorageException;
-import at.tuwien.exception.ImageNotSupportedException;
 import com.opencsv.CSVWriter;
 import org.mapstruct.Mapper;
-import org.mapstruct.Named;
 import org.mariadb.jdbc.MariaDbBlob;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -21,13 +17,10 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface DataMapper {

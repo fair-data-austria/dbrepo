@@ -1,4 +1,4 @@
-package at.tuwien.entities.database;
+package at.tuwien.entities.citation;
 
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.table.Table;
@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -20,13 +21,12 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(indexName = "databaseindex", createIndex = false)
 @Where(clause = "deleted is null")
-@ToString(onlyExplicitlyIncluded = true)
+@ToString
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "update mdb_databases set deleted = NOW() where id = ?")
-@javax.persistence.Table(name = "mdb_databases")
-public class Database {
+@SQLDelete(sql = "update mdb_citations set deleted = NOW() where id = ?")
+@javax.persistence.Table(name = "mdb_citations")
+public class Citation {
 
     @Id
     @EqualsAndHashCode.Include
@@ -39,39 +39,17 @@ public class Database {
     )
     private Long id;
 
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumns({
-            @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
-    })
-    private Container container;
-
-    @ToString.Include
     @Column(nullable = false)
-    private String name;
+    private String title;
 
-    @ToString.Include
     @Column(nullable = false)
-    private String internalName;
-
-    @ToString.Include
-    @Column(nullable = false, updatable = false)
-    private String exchange;
-
-    @ToString.Include
-    @Column
     private String description;
 
-    @ToString.Exclude
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumns({
-            @JoinColumn(name = "tdbid", referencedColumnName = "id", insertable = false, updatable = false)
-    })
-    private List<Table> tables;
+    @Column
+    private String doi;
 
-    @ToString.Include
     @Column(nullable = false)
-    private Boolean isPublic;
+    private String query;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

@@ -2,6 +2,7 @@ before_script:
   - "docker version"
   - "docker-compose version"
   - "mvn --version"
+  - "df / -h"
 
 variables:
   HOSTALIASES: ./hosts
@@ -18,7 +19,6 @@ stages:
   - build
   - test-frontend
   - test-backend
-  - registry
   - deploy
 
 build-backend-metadata:
@@ -33,12 +33,12 @@ build-backend-authentication:
   script:
     - "make build-backend-authentication"
 
-#build-backend-citation:
-#  stage: build
-#  needs:
-#    - build-backend-metadata
-#  script:
-#    - "make build-backend-citation"
+build-backend-citation:
+  stage: build
+  needs:
+    - build-backend-metadata
+  script:
+    - "make build-backend-citation"
 
 build-backend-container:
   stage: build
@@ -239,23 +239,23 @@ test-backend-table:
       junit:
         - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
 
-#test-backend-citation:
-#  stage: test-backend
-#  needs:
-#    - build-backend-citation
-#  dependencies:
-#    - build-backend-citation
-#  script:
-#    - mvn -f fda-citation-service/pom.xml clean test verify
-#    - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
-#  artifacts:
-#    when: always
-#    paths:
-#      - fda-citation-service/rest-service/target/site/jacoco/jacoco.xml
-#      - fda-citation-service/rest-service/target/site/jacoco/index.html
-#    reports:
-#      junit:
-#        - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
+test-backend-citation:
+  stage: test-backend
+  needs:
+    - build-backend-citation
+  dependencies:
+    - build-backend-citation
+  script:
+    - mvn -f fda-citation-service/pom.xml clean test verify
+    - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
+  artifacts:
+    when: always
+    paths:
+      - fda-citation-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-citation-service/rest-service/target/site/jacoco/index.html
+    reports:
+      junit:
+        - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-authentication:
   stage: test-backend
@@ -275,73 +275,12 @@ test-backend-authentication:
       junit:
         - fda-authentication-service/rest-service/target/surefire-reports/TEST-*.xml
 
-registry-stable:
-  stage: registry
-  only:
-    - master
-  needs:
-    - test-frontend
-    - test-backend-authentication
-#    - test-backend-citation
-    - test-backend-container
-    - test-backend-database
-    - test-backend-discovery
-    - test-backend-gateway
-    - test-backend-query
-    - test-backend-table
-  dependencies:
-    - test-frontend
-    - test-backend-authentication
-#    - test-backend-citation
-    - test-backend-container
-    - test-backend-database
-    - test-backend-discovery
-    - test-backend-gateway
-    - test-backend-query
-    - test-backend-table
-  script:
-    - make registry-stable
-
-registry-staging:
-  stage: registry
-  environment:
-    name: staging
-    url: https://staging.ossdip.at
-  only:
-    - dev
-  needs:
-    - test-frontend
-    - test-backend-authentication
-#    - test-backend-citation
-    - test-backend-container
-    - test-backend-database
-    - test-backend-discovery
-    - test-backend-gateway
-    - test-backend-query
-    - test-backend-table
-  dependencies:
-    - test-frontend
-    - test-backend-authentication
-#    - test-backend-citation
-    - test-backend-container
-    - test-backend-database
-    - test-backend-discovery
-    - test-backend-gateway
-    - test-backend-query
-    - test-backend-table
-  script:
-    - make registry-staging
-
-deploy-stable:
+deploy-staging:
   stage: deploy
   environment:
-    name: stable
+    name: staging
     url: https://dbrepo.ossdip.at
   only:
-    - master
-  needs:
-    - registry-stable
-  dependencies:
-    - registry-stable
+    - dev
   script:
     - make deploy-stable

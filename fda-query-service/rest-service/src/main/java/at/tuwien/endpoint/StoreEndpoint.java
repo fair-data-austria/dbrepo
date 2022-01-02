@@ -1,7 +1,9 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.api.database.query.QueryDto;
+import at.tuwien.entities.Query;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.StoreService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,10 +18,12 @@ import java.util.List;
 @RequestMapping("/api/database/{id}/store")
 public class StoreEndpoint {
 
-    private StoreService storeService;
+    private final QueryMapper queryMapper;
+    private final StoreService storeService;
 
     @Autowired
-    public StoreEndpoint(StoreService storeService) {
+    public StoreEndpoint(QueryMapper queryMapper, StoreService storeService) {
+        this.queryMapper = queryMapper;
         this.storeService = storeService;
     }
 
@@ -32,7 +36,8 @@ public class StoreEndpoint {
     })
     public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) throws QueryStoreException,
             DatabaseNotFoundException, ImageNotSupportedException {
-        return ResponseEntity.ok(storeService.findAll(id));
+        final List<Query> queries = storeService.findAll(id);
+        return ResponseEntity.ok(queryMapper.queryListToQueryDtoList(queries));
     }
 
     @GetMapping("/{queryId}")
@@ -46,6 +51,7 @@ public class StoreEndpoint {
                                          @PathVariable Long queryId)
             throws DatabaseNotFoundException, ImageNotSupportedException,
             QueryStoreException, QueryNotFoundException {
-        return ResponseEntity.ok(storeService.findOne(id, queryId));
+        final Query query = storeService.findOne(id, queryId);
+        return ResponseEntity.ok(queryMapper.queryToQueryDto(query));
     }
 }
