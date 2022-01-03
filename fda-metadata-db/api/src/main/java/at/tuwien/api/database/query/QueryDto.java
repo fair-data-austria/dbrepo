@@ -30,9 +30,6 @@ public class QueryDto {
     @ApiModelProperty(name = "query raw", example = "select * from table")
     private String query;
 
-    @ApiModelProperty(name = "doi", example = "Digital Object Identifier")
-    private String doi;
-
     @ApiModelProperty(name = "query normalized", example = "select id, name from table")
     private String queryNormalized;
 
@@ -52,21 +49,4 @@ public class QueryDto {
     @NotNull
     private Instant lastModified;
 
-    /**
-     * Returns the ordered list of prepared values for the {@link org.hibernate.query.NativeQuery}.
-     *
-     * @return The ordered list of prepared values
-     */
-    public String[] getPreparedValues() {
-        return new String[]{
-                String.valueOf(this.getDatabaseId()),
-                this.getDoi(),
-                this.getQuery(),
-                this.getQueryHash(),
-                Timestamp.from(this.getExecution())
-                        .toString(),
-                this.getResultHash(),
-                String.valueOf(this.getResultNumber())
-        };
-    }
 }

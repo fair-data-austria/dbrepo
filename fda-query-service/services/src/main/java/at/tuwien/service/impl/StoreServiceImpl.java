@@ -1,7 +1,6 @@
 package at.tuwien.service.impl;
 
 import at.tuwien.api.database.query.ExecuteStatementDto;
-import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.entities.Query;
@@ -11,12 +10,14 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.StoreService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.Session;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
+import java.time.Instant;
 import java.util.List;
 
 @Log4j2
@@ -88,6 +89,30 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
 
     @Override
     @Transactional
+    public void create(Long databaseId) throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
+        /* find */
+        final Database database = databaseService.find(databaseId);
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        /* run query */
+        final Session session;
+        try {
+            session = getSessionFactory(database)
+                    .openSession();
+        } catch (ServiceException e) {
+            log.error("Session opening failed");
+            throw new QueryStoreException("session failed", e);
+        }
+        session.beginTransaction();
+        log.info("Created querstore for database id {}", databaseId);
+        session.getTransaction()
+                .commit();
+        session.close();
+    }
+
+    @Override
+    @Transactional
     public Query insert(Long databaseId, QueryResultDto result, SaveStatementDto metadata)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
         return insert(databaseId, result, queryMapper.saveStatementDtoToExecuteStatementDto(metadata));
@@ -103,18 +128,29 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
-        final Session session = getSessionFactory(database)
-                .openSession();
+        final Session session;
+        try {
+            session = getSessionFactory(database)
+                    .openSession();
+        } catch (ServiceException e) {
+            log.error("Session opening failed");
+            throw new QueryStoreException("session failed", e);
+        }
         session.beginTransaction();
-        /* execute the statement */
-        final QueryDto data = queryMapper.queryResultDtoToQueryDto(result, metadata);
-        data.setDatabaseId(databaseId);
+        final Query query = Query.builder()
+                .databaseId(databaseId)
+                .query(metadata.getStatement())
+                .queryNormalized(metadata.getStatement())
+                .queryHash(DigestUtils.sha256Hex(metadata.getStatement()))
+                .resultNumber(Long.parseLong(String.valueOf(result.getResult().size())))
+                .resultHash(DigestUtils.sha256Hex(result.getResult().toString()))
+                .execution(Instant.now())
+                .build();
         /* store the result in the query store */
-        final Query query = queryMapper.queryDtoToQuery(data);
         final Long id = (Long) session.save(query);
         query.setId(id);
         log.info("Saved query with id {}", id);
-        log.info("saved query {}", query);
+        log.debug("saved query {}", query);
         session.getTransaction()
                 .commit();
         session.close();

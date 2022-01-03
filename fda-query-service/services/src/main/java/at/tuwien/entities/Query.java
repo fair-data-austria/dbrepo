@@ -12,7 +12,7 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "userdb_querystore")
+@Table(name = "qs_queries")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,11 +26,11 @@ public class Query implements Serializable {
     @GenericGenerator(
             name = "database-sequence",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_databases_seq")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "qs_seq")
     )
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "database_id", nullable = false)
     private Long databaseId;
 
     @Column
@@ -39,26 +39,23 @@ public class Query implements Serializable {
     @Column(nullable = false)
     private String query;
 
-    @Column
-    private String doi;
-
-    @Column
+    @Column(name = "query_normalized")
     private String queryNormalized;
 
-    @Column(nullable = false)
+    @Column(name = "query_hash", nullable = false)
     private String queryHash;
 
-    @Column
+    @Column(name = "result_hash")
     private String resultHash;
 
-    @Column
+    @Column(name = "result_number")
     private Long resultNumber;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant created;
 
-    @Column
+    @Column(name = "last_modified")
     @LastModifiedDate
     private Instant lastModified;
 

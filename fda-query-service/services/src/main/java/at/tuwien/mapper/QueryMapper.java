@@ -201,18 +201,6 @@ public interface QueryMapper {
         }
     }
 
-    default QueryDto queryResultDtoToQueryDto(QueryResultDto data, ExecuteStatementDto metadata) {
-        final QueryDto query = QueryDto.builder()
-                .query(metadata.getStatement())
-                .queryHash(DigestUtils.sha256Hex(metadata.getStatement()))
-                .resultNumber(Long.parseLong(String.valueOf(data.getResult().size())))
-                .resultHash(getHash(data))
-                .execution(Instant.now())
-                .build();
-        log.trace("map to query {}", query);
-        return query;
-    }
-
     default String getHash(QueryResultDto data) {
         if (data == null) {
             return DigestUtils.sha256Hex(String.valueOf(RandomUtils.nextLong()));

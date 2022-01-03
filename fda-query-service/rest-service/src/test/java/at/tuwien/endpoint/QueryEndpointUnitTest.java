@@ -57,19 +57,12 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .id(QUERY_1_ID)
                 .result(List.of(Map.of("key", "value")))
                 .build();
-        final Query query = Query.builder()
-                .query(QUERY_1_STATEMENT)
-                .doi(QUERY_1_DOI)
-                .resultHash(QUERY_1_RESULT_HASH)
-                .created(QUERY_1_CREATED)
-                .execution(QUERY_1_EXECUTION)
-                .build();
 
         /* mock */
         when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, request))
                 .thenReturn(result);
         when(storeService.insert(DATABASE_1_ID, result, request))
-                .thenReturn(query);
+                .thenReturn(QUERY_1);
 
         /* test */
         final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(DATABASE_1_ID, TABLE_1_ID, request);
@@ -87,19 +80,12 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .id(QUERY_1_ID)
                 .result(List.of())
                 .build();
-        final Query query = Query.builder()
-                .query(QUERY_1_STATEMENT)
-                .doi(QUERY_1_DOI)
-                .resultHash(QUERY_1_RESULT_HASH)
-                .created(QUERY_1_CREATED)
-                .execution(QUERY_1_EXECUTION)
-                .build();
 
         /* mock */
         when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, request))
                 .thenReturn(result);
         when(storeService.insert(DATABASE_1_ID, result, request))
-                .thenReturn(query);
+                .thenReturn(QUERY_1);
 
         /* test */
         final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(DATABASE_1_ID, TABLE_1_ID, request);
@@ -129,17 +115,10 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
         final SaveStatementDto request = SaveStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
-        final Query query = Query.builder()
-                .query(QUERY_1_STATEMENT)
-                .doi(QUERY_1_DOI)
-                .resultHash(QUERY_1_RESULT_HASH)
-                .created(QUERY_1_CREATED)
-                .execution(QUERY_1_EXECUTION)
-                .build();
 
         /* mock */
         when(storeService.insert(DATABASE_1_ID, null, request))
-                .thenReturn(query);
+                .thenReturn(QUERY_1);
 
         /* test */
         final ResponseEntity<QueryDto> response = queryEndpoint.save(DATABASE_1_ID, TABLE_1_ID, request);
@@ -170,20 +149,13 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .id(QUERY_1_ID)
                 .result(List.of(Map.of("key", "value")))
                 .build();
-        final Query query = Query.builder()
-                .query(QUERY_1_STATEMENT)
-                .doi(QUERY_1_DOI)
-                .resultHash(QUERY_1_RESULT_HASH)
-                .created(QUERY_1_CREATED)
-                .execution(QUERY_1_EXECUTION)
-                .build();
         final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
         when(storeService.findOne(DATABASE_1_ID, QUERY_1_ID))
-                .thenReturn(query);
+                .thenReturn(QUERY_1);
         when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, statement))
                 .thenReturn(result);
 

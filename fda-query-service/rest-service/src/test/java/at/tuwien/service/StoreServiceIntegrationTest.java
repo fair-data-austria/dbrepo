@@ -77,7 +77,6 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
                 .exec();
         /* start */
         CONTAINER_1.setHash(response.getId());
-        DockerConfig.startContainer(CONTAINER_1);
     }
 
     @AfterAll
@@ -116,25 +115,41 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void findAll_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void findAll_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
+            InterruptedException {
+        final QueryResultDto result = QueryResultDto.builder()
+                .result(List.of(Map.of("key", "val")))
+                .build();
+        final ExecuteStatementDto statement1 = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
+                .build();
+        final ExecuteStatementDto statement2 = ExecuteStatementDto.builder()
+                .statement(QUERY_2_STATEMENT)
+                .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_1);
+        storeService.insert(DATABASE_1_ID, result, statement1);
+        storeService.insert(DATABASE_1_ID, result, statement2);
 
         /* test */
         final List<Query> response = storeService.findAll(DATABASE_1_ID);
-        assertEquals(1, response.size());
+        assertEquals(2, response.size());
     }
 
     @Test
     public void findOne_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
-            QueryNotFoundException {
-        final QueryResultDto request = QueryResultDto.builder()
+            QueryNotFoundException, InterruptedException {
+        final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();
-        final ExecuteStatementDto query = ExecuteStatementDto.builder()
+        final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
-        storeService.insert(DATABASE_1_ID, request, query);
+        DockerConfig.startContainer(CONTAINER_1);
+        storeService.insert(DATABASE_1_ID, result, statement);
 
         /* test */
         final Query response = storeService.findOne(DATABASE_1_ID, QUERY_1_ID);
@@ -144,7 +159,18 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void findOne_notFound_fails() {
+    public void findOne_notFound_fails() throws InterruptedException, QueryStoreException, DatabaseNotFoundException,
+            ImageNotSupportedException {
+        final QueryResultDto result = QueryResultDto.builder()
+                .result(List.of(Map.of("key", "val")))
+                .build();
+        final ExecuteStatementDto statement = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
+                .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_1);
+        storeService.insert(DATABASE_1_ID, result, statement);
 
         /* test */
         assertThrows(QueryNotFoundException.class, () -> {
@@ -153,32 +179,58 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void insert_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException {
-        final QueryResultDto request = QueryResultDto.builder()
-                .result(List.of(Map.of("id", "1")))
+    public void insert_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException, InterruptedException {
+        final QueryResultDto result = QueryResultDto.builder()
+                .result(List.of(Map.of("key", "val")))
                 .build();
-        final ExecuteStatementDto query = ExecuteStatementDto.builder()
+        final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
 
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_1);
+
         /* test */
-        final Query response = storeService.insert(DATABASE_1_ID, request, query);
+        final Query response = storeService.insert(DATABASE_1_ID, result, statement);
         assertEquals(QUERY_1_ID, response.getId());
         assertEquals(QUERY_1_STATEMENT, response.getQuery());
     }
 
     @Test
-    public void insert_dbNotFound_fails() {
-        final QueryResultDto request = QueryResultDto.builder()
+    public void insert_notRunning_fails() {
+        final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("id", "1")))
                 .build();
-        final ExecuteStatementDto query = ExecuteStatementDto.builder()
+        final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
 
+        /* mock */
+        DockerConfig.stopContainer(CONTAINER_1);
+
+        /* test */
+        assertThrows(QueryStoreException.class, () -> {
+            storeService.insert(DATABASE_1_ID, result, statement);
+        });
+    }
+
+    @Test
+    public void insert_dbNotFound_fails() throws InterruptedException, QueryStoreException, DatabaseNotFoundException,
+            ImageNotSupportedException {
+        final QueryResultDto result = QueryResultDto.builder()
+                .result(List.of(Map.of("id", "1")))
+                .build();
+        final ExecuteStatementDto statement = ExecuteStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
+                .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_1);
+        storeService.create(DATABASE_1_ID);
+
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            storeService.insert(9999L, request, query);
+            storeService.insert(9999L, result, statement);
         });
     }
 

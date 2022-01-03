@@ -43,6 +43,16 @@ public interface StoreService {
             QueryStoreException, QueryNotFoundException;
 
     /**
+     * Forcefully creates the query store if not existing, this method is usually not required since Hibernate configures the query store automatically on every operation.
+     *
+     * @param databaseId The database id.
+     * @throws QueryStoreException        The query store produced an invalid result
+     * @throws DatabaseNotFoundException  The database was not found in the metadata database
+     * @throws ImageNotSupportedException The image is not supported
+     */
+    void create(Long databaseId) throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException;
+
+    /**
      * Inserts a query and metadata to the query store of a given database id
      *
      * @param databaseId The database id.

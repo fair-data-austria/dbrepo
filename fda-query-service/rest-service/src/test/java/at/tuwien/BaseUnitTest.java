@@ -16,6 +16,7 @@ import at.tuwien.entities.database.table.columns.TableColumnType;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.*;
@@ -211,7 +212,6 @@ public abstract class BaseUnitTest {
     public final static Long IMAGE_1_SIZE = 12000L;
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
 
-
     public final static Long QUERY_1_ID = 1L;
     public final static String QUERY_1_TITLE = "AAAA";
     public final static String QUERY_1_DESCRIPTION = "BBBBBBBB";
@@ -221,19 +221,34 @@ public abstract class BaseUnitTest {
     public final static Instant QUERY_1_CREATED = Instant.now();
     public final static Instant QUERY_1_EXECUTION = Instant.now();
 
+    public final static Long QUERY_2_ID = 1L;
+    public final static String QUERY_2_TITLE = "CCCCCCC";
+    public final static String QUERY_2_DESCRIPTION = "DDDDDD";
+    public final static String QUERY_2_STATEMENT = "SELECT * FROM `weather`;";
+    public final static String QUERY_2_DOI = "2222/2";
+    public final static String QUERY_2_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
+    public final static Instant QUERY_2_CREATED = Instant.now().minus(2, MINUTES);
+    public final static Instant QUERY_2_EXECUTION = Instant.now().minus(1, MINUTES);
+
     public final static Query QUERY_1 = Query.builder()
             .id(QUERY_1_ID)
             .query(QUERY_1_STATEMENT)
-            .doi(QUERY_1_DOI)
             .resultHash(QUERY_1_RESULT_HASH)
             .created(QUERY_1_CREATED)
             .execution(QUERY_1_EXECUTION)
             .build();
 
+    public final static Query QUERY_2 = Query.builder()
+            .id(QUERY_2_ID)
+            .query(QUERY_2_STATEMENT)
+            .resultHash(QUERY_2_RESULT_HASH)
+            .created(QUERY_2_CREATED)
+            .execution(QUERY_2_EXECUTION)
+            .build();
+
     public final static QueryDto QUERY_1_DTO = QueryDto.builder()
             .id(QUERY_1_ID)
             .query(QUERY_1_STATEMENT)
-            .doi(QUERY_1_DOI)
             .resultHash(QUERY_1_RESULT_HASH)
             .created(QUERY_1_CREATED)
             .execution(QUERY_1_EXECUTION)
