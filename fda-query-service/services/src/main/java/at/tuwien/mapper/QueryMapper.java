@@ -37,9 +37,6 @@ public interface QueryMapper {
     })
     ExecuteStatementDto queryDtoToExecuteStatementDto(QueryDto data);
 
-    @Mappings({
-            @Mapping(source = "statement", target = "statement")
-    })
     ExecuteStatementDto saveStatementDtoToExecuteStatementDto(SaveStatementDto data);
 
     QueryDto queryToQueryDto(Query data);

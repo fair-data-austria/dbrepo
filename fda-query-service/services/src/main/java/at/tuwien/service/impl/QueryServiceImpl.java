@@ -68,7 +68,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         }
         final QueryResultDto result = queryMapper.resultListToQueryResultDto(table, query.getResultList());
         session.close();
-        log.debug("Query id {}", result.getId());
+        log.debug("query id {}", result.getId());
         log.trace("result {}", result);
         return result;
     }

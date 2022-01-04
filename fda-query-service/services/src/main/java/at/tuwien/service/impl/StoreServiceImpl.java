@@ -7,6 +7,7 @@ import at.tuwien.entities.Query;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
+import at.tuwien.mapper.StoreMapper;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.StoreService;
 import lombok.extern.log4j.Log4j2;
@@ -24,11 +25,13 @@ import java.util.List;
 public class StoreServiceImpl extends HibernateConnector implements StoreService {
 
     private final QueryMapper queryMapper;
+    private final StoreMapper storeMapper;
     private final DatabaseService databaseService;
 
     @Autowired
-    public StoreServiceImpl(QueryMapper queryMapper, DatabaseService databaseService) {
+    public StoreServiceImpl(QueryMapper queryMapper, StoreMapper storeMapper, DatabaseService databaseService) {
         this.queryMapper = queryMapper;
+        this.storeMapper = storeMapper;
         this.databaseService = databaseService;
     }
 
@@ -113,8 +116,8 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
                 .query(metadata.getStatement())
                 .queryNormalized(metadata.getStatement())
                 .queryHash(DigestUtils.sha256Hex(metadata.getStatement()))
-                .resultNumber(Long.parseLong(String.valueOf(result.getResult().size())))
-                .resultHash(DigestUtils.sha256Hex(result.getResult().toString()))
+                .resultNumber(storeMapper.queryResultDtoToLong(result))
+                .resultHash(storeMapper.queryResultDtoToString(result))
                 .execution(Instant.now())
                 .build();
         session.save(query);

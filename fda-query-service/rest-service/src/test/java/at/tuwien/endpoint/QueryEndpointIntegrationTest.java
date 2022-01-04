@@ -9,6 +9,7 @@ import at.tuwien.config.DockerConfig;
 import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.service.StoreService;
@@ -40,8 +41,7 @@ import java.util.Map;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @Log4j2
@@ -64,11 +64,11 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
     @Autowired
     private DatabaseRepository databaseRepository;
 
-    @MockBean
-    private QueryServiceImpl queryService;
-
-    @MockBean
+    @Autowired
     private StoreService storeService;
+
+    @Autowired
+    private QueryMapper queryMapper;
 
     @BeforeAll
     public static void beforeAll() {
@@ -137,7 +137,7 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
             DatabaseNotFoundException, ImageNotSupportedException, QueryNotFoundException, InterruptedException, SQLException {
         final QueryResultDto result = QueryResultDto.builder()
                 .id(QUERY_1_ID)
-                .result(List.of(Map.of("key", "value")))
+                .result(List.of(Map.of("MinTemp", 13.4, "Rainfall", 0.6, "id", 1)))
                 .build();
         final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
@@ -151,7 +151,31 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
         /* test */
         final ResponseEntity<QueryResultDto> response = queryEndpoint.reExecute(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-        assertEquals(result, response.getBody());
+        assertNotNull(response.getBody());
+        assertEquals(QUERY_1_ID, response.getBody().getId());
+    }
+
+    @Test
+    public void save_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
+            InterruptedException, SQLException {
+        final SaveStatementDto statement = SaveStatementDto.builder()
+                .statement(QUERY_1_STATEMENT)
+                .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_1);
+        MariaDbConfig.clearQueryStore(TABLE_1);
+
+        /* test */
+        final ResponseEntity<QueryDto> response = queryEndpoint.save(DATABASE_1_ID, TABLE_1_ID, statement);
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(QUERY_1_ID, response.getBody().getId());
+        assertEquals(DATABASE_1_ID, response.getBody().getDatabaseId());
+        assertEquals(QUERY_1_STATEMENT, response.getBody().getQuery());
+        assertEquals(QUERY_1_STATEMENT, response.getBody().getQueryNormalized());
+        assertNull(response.getBody().getResultNumber());
+        assertNull(response.getBody().getResultHash());
     }
 
 

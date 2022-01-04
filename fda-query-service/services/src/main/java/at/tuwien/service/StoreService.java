@@ -9,7 +9,6 @@ import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryNotFoundException;
 import at.tuwien.exception.QueryStoreException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -53,7 +52,6 @@ public interface StoreService {
      * @throws DatabaseNotFoundException  The database id was not found in the metadata database
      * @throws ImageNotSupportedException The image is not supported
      */
-    @Transactional
     Query insert(Long databaseId, QueryResultDto result, SaveStatementDto metadata)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException;
 

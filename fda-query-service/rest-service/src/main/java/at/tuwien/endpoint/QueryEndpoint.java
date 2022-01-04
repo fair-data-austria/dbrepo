@@ -64,9 +64,10 @@ public class QueryEndpoint {
                                          @PathVariable Long tableId,
                                          @RequestBody SaveStatementDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException {
-        final QueryDto query = queryMapper.queryToQueryDto(storeService.insert(databaseId, null, data));
+        final Query query = storeService.insert(databaseId, null, data);
+        final QueryDto queryDto = queryMapper.queryToQueryDto(query);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(query);
+                .body(queryDto);
     }
 
     @PutMapping("/table/{tableId}/execute/{queryId}")
@@ -85,6 +86,7 @@ public class QueryEndpoint {
         final QueryDto queryDto = queryMapper.queryToQueryDto(query);
         final ExecuteStatementDto statement = queryMapper.queryDtoToExecuteStatementDto(queryDto);
         final QueryResultDto result = queryService.execute(id, tableId, statement);
+        result.setId(queryId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
     }
