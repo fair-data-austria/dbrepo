@@ -4,6 +4,7 @@ import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
+import at.tuwien.entities.Query;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.QueryService;
@@ -80,8 +81,10 @@ public class QueryEndpoint {
                                                     @PathVariable Long queryId)
             throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, QueryMalformedException {
-        final QueryDto query = queryMapper.queryToQueryDto(storeService.findOne(id, queryId));
-        final QueryResultDto result = queryService.execute(id, tableId, queryMapper.queryDtoToExecuteStatementDto(query));
+        final Query query = storeService.findOne(id, queryId);
+        final QueryDto queryDto = queryMapper.queryToQueryDto(query);
+        final ExecuteStatementDto statement = queryMapper.queryDtoToExecuteStatementDto(queryDto);
+        final QueryResultDto result = queryService.execute(id, tableId, statement);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
     }

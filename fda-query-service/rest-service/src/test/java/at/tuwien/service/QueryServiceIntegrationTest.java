@@ -4,6 +4,7 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.config.DockerConfig;
+import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.PersistenceException;
 import java.io.File;
 import java.math.BigInteger;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -54,6 +56,9 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Autowired
     private QueryService queryService;
+
+    @Autowired
+    private StoreService storeService;
 
     @Autowired
     private ImageRepository imageRepository;
@@ -180,6 +185,23 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         assertEquals(0.0, response.getResult().get(2).get(COLUMN_1_5_NAME));
     }
 
+    // TODO use own user that has only read-only permissions
+    @Test
+    @Disabled
+    public void execute_modifyData_fails() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException, QueryMalformedException, TableNotFoundException, QueryStoreException {
+        final ExecuteStatementDto request = ExecuteStatementDto.builder()
+                .statement("DELETE FROM `weather_aus`;")
+                .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_1);
+
+        /* test */
+        final QueryResultDto response = queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
+        assertNotNull(response.getResult());
+        assertEquals(3, response.getResult().size());
+    }
+
     @Test
     public void execute_tableNotExists_fails() throws InterruptedException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
@@ -229,7 +251,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void execute_columnNotFound_fails() throws InterruptedException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
-                .statement(QUERY_1_STATEMENT)
+                .statement("SELECT `local` FROM `weather_aus`")
                 .build();
 
         /* mock */

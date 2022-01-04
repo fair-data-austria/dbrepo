@@ -42,13 +42,6 @@ public interface QueryMapper {
     })
     ExecuteStatementDto saveStatementDtoToExecuteStatementDto(SaveStatementDto data);
 
-    @Mappings({
-            @Mapping(source = "statement", target = "query")
-    })
-    Query executeStatementDtoToQuery(ExecuteStatementDto data);
-
-    Query queryDtoToQuery(QueryDto data);
-
     QueryDto queryToQueryDto(Query data);
 
     List<QueryDto> queryListToQueryDtoList(List<Query> data);
@@ -199,18 +192,5 @@ public interface QueryMapper {
             default:
                 throw new IllegalArgumentException("Column type not known");
         }
-    }
-
-    default String getHash(QueryResultDto data) {
-        if (data == null) {
-            return DigestUtils.sha256Hex(String.valueOf(RandomUtils.nextLong()));
-        }
-        if (data.getResult().size() == 0) {
-            return DigestUtils.sha256Hex(String.valueOf(RandomUtils.nextLong()));
-        }
-        if (data.getResult().size() == 1 && data.getResult().get(0).size() == 0) {
-            return DigestUtils.sha256Hex(String.valueOf(RandomUtils.nextLong()));
-        }
-        return DigestUtils.sha256Hex(data.getResult().toString());
     }
 }

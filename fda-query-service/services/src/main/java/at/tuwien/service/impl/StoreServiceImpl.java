@@ -11,8 +11,7 @@ import at.tuwien.service.DatabaseService;
 import at.tuwien.service.StoreService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.hibernate.Session;
-import org.hibernate.service.spi.ServiceException;
+import org.hibernate.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +33,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Query> findAll(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
             QueryStoreException {
         /* find */
@@ -43,14 +42,12 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
-        final Session session = getSessionFactory(database)
-                .openSession();
-        session.beginTransaction();
+        final SessionFactory sessionFactory = getSessionFactory(database);
+        final Session session = sessionFactory.openSession();
+        final Transaction transaction = session.beginTransaction();
         /* use jpq to select all */
-        final org.hibernate.query.Query<Query> queries = session.createQuery("from Query where databaseId = :id", Query.class);
-        queries.setParameter("id", databaseId);
-        session.getTransaction()
-                .commit();
+        final org.hibernate.query.Query<Query> queries = session.createQuery("select q from Query q", Query.class);
+        transaction.commit();
         final List<Query> out = queries.list();
         log.info("Found {} queries", out.size());
         session.close();
@@ -58,7 +55,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Query findOne(Long databaseId, Long queryId) throws DatabaseNotFoundException, ImageNotSupportedException, QueryNotFoundException {
         /* find */
         final Database database = databaseService.find(databaseId);
@@ -66,60 +63,34 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
-        final Session session = getSessionFactory(database)
-                .openSession();
-        session.beginTransaction();
+        final SessionFactory sessionFactory = getSessionFactory(database);
+        final Session session = sessionFactory.openSession();
+        final Transaction transaction = session.beginTransaction();
         /* use jpa to select one */
         final org.hibernate.query.Query<Query> query = session.createQuery("from Query where databaseId = :dbid and id = :id",
                 Query.class);
         query.setParameter("id", queryId);
         query.setParameter("dbid", databaseId);
-        session.getTransaction()
-                .commit();
-        final List<Query> queries = query.list();
-        if (queries.size() != 1) {
-            log.error("Could not find query with id {}", queryId);
-            log.debug("result list is {}", queries.size());
+        final Query result = query.uniqueResult();
+        transaction.commit();
+        if (result == null) {
+            log.error("Query not found with id {}", queryId);
             throw new QueryNotFoundException("Query was not found");
         }
         log.info("Found query with id {}", queryId);
         session.close();
-        return queries.get(0);
+        return result;
     }
 
     @Override
-    @Transactional
-    public void create(Long databaseId) throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
-        /* find */
-        final Database database = databaseService.find(databaseId);
-        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
-            throw new ImageNotSupportedException("Currently only MariaDB is supported");
-        }
-        /* run query */
-        final Session session;
-        try {
-            session = getSessionFactory(database)
-                    .openSession();
-        } catch (ServiceException e) {
-            log.error("Session opening failed");
-            throw new QueryStoreException("session failed", e);
-        }
-        session.beginTransaction();
-        log.info("Created querstore for database id {}", databaseId);
-        session.getTransaction()
-                .commit();
-        session.close();
-    }
-
-    @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Query insert(Long databaseId, QueryResultDto result, SaveStatementDto metadata)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
         return insert(databaseId, result, queryMapper.saveStatementDtoToExecuteStatementDto(metadata));
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Query insert(Long databaseId, QueryResultDto result, ExecuteStatementDto metadata)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
         /* find */
@@ -127,16 +98,16 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
-        /* run query */
-        final Session session;
+        /* save */
+        final SessionFactory sessionFactory;
         try {
-            session = getSessionFactory(database)
-                    .openSession();
-        } catch (ServiceException e) {
-            log.error("Session opening failed");
-            throw new QueryStoreException("session failed", e);
+            sessionFactory = getSessionFactory(database);
+        } catch (HibernateException e) {
+            log.error("Failed to open session");
+            throw new QueryStoreException("Failed to open session", e);
         }
-        session.beginTransaction();
+        final Session session = sessionFactory.openSession();
+        final Transaction transaction = session.beginTransaction();
         final Query query = Query.builder()
                 .databaseId(databaseId)
                 .query(metadata.getStatement())
@@ -146,13 +117,11 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
                 .resultHash(DigestUtils.sha256Hex(result.getResult().toString()))
                 .execution(Instant.now())
                 .build();
+        session.save(query);
+        transaction.commit();
         /* store the result in the query store */
-        final Long id = (Long) session.save(query);
-        query.setId(id);
-        log.info("Saved query with id {}", id);
+        log.info("Saved query with id {}", query.getId());
         log.debug("saved query {}", query);
-        session.getTransaction()
-                .commit();
         session.close();
         return query;
     }

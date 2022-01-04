@@ -24,7 +24,6 @@ public interface QueryService {
      * @throws DatabaseNotFoundException
      * @throws ImageNotSupportedException
      */
-    @Transactional
     QueryResultDto execute(Long databaseId, Long tableId, ExecuteStatementDto query) throws TableNotFoundException,
             QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException;
 

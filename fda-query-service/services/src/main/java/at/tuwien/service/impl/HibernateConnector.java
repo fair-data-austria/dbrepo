@@ -16,8 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public abstract class HibernateConnector {
 
-    private static final Integer POOL_SIZE = 3;
+    private static final Integer MIN_SIZE = 5;
+    private static final Integer MAX_SIZE = 30;
+    private static final Integer INCREMENT_SIZE = 5;
+    private static final Integer TIMEOUT = 1800;
     private static final String SESSION_CONTEXT = "thread";
+    private static final String COORDINATOR_CLASS = "jdbc";
 
     @Transactional
     protected SessionFactory getSessionFactory(Database database) {
@@ -40,11 +44,14 @@ public abstract class HibernateConnector {
                 .setProperty("hibernate.connection.username", username)
                 .setProperty("hibernate.connection.password", password)
                 .setProperty("hibernate.connection.driver_class", database.getContainer().getImage().getDriverClass())
-                .setProperty("hibernate.connection.pool_size", String.valueOf(POOL_SIZE))
-                .setProperty("hibernate.generate_statistics", "true")
                 .setProperty("hibernate.dialect", database.getContainer().getImage().getDialect())
                 .setProperty("hibernate.current_session_context_class", SESSION_CONTEXT)
-                .setProperty("hibernate.hbm2ddl.auto", "create")
+                .setProperty("hibernate.transaction.coordinator_class", COORDINATOR_CLASS)
+                .setProperty("hibernate.hbm2ddl.auto", "update")
+                .setProperty("hibernate.c3p0.min_size", String.valueOf(MIN_SIZE))
+                .setProperty("hibernate.c3p0.max_size", String.valueOf(MAX_SIZE))
+                .setProperty("hibernate.c3p0.acquire_increment", String.valueOf(INCREMENT_SIZE))
+                .setProperty("hibernate.c3p0.timeout", String.valueOf(TIMEOUT))
                 .addAnnotatedClass(Query.class);
         return configuration.buildSessionFactory();
     }

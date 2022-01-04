@@ -56,7 +56,6 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         /* run query */
         final Session session = getSessionFactory(table.getDatabase())
                 .openSession();
-        session.setDefaultReadOnly(true) /* important */;
         session.beginTransaction();
         /* prepare the statement */
         final NativeQuery<?> query = session.createSQLQuery(statement.getStatement());

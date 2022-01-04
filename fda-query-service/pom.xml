@@ -32,6 +32,7 @@
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
         <opencsv.version>5.4</opencsv.version>
+        <hibernate-c3po.version>5.6.3.Final</hibernate-c3po.version>
     </properties>
 
     <dependencies>
@@ -110,6 +111,11 @@
             <artifactId>fda-metadata-db-entites</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${hibernate-c3po.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>
@@ -207,6 +213,8 @@
                     <excludes>
                         <exclude>at/tuwien/utils/**/*</exclude>
                         <exclude>at/tuwien/mapper/**/*</exclude>
+                        <exclude>at/tuwien/entities/**/*</exclude>
+                        <exclude>at/tuwien/seeder/**/*</exclude>
                         <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>

@@ -6,7 +6,6 @@ import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.Query;
 import at.tuwien.exception.*;
 import at.tuwien.service.StoreService;
 import at.tuwien.service.impl.QueryServiceImpl;
@@ -140,29 +139,6 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
         assertThrows(DatabaseNotFoundException.class, () -> {
             queryEndpoint.save(DATABASE_1_ID, TABLE_1_ID, request);
         });
-    }
-
-    @Test
-    public void reExecute_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, QueryNotFoundException {
-        final QueryResultDto result = QueryResultDto.builder()
-                .id(QUERY_1_ID)
-                .result(List.of(Map.of("key", "value")))
-                .build();
-        final ExecuteStatementDto statement = ExecuteStatementDto.builder()
-                .statement(QUERY_1_STATEMENT)
-                .build();
-
-        /* mock */
-        when(storeService.findOne(DATABASE_1_ID, QUERY_1_ID))
-                .thenReturn(QUERY_1);
-        when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, statement))
-                .thenReturn(result);
-
-        /* test */
-        final ResponseEntity<QueryResultDto> response = queryEndpoint.reExecute(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
-        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-        assertEquals(result, response.getBody());
     }
 
 }
