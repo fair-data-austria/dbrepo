@@ -120,7 +120,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
         if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return;
-        final Session session = getSessionFactory(database)
+        final Session session = getSessionFactory(database, "root")
                 .openSession();
         session.beginTransaction();
         /* prepare the statement */

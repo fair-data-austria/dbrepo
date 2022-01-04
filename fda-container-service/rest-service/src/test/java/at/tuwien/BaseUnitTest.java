@@ -32,13 +32,18 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_LOGO = "AAAA";
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
-                    .key("POSTGRES_USER")
-                    .value("postgres")
-                    .type(ContainerImageEnvironmentItemType.USERNAME)
+                    .key("MARIADB_USER")
+                    .value("mariadb")
+                    .type(ContainerImageEnvironmentItemType.OTHER)
                     .build(),
             ContainerImageEnvironmentItem.builder()
-                    .key("POSTGRES_PASSWORD")
-                    .value("postgres")
+                    .key("MARIADB_PASSWORD")
+                    .value("mariadb")
+                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .key("MARIADB_ROOT_PASSWORD")
+                    .value("mariadb")
                     .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .build());
     public final static ImageEnvItemDto[] IMAGE_1_ENV_DTO = List.of(ImageEnvItemDto.builder()
@@ -123,37 +128,4 @@ public abstract class BaseUnitTest {
             .containerCreated(CONTAINER_2_CREATED)
             .build();
 
-    public final static ContainerDto CONTAINER_1_DTO = ContainerDto.builder()
-            .name(CONTAINER_1_NAME)
-            .image(IMAGE_1_DTO)
-            .hash(CONTAINER_1_HASH)
-            .ipAddress(IpAddressDto.builder()
-                    .ipv4(CONTAINER_1_IP)
-                    .build())
-            .created(CONTAINER_1_CREATED)
-            .build();
-
-    public final static ContainerBriefDto CONTAINER_1_BRIEF_DTO = ContainerBriefDto.builder()
-            .name(CONTAINER_1_NAME)
-            .internalName(CONTAINER_1_INTERNALNAME)
-            .hash(CONTAINER_1_HASH)
-            .build();
-
-    public final static ImageBriefDto IMAGE_1_BRIEFDTO = ImageBriefDto.builder()
-            .repository(IMAGE_1_REPOSITORY)
-            .tag(IMAGE_1_TAG)
-            .build();
-
-    public final static ImageCreateDto IMAGE_1_CREATE_DTO = ImageCreateDto.builder()
-            .repository(IMAGE_1_REPOSITORY)
-            .tag(IMAGE_1_TAG)
-            .environment(IMAGE_1_ENV_DTO)
-            .defaultPort(IMAGE_1_PORT)
-            .build();
-
-    public final static ContainerCreateRequestDto CONTAINER_1_CREATE_DTO = ContainerCreateRequestDto.builder()
-            .repository(IMAGE_1_REPOSITORY)
-            .tag(IMAGE_1_TAG)
-            .name(CONTAINER_1_NAME)
-            .build();
 }

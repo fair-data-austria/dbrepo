@@ -25,14 +25,19 @@ public abstract class HibernateConnector {
 
     @Transactional
     protected SessionFactory getSessionFactory(Database database) {
-        final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
-        log.trace("hibernate jdbc url '{}'", url);
         final String username = database.getContainer().getImage().getEnvironment()
                 .stream()
                 .filter(e -> e.getType().equals(ContainerImageEnvironmentItemType.USERNAME))
                 .map(ContainerImageEnvironmentItem::getValue)
                 .collect(Collectors.toList())
                 .get(0);
+        return getSessionFactory(database, username);
+    }
+
+    @Transactional
+    protected SessionFactory getSessionFactory(Database database, String username) {
+        final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
+        log.trace("hibernate jdbc url '{}'", url);
         final String password = database.getContainer().getImage().getEnvironment()
                 .stream()
                 .filter(e -> e.getType().equals(ContainerImageEnvironmentItemType.PASSWORD))

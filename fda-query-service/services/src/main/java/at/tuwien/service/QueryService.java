@@ -14,6 +14,9 @@ import java.time.Instant;
 public interface QueryService {
 
     /**
+     * Executes an arbitrary query on the database container. We allow the user to only view the data, therefore the
+     * default "mariadb" user is allowed read-only access "SELECT".
+     *
      * @param databaseId The database id.
      * @param tableId    The table id.
      * @param query      The query.
@@ -29,7 +32,7 @@ public interface QueryService {
 
     /**
      * Select all data known in the database-table id tuple at a given time and return a page of specific size, using
-     * Instant to better abstract time concept (JDK 8) from SQL
+     * Instant to better abstract time concept (JDK 8) from SQL. We use the "mariadb" user for this.
      *
      * @param databaseId The database-table id tuple.
      * @param tableId    The database-table id tuple.
@@ -47,7 +50,8 @@ public interface QueryService {
             ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException;
 
     /**
-     * Insert data from AMQP client into a table of a table-database id tuple
+     * Insert data from AMQP client into a table of a table-database id tuple, we need the "root" role for this as the
+     * default "mariadb" user is configured to only be allowed to execute "SELECT" statements.
      *
      * @param databaseId The database id.
      * @param tableId    The table id.
