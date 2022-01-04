@@ -1,16 +1,12 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.api.database.table.TableInsertDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.impl.TableServiceImpl;
-import com.opencsv.exceptions.CsvException;
 import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,13 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.ResourceUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +55,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
-        final List<Table> response = tableService.findAllForDatabaseId(DATABASE_1_ID);
+        final List<Table> response = tableService.findAll(DATABASE_1_ID);
         assertEquals(1, response.size());
         assertEquals(TABLE_1_ID, response.get(0).getId());
     }
@@ -76,7 +67,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.findAllForDatabaseId(DATABASE_1_ID);
+            tableService.findAll(DATABASE_1_ID);
         });
     }
 
@@ -127,102 +118,6 @@ public class TableServiceUnitTest extends BaseUnitTest {
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
             tableService.findById(DATABASE_1_ID, 9999L);
-        });
-    }
-
-    @Test
-    public void readCsv_succeeds() throws IOException, CsvException {
-        final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
-        final TableInsertDto request = TableInsertDto.builder()
-                .delimiter(',')
-                .skipHeader(true)
-                .nullElement("NA")
-                .build();
-
-        /* test */
-        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
-        assertEquals(1000, response.getData().size());
-    }
-
-    @Test
-    public void readCsv_nullElement_succeeds() throws IOException, CsvException {
-        final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
-        final TableInsertDto request = TableInsertDto.builder()
-                .delimiter(',')
-                .skipHeader(true)
-                .nullElement(null)
-                .build();
-
-        /* test */
-        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
-        assertEquals(1000, response.getData().size());
-    }
-
-    @Test
-    public void readCsv_skipheader_succeeds() throws IOException, CsvException {
-        final MultipartFile file = new MockMultipartFile("csv_01", Files.readAllBytes(ResourceUtils.getFile("classpath:csv/csv_01.csv").toPath()));
-        final TableInsertDto request = TableInsertDto.builder()
-                .delimiter(',')
-                .skipHeader(false)
-                .nullElement(null)
-                .build();
-
-        /* test */
-        final TableCsvDto response = tableService.readCsv(TABLE_1, request, file);
-        assertEquals(1001, response.getData().size());
-    }
-
-    @Test
-    public void createTable_issue106_fails() {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name("Table")
-                .description(TABLE_2_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
-                .build();
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableService.createTable(DATABASE_1_ID, request);
-        });
-    }
-
-    @Test
-    public void createTable_emptyName_fails() {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name("")
-                .description(TABLE_2_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
-                .build();
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableService.createTable(DATABASE_1_ID, request);
-        });
-    }
-
-    @Test
-    public void createTable_nameContainsMinus_fails() {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name("COVID-19")
-                .description(TABLE_2_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
-                .build();
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            tableService.createTable(DATABASE_1_ID, request);
         });
     }
 

@@ -19,6 +19,7 @@
         <module>rest-service</module>
         <module>services</module>
         <module>report</module>
+        <module>api</module>
     </modules>
 
     <properties>
@@ -30,6 +31,8 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
+        <opencsv.version>5.4</opencsv.version>
+        <hibernate-c3po.version>5.6.3.Final</hibernate-c3po.version>
     </properties>
 
     <dependencies>
@@ -40,6 +43,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
         </dependency>
         <dependency><!-- https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.3-Release-Notes#validation-starter-no-longer-included-in-web-starters -->
             <groupId>org.springframework.boot</groupId>
@@ -61,13 +68,25 @@
             <version>${mariadb.version}</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-elasticsearch</artifactId>
+        </dependency>
+        <!-- Docker -->
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>${docker.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>jsr311-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-httpclient5</artifactId>
+            <version>${docker.version}</version>
         </dependency>
         <!-- IDE -->
         <dependency>
@@ -92,6 +111,11 @@
             <artifactId>fda-metadata-db-entites</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${hibernate-c3po.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>
@@ -126,6 +150,18 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
+        </dependency>
+        <!-- AMPQ -->
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>${rabbit-amqp-client.version}</version>
+        </dependency>
+        <!-- DTO -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsv.version}</version>
         </dependency>
         <!-- SQL Parser -->
         <dependency>
@@ -177,9 +213,13 @@
                     <excludes>
                         <exclude>at/tuwien/utils/**/*</exclude>
                         <exclude>at/tuwien/mapper/**/*</exclude>
+                        <exclude>at/tuwien/entities/**/*</exclude>
+                        <exclude>at/tuwien/seeder/**/*</exclude>
                         <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>
+                        <exclude>**/RabbitMqServiceImpl.class</exclude>
+                        <exclude>**/ServiceSeeder.class</exclude>
                         <exclude>**/FdaQueryServiceApplication.class</exclude>
                     </excludes>
                 </configuration>

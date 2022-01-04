@@ -38,12 +38,4 @@ public interface MessageQueueService {
      * @throws IOException Creation failed.
      */
     void create(Table table) throws IOException;
-
-    /**
-     * Creates a consumer for a table.
-     *
-     * @param table The table.
-     * @throws IOException Creation failed.
-     */
-    void createUserConsumer(Table table) throws IOException;
 }

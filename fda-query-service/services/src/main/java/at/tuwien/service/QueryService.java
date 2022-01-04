@@ -1,73 +1,64 @@
 package at.tuwien.service;
 
-import at.tuwien.api.database.query.ExecuteQueryDto;
-import at.tuwien.api.database.query.QueryDto;
-import at.tuwien.entities.database.Database;
-import at.tuwien.entities.database.query.Query;
+import at.tuwien.api.database.query.ExecuteStatementDto;
+import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
-import at.tuwien.mapper.ImageMapper;
-import at.tuwien.mapper.QueryMapper;
-import at.tuwien.repository.jpa.DatabaseRepository;
-import at.tuwien.repository.jpa.QueryRepository;
-import lombok.extern.log4j.Log4j2;
-import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
+import java.time.Instant;
 
-@Log4j2
 @Service
-public class QueryService extends JdbcConnector {
-
-    private final QueryMapper queryMapper;
-    private final QueryRepository queryRepository;
-    private final DatabaseRepository databaseRepository;
-
-    @Autowired
-    public QueryService(ImageMapper imageMapper, QueryMapper queryMapper, QueryRepository queryRepository,
-                        DatabaseRepository databaseRepository) {
-        super(imageMapper);
-        this.queryMapper = queryMapper;
-        this.queryRepository = queryRepository;
-        this.databaseRepository = databaseRepository;
-    }
-
-    @Deprecated
-    @Transactional
-    public List<Query> findAll(Long databaseId) throws DatabaseNotFoundException {
-        final Database database = findDatabase(databaseId);
-        return database.getQueries();
-    }
-
-    @Transactional
-    public Query findById(Long databaseId, Long queryId) throws QueryNotFoundException {
-        final Database database = Database.builder()
-                .id(databaseId)
-                .build();
-        final Optional<Query> query = queryRepository.findByDatabaseAndId(database, queryId);
-        if (query.isEmpty()) {
-            log.error("Query with id {} was not found to metadata database", queryId);
-            throw new QueryNotFoundException("Query was not found to metadata database");
-        }
-        return query.get();
-    }
+public interface QueryService {
 
     /**
-     * Finds the database by id in the metadata database.
+     * Executes an arbitrary query on the database container. We allow the user to only view the data, therefore the
+     * default "mariadb" user is allowed read-only access "SELECT".
      *
-     * @param id The database id.
-     * @return The database.
-     * @throws DatabaseNotFoundException When not found.
+     * @param databaseId The database id.
+     * @param tableId    The table id.
+     * @param query      The query.
+     * @return The result.
+     * @throws TableNotFoundException
+     * @throws QueryStoreException
+     * @throws QueryMalformedException
+     * @throws DatabaseNotFoundException
+     * @throws ImageNotSupportedException
      */
-    protected Database findDatabase(Long id) throws DatabaseNotFoundException {
-        final Optional<Database> database = databaseRepository.findById(id);
-        if (database.isEmpty()) {
-            throw new DatabaseNotFoundException("Database not found in the metadata database");
-        }
-        return database.get();
-    }
+    QueryResultDto execute(Long databaseId, Long tableId, ExecuteStatementDto query) throws TableNotFoundException,
+            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException;
+
+    /**
+     * Select all data known in the database-table id tuple at a given time and return a page of specific size, using
+     * Instant to better abstract time concept (JDK 8) from SQL. We use the "mariadb" user for this.
+     *
+     * @param databaseId The database-table id tuple.
+     * @param tableId    The database-table id tuple.
+     * @param timestamp  The given time.
+     * @param page       The page.
+     * @param size       The page size.
+     * @return The select all data result
+     * @throws TableNotFoundException      The table was not found in the metadata database.
+     * @throws DatabaseNotFoundException   The database was not found in the remote database.
+     * @throws ImageNotSupportedException  The image is not supported.
+     * @throws DatabaseConnectionException The connection to the remote database was unsuccessful.
+     */
+    QueryResultDto findAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp,
+                           Long page, Long size) throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException;
+
+    /**
+     * Insert data from AMQP client into a table of a table-database id tuple, we need the "root" role for this as the
+     * default "mariadb" user is configured to only be allowed to execute "SELECT" statements.
+     *
+     * @param databaseId The database id.
+     * @param tableId    The table id.
+     * @param data       The data.
+     * @throws ImageNotSupportedException The image is not supported.
+     * @throws TableMalformedException    The table does not exist in the metadata database.
+     */
+    void insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
+            TableMalformedException, DatabaseNotFoundException, TableNotFoundException;
 }

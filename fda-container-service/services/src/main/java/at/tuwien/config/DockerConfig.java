@@ -8,9 +8,6 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
-import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

@@ -33,6 +33,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static at.tuwien.config.DockerConfig.dockerClient;
+import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.when;
@@ -57,24 +59,22 @@ public class EndpointUnitTest extends BaseUnitTest {
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
         afterAll();
-        final DockerConfig dockerConfig = new DockerConfig();
-        final HostConfig hostConfig = dockerConfig.hostConfig();
-        final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
-        /* create network */
-        final boolean exists = (long) dockerClient.listNetworksCmd()
-                .withNameFilter("fda-public")
-                .exec()
-                .size() == 1;
-        if (!exists) {
-            dockerClient.createNetworkCmd()
-                    .withName("fda-public")
-                    .withInternal(true)
-                    .withIpam(new Network.Ipam()
-                            .withConfig(new Network.Ipam.Config()
-                                    .withSubnet("172.29.0.0/16")))
-                    .withEnableIpv6(false)
-                    .exec();
-        }
+        /* create networks */
+        dockerClient.createNetworkCmd()
+                .withName("fda-userdb")
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.28.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+        dockerClient.createNetworkCmd()
+                .withName("fda-public")
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.29.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+
         /* create amqp */
         final CreateContainerResponse request = dockerClient.createContainerCmd(BROKER_IMAGE + ":" + BROKER_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-public"))
@@ -89,24 +89,18 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @AfterAll
     public static void afterAll() {
-        final DockerConfig dockerConfig = new DockerConfig();
-        final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
         /* stop containers and remove them */
         dockerClient.listContainersCmd()
                 .withShowAll(true)
                 .exec()
                 .forEach(container -> {
-                    log.debug("Delete container " + Arrays.toString(container.getNames()));
+                    log.info("Delete container {}", Arrays.asList(container.getNames()));
                     try {
                         dockerClient.stopContainerCmd(container.getId()).exec();
                     } catch (NotModifiedException e) {
                         // ignore
                     }
-                    try {
-                        dockerClient.removeContainerCmd(container.getId()).exec();
-                    } catch (ConflictException e) {
-                        // ignore
-                    }
+                    dockerClient.removeContainerCmd(container.getId()).exec();
                 });
         /* remove networks */
         dockerClient.listNetworksCmd()
@@ -114,7 +108,7 @@ public class EndpointUnitTest extends BaseUnitTest {
                 .stream()
                 .filter(n -> n.getName().startsWith("fda"))
                 .forEach(network -> {
-                    log.debug("Delete network " + network.getName());
+                    log.info("Delete network {}", network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
     }

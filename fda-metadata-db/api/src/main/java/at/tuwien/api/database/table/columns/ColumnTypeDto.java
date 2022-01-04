@@ -8,6 +8,7 @@ import lombok.ToString;
 public enum ColumnTypeDto {
     ENUM,
     NUMBER,
+    DECIMAL,
     STRING,
     TEXT,
     BOOLEAN,

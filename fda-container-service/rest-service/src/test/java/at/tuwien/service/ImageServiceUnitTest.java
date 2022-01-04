@@ -41,15 +41,13 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     @Test
     public void getAll_succeeds() {
         when(imageRepository.findAll())
-                .thenReturn(List.of(IMAGE_1, IMAGE_2));
+                .thenReturn(List.of(IMAGE_1));
 
         /* test */
         final List<ContainerImage> response = imageService.getAll();
-        assertEquals(2, response.size());
+        assertEquals(1, response.size());
         assertEquals(IMAGE_1_REPOSITORY, response.get(0).getRepository());
         assertEquals(IMAGE_1_TAG, response.get(0).getTag());
-        assertEquals(IMAGE_2_REPOSITORY, response.get(1).getRepository());
-        assertEquals(IMAGE_2_TAG, response.get(1).getTag());
     }
 
     @Test

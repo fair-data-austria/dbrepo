@@ -1,15 +1,9 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableCsvDto;
-import at.tuwien.api.database.table.TableInsertDto;
-import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
-import com.opencsv.exceptions.CsvException;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface TableService {
@@ -19,16 +13,7 @@ public interface TableService {
      *
      * @return The list of tables.
      */
-    List<Table> findAll();
-
-    /**
-     * Find all tables for a given database id.
-     *
-     * @param databaseId The database id.
-     * @return Return a list of all tables for this database id.
-     * @throws DatabaseNotFoundException The database was not found in the metadata database.
-     */
-    List<Table> findAllForDatabaseId(Long databaseId) throws DatabaseNotFoundException;
+    List<Table> findAll(Long databaseId) throws DatabaseNotFoundException;
 
     /**
      * Deletes a table for a fiven database-table id pair.
@@ -69,8 +54,4 @@ public interface TableService {
     Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
             DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException;
 
-    Database findDatabase(Long id) throws DatabaseNotFoundException;
-
-    TableCsvDto readCsv(Table table, TableInsertDto data, MultipartFile file) throws IOException, CsvException,
-            ArrayIndexOutOfBoundsException;
 }

@@ -19,6 +19,7 @@
         <module>rest-service</module>
         <module>services</module>
         <module>report</module>
+        <module>api</module>
     </modules>
 
     <properties>
@@ -30,11 +31,11 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <jooq.version>3.14.11</jooq.version>
         <opencsv.version>5.4</opencsv.version>
         <super-csv.version>2.4.0</super-csv.version>
         <btrace-client.version>2.2.0</btrace-client.version>
-        <unleash.version>5.0.1</unleash.version>
+        <random-utils.version>2.0.0</random-utils.version>
+        <hibernate-c3po.version>5.6.3.Final</hibernate-c3po.version>
     </properties>
 
     <dependencies>
@@ -65,6 +66,11 @@
             <groupId>at.tuwien</groupId>
             <artifactId>fda-metadata-db-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${hibernate-c3po.version}</version>
         </dependency>
         <!-- DataSource -->
         <dependency>
@@ -100,6 +106,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aventrix.jnanoid</groupId>
+            <artifactId>jnanoid</artifactId>
+            <scope>test</scope>
+            <version>${random-utils.version}</version>
         </dependency>
         <!-- AMPQ -->
         <dependency>
@@ -142,17 +154,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-        </dependency>
-        <!-- DSL -->
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq</artifactId>
-            <version>${jooq.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq-meta</artifactId>
-            <version>${jooq.version}</version>
         </dependency>
         <!-- Docker -->
         <dependency>
@@ -207,10 +208,14 @@
                         <exclude>at/tuwien/mapper/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
                         <exclude>at/tuwien/utils/**/*</exclude>
+                        <exclude>at/tuwien/api/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>
                         <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>**/FdaTableServiceApplication.class</exclude>
                         <exclude>**/RabbitMqService.class</exclude>
+                        <exclude>**/TableSeeder.class</exclude>
+                        <exclude>**/DataSeeder.class</exclude>
+                        <exclude>**/ServiceSeeder.class</exclude>
                         <exclude>**/JdbcConnector.class</exclude>
                     </excludes>
                 </configuration>

@@ -1,7 +1,6 @@
 package at.tuwien.entities.database.table;
 
 import at.tuwien.entities.database.Database;
-import at.tuwien.entities.database.query.Query;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -63,6 +62,21 @@ public class Table {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
     @Field(type = FieldType.Nested)
     private List<TableColumn> columns;
+
+    @Column(name = "separator")
+    private Character separator = ',';
+
+    @Column(name = "element_null")
+    private String nullElement = null;
+
+    @Column(name = "skip_headers")
+    private Boolean skipHeaders = true;
+
+    @Column(name = "element_true")
+    private String trueElement = "1";
+
+    @Column(name = "element_false")
+    private String falseElement = "0";
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

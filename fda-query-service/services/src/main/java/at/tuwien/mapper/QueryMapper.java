@@ -1,85 +1,193 @@
 package at.tuwien.mapper;
 
-import at.tuwien.api.database.query.ExecuteQueryDto;
-import at.tuwien.api.database.query.QueryBriefDto;
+import at.tuwien.InsertTableRawQuery;
+import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.entities.database.query.Query;
-import org.jooq.Field;
-import org.jooq.Record;
+import at.tuwien.api.database.query.SaveStatementDto;
+import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.entities.Query;
+import org.apache.commons.codec.digest.DigestUtils;
+import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.database.table.columns.TableColumn;
+import at.tuwien.exception.ImageNotSupportedException;
+import org.apache.commons.lang.math.RandomUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
+import org.mariadb.jdbc.MariaDbBlob;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.math.BigInteger;
+import java.text.Normalizer;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface QueryMapper {
 
-    @Mappings({})
-    Query queryDtotoQuery(QueryDto data);
-
-    @Mappings({})
-    QueryDto queryToQueryDto(Query data);
-
-    @Mappings({})
-    QueryBriefDto queryToQueryBriefDto(Query data);
+    org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QueryMapper.class);
 
     @Mappings({
-            @Mapping(source = "query", target = "queryNormalized")
+            @Mapping(source = "query", target = "statement")
     })
-    QueryDto executeQueryDtoToQueryDto(ExecuteQueryDto data);
+    ExecuteStatementDto queryDtoToExecuteStatementDto(QueryDto data);
 
-    default QueryResultDto recordListToQueryResultDto(List<Record> data, Long queryId) {
-        final List<Map<String, Object>> result = new LinkedList<>();
-        for (Record record : data) {
+    ExecuteStatementDto saveStatementDtoToExecuteStatementDto(SaveStatementDto data);
+
+    QueryDto queryToQueryDto(Query data);
+
+    List<QueryDto> queryListToQueryDtoList(List<Query> data);
+
+    @Named("internalMapping")
+    default String nameToInternalName(String data) {
+        if (data == null || data.length() == 0) {
+            return data;
+        }
+        final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+        final Pattern WHITESPACE = Pattern.compile("[\\s]");
+        String nowhitespace = WHITESPACE.matcher(data).replaceAll("_");
+        String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+        String slug = NONLATIN.matcher(normalized).replaceAll("");
+        return slug.toLowerCase(Locale.ENGLISH);
+    }
+
+    default QueryResultDto resultListToQueryResultDto(Table table, List<?> result) {
+        final Iterator<?> iterator = result.iterator();
+        final List<Map<String, Object>> resultList = new LinkedList<>();
+        while (iterator.hasNext()) {
+            /* map the result set to the columns through the stored metadata in the metadata database */
+            int[] idx = new int[]{0};
+            final Object[] data = (Object[]) iterator.next();
             final Map<String, Object> map = new HashMap<>();
-            for (Field<?> column : record.fields()) {
-                map.put(column.getName(), record.get(column.getName()));
-            }
-            result.add(map);
+            table.getColumns()
+                    .forEach(column -> map.put(column.getName(), dataColumnToObject(data[idx[0]++], column)));
+            resultList.add(map);
         }
+        log.info("Selected {} records from table id {}", resultList.size(), table.getId());
+        log.debug("table {} contains {} records", table, resultList.size());
         return QueryResultDto.builder()
-                .id(queryId)
-                .result(result)
+                .result(resultList)
                 .build();
     }
 
-    default QueryDto recordToQueryDto(Record data) {
-        return QueryDto.builder()
-                .id(Long.parseLong(String.valueOf(data.get("id"))))
-                .query(String.valueOf(data.get("query")))
-                .queryHash(String.valueOf(data.get("query_hash")))
-                .executionTimestamp(objectToInstant(data.get("execution_timestamp")))
-                .resultHash(String.valueOf(data.get("result_hash")))
-                .resultNumber(Long.parseLong(String.valueOf(data.get("result_number"))))
-                .build();
-    }
-
-    default List<Query> recordListToQueryList(List<Record> data) {
-        return recordListToQueryResultDto(data, null)
-                .getResult()
-                .stream()
-                .map(row -> Query.builder()
-                        .id(Long.valueOf(String.valueOf(row.get("id"))))
-                        .resultHash(String.valueOf(row.get("result_hash")))
-                        .resultNumber(Long.valueOf(String.valueOf(row.get("result_number"))))
-                        .executionTimestamp(objectToInstant(row.get("execution_timestamp")))
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    default Instant objectToInstant(Object data) {
-        if (data == null) {
-            return null;
+    default InsertTableRawQuery tableTableCsvDtoToRawInsertQuery(Table table, TableCsvDto data) {
+        final int[] idx = {1} /* this needs to be >0 */;
+        /* parameterized query for prepared statement */
+        final StringBuilder query = new StringBuilder("INSERT INTO `")
+                .append(table.getInternalName())
+                .append("` (")
+                .append(table.getColumns()
+                        .stream()
+                        .filter(column -> !column.getAutoGenerated())
+                        .map(column -> "`" + column.getInternalName() + "`")
+                        .collect(Collectors.joining(",")))
+                .append(") VALUES ");
+        for (int i = 0; i < data.getData().size(); i++) {
+            query.append(i > 0 ? ", " : "")
+                    .append("(?")
+                    .append(idx[0]++)
+                    .append(")");
         }
-        return Instant.parse(data.toString());
+        query.append(";");
+        /* values for prepared statement */
+        final List<Collection<Object>> values = data.getData()
+                .stream()
+                .map(Map::values)
+                .collect(Collectors.toList());
+        /* debug */
+        log.trace("raw create table query: [" + query + "]");
+        return InsertTableRawQuery.builder()
+                .query(query.toString())
+                .values(values)
+                .build();
     }
 
+    default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page)
+            throws ImageNotSupportedException {
+        /* param check */
+        if (!table.getDatabase().getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        if (timestamp == null) {
+            timestamp = Instant.now();
+        }
+        final StringBuilder query = new StringBuilder("SELECT * FROM `")
+                .append(nameToInternalName(table.getName()))
+                .append("` FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
+                .append("'");
+        if (size != null && page != null) {
+            log.debug("pagination size/limit of {}", size);
+            query.append(" LIMIT ")
+                    .append(size);
+            log.debug("pagination page/offset of {}", page);
+            query.append(" OFFSET ")
+                    .append(page * size)
+                    .append(";");
+
+        }
+        log.debug("create table query built with {} columns and system versioning", table.getColumns().size());
+        log.trace("raw create table query: [{}]", query);
+        return query.toString();
+    }
+
+    default QueryResultDto queryTableToQueryResultDto(List<?> result, Table table) throws DateTimeException {
+        final Iterator<?> iterator = result.iterator();
+        final List<Map<String, Object>> queryResult = new LinkedList<>();
+        while (iterator.hasNext()) {
+            /* map the result set to the columns through the stored metadata in the metadata database */
+            int[] idx = new int[]{0};
+            final Object[] data = (Object[]) iterator.next();
+            final Map<String, Object> map = new HashMap<>();
+            table.getColumns()
+                    .forEach(column -> map.put(column.getName(), dataColumnToObject(data[idx[0]++], column)));
+            queryResult.add(map);
+        }
+        log.info("Selected {} records from table id {}", queryResult.size(), table.getId());
+        log.debug("table {} contains {} records", table, queryResult.size());
+        return QueryResultDto.builder()
+                .result(queryResult)
+                .build();
+    }
+
+    default Object dataColumnToObject(Object data, TableColumn column) throws DateTimeException {
+        switch (column.getColumnType()) {
+            case BLOB:
+                log.trace("mapping {} to blob", data);
+                return new MariaDbBlob((byte[]) data);
+            case DATE:
+                if (column.getDateFormat() == null) {
+                    throw new IllegalArgumentException("Missing date format");
+                }
+                final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                        .parseCaseInsensitive() /* case insensitive to parse JAN and FEB */
+                        .appendPattern(column.getDateFormat())
+                        .toFormatter(Locale.ENGLISH);
+                final LocalDate date = LocalDate.parse(String.valueOf(data), formatter);
+                final Instant val = date.atStartOfDay(ZoneId.of("UTC"))
+                        .toInstant();
+                log.trace("mapping {} to date with format '{}' to value {}", data, column.getDateFormat(), val);
+                return val;
+            case ENUM:
+            case TEXT:
+            case STRING:
+                log.trace("mapping {} to character array", data);
+                return String.valueOf(data);
+            case NUMBER:
+                log.trace("mapping {} to non-decimal number", data);
+                return new BigInteger(String.valueOf(data));
+            case DECIMAL:
+                log.trace("mapping {} to decimal number", data);
+                return Double.valueOf(String.valueOf(data));
+            case BOOLEAN:
+                return Boolean.valueOf(String.valueOf(data));
+            default:
+                throw new IllegalArgumentException("Column type not known");
+        }
+    }
 }

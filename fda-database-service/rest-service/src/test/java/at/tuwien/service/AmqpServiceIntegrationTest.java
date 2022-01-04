@@ -7,6 +7,7 @@ import at.tuwien.exception.AmqpException;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
@@ -23,6 +24,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.util.Arrays;
+
+import static at.tuwien.config.DockerConfig.dockerClient;
+import static at.tuwien.config.DockerConfig.hostConfig;
 
 @Log4j2
 @SpringBootTest
@@ -49,24 +53,22 @@ public class AmqpServiceIntegrationTest extends BaseUnitTest {
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
         afterAll();
-        final DockerConfig dockerConfig = new DockerConfig();
-        final HostConfig hostConfig = dockerConfig.hostConfig();
-        final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
-        /* create network */
-        final boolean exists = (long) dockerClient.listNetworksCmd()
-                .withNameFilter("fda-public")
-                .exec()
-                .size() == 1;
-        if (!exists) {
-            dockerClient.createNetworkCmd()
-                    .withName("fda-public")
-                    .withInternal(true)
-                    .withIpam(new Network.Ipam()
-                            .withConfig(new Network.Ipam.Config()
-                                    .withSubnet("172.29.0.0/16")))
-                    .withEnableIpv6(false)
-                    .exec();
-        }
+        /* create networks */
+        dockerClient.createNetworkCmd()
+                .withName("fda-userdb")
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.28.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+        dockerClient.createNetworkCmd()
+                .withName("fda-public")
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.29.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+
         /* create amqp */
         final CreateContainerResponse request = dockerClient.createContainerCmd(BROKER_IMAGE + ":" + BROKER_TAG)
                 .withHostConfig(hostConfig.withNetworkMode("fda-public"))
@@ -81,16 +83,16 @@ public class AmqpServiceIntegrationTest extends BaseUnitTest {
 
     @AfterAll
     public static void afterAll() {
-        final DockerConfig dockerConfig = new DockerConfig();
-        final DockerClient dockerClient = dockerConfig.dockerClientConfiguration();
         /* stop containers and remove them */
         dockerClient.listContainersCmd()
                 .withShowAll(true)
                 .exec()
                 .forEach(container -> {
-                    log.info("Delete Container {}", Arrays.asList(container.getNames()));
-                    if (container.getState().equals("running")) {
+                    log.info("Delete container {}", Arrays.asList(container.getNames()));
+                    try {
                         dockerClient.stopContainerCmd(container.getId()).exec();
+                    } catch (NotModifiedException e) {
+                        // ignore
                     }
                     dockerClient.removeContainerCmd(container.getId()).exec();
                 });
@@ -100,7 +102,7 @@ public class AmqpServiceIntegrationTest extends BaseUnitTest {
                 .stream()
                 .filter(n -> n.getName().startsWith("fda"))
                 .forEach(network -> {
-                    log.info("Delete Network {}", network.getName());
+                    log.info("Delete network {}", network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
     }

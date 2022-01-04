@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.ContainerCreateRequestDto;
 import at.tuwien.api.container.ContainerStateDto;
+import at.tuwien.config.DockerUtil;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
@@ -12,9 +13,8 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,11 +23,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Arrays;
+
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -43,42 +44,57 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     private HostConfig hostConfig;
 
     @Autowired
+    private DockerClient dockerClient;
+
+    @Autowired
     private ImageRepository imageRepository;
 
     @Autowired
     private ContainerRepository containerRepository;
 
     @Autowired
-    private DockerClient dockerClient;
+    private DockerUtil dockerUtil;
 
+    /**
+     * Unfortunately since we depend on the {@link DockerUtil}, we cannot use it in a static
+     * context which dramatically slows down the testing.
+     */
     @Transactional
     @BeforeEach
-    public void beforeEach() throws InterruptedException {
+    public void beforeEach() {
         afterEach();
-        /* create network */
+        /* create networks */
         dockerClient.createNetworkCmd()
                 .withName("fda-userdb")
-                .withInternal(true)
                 .withIpam(new Network.Ipam()
                         .withConfig(new Network.Ipam.Config()
                                 .withSubnet("172.28.0.0/16")))
                 .withEnableIpv6(false)
                 .exec();
-        /* create container */
+        dockerClient.createNetworkCmd()
+                .withName("fda-public")
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.29.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+
+        /* create weather container */
         final CreateContainerResponse request = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
-                .withEnv(IMAGE_1_ENVIRONMENT)
-                .withHostConfig(hostConfig.withNetworkMode("fda-userdb")
-                        .withPortBindings(PortBinding.parse("5433:" + IMAGE_1_PORT)))
-                .withName(CONTAINER_1_NAME)
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(CONTAINER_1_INTERNALNAME)
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .exec();
-        /* start container */
-        dockerClient.startContainerCmd(request.getId()).exec();
-        Thread.sleep(3000L);
+
+        /* set hash */
         CONTAINER_1.setHash(request.getId());
-        containerRepository.save(CONTAINER_1).getId();
-        containerRepository.save(CONTAINER_2).getId();
+
+        /* mock data */
+        imageRepository.save(IMAGE_1);
+        containerRepository.save(CONTAINER_1);
+        containerRepository.save(CONTAINER_2);
     }
 
     @Transactional
@@ -89,7 +105,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
                 .withShowAll(true)
                 .exec()
                 .forEach(container -> {
-                    System.out.println("DELETE CONTAINER " + Arrays.toString(container.getNames()));
+                    log.info("Delete container {}", container.getNames()[0]);
                     try {
                         dockerClient.stopContainerCmd(container.getId()).exec();
                     } catch (NotModifiedException e) {
@@ -97,19 +113,23 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
                     }
                     dockerClient.removeContainerCmd(container.getId()).exec();
                 });
+
         /* remove networks */
         dockerClient.listNetworksCmd()
                 .exec()
                 .stream()
                 .filter(n -> n.getName().startsWith("fda"))
                 .forEach(network -> {
-                    System.out.println("DELETE NETWORK " + network.getName());
+                    log.info("Delete network {}", network.getName());
                     dockerClient.removeNetworkCmd(network.getId()).exec();
                 });
     }
 
     @Test
-    public void findIpAddress_succeeds() throws ContainerNotRunningException {
+    public void findIpAddress_succeeds() throws ContainerNotRunningException, InterruptedException {
+
+        /* mock */
+        dockerUtil.startContainer(CONTAINER_1);
 
         /* test */
         final Map<String, String> response = containerService.findIpAddresses(CONTAINER_1.getHash());
@@ -119,7 +139,10 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void findIpAddress_notRunning_fails() {
-        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
+
+        /* mock */
+        dockerUtil.stopContainer(CONTAINER_1);
+
 
         /* test */
         assertThrows(ContainerNotRunningException.class, () -> {
@@ -129,8 +152,10 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void findIpAddress_notFound_fails() {
-        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
-        dockerClient.removeContainerCmd(CONTAINER_1.getHash()).exec();
+
+        /* mock */
+        dockerUtil.stopContainer(CONTAINER_1);
+        dockerUtil.removeContainer(CONTAINER_1);
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
@@ -139,7 +164,10 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void getContainerState_succeeds() throws DockerClientException {
+    public void getContainerState_succeeds() throws DockerClientException, InterruptedException {
+
+        /* mock */
+        dockerUtil.startContainer(CONTAINER_1);
 
         /* test */
         final ContainerStateDto response = containerService.getContainerState(CONTAINER_1.getHash());
@@ -148,8 +176,10 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void getContainerState_notFound_fails() {
-        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
-        dockerClient.removeContainerCmd(CONTAINER_1.getHash()).exec();
+
+        /* mock */
+        dockerUtil.stopContainer(CONTAINER_1);
+        dockerUtil.removeContainer(CONTAINER_1);
 
         /* test */
         assertThrows(DockerClientException.class, () -> {
@@ -172,23 +202,29 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
 
     @Test
-    public void findById_docker_fails() {
+    public void findById_notFound_fails() {
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            containerService.getById(9999999L);
+            containerService.getById(CONTAINER_3_ID);
         });
     }
 
     @Test
     public void change_start_succeeds() throws DockerClientException {
-        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
+
+        /* mock */
+        dockerUtil.stopContainer(CONTAINER_1);
+
         /* test */
         containerService.start(CONTAINER_1_ID);
     }
 
     @Test
-    public void change_stop_succeeds() throws DockerClientException {
+    public void change_stop_succeeds() throws DockerClientException, InterruptedException {
+
+        /* mock */
+        dockerUtil.startContainer(CONTAINER_1);
 
         /* test */
         containerService.stop(CONTAINER_1_ID);
@@ -205,7 +241,9 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void remove_succeeds() throws DockerClientException {
-        dockerClient.stopContainerCmd(CONTAINER_1.getHash()).exec();
+
+        /* mock */
+        dockerUtil.stopContainer(CONTAINER_1);
 
         /* test */
         containerService.remove(CONTAINER_1_ID);
@@ -221,16 +259,10 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void remove_docker_fails() {
+    public void remove_stillRunning_fails() throws InterruptedException {
 
-        /* test */
-        assertThrows(DockerClientException.class, () -> {
-            containerService.remove(CONTAINER_2_ID);
-        });
-    }
-
-    @Test
-    public void remove_stillRunning_fails() {
+        /* mock */
+        dockerUtil.startContainer(CONTAINER_1);
 
         /* test */
         assertThrows(ContainerStillRunningException.class, () -> {

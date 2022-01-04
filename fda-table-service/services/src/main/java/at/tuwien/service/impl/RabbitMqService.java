@@ -1,22 +1,13 @@
 package at.tuwien.service.impl;
 
-import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.exception.AmqpException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.TableMalformedException;
+import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.TableRepository;
-import at.tuwien.service.DataService;
 import at.tuwien.service.MessageQueueService;
-import at.tuwien.service.impl.MariaDataService;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
-import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -24,8 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.net.ConnectException;
-import java.sql.SQLException;
 import java.util.List;
 
 @Log4j2
@@ -35,16 +24,11 @@ public class RabbitMqService implements MessageQueueService {
     private static final String AMQP_EXCHANGE = "fda";
 
     private final Channel channel;
-    private final DataService dataService;
-    private final ObjectMapper objectMapper;
     private final TableRepository tableRepository;
 
     @Autowired
-    public RabbitMqService(Channel channel, DataService dataService, ObjectMapper objectMapper,
-                           TableRepository tableRepository) {
+    public RabbitMqService(Channel channel, TableRepository tableRepository) {
         this.channel = channel;
-        this.dataService = dataService;
-        this.objectMapper = objectMapper;
         this.tableRepository = tableRepository;
     }
 
@@ -61,7 +45,6 @@ public class RabbitMqService implements MessageQueueService {
         final List<Table> tables = tableRepository.findAll();
         for (Table table : tables) {
             create(table);
-            createUserConsumer(table);
         }
     }
 
@@ -69,7 +52,6 @@ public class RabbitMqService implements MessageQueueService {
     public void createQueue(Table table) throws AmqpException {
         try {
             create(table);
-            createUserConsumer(table);
             log.info("Created queue {} and consumer", table.getTopic());
         } catch (IOException e) {
             log.error("Could not create exchange and consumer: {}", e.getMessage());
@@ -84,6 +66,7 @@ public class RabbitMqService implements MessageQueueService {
         log.debug("declare fanout exchange {}", database.getExchange());
         channel.exchangeBind(database.getExchange(), AMQP_EXCHANGE, database.getExchange());
         log.debug("bind exchange {} to {}", database.getExchange(), AMQP_EXCHANGE);
+        log.info("Declared database exchange {} and bound to root exchange {}", database.getExchange(), AMQP_EXCHANGE);
     }
 
     @Override
@@ -93,26 +76,7 @@ public class RabbitMqService implements MessageQueueService {
         log.debug("declare queue {}", table.getTopic());
         channel.queueBind(table.getTopic(), table.getDatabase().getExchange(), table.getTopic());
         log.debug("bind queue {} to {}", table.getTopic(), table.getDatabase().getExchange());
-    }
-
-    @Override
-    @Transactional
-    public void createUserConsumer(Table table) throws IOException {
-        channel.basicConsume(table.getTopic(), true, (consumerTag, response) -> {
-            try {
-                dataService.insert(table, objectMapper.readValue(response.getBody(), TableCsvDto.class));
-            } catch (JsonParseException | MismatchedInputException e) {
-                log.warn("Could not parse AMQP payload {}", e.getMessage());
-                /* ignore */
-            } catch (ConnectException e) {
-                log.warn("Could not redirect AMQP payload {}", e.getMessage());
-                /* ignore */
-            } catch (ImageNotSupportedException | DataAccessException | TableMalformedException e) {
-                log.warn("Could not insert AMQP payload {}", e.getMessage());
-                /* ignore */
-            }
-        }, consumerTag -> {/* */});
-        log.debug("declare consumer {}", table);
+        log.info("Declared queue {} and bound to database exchange {}", table.getTopic(), table.getDatabase().getExchange());
     }
 
 }

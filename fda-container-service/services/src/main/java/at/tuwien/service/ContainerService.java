@@ -66,7 +66,7 @@ public class ContainerService {
         final Integer availableTcpPort = SocketUtils.findAvailableTcpPort(10000);
         final HostConfig hostConfig = this.hostConfig
                 .withNetworkMode("fda-userdb")
-                .withLinks(List.of(new Link("fda-database-managing-service", "fda-database-managing-service")))
+                .withLinks(List.of(new Link("fda-database-service", "fda-database-service")))
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + image.get().getDefaultPort()));
         /* save to metadata database */
         Container container = new Container();

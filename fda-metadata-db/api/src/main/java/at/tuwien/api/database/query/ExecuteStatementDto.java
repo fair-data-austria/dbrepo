@@ -1,7 +1,9 @@
 package at.tuwien.api.database.query;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -10,6 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 public class ExecuteStatementDto {
 
-    @JsonProperty("Statement")
+    @NotBlank
+    @ApiModelProperty(notes = "sql query")
     private String statement;
 }
