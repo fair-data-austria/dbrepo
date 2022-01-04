@@ -12,10 +12,8 @@ import at.tuwien.repository.elastic.DatabaseidxRepository;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
-import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
@@ -30,10 +28,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
@@ -106,9 +102,12 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
                 .exec();
 
         /* start container */
-        dockerClient.startContainerCmd(request.getId()).exec();
-        dockerClient.startContainerCmd(request2.getId()).exec();
-        Thread.sleep(12 * 1000);
+        final Container container = Container.builder()
+                .hash(request.getId())
+                .build();
+        CONTAINER_1.setHash(request2.getId());
+        DockerConfig.startContainer(container);
+        DockerConfig.startContainer(CONTAINER_1);
     }
 
     @Transactional
@@ -244,11 +243,11 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
+    @Disabled("not supported in MariaDB")
     public void modify_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseMalformedException, InterruptedException {
         final DatabaseModifyDto request = DatabaseModifyDto.builder()
                 .databaseId(DATABASE_1_ID)
-                .name("DBNAME")
                 .isPublic(true)
                 .build();
 

@@ -19,10 +19,6 @@ public class DatabaseModifyDto {
     private Long databaseId;
 
     @NotBlank
-    @Parameter(name = "database name", example = "Weather Australia")
-    private String name;
-
-    @NotBlank
     @Parameter(name = "database publicity", example = "true")
     private Boolean isPublic;
 
