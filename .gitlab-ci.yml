@@ -33,12 +33,12 @@ build-backend-authentication:
   script:
     - "make build-backend-authentication"
 
-build-backend-citation:
+build-backend-identifier:
   stage: build
   needs:
     - build-backend-metadata
   script:
-    - "make build-backend-citation"
+    - "make build-backend-identifier"
 
 build-backend-container:
   stage: build
@@ -239,23 +239,23 @@ test-backend-table:
       junit:
         - fda-table-service/rest-service/target/surefire-reports/TEST-*.xml
 
-test-backend-citation:
+test-backend-identifier:
   stage: test-backend
   needs:
-    - build-backend-citation
+    - build-backend-identifier
   dependencies:
-    - build-backend-citation
+    - build-backend-identifier
   script:
-    - mvn -f fda-citation-service/pom.xml clean test verify
-    - cat ./fda-citation-service/report/target/site/jacoco-aggregate/index.html
+    - mvn -f fda-identifier-service/pom.xml clean test verify
+    - cat ./fda-identifier-service/report/target/site/jacoco-aggregate/index.html
   artifacts:
     when: always
     paths:
-      - fda-citation-service/rest-service/target/site/jacoco/jacoco.xml
-      - fda-citation-service/rest-service/target/site/jacoco/index.html
+      - fda-identifier-service/rest-service/target/site/jacoco/jacoco.xml
+      - fda-identifier-service/rest-service/target/site/jacoco/index.html
     reports:
       junit:
-        - fda-citation-service/rest-service/target/surefire-reports/TEST-*.xml
+        - fda-identifier-service/rest-service/target/surefire-reports/TEST-*.xml
 
 test-backend-authentication:
   stage: test-backend

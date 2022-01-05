@@ -1,4 +1,4 @@
-package at.tuwien.api.citation;
+package at.tuwien.api.identifier;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Builder
-public class CitationDto {
+public class IdentifierDto {
 
     @NotNull
     private Long id;
@@ -33,6 +33,10 @@ public class CitationDto {
     @NotBlank
     @ApiModelProperty(name = "query", example = "SQL Query")
     private String query;
+
+    @NotNull
+    @ApiModelProperty(name = "creators")
+    private IdentifierDto[] creators;
 
     @NotNull
     private Instant created;

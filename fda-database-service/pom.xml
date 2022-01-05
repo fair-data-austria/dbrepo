@@ -205,7 +205,9 @@
                         <exclude>at/tuwien/config/**/*</exclude>
                         <exclude>at/tuwien/mapper/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
-                        <exclude>**/JdbcConnector.class</exclude>
+                        <exclude>at/tuwien/handlers/**/*</exclude>
+                        <exclude>at/tuwien/seeder/**/*</exclude>
+                        <exclude>**/HibernateConnector.class</exclude>
                         <exclude>**/FdaDatabaseManagingApplication.class</exclude>
                     </excludes>
                 </configuration>

@@ -168,4 +168,19 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
         });
     }
 
+    @Test
+    public void create_nameContainsMinus_fails() {
+        final DatabaseCreateDto request = DatabaseCreateDto.builder()
+                .name("hello-test")
+                .containerId(CONTAINER_1_ID)
+                .build();
+        when(containerRepository.findById(CONTAINER_1_ID))
+                .thenReturn(Optional.of(CONTAINER_1));
+
+        /* test */
+        assertThrows(DatabaseMalformedException.class, () -> {
+            databaseService.create(request);
+        });
+    }
+
 }
