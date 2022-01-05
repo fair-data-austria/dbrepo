@@ -3,11 +3,10 @@ package at.tuwien.endpoints;
 import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.api.database.DatabaseDto;
-import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
-import at.tuwien.service.DatabaseService;
+import at.tuwien.service.impl.MariaDbServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,10 +29,10 @@ import java.util.stream.Collectors;
 public class DatabaseEndpoint {
 
     private final DatabaseMapper databaseMapper;
-    private final DatabaseService databaseService;
+    private final MariaDbServiceImpl databaseService;
 
     @Autowired
-    public DatabaseEndpoint(DatabaseMapper databaseMapper, DatabaseService databaseService) {
+    public DatabaseEndpoint(DatabaseMapper databaseMapper, MariaDbServiceImpl databaseService) {
         this.databaseMapper = databaseMapper;
         this.databaseService = databaseService;
     }
@@ -66,7 +64,7 @@ public class DatabaseEndpoint {
     })
     public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
             throws ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException,
-            AmqpException {
+            AmqpException, ContainerConnectionException {
         final Database database = databaseService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));
@@ -84,22 +82,6 @@ public class DatabaseEndpoint {
         return ResponseEntity.ok(databaseMapper.databaseToDatabaseDto(databaseService.findById(id)));
     }
 
-    @PutMapping("/{id}")
-    @ApiOperation(value = "Modify a database")
-    @ApiResponses({
-            @ApiResponse(code = 202, message = "The database was successfully modified."),
-            @ApiResponse(code = 400, message = "Parameters were set wrongfully, e.g. more attributes than required for column type."),
-            @ApiResponse(code = 401, message = "Not authorized to change a database."),
-            @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
-    })
-    public ResponseEntity<DatabaseBriefDto> modify(@NotBlank @PathVariable Long id,
-                                                   @Valid @RequestBody DatabaseModifyDto modifyDto)
-            throws DatabaseNotFoundException, ImageNotSupportedException, DatabaseMalformedException {
-        final DatabaseBriefDto database = databaseMapper.databaseToDatabaseBriefDto(databaseService.modify(modifyDto));
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(database);
-    }
-
     @DeleteMapping("/{id}")
     @ApiOperation(value = "Delete a database")
     @ApiResponses({
@@ -110,7 +92,7 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<?> delete(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseMalformedException, AmqpException {
+            ImageNotSupportedException, DatabaseMalformedException, AmqpException, ContainerConnectionException {
         databaseService.delete(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();

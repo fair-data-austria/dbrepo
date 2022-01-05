@@ -4,18 +4,12 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.api.database.DatabaseDto;
-import at.tuwien.api.database.DatabaseModifyDto;
-import at.tuwien.config.AmqpConfig;
-import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.DatabaseEndpoint;
 import at.tuwien.exception.*;
-import at.tuwien.service.DatabaseService;
-import com.github.dockerjava.api.DockerClient;
+import at.tuwien.service.impl.MariaDbServiceImpl;
 import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.*;
@@ -28,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.nio.channels.Channel;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -48,7 +41,7 @@ public class EndpointUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @MockBean
-    private DatabaseService databaseService;
+    private MariaDbServiceImpl databaseService;
 
     @Autowired
     private DatabaseEndpoint databaseEndpoint;
@@ -127,7 +120,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, AmqpException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -145,7 +138,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_containerNotFound_fails() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, AmqpException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -162,7 +155,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_imageNotSupported_fails() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, AmqpException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(CONTAINER_1_NAME)
@@ -202,34 +195,8 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void modify_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException {
-        final DatabaseModifyDto request = DatabaseModifyDto.builder()
-                .databaseId(DATABASE_1_ID)
-                .name("NAME")
-                .isPublic(true)
-                .build();
-
-        /* test */
-        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.modify(CONTAINER_1_ID, request);
-        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-    }
-
-    @Test
-    public void modify_notFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException {
-        final DatabaseModifyDto request = DatabaseModifyDto.builder()
-                .databaseId(9999L)
-                .build();
-
-        /* test */
-        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.modify(CONTAINER_1_ID, request);
-        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-    }
-
-    @Test
     public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final ResponseEntity<?> response = databaseEndpoint.delete(DATABASE_1_ID);
 
         /* test */
@@ -238,7 +205,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_invalidImage_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException {
         willThrow(ImageNotSupportedException.class)
                 .given(databaseService)
                 .delete(DATABASE_1_ID);
@@ -251,7 +218,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException {
         willThrow(DatabaseNotFoundException.class)
                 .given(databaseService)
                 .delete(DATABASE_1_ID);

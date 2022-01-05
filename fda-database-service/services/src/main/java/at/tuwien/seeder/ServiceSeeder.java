@@ -1,9 +1,6 @@
 package at.tuwien.seeder;
 
-import at.tuwien.exception.AmqpException;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.DatabaseMalformedException;
-import at.tuwien.exception.ImageNotSupportedException;
+import at.tuwien.exception.*;
 import com.google.common.io.Files;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +33,8 @@ public class ServiceSeeder implements Seeder {
 
     @Override
     @PostConstruct
-    public void seed() throws ImageNotSupportedException, AmqpException, ContainerNotFoundException, IOException {
+    public void seed() throws ImageNotSupportedException, AmqpException, ContainerNotFoundException, IOException,
+            ContainerConnectionException {
         if (Arrays.asList(environment.getActiveProfiles()).contains("sandbox")) {
             databaseSeeder.seed();
         }

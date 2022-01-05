@@ -1,17 +1,11 @@
 package at.tuwien.seeder;
 
 import at.tuwien.api.database.DatabaseCreateDto;
-import at.tuwien.exception.AmqpException;
-import at.tuwien.exception.ContainerNotFoundException;
-import at.tuwien.exception.DatabaseMalformedException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.service.DatabaseService;
+import at.tuwien.exception.*;
+import at.tuwien.service.impl.MariaDbServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 @Slf4j
 @Component
@@ -54,16 +48,16 @@ public class DatabaseSeeder implements Seeder {
             .name(DATABASE_3_NAME)
             .build();
 
-    private final DatabaseService databaseService;
+    private final MariaDbServiceImpl databaseService;
 
     @Autowired
-    public DatabaseSeeder(DatabaseService databaseService) {
+    public DatabaseSeeder(MariaDbServiceImpl databaseService) {
         this.databaseService = databaseService;
     }
 
     @Override
     public void seed() throws ImageNotSupportedException, AmqpException, ContainerNotFoundException,
-            DatabaseMalformedException {
+            DatabaseMalformedException, ContainerConnectionException {
         log.debug("seeded database {}", databaseService.create(DATABASE_1_CREATE));
         log.debug("seeded database {}", databaseService.create(DATABASE_2_CREATE));
         log.debug("seeded database {}", databaseService.create(DATABASE_3_CREATE));

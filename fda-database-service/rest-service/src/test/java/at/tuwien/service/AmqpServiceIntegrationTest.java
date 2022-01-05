@@ -1,14 +1,12 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.AmqpException;
 import at.tuwien.repository.jpa.DatabaseRepository;
-import com.github.dockerjava.api.DockerClient;
+import at.tuwien.service.impl.RabbitMqServiceImpl;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
@@ -42,7 +40,7 @@ public class AmqpServiceIntegrationTest extends BaseUnitTest {
     private Channel channel;
 
     @Autowired
-    private AmqpService amqpService;
+    private RabbitMqServiceImpl amqpService;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;

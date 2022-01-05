@@ -1,9 +1,10 @@
-package at.tuwien.service;
+package at.tuwien.service.impl;
 
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.AmqpException;
 import at.tuwien.repository.jpa.DatabaseRepository;
+import at.tuwien.service.MessageQueueService;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Log4j2
 @Service
-public class AmqpService {
+public class RabbitMqServiceImpl implements MessageQueueService {
 
     private static final String AMQP_EXCHANGE = "fda";
 
@@ -24,16 +25,12 @@ public class AmqpService {
     private final DatabaseRepository databaseRepository;
 
     @Autowired
-    public AmqpService(Channel channel, DatabaseRepository databaseRepository) {
+    public RabbitMqServiceImpl(Channel channel, DatabaseRepository databaseRepository) {
         this.channel = channel;
         this.databaseRepository = databaseRepository;
     }
 
-    /**
-     * In case of server downtime this method restores all exchanges and bindings
-     *
-     * @throws IOException Exchange or queue was not declarable.
-     */
+    @Override
     @PostConstruct
     public void init() throws IOException {
         channel.exchangeDeclare(AMQP_EXCHANGE, BuiltinExchangeType.TOPIC, true);
@@ -43,6 +40,7 @@ public class AmqpService {
         }
     }
 
+    @Override
     public void createExchange(Database database) throws AmqpException {
         try {
             create(database);
@@ -53,6 +51,7 @@ public class AmqpService {
         }
     }
 
+    @Override
     public void deleteExchange(Database database) throws AmqpException {
         try {
             delete(database);

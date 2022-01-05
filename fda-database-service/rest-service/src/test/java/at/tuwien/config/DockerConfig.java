@@ -2,7 +2,9 @@ package at.tuwien.config;
 
 import at.tuwien.entities.container.Container;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -45,6 +47,17 @@ public class DockerConfig {
                 .exec();
         Thread.sleep(12 * 1000L);
         log.debug("container {} was started", container.getHash());
+    }
+
+    public static void createContainer(Container container) {
+        final CreateContainerResponse response = dockerClient.createContainerCmd(container.getImage().getRepository() + ":" + container.getImage().getTag())
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(container.getInternalName())
+                .withIpv4Address("172.28.0.5")
+                .withHostName(container.getInternalName())
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
+                .exec();
+        container.setHash(response.getId());
     }
 
     public static void stopContainer(Container container) {

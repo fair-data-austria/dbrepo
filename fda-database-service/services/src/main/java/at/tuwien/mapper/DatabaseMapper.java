@@ -7,6 +7,7 @@ import at.tuwien.entities.database.Database;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 
 import java.text.Normalizer;
 import java.util.Locale;
@@ -14,6 +15,19 @@ import java.util.regex.Pattern;
 
 @Mapper(componentModel = "spring", uses = {ContainerMapper.class})
 public interface DatabaseMapper {
+
+    @Named("internalMapping")
+    default String nameToInternalName(String data) {
+        if (data == null || data.length() == 0) {
+            return data;
+        }
+        final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+        final Pattern WHITESPACE = Pattern.compile("[\\s]");
+        String nowhitespace = WHITESPACE.matcher(data).replaceAll("_");
+        String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+        String slug = NONLATIN.matcher(normalized).replaceAll("");
+        return slug.toLowerCase(Locale.ENGLISH);
+    }
 
     @Mappings({
             @Mapping(target = "id", source = "id"),
@@ -39,14 +53,12 @@ public interface DatabaseMapper {
         return slug.toLowerCase(Locale.ENGLISH);
     }
 
-    default Database modifyDatabaseByDatabaseModifyDto(Database database, DatabaseModifyDto data) {
-        if (data.getName() != null && !database.getName().equals(data.getName())) {
-            database.setName(data.getName());
-        }
-        if (data.getIsPublic() != null && !database.getIsPublic().equals(data.getIsPublic())) {
-            database.setIsPublic(data.getIsPublic());
-        }
-        return database;
+    default String databaseToRawCreateDatabaseQuery(Database database) {
+        return "CREATE DATABASE " + database.getInternalName() + ";";
+    }
+
+    default String databaseToRawDeleteDatabaseQuery(Database database) {
+        return "DROP DATABASE " + database.getInternalName() + ";";
     }
 
 }
