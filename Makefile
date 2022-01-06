@@ -22,8 +22,8 @@ build-backend-metadata:
 build-backend-authentication:
 	mvn -f ./fda-authentication-service/pom.xml clean package -DskipTests
 
-build-backend-citation:
-	mvn -f ./fda-citation-service/pom.xml clean package -DskipTests
+build-backend-identifier:
+	mvn -f ./fda-identifier-service/pom.xml clean package -DskipTests
 
 build-backend-container:
 	mvn -f ./fda-container-service/pom.xml clean package -DskipTests
@@ -61,13 +61,36 @@ build: clean build-backend build-frontend build-docker
 
 build-sandbox: clean build-backend build-frontend build-docker-sandbox
 
+doc: doc-identifier doc-container doc-database doc-discovery doc-gateway doc-query doc-table
+
+doc-identifier:
+	mvn -f ./fda-identifier-service/pom.xml clean install site -DskipTests
+
+doc-container:
+	mvn -f ./fda-container-service/pom.xml clean install site -DskipTests
+
+doc-database:
+	mvn -f ./fda-database-service/pom.xml clean install site -DskipTests
+
+doc-discovery:
+	mvn -f ./fda-discovery-service/pom.xml clean install site -DskipTests
+
+doc-gateway:
+	mvn -f ./fda-gateway-service/pom.xml clean install site -DskipTests
+
+doc-query:
+	mvn -f ./fda-query-service/pom.xml clean install site -DskipTests
+
+doc-table:
+	mvn -f ./fda-table-service/pom.xml clean install site -DskipTests
+
 test-backend: test-backend-auth test-backend-container test-backend-database test-backend-discovery test-backend-gateway test-backend-query test-backend-table
 
 test-backend-auth:
 	mvn -f ./fda-authentication-service/pom.xml clean test verify
 
-test-backend-citation: config-docker
-	mvn -f ./fda-citation-service/pom.xml clean test verify
+test-backend-identifier: config-docker
+	mvn -f ./fda-identifier-service/pom.xml clean test verify
 
 test-backend-container: config-docker
 	mvn -f ./fda-container-service/pom.xml clean test verify
@@ -114,7 +137,7 @@ logs:
 
 clean-maven:
 	mvn -f ./fda-authentication-service/pom.xml clean
-	#mvn -f ./fda-citation-service/pom.xml clean
+	#mvn -f ./fda-identifier-service/pom.xml clean
 	mvn -f ./fda-container-service/pom.xml clean
 	mvn -f ./fda-database-service/pom.xml clean
 	mvn -f ./fda-discovery-service/pom.xml clean
@@ -125,7 +148,7 @@ clean-maven:
 clean-ide:
 	rm -rf .idea/
 	rm -rf ./fda-authentication-service/.idea/
-	rm -rf ./fda-citation-service/.idea/
+	rm -rf ./fda-identifier-service/.idea/
 	rm -rf ./fda-container-service/.idea/
 	rm -rf ./fda-database-service/.idea/
 	rm -rf ./fda-discovery-service/.idea/

@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fda-citation-service</artifactId>
+        <artifactId>fda-identifier-service</artifactId>
         <groupId>at.tuwien</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>report</artifactId>
-    <name>fda-citation-service-report</name>
+    <name>fda-identifier-service-report</name>
 
     <properties>
         <jacoco.version>0.8.7</jacoco.version>
