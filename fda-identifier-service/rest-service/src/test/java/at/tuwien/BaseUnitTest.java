@@ -3,6 +3,7 @@ package at.tuwien;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.identifier.CreatorDto;
 import at.tuwien.api.identifier.IdentifierDto;
+import at.tuwien.api.identifier.VisibilityTypeDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
@@ -11,9 +12,11 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.identifier.Creator;
 import at.tuwien.entities.identifier.Identifier;
+import at.tuwien.entities.identifier.VisibilityType;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.test.context.TestPropertySource;
 
+import java.beans.Visibility;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
@@ -109,6 +112,8 @@ public abstract class BaseUnitTest {
     public final static String IDENTIFIER_1_DESCRIPTION = "Selecting all from the weather Australia table";
     public final static String IDENTIFIER_1_TITLE = "Australia weather data";
     public final static String IDENTIFIER_1_DOI = "10.1000/182";
+    public final static VisibilityType IDENTIFIER_1_VISIBILITY = VisibilityType.SELF;
+    public final static VisibilityTypeDto IDENTIFIER_1_VISIBILITY_DTO = VisibilityTypeDto.SELF;
     public final static Instant IDENTIFIER_1_CREATED = Instant.now();
     public final static Instant IDENTIFIER_1_MODIFIED = Instant.now().minus(1, HOURS);
 
@@ -118,6 +123,7 @@ public abstract class BaseUnitTest {
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
             .doi(IDENTIFIER_1_DOI)
+            .visibility(IDENTIFIER_1_VISIBILITY)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
             .creators(List.of(CREATOR_1, CREATOR_2))
@@ -128,6 +134,7 @@ public abstract class BaseUnitTest {
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
             .doi(IDENTIFIER_1_DOI)
+            .visibility(IDENTIFIER_1_VISIBILITY)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
             .creators(List.of(CREATOR_1_REQUEST, CREATOR_2_REQUEST))
@@ -139,6 +146,7 @@ public abstract class BaseUnitTest {
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
             .doi(IDENTIFIER_1_DOI)
+            .visibility(IDENTIFIER_1_VISIBILITY_DTO)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
             .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
@@ -149,21 +157,11 @@ public abstract class BaseUnitTest {
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
             .doi(IDENTIFIER_1_DOI)
+            .visibility(IDENTIFIER_1_VISIBILITY_DTO)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
             .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
             .build();
-
-    public final static Long DEPOSIT_1_ID = 1L;
-    public final static String DEPOSIT_1_TITLE = "Super cool document";
-    public final static String DEPOSIT_1_DESCRIPTION = "My document is the best";
-    public final static Instant DEPOSIT_1_CREATED = Instant.now().minus(1, ChronoUnit.HOURS);
-    public final static Instant DEPOSIT_1_MODIFIED = Instant.now();
-    public final static String DEPOSIT_1_STATE = "unsubmitted";
-    public final static Boolean DEPOSIT_1_SUBMITTED = false;
-    public final static Long DEPOSIT_1_RECORD_ID = 1899L;
-    public final static Long DEPOSIT_1_CONCEPT_RECORD_ID = 143L;
-    public final static Long DEPOSIT_1_OWNER = 144L;
 
     public final static Long QUERY_1_ID = 1L;
     public final static String QUERY_1_TITLE = "All Raindata";

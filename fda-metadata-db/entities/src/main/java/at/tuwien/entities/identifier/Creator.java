@@ -12,10 +12,10 @@ import java.time.Instant;
 @Data
 @Entity
 @Builder
+@ToString
 @IdClass(CreatorKey.class)
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "mdb_creators")
 public class Creator {
@@ -31,8 +31,7 @@ public class Creator {
     )
     private Long id;
 
-    @Id
-    @EqualsAndHashCode.Include
+    @Column(nullable = false)
     private Long pid;
 
     @Column(nullable = false)

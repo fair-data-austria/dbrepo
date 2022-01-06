@@ -36,7 +36,7 @@ public class Identifier {
     )
     private Long id;
 
-    @EqualsAndHashCode.Include
+    @Column(nullable = false, unique = true)
     private Long qid;
 
     @Column(nullable = false)
@@ -44,6 +44,9 @@ public class Identifier {
 
     @Column(nullable = false)
     private String description;
+
+    @Column(nullable = false)
+    private VisibilityType visibility = VisibilityType.SELF;
 
     @Column
     private String doi;

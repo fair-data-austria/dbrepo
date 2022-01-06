@@ -31,6 +31,9 @@ public class IdentifierDto {
     @ApiModelProperty(name = "query description", example = "Returns a list of measurements for the year 2012")
     private String description;
 
+    @NotBlank
+    private VisibilityTypeDto visibility;
+
     @ApiModelProperty(name = "doi", example = "Digital Object Identifier")
     private String doi;
 

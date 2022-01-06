@@ -3,8 +3,12 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.identifier.CreatorDto;
 import at.tuwien.api.identifier.IdentifierDto;
+import at.tuwien.api.identifier.VisibilityTypeDto;
 import at.tuwien.entities.identifier.Identifier;
+import at.tuwien.entities.identifier.VisibilityType;
+import at.tuwien.exception.IdentifierAlreadyPublishedException;
 import at.tuwien.exception.IdentifierNotFoundException;
+import at.tuwien.exception.IdentifierPublishingNotAllowedException;
 import at.tuwien.repository.jpa.IdentifierRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,29 +48,6 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() {
-
-        /* mock */
-        when(identifierRepository.save(IDENTIFIER_1_REQUEST))
-                .thenReturn(IDENTIFIER_1);
-
-        /* test */
-        final Identifier response = identifierService.create(IDENTIFIER_1_DTO_REQUEST);
-        assertEquals(response, IDENTIFIER_1);
-    }
-
-    @Test
-    public void create_fails() {
-
-        /* mock */
-        when(identifierRepository.save(IDENTIFIER_1_REQUEST))
-                .thenReturn(null);
-
-        /* test */
-        identifierService.create(IDENTIFIER_1_DTO_REQUEST);
-    }
-
-    @Test
     public void find_succeeds() throws IdentifierNotFoundException {
 
         /* mock */
@@ -83,7 +64,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
 
         /* mock */
         when(identifierRepository.findById(IDENTIFIER_1_ID))
-                .thenReturn(Optional.of(IDENTIFIER_1));
+                .thenReturn(Optional.empty());
 
         /* test */
         assertThrows(IdentifierNotFoundException.class, () -> {
@@ -92,7 +73,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_succeeds() throws IdentifierNotFoundException {
+    public void update_succeeds() throws IdentifierNotFoundException, IdentifierPublishingNotAllowedException {
 
         /* mock */
         when(identifierRepository.findById(IDENTIFIER_1_ID))
@@ -121,13 +102,88 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void publish_succeeds() {
-        fail();
+    public void update_visibilityTrusted_fails() {
+        final IdentifierDto request = IdentifierDto.builder()
+                .id(IDENTIFIER_1_ID)
+                .qid(IDENTIFIER_1_QUERY_ID)
+                .description(IDENTIFIER_1_DESCRIPTION)
+                .title(IDENTIFIER_1_TITLE)
+                .doi(IDENTIFIER_1_DOI)
+                .visibility(VisibilityTypeDto.TRUSTED)
+                .created(IDENTIFIER_1_CREATED)
+                .lastModified(IDENTIFIER_1_MODIFIED)
+                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+                .build();
+
+        /* mock */
+        when(identifierRepository.findById(IDENTIFIER_1_ID))
+                .thenReturn(Optional.of(IDENTIFIER_1));
+
+        /* test */
+        assertThrows(IdentifierPublishingNotAllowedException.class, () -> {
+            identifierService.update(IDENTIFIER_1_ID, request);
+        });
     }
 
     @Test
-    public void publish_fails() {
-        fail();
+    public void update_visibilityEveryone_fails() {
+        final IdentifierDto request = IdentifierDto.builder()
+                .id(IDENTIFIER_1_ID)
+                .qid(IDENTIFIER_1_QUERY_ID)
+                .description(IDENTIFIER_1_DESCRIPTION)
+                .title(IDENTIFIER_1_TITLE)
+                .doi(IDENTIFIER_1_DOI)
+                .visibility(VisibilityTypeDto.EVERYONE)
+                .created(IDENTIFIER_1_CREATED)
+                .lastModified(IDENTIFIER_1_MODIFIED)
+                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+                .build();
+
+        /* mock */
+        when(identifierRepository.findById(IDENTIFIER_1_ID))
+                .thenReturn(Optional.of(IDENTIFIER_1));
+
+        /* test */
+        assertThrows(IdentifierPublishingNotAllowedException.class, () -> {
+            identifierService.update(IDENTIFIER_1_ID, request);
+        });
+    }
+
+    @Test
+    public void publish_succeeds() throws IdentifierNotFoundException, IdentifierAlreadyPublishedException {
+
+        /* mock */
+        when(identifierRepository.findById(IDENTIFIER_1_ID))
+                .thenReturn(Optional.of(IDENTIFIER_1));
+        when(identifierRepository.save(IDENTIFIER_1))
+                .thenReturn(IDENTIFIER_1);
+
+        /* test */
+        identifierService.publish(IDENTIFIER_1_ID, VisibilityTypeDto.TRUSTED);
+    }
+
+    @Test
+    public void publish_unpublish_fails() {
+        final Identifier entity = Identifier.builder()
+                .id(IDENTIFIER_1_ID)
+                .qid(IDENTIFIER_1_QUERY_ID)
+                .description(IDENTIFIER_1_DESCRIPTION)
+                .title(IDENTIFIER_1_TITLE)
+                .doi(IDENTIFIER_1_DOI)
+                .visibility(VisibilityType.EVERYONE)
+                .created(IDENTIFIER_1_CREATED)
+                .lastModified(IDENTIFIER_1_MODIFIED)
+                .creators(List.of(CREATOR_1, CREATOR_2))
+                .build();
+
+        /* mock */
+        when(identifierRepository.findById(IDENTIFIER_1_ID))
+                .thenReturn(Optional.of(entity));
+
+        /* test */
+        assertThrows(IdentifierAlreadyPublishedException.class, () -> {
+            identifierService.publish(IDENTIFIER_1_ID, VisibilityTypeDto.SELF);
+        });
     }
 
     @Test

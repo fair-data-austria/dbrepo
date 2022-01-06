@@ -1,8 +1,12 @@
 package at.tuwien.service.impl;
 
 import at.tuwien.api.identifier.IdentifierDto;
+import at.tuwien.api.identifier.VisibilityTypeDto;
 import at.tuwien.entities.identifier.Identifier;
+import at.tuwien.entities.identifier.VisibilityType;
+import at.tuwien.exception.IdentifierAlreadyPublishedException;
 import at.tuwien.exception.IdentifierNotFoundException;
+import at.tuwien.exception.IdentifierPublishingNotAllowedException;
 import at.tuwien.mapper.IdentifierMapper;
 import at.tuwien.repository.jpa.IdentifierRepository;
 import at.tuwien.service.IdentifierService;
@@ -44,28 +48,45 @@ public class IdentifierServiceImpl implements IdentifierService {
     public Identifier find(Long identifierId) throws IdentifierNotFoundException {
         final Optional<Identifier> optional = identifierRepository.findById(identifierId);
         if (optional.isEmpty()) {
-            log.error("Unable to find identifier with id {}", identifierId);
+            log.error("Identifier with id {} not existing", identifierId);
             throw new IdentifierNotFoundException("Unable to find identifier");
         }
         return optional.get();
     }
 
     @Override
-    public Identifier update(Long identifierId, IdentifierDto data) throws IdentifierNotFoundException {
-        find(identifierId);
-        final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
-        final Identifier entity = identifierRepository.save(identifier);
+    public Identifier update(Long identifierId, IdentifierDto data) throws IdentifierNotFoundException,
+            IdentifierPublishingNotAllowedException {
+        final Identifier identifier = find(identifierId);
+        final Identifier entity = identifierMapper.identifierDtoToIdentifier(data);
+        if (!identifier.getVisibility().equals(entity.getVisibility())) {
+            /* in the future we might want to escalate privileges, so use own method for this */
+            log.error("Identifier visibility changes not allowed");
+            log.debug("visibility changes only supported through the publish() method");
+            throw new IdentifierPublishingNotAllowedException("Visibility modification not allowed");
+        }
+        final Identifier entityUpdated = identifierRepository.save(identifier);
         log.info("Updated identifier with id {}", identifierId);
-        log.debug("updated identifier {}", identifier);
-        return entity;
+        log.debug("updated identifier {}", entityUpdated);
+        return entityUpdated;
     }
 
     @Override
-    public Identifier publish(Long identifierId) throws IdentifierNotFoundException {
+    public Identifier publish(Long identifierId, VisibilityTypeDto visibility) throws IdentifierNotFoundException,
+            IdentifierAlreadyPublishedException {
         final Identifier identifier = find(identifierId);
+        if (identifier.getVisibility().equals(VisibilityType.EVERYONE)
+                && !visibility.equals(VisibilityTypeDto.EVERYONE)) {
+            /* once published, the identifier cannot be reverted back, it is persistent! */
+            log.error("Identifier is already published");
+            log.debug("unpublish not supported for identifier {}", identifier);
+            throw new IdentifierAlreadyPublishedException("Unpublish not allowed");
+        }
+        identifier.setVisibility(identifierMapper.visibilityTypeDtoToVisibilityType(visibility));
+        final Identifier entity = identifierRepository.save(identifier);
         log.info("Published identifier with id {}", identifierId);
-        log.debug("published identifier {}", identifier);
-        return identifier;
+        log.debug("published identifier {}", entity);
+        return entity;
     }
 
     @Override

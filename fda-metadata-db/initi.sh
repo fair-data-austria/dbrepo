@@ -10,6 +10,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   CREATE DATABASE root;
   BEGIN;
 	CREATE TYPE gender AS ENUM ('F', 'M', 'T');
+	CREATE TYPE visibility AS ENUM ('everyone', 'trusted', 'self');
 	CREATE TYPE accesstype AS ENUM ('R', 'W');
 	CREATE TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER');
 
@@ -310,9 +311,10 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE TABLE IF NOT EXISTS mdb_identifiers (
 		id bigint DEFAULT nextval('mdb_indentifiers_seq'),
-		qid INTEGER NOT NULL,
+		qid INTEGER UNIQUE NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
+    published visibility NOT NULL DEFAULT 'self',
     doi VARCHAR(255),
     query TEXT NOT NULL,
 		created timestamp without time zone NOT NULL DEFAULT NOW(),
