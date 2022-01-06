@@ -11,6 +11,7 @@ import at.tuwien.mapper.IdentifierMapper;
 import at.tuwien.repository.jpa.IdentifierRepository;
 import at.tuwien.service.IdentifierService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +44,7 @@ public class IdentifierServiceImpl implements IdentifierService {
     @Override
     @Transactional
     public Identifier create(IdentifierDto data) throws IdentifierPublishingNotAllowedException, QueryNotFoundException,
-            RemoteUnavailableException {
+            RemoteUnavailableException, IdentifierAlreadyExistsException {
         if (!data.getVisibility().equals(VisibilityTypeDto.SELF)) {
             log.error("Identifier must be self visible for creation");
             log.debug("identifier is not self-visible {}", data);
@@ -51,9 +52,16 @@ public class IdentifierServiceImpl implements IdentifierService {
         }
         /* find */
         final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
-        final QueryDto query = queryServiceGateway.find(data.getQid());
+        final QueryDto query = queryServiceGateway.find(data);
         /* create in metadata database */
-        final Identifier entity = identifierRepository.save(identifier);
+        final Identifier entity;
+        try {
+            entity = identifierRepository.save(identifier);
+        } catch (ConstraintViolationException e) {
+            log.error("Identifier already issued for database {} and id {}", data.getDbid(), data.getQid());
+            log.debug("identifier already exists similar to request {}", data);
+            throw new IdentifierAlreadyExistsException("Identifier exists");
+        }
         log.info("Created identifier with id {}", entity.getId());
         log.debug("created identifier {}", entity);
         return entity;

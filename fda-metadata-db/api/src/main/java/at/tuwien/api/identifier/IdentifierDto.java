@@ -20,7 +20,11 @@ public class IdentifierDto {
     private Long id;
 
     @NotNull
-    @ApiModelProperty(name = "query id", example = "SQL Query")
+    @ApiModelProperty(name = "database id", example = "1")
+    private Long dbid;
+
+    @NotNull
+    @ApiModelProperty(name = "query id", example = "1")
     private Long qid;
 
     @NotBlank

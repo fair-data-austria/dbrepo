@@ -28,6 +28,26 @@ import static java.time.temporal.ChronoUnit.HOURS;
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseUnitTest {
 
+    public final static String GATEWAY_SERVICE_REPOSITORY = "fda-gateway-service:latest";
+    public final static String GATEWAY_SERVICE_INTERNAL_NAME = "fda-gateway-service";
+    public final static String GATEWAY_SERVICE_IP = "172.29.0.4";
+    public final static String[] GATEWAY_SERVICE_ENV = new String[]{"SPRING_PROFILES_ACTIVE=docker"};
+
+    public final static String DISCOVERY_SERVICE_REPOSITORY = "fda-discovery-service:latest";
+    public final static String DISCOVERY_SERVICE_INTERNAL_NAME = "fda-discovery-service";
+    public final static String DISCOVERY_SERVICE_IP = "172.29.0.5";
+    public final static String[] DISCOVERY_SERVICE_ENV = new String[]{"SPRING_PROFILES_ACTIVE=docker"};
+
+    public final static String QUERY_SERVICE_REPOSITORY = "fda-query-service:latest";
+    public final static String QUERY_SERVICE_INTERNAL_NAME = "fda-query-service";
+    public final static String QUERY_SERVICE_IP = "172.29.0.6";
+    public final static String[] QUERY_SERVICE_ENV = new String[]{"SPRING_PROFILES_ACTIVE=docker"};
+
+    public final static String METADATA_DB_REPOSITORY = "fda-metadata-db:latest";
+    public final static String METADATA_DB_INTERNAL_NAME = "fda-metadata-db";
+    public final static String METADATA_DB_IP = "172.29.0.7";
+    public final static String[] METADATA_DB_ENV = new String[]{"POSTGRES_USER=postgres", "POSTGRES_PASSWORD=postgres", "POSTGRES_DB=fda"};
+
     public final static Long DATABASE_1_ID = 1L;
     public final static String DATABASE_1_NAME = "Test Database";
     public final static String DATABASE_1_INTERNAL_NAME = "test_dataase";
@@ -107,8 +127,13 @@ public abstract class BaseUnitTest {
             .lastModified(CREATOR_2_MODIFIED)
             .build();
 
+    public final static Long QUERY_1_ID = 1L;
+
+    public final static Long QUERY_2_ID = 1L;
+
     public final static Long IDENTIFIER_1_ID = 1L;
-    public final static Long IDENTIFIER_1_QUERY_ID = 1L;
+    public final static Long IDENTIFIER_1_QUERY_ID = QUERY_1_ID;
+    public final static Long IDENTIFIER_1_DATABASE_ID = DATABASE_1_ID;
     public final static String IDENTIFIER_1_DESCRIPTION = "Selecting all from the weather Australia table";
     public final static String IDENTIFIER_1_TITLE = "Australia weather data";
     public final static String IDENTIFIER_1_DOI = "10.1000/182";
@@ -118,7 +143,8 @@ public abstract class BaseUnitTest {
     public final static Instant IDENTIFIER_1_MODIFIED = Instant.now();
 
     public final static Long IDENTIFIER_2_ID = 2L;
-    public final static Long IDENTIFIER_2_QUERY_ID = 2L;
+    public final static Long IDENTIFIER_2_QUERY_ID = QUERY_2_ID;
+    public final static Long IDENTIFIER_2_DATABASE_ID = DATABASE_1_ID;
     public final static String IDENTIFIER_2_DESCRIPTION = "Selecting all from the weather Austria table";
     public final static String IDENTIFIER_2_TITLE = "Austria weather data";
     public final static String IDENTIFIER_2_DOI = "10.1000/183";
@@ -130,6 +156,7 @@ public abstract class BaseUnitTest {
     public final static Identifier IDENTIFIER_1 = Identifier.builder()
             .id(IDENTIFIER_1_ID)
             .qid(IDENTIFIER_1_QUERY_ID)
+            .dbid(IDENTIFIER_1_DATABASE_ID)
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
             .doi(IDENTIFIER_1_DOI)
@@ -142,6 +169,7 @@ public abstract class BaseUnitTest {
     public final static Identifier IDENTIFIER_2 = Identifier.builder()
             .id(IDENTIFIER_2_ID)
             .qid(IDENTIFIER_2_QUERY_ID)
+            .dbid(IDENTIFIER_2_DATABASE_ID)
             .description(IDENTIFIER_2_DESCRIPTION)
             .title(IDENTIFIER_2_TITLE)
             .doi(IDENTIFIER_2_DOI)
@@ -153,6 +181,7 @@ public abstract class BaseUnitTest {
 
     public final static Identifier IDENTIFIER_1_REQUEST = Identifier.builder()
             .qid(IDENTIFIER_1_QUERY_ID)
+            .dbid(IDENTIFIER_1_DATABASE_ID)
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
             .doi(IDENTIFIER_1_DOI)
@@ -165,6 +194,7 @@ public abstract class BaseUnitTest {
     public final static IdentifierDto IDENTIFIER_1_DTO = IdentifierDto.builder()
             .id(IDENTIFIER_1_ID)
             .qid(IDENTIFIER_1_QUERY_ID)
+            .dbid(IDENTIFIER_1_DATABASE_ID)
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
             .doi(IDENTIFIER_1_DOI)
@@ -176,6 +206,7 @@ public abstract class BaseUnitTest {
 
     public final static IdentifierDto IDENTIFIER_1_DTO_REQUEST = IdentifierDto.builder()
             .qid(IDENTIFIER_1_QUERY_ID)
+            .dbid(IDENTIFIER_1_DATABASE_ID)
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
             .doi(IDENTIFIER_1_DOI)
@@ -187,6 +218,7 @@ public abstract class BaseUnitTest {
 
     public final static IdentifierDto IDENTIFIER_2_DTO_REQUEST = IdentifierDto.builder()
             .qid(IDENTIFIER_2_QUERY_ID)
+            .dbid(IDENTIFIER_2_DATABASE_ID)
             .description(IDENTIFIER_2_DESCRIPTION)
             .title(IDENTIFIER_2_TITLE)
             .doi(IDENTIFIER_2_DOI)
@@ -195,13 +227,6 @@ public abstract class BaseUnitTest {
             .lastModified(IDENTIFIER_2_MODIFIED)
             .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
             .build();
-
-    public final static Long QUERY_1_ID = 1L;
-    public final static String QUERY_1_TITLE = "All Raindata";
-    public final static String QUERY_1_QUERY = "SELECT * FROM rainfall;";
-    public final static String QUERY_1_QUERY_NORMALIZED = "SELECT id,rainfall FROM rainfall;";
-    public final static String QUERY_1_HASH = "a5ddf5ac87b72173f75ccbd134ba1072";
-    public final static Instant QUERY_1_EXECUTION_TIMESTAMP = Instant.now();
 
     public final static String CREATOR_1_NAME = "First1 Last1";
     public final static String CREATOR_1_AFFIL = "TU Wien";

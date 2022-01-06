@@ -311,7 +311,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE TABLE IF NOT EXISTS mdb_identifiers (
 		id bigint DEFAULT nextval('mdb_indentifiers_seq'),
-		qid INTEGER UNIQUE NOT NULL,
+		qid INTEGER NOT NULL,
+		dbid INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     published visibility NOT NULL DEFAULT 'self',
@@ -320,7 +321,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		last_modified timestamp without time zone NOT NULL,
 		deleted timestamp without time zone,
-		PRIMARY KEY (id)
+		PRIMARY KEY (id),
+		UNIQUE (qid,dbid)
 	);
 
 	CREATE TABLE IF NOT EXISTS mdb_creators(

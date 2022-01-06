@@ -25,7 +25,7 @@ public interface IdentifierService {
      * @return The created identifier from the metadata database if successful.
      * @throws IdentifierPublishingNotAllowedException When the visibility is not self.
      */
-    Identifier create(IdentifierDto data) throws IdentifierPublishingNotAllowedException, QueryNotFoundException, RemoteUnavailableException;
+    Identifier create(IdentifierDto data) throws IdentifierPublishingNotAllowedException, QueryNotFoundException, RemoteUnavailableException, IdentifierAlreadyExistsException;
 
     /**
      * Finds a identifier by given id in the metadata database.

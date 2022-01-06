@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/database/{id}/store")
+@RequestMapping("/api/database/{id}/query")
 public class StoreEndpoint {
 
     private final QueryMapper queryMapper;
