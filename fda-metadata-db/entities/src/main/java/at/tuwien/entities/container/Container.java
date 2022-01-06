@@ -2,6 +2,7 @@ package at.tuwien.entities.container;
 
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.TableKey;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;

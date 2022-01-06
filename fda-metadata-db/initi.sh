@@ -283,7 +283,14 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	    NO MAXVALUE
 	    CACHE 1;
 
-	CREATE SEQUENCE public.mdb_citation_seq
+	CREATE SEQUENCE public.mdb_indentifiers_seq
+	    START WITH 1
+	    INCREMENT BY 1
+	    NO MINVALUE
+	    NO MAXVALUE
+	    CACHE 1;
+
+	CREATE SEQUENCE public.mdb_creators_seq
 	    START WITH 1
 	    INCREMENT BY 1
 	    NO MINVALUE
@@ -301,8 +308,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		InitialView BOOLEAN
 	);
 
-	CREATE TABLE IF NOT EXISTS mdb_CITATION (
-		id bigint PRIMARY KEY DEFAULT nextval('mdb_citation_seq'),
+	CREATE TABLE IF NOT EXISTS mdb_identifiers (
+		id bigint DEFAULT nextval('mdb_indentifiers_seq'),
+		qid INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     doi VARCHAR(255),
@@ -310,6 +318,18 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		last_modified timestamp without time zone NOT NULL,
 		deleted timestamp without time zone,
+		PRIMARY KEY (id)
+	);
+
+	CREATE TABLE IF NOT EXISTS mdb_creators(
+		id bigint DEFAULT nextval('mdb_creators_seq'),
+    pid INTEGER NOT NULL,
+    firstname VARCHAR(255) NOT NULL,
+    lastname VARCHAR(255) NOT NULL,
+		created timestamp without time zone NOT NULL DEFAULT NOW(),
+		last_modified timestamp without time zone NOT NULL,
+		PRIMARY KEY (id, pid),
+		FOREIGN KEY (pid) REFERENCES mdb_identifiers(id)
 	);
 	
 	CREATE TABLE IF NOT EXISTS mdb_views_databases( 
