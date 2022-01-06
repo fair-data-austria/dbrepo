@@ -139,6 +139,7 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
         containerRepository.save(CONTAINER_1);
         databaseRepository.save(DATABASE_1);
         identifierRepository.save(IDENTIFIER_1);
+        IDENTIFIER_1.setCreators(List.of(CREATOR_1, CREATOR_2));
     }
 
     @Test

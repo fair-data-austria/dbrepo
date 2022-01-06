@@ -163,7 +163,7 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_1_VISIBILITY)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
-            .creators(List.of(CREATOR_1, CREATOR_2))
+            .creators(List.of())
             .build();
 
     public final static Identifier IDENTIFIER_2 = Identifier.builder()
@@ -176,7 +176,7 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_2_VISIBILITY)
             .created(IDENTIFIER_2_CREATED)
             .lastModified(IDENTIFIER_2_MODIFIED)
-            .creators(List.of(CREATOR_1, CREATOR_2))
+            .creators(List.of())
             .build();
 
     public final static Identifier IDENTIFIER_1_REQUEST = Identifier.builder()
@@ -306,7 +306,6 @@ public abstract class BaseUnitTest {
             .internalName(CONTAINER_1_INTERNALNAME)
             .image(CONTAINER_1_IMAGE)
             .hash(CONTAINER_1_HASH)
-            .containerCreated(CONTAINER_1_CREATED)
             .build();
 
     public final static Database DATABASE_1 = Database.builder()
