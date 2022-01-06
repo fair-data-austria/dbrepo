@@ -12,9 +12,10 @@ import java.time.Instant;
 @Data
 @Entity
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(onlyExplicitlyIncluded = true)
+@IdClass(ContainerImageEnvironmentItemKey.class)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "mdb_image_environment_item")
@@ -31,15 +32,16 @@ public class ContainerImageEnvironmentItem {
     )
     public Long id;
 
-    @ToString.Include
+    @Id
+    @EqualsAndHashCode.Include
+    public Long iid;
+
     @Column(nullable = false)
     private String key;
 
-    @ToString.Include
     @Column(nullable = false)
     private String value;
 
-    @ToString.Include
     @Column(nullable = false, name = "etype", columnDefinition = "enum('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER')")
     @Enumerated(EnumType.STRING)
     private ContainerImageEnvironmentItemType type;
@@ -53,3 +55,4 @@ public class ContainerImageEnvironmentItem {
     private Instant lastModified;
 
 }
+

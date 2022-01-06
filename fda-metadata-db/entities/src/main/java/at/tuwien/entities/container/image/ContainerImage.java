@@ -14,9 +14,9 @@ import java.util.List;
 @Data
 @Entity
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "mdb_image", uniqueConstraints = @UniqueConstraint(columnNames = {"repository", "tag"}))
@@ -24,7 +24,6 @@ public class ContainerImage {
 
     @Id
     @EqualsAndHashCode.Include
-    @ToString.Include
     @GeneratedValue(generator = "image-sequence")
     @GenericGenerator(
             name = "image-sequence",
@@ -33,48 +32,39 @@ public class ContainerImage {
     )
     public Long id;
 
-    @ToString.Include
     @Column(nullable = false)
     private String repository;
 
     @ToString.Exclude
-    @Column(nullable = false)
+    @Column
     private String logo;
 
-    @ToString.Include
     @Column(nullable = false)
     private String tag;
 
-    @ToString.Include
-    @Column
+    @Column(nullable = false)
     private String driverClass;
 
-    @ToString.Include
-    @Column
+    @Column(nullable = false)
     private String dialect;
 
-    @ToString.Include
-    @Column
+    @Column(nullable = false)
     private String jdbcMethod;
 
-    @ToString.Include
-    @Column(nullable = false)
+    @Column
     private String hash;
 
-    @ToString.Include
-    @Column(nullable = false)
+    @Column
     private Instant compiled;
 
-    @ToString.Include
-    @Column(nullable = false)
+    @Column
     private Long size;
 
-    @ToString.Include
     @Column(nullable = false)
     private Integer defaultPort;
 
-    @ToString.Include
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "iid", insertable = false, updatable = false)
     private List<ContainerImageEnvironmentItem> environment;
 
     @ToString.Exclude

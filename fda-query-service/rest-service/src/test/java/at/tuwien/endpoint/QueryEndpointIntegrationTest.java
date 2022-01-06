@@ -13,7 +13,6 @@ import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.service.StoreService;
-import at.tuwien.service.impl.QueryServiceImpl;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
@@ -42,7 +41,6 @@ import java.util.Map;
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @Log4j2
 @SpringBootTest

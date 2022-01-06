@@ -1,7 +1,7 @@
 spring:
   main.banner-mode: off
   datasource:
-    url: jdbc:postgresql://fda-metadata-db:5432/fda
+    url: jdbc:postgresql://localhost:5432/fda
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
@@ -12,15 +12,17 @@ spring:
       ddl-auto: validate
     open-in-view: false
   application:
-    name: fda-gateway-service
-server.port: 9095
+    name: fda-discovery-service
+server.port: 9090
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
     root: warn
     at.tuwien.: debug
 eureka:
+  eureka.client.register-with-eureka: false
+  eureka.client.fetch-registry: false
   instance.hostname: fda-discovery-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
-  ready.path: /ready
+  ready.path: ./ready

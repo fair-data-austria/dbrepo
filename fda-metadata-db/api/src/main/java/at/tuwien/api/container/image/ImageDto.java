@@ -29,7 +29,6 @@ public class ImageDto {
     private String driverClass;
 
     @ToString.Exclude
-    @NotBlank
     @ApiModelProperty(required = true)
     private String logo;
 
@@ -41,15 +40,12 @@ public class ImageDto {
     @ApiModelProperty(required = true, example = "postgres")
     private String jdbcMethod;
 
-    @NotBlank
     @ApiModelProperty(required = true, example = "sha256:c5ec7353d87dfc35067e7bffeb25d6a0d52dad41e8b7357213e3b12d6e7ff78e")
     private String hash;
 
-    @NotBlank
     @ApiModelProperty(required = true, example = "2021-03-12T15:26:21.678396092Z")
     private Instant compiled;
 
-    @NotNull
     @ApiModelProperty(required = true, example = "314295447")
     private BigInteger size;
 

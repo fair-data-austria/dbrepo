@@ -1,7 +1,7 @@
 spring:
   main.banner-mode: off
   datasource:
-    url: jdbc:postgresql://fda-metadata-db:5432/fda
+    url: jdbc:postgresql://localhost:5432/fda
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
@@ -23,4 +23,4 @@ eureka:
   instance.hostname: fda-discovery-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
-  ready.path: /ready
+  ready.path: ./ready

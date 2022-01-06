@@ -56,12 +56,6 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
-    /**
-     * We need a container to test the CRUD operations as of now it is unfeasible to determine the correctness of the
-     * operations without a live container
-     *
-     * @throws InterruptedException Sleep interrupted.
-     */
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
         afterAll();

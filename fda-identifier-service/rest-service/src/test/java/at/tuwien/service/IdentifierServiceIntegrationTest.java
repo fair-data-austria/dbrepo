@@ -25,7 +25,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
