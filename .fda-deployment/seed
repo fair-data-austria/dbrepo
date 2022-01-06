@@ -1,0 +1,29 @@
+#!/bin/bash
+GATEWAY="fda-gateway-service:9095"
+
+# fda-container-service
+curl -d '@fda-container-service/create-image.json' -X POST "http://${GATEWAY}/api/image/" -H "Content-Type: application/json"
+#curl -d '@fda-container-service/create-container-air.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json"
+#curl -d '@fda-container-service/create-container-infection.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json"
+#curl -d '@fda-container-service/create-container-weather.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json"
+#
+## fda-database-service
+#curl -d '@fda-database-service/create-database-air.json' -X POST "http://${GATEWAY}/api/database/" -H "Content-Type: application/json"
+#curl -d '@fda-database-service/create-database-infection.json' -X POST "http://${GATEWAY}/api/database/" -H "Content-Type: application/json"
+#curl -d '@fda-database-service/create-database-weather.json' -X POST "http://${GATEWAY}/api/database/" -H "Content-Type: application/json"
+#
+## fda-table-service
+#curl -d '@fda-table-service/create-table-air.json' -X POST "http://${GATEWAY}/api/database/1/table" -H "Content-Type: application/json"
+#curl -d '@fda-table-service/create-table-infection.json' -X POST "http://${GATEWAY}/api/database/2/table" -H "Content-Type: application/json"
+#curl -d '@fda-table-service/create-table-weather.json' -X POST "http://${GATEWAY}/api/database/3/table" -H "Content-Type: application/json"
+#
+## fda-query-service
+#curl -d '@fda-query-service/create-query-air1.json' -X POST "http://${GATEWAY}/api/database/1/query" -H "Content-Type: application/json"
+#curl -d '@fda-query-service/create-query-air2.json' -X POST "http://${GATEWAY}/api/database/1/query" -H "Content-Type: application/json"
+#curl -d '@fda-query-service/create-query-air3.json' -X POST "http://${GATEWAY}/api/database/1/query" -H "Content-Type: application/json"
+#curl -d '@fda-query-service/create-query-infection1.json' -X POST "http://${GATEWAY}/api/database/2/query" -H "Content-Type: application/json"
+#curl -d '@fda-query-service/create-query-infection2.json' -X POST "http://${GATEWAY}/api/database/2/query" -H "Content-Type: application/json"
+#curl -d '@fda-query-service/create-query-infection3.json' -X POST "http://${GATEWAY}/api/database/2/query" -H "Content-Type: application/json"
+#curl -d '@fda-query-service/create-query-weather1.json' -X POST "http://${GATEWAY}/api/database/3/query" -H "Content-Type: application/json"
+#curl -d '@fda-query-service/create-query-weather2.json' -X POST "http://${GATEWAY}/api/database/3/query" -H "Content-Type: application/json"
+#curl -d '@fda-query-service/create-query-weather3.json' -X POST "http://${GATEWAY}/api/database/3/query" -H "Content-Type: application/json"

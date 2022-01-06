@@ -70,7 +70,6 @@ public class ContainerService {
                 .withPortBindings(PortBinding.parse(availableTcpPort + ":" + image.get().getDefaultPort()));
         /* save to metadata database */
         Container container = new Container();
-        container.setContainerCreated(Instant.now());
         container.setImage(image.get());
         container.setPort(availableTcpPort);
         container.setName(createDto.getName());

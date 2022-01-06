@@ -135,16 +135,6 @@ run-sandbox: config-frontend
 logs:
 	docker-compose -f docker-compose.prod.yml logs
 
-clean-maven:
-	mvn -f ./fda-authentication-service/pom.xml clean
-	#mvn -f ./fda-identifier-service/pom.xml clean
-	mvn -f ./fda-container-service/pom.xml clean
-	mvn -f ./fda-database-service/pom.xml clean
-	mvn -f ./fda-discovery-service/pom.xml clean
-	mvn -f ./fda-gateway-service/pom.xml clean
-	mvn -f ./fda-query-service/pom.xml clean
-	mvn -f ./fda-table-service/pom.xml clean
-
 clean-ide:
 	rm -rf .idea/
 	rm -rf ./fda-authentication-service/.idea/
@@ -160,12 +150,9 @@ clean-frontend:
 	rm -f ./fda-ui/videos/*.webm
 
 clean-docker:
-	docker container stop $(docker container ls -aq) || true
-	docker container rm $(docker container ls -aq) || true
-	docker volume rm fda-services_fda-broker-service-data fda-services_fda-metadata-db-data || true
-	yes | docker system prune
+	./.fda-deployment/clean
 
-clean: clean-ide clean-maven clean-frontend clean-docker
+clean: clean-ide clean-frontend clean-docker
 
 teardown:
 	./.fda-deployment/teardown

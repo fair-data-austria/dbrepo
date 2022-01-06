@@ -116,7 +116,7 @@ public abstract class BaseUnitTest {
             .internalName(CONTAINER_1_INTERNALNAME)
             .image(CONTAINER_1_IMAGE)
             .hash(CONTAINER_1_HASH)
-            .containerCreated(CONTAINER_1_CREATED)
+            .created(CONTAINER_1_CREATED)
             .build();
 
     public final static Container CONTAINER_2 = Container.builder()
@@ -125,7 +125,7 @@ public abstract class BaseUnitTest {
             .internalName(CONTAINER_2_INTERNALNAME)
             .image(CONTAINER_2_IMAGE)
             .hash(CONTAINER_2_HASH)
-            .containerCreated(CONTAINER_2_CREATED)
+            .created(CONTAINER_2_CREATED)
             .build();
 
 }

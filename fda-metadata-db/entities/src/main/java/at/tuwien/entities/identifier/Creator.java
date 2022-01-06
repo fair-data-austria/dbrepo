@@ -41,6 +41,7 @@ public class Creator {
     private String lastname;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @JoinColumn(name = "pid", referencedColumnName = "id", insertable = false, updatable = false)
     private Identifier identifier;
 
     @Column(nullable = false, updatable = false)

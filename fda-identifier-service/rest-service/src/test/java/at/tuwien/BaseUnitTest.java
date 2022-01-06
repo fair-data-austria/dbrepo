@@ -263,11 +263,13 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_LOGO = "AAAA";
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .key("POSTGRES_USER")
                     .value("postgres")
                     .type(ContainerImageEnvironmentItemType.USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .key("POSTGRES_PASSWORD")
                     .value("postgres")
                     .type(ContainerImageEnvironmentItemType.PASSWORD)

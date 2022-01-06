@@ -1,0 +1,21 @@
+{
+  "default_port": 3306,
+  "dialect": "org.hibernate.dialect.MariaDBDialect",
+  "driver_class": "org.mariadb.jdbc.Driver",
+  "environment": [
+    {
+      "key": "MARIADB_USER",
+      "value": "mariadb",
+      "type": "USERNAME"
+    },
+    {
+      "key": "MARIADB_PASSWORD",
+      "value": "mariadb",
+      "type": "PASSWORD"
+    }
+  ],
+  "jdbc_method": "mariadb",
+  "local": false,
+  "repository": "mariadb",
+  "tag": "10.5"
+}

@@ -34,7 +34,7 @@ public class QueryServiceGatewayImpl implements QueryServiceGateway {
         } catch (ResourceAccessException | HttpServerErrorException.ServiceUnavailable e) {
             log.error("Query service not available");
             log.debug("service not available for identifier {}", identifier);
-            throw new RemoteUnavailableException("Query service not available");
+            throw new RemoteUnavailableException("Query service not available", e);
         }
         if (response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
             log.error("Query not found with id {}", identifier.getQid());

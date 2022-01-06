@@ -18,7 +18,7 @@ import java.time.Instant;
 @IdClass(ContainerImageEnvironmentItemKey.class)
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "mdb_image_environment_item")
+@Table(name = "mdb_images_environment_item")
 public class ContainerImageEnvironmentItem {
 
     @Id
@@ -28,7 +28,7 @@ public class ContainerImageEnvironmentItem {
     @GenericGenerator(
             name = "environment-sequence",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_image_environment_item_seq")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_images_environment_item_seq")
     )
     public Long id;
 

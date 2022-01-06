@@ -80,7 +80,7 @@ CREATE SEQUENCE public.mdb_view_seq
     NO MAXVALUE
     CACHE 1;
 
-CREATE SEQUENCE public.mdb_indentifiers_seq
+CREATE SEQUENCE public.mdb_identifiers_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -325,12 +325,12 @@ CREATE TABLE IF NOT EXISTS mdb_VIEW
 
 CREATE TABLE IF NOT EXISTS mdb_identifiers
 (
-    id            bigint                               DEFAULT nextval('mdb_indentifiers_seq'),
+    id            bigint                               DEFAULT nextval('mdb_identifiers_seq'),
     qid           bigint                      NOT NULL,
     dbid          bigint                      NOT NULL,
     title         VARCHAR(255)                NOT NULL,
     description   TEXT                        NOT NULL,
-    published     visibility                  NOT NULL DEFAULT 'self',
+    visibility    visibility                  NOT NULL DEFAULT 'self',
     doi           VARCHAR(255),
     query         TEXT                        NOT NULL,
     created       timestamp without time zone NOT NULL DEFAULT NOW(),

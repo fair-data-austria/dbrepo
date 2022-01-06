@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "mdb_image", uniqueConstraints = @UniqueConstraint(columnNames = {"repository", "tag"}))
+@Table(name = "mdb_images", uniqueConstraints = @UniqueConstraint(columnNames = {"repository", "tag"}))
 public class ContainerImage {
 
     @Id
@@ -28,7 +28,7 @@ public class ContainerImage {
     @GenericGenerator(
             name = "image-sequence",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_image_seq")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "mdb_images_seq")
     )
     public Long id;
 

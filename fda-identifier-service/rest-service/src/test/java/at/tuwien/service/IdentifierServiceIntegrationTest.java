@@ -8,7 +8,10 @@ import at.tuwien.config.DockerConfig;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.identifier.Identifier;
 import at.tuwien.exception.*;
+import at.tuwien.repository.jpa.ContainerRepository;
+import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.IdentifierRepository;
+import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.impl.IdentifierServiceImpl;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -45,6 +48,12 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
 
     @Autowired
     private IdentifierRepository identifierRepository;
+
+    @Autowired
+    private DatabaseRepository databaseRepository;
+
+    @Autowired
+    private ContainerRepository containerRepository;
 
     private static Container GATEWAY = new Container();
     private static Container DISCOVERY = new Container();
@@ -127,6 +136,8 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
     @BeforeEach
     @Transactional
     public void beforeEach() {
+        containerRepository.save(CONTAINER_1);
+        databaseRepository.save(DATABASE_1);
         identifierRepository.save(IDENTIFIER_1);
     }
 
@@ -135,6 +146,7 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
 
         /* mock */
         identifierRepository.save(Identifier.builder()
+                .id(IDENTIFIER_2_ID)
                 .qid(IDENTIFIER_2_QUERY_ID)
                 .dbid(IDENTIFIER_2_DATABASE_ID)
                 .description(IDENTIFIER_2_DESCRIPTION)

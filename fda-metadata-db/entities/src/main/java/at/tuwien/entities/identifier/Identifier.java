@@ -7,7 +7,6 @@ import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.data.util.Lazy;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -50,7 +49,8 @@ public class Identifier {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "enum('everyone', 'trusted', 'self')")
+    @Enumerated(EnumType.STRING)
     private VisibilityType visibility = VisibilityType.SELF;
 
     @Column

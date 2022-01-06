@@ -24,7 +24,6 @@ public interface ContainerMapper {
     ContainerImage containerCreateRequestDtoToContainerImage(ContainerCreateRequestDto data);
 
     @Mappings({
-            @Mapping(target = "created", source = "containerCreated"),
             @Mapping(target = "image", source = "image"),
     })
     ContainerDto containerToContainerDto(Container data);
