@@ -52,20 +52,28 @@ public class IdentifierServiceImpl implements IdentifierService {
 
     @Override
     public Identifier update(Long identifierId, IdentifierDto data) throws IdentifierNotFoundException {
-        final Identifier identifier = find(identifierId);
-        return null;
+        find(identifierId);
+        final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
+        final Identifier entity = identifierRepository.save(identifier);
+        log.info("Updated identifier with id {}", identifierId);
+        log.debug("updated identifier {}", identifier);
+        return entity;
     }
 
     @Override
     public Identifier publish(Long identifierId) throws IdentifierNotFoundException {
         final Identifier identifier = find(identifierId);
-        return null;
+        log.info("Published identifier with id {}", identifierId);
+        log.debug("published identifier {}", identifier);
+        return identifier;
     }
 
     @Override
     public void delete(Long identifierId) throws IdentifierNotFoundException {
         final Identifier identifier = find(identifierId);
         identifierRepository.delete(identifier);
+        log.info("Deleted identifier with id {}", identifierId);
+        log.debug("deleted identifier {}", identifier);
     }
 
 }

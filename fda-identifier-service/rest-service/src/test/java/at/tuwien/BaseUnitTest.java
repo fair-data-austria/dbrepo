@@ -62,6 +62,14 @@ public abstract class BaseUnitTest {
             .lastModified(CREATOR_1_MODIFIED)
             .build();
 
+    public final static Creator CREATOR_1_REQUEST = Creator.builder()
+            .pid(CREATOR_1_IDENTIFIER_ID)
+            .firstname(CREATOR_1_FIRSTNAME)
+            .lastname(CREATOR_1_LASTNAME)
+            .created(CREATOR_1_CREATED)
+            .lastModified(CREATOR_1_MODIFIED)
+            .build();
+
     public final static Long CREATOR_2_ID = 2L;
     public final static Long CREATOR_2_QUERY_ID = 2L;
     public final static Long CREATOR_2_IDENTIFIER_ID = 2L;
@@ -72,6 +80,14 @@ public abstract class BaseUnitTest {
 
     public final static Creator CREATOR_2 = Creator.builder()
             .id(CREATOR_2_ID)
+            .pid(CREATOR_2_IDENTIFIER_ID)
+            .firstname(CREATOR_2_FIRSTNAME)
+            .lastname(CREATOR_2_LASTNAME)
+            .created(CREATOR_2_CREATED)
+            .lastModified(CREATOR_2_MODIFIED)
+            .build();
+
+    public final static Creator CREATOR_2_REQUEST = Creator.builder()
             .pid(CREATOR_2_IDENTIFIER_ID)
             .firstname(CREATOR_2_FIRSTNAME)
             .lastname(CREATOR_2_LASTNAME)
@@ -107,8 +123,28 @@ public abstract class BaseUnitTest {
             .creators(List.of(CREATOR_1, CREATOR_2))
             .build();
 
+    public final static Identifier IDENTIFIER_1_REQUEST = Identifier.builder()
+            .qid(IDENTIFIER_1_QUERY_ID)
+            .description(IDENTIFIER_1_DESCRIPTION)
+            .title(IDENTIFIER_1_TITLE)
+            .doi(IDENTIFIER_1_DOI)
+            .created(IDENTIFIER_1_CREATED)
+            .lastModified(IDENTIFIER_1_MODIFIED)
+            .creators(List.of(CREATOR_1_REQUEST, CREATOR_2_REQUEST))
+            .build();
+
     public final static IdentifierDto IDENTIFIER_1_DTO = IdentifierDto.builder()
             .id(IDENTIFIER_1_ID)
+            .qid(IDENTIFIER_1_QUERY_ID)
+            .description(IDENTIFIER_1_DESCRIPTION)
+            .title(IDENTIFIER_1_TITLE)
+            .doi(IDENTIFIER_1_DOI)
+            .created(IDENTIFIER_1_CREATED)
+            .lastModified(IDENTIFIER_1_MODIFIED)
+            .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+            .build();
+
+    public final static IdentifierDto IDENTIFIER_1_DTO_REQUEST = IdentifierDto.builder()
             .qid(IDENTIFIER_1_QUERY_ID)
             .description(IDENTIFIER_1_DESCRIPTION)
             .title(IDENTIFIER_1_TITLE)
