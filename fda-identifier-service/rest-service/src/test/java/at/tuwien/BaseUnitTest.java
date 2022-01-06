@@ -114,8 +114,18 @@ public abstract class BaseUnitTest {
     public final static String IDENTIFIER_1_DOI = "10.1000/182";
     public final static VisibilityType IDENTIFIER_1_VISIBILITY = VisibilityType.SELF;
     public final static VisibilityTypeDto IDENTIFIER_1_VISIBILITY_DTO = VisibilityTypeDto.SELF;
-    public final static Instant IDENTIFIER_1_CREATED = Instant.now();
-    public final static Instant IDENTIFIER_1_MODIFIED = Instant.now().minus(1, HOURS);
+    public final static Instant IDENTIFIER_1_CREATED = Instant.now().minus(1, HOURS);
+    public final static Instant IDENTIFIER_1_MODIFIED = Instant.now();
+
+    public final static Long IDENTIFIER_2_ID = 2L;
+    public final static Long IDENTIFIER_2_QUERY_ID = 2L;
+    public final static String IDENTIFIER_2_DESCRIPTION = "Selecting all from the weather Austria table";
+    public final static String IDENTIFIER_2_TITLE = "Austria weather data";
+    public final static String IDENTIFIER_2_DOI = "10.1000/183";
+    public final static VisibilityType IDENTIFIER_2_VISIBILITY = VisibilityType.SELF;
+    public final static VisibilityTypeDto IDENTIFIER_2_VISIBILITY_DTO = VisibilityTypeDto.SELF;
+    public final static Instant IDENTIFIER_2_CREATED = Instant.now().minus(5, HOURS);
+    public final static Instant IDENTIFIER_2_MODIFIED = Instant.now().minus(3, HOURS);
 
     public final static Identifier IDENTIFIER_1 = Identifier.builder()
             .id(IDENTIFIER_1_ID)
@@ -126,6 +136,18 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_1_VISIBILITY)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
+            .creators(List.of(CREATOR_1, CREATOR_2))
+            .build();
+
+    public final static Identifier IDENTIFIER_2 = Identifier.builder()
+            .id(IDENTIFIER_2_ID)
+            .qid(IDENTIFIER_2_QUERY_ID)
+            .description(IDENTIFIER_2_DESCRIPTION)
+            .title(IDENTIFIER_2_TITLE)
+            .doi(IDENTIFIER_2_DOI)
+            .visibility(IDENTIFIER_2_VISIBILITY)
+            .created(IDENTIFIER_2_CREATED)
+            .lastModified(IDENTIFIER_2_MODIFIED)
             .creators(List.of(CREATOR_1, CREATOR_2))
             .build();
 
@@ -160,6 +182,17 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_1_VISIBILITY_DTO)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
+            .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+            .build();
+
+    public final static IdentifierDto IDENTIFIER_2_DTO_REQUEST = IdentifierDto.builder()
+            .qid(IDENTIFIER_2_QUERY_ID)
+            .description(IDENTIFIER_2_DESCRIPTION)
+            .title(IDENTIFIER_2_TITLE)
+            .doi(IDENTIFIER_2_DOI)
+            .visibility(IDENTIFIER_2_VISIBILITY_DTO)
+            .created(IDENTIFIER_2_CREATED)
+            .lastModified(IDENTIFIER_2_MODIFIED)
             .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
             .build();
 

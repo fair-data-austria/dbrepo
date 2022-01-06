@@ -1,18 +1,19 @@
 package at.tuwien.service.impl;
 
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.identifier.IdentifierDto;
 import at.tuwien.api.identifier.VisibilityTypeDto;
 import at.tuwien.entities.identifier.Identifier;
 import at.tuwien.entities.identifier.VisibilityType;
-import at.tuwien.exception.IdentifierAlreadyPublishedException;
-import at.tuwien.exception.IdentifierNotFoundException;
-import at.tuwien.exception.IdentifierPublishingNotAllowedException;
+import at.tuwien.exception.*;
+import at.tuwien.gateway.QueryServiceGateway;
 import at.tuwien.mapper.IdentifierMapper;
 import at.tuwien.repository.jpa.IdentifierRepository;
 import at.tuwien.service.IdentifierService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,22 +23,36 @@ import java.util.Optional;
 public class IdentifierServiceImpl implements IdentifierService {
 
     private final IdentifierMapper identifierMapper;
+    private final QueryServiceGateway queryServiceGateway;
     private final IdentifierRepository identifierRepository;
 
     @Autowired
-    public IdentifierServiceImpl(IdentifierMapper identifierMapper, IdentifierRepository identifierRepository) {
+    public IdentifierServiceImpl(IdentifierMapper identifierMapper, QueryServiceGateway queryServiceGateway,
+                                 IdentifierRepository identifierRepository) {
         this.identifierMapper = identifierMapper;
+        this.queryServiceGateway = queryServiceGateway;
         this.identifierRepository = identifierRepository;
     }
 
     @Override
+    @Transactional
     public List<Identifier> findAll() {
         return identifierRepository.findAll();
     }
 
     @Override
-    public Identifier create(IdentifierDto data) {
+    @Transactional
+    public Identifier create(IdentifierDto data) throws IdentifierPublishingNotAllowedException, QueryNotFoundException,
+            RemoteUnavailableException {
+        if (!data.getVisibility().equals(VisibilityTypeDto.SELF)) {
+            log.error("Identifier must be self visible for creation");
+            log.debug("identifier is not self-visible {}", data);
+            throw new IdentifierPublishingNotAllowedException("Identifier not self-visible");
+        }
+        /* find */
         final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
+        final QueryDto query = queryServiceGateway.find(data.getQid());
+        /* create in metadata database */
         final Identifier entity = identifierRepository.save(identifier);
         log.info("Created identifier with id {}", entity.getId());
         log.debug("created identifier {}", entity);
@@ -45,6 +60,7 @@ public class IdentifierServiceImpl implements IdentifierService {
     }
 
     @Override
+    @Transactional
     public Identifier find(Long identifierId) throws IdentifierNotFoundException {
         final Optional<Identifier> optional = identifierRepository.findById(identifierId);
         if (optional.isEmpty()) {
@@ -55,6 +71,7 @@ public class IdentifierServiceImpl implements IdentifierService {
     }
 
     @Override
+    @Transactional
     public Identifier update(Long identifierId, IdentifierDto data) throws IdentifierNotFoundException,
             IdentifierPublishingNotAllowedException {
         final Identifier identifier = find(identifierId);
@@ -72,6 +89,7 @@ public class IdentifierServiceImpl implements IdentifierService {
     }
 
     @Override
+    @Transactional
     public Identifier publish(Long identifierId, VisibilityTypeDto visibility) throws IdentifierNotFoundException,
             IdentifierAlreadyPublishedException {
         final Identifier identifier = find(identifierId);
