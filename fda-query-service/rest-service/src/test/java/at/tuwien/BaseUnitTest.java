@@ -221,7 +221,7 @@ public abstract class BaseUnitTest {
     public final static Instant QUERY_1_CREATED = Instant.now();
     public final static Instant QUERY_1_EXECUTION = Instant.now();
 
-    public final static Long QUERY_2_ID = 1L;
+    public final static Long QUERY_2_ID = 2L;
     public final static String QUERY_2_TITLE = "CCCCCCC";
     public final static String QUERY_2_DESCRIPTION = "DDDDDD";
     public final static String QUERY_2_STATEMENT = "SELECT * FROM `weather`;";
@@ -330,7 +330,7 @@ public abstract class BaseUnitTest {
             .internalName(CONTAINER_1_INTERNALNAME)
             .image(CONTAINER_1_IMAGE)
             .hash(CONTAINER_1_HASH)
-            .containerCreated(CONTAINER_1_CREATED)
+            .created(CONTAINER_1_CREATED)
             .build();
 
     public final static Container CONTAINER_2 = Container.builder()
@@ -339,7 +339,7 @@ public abstract class BaseUnitTest {
             .internalName(CONTAINER_2_INTERNALNAME)
             .image(CONTAINER_2_IMAGE)
             .hash(CONTAINER_2_HASH)
-            .containerCreated(CONTAINER_2_CREATED)
+            .created(CONTAINER_2_CREATED)
             .build();
 
     public final static Container CONTAINER_3 = Container.builder()
@@ -348,7 +348,7 @@ public abstract class BaseUnitTest {
             .internalName(CONTAINER_3_INTERNALNAME)
             .image(CONTAINER_3_IMAGE)
             .hash(CONTAINER_3_HASH)
-            .containerCreated(CONTAINER_3_CREATED)
+            .created(CONTAINER_3_CREATED)
             .build();
 
     public final static Container CONTAINER_NGINX = Container.builder()
@@ -356,7 +356,7 @@ public abstract class BaseUnitTest {
             .name(CONTAINER_NGINX_NAME)
             .internalName(CONTAINER_NGINX_INTERNALNAME)
             .hash(CONTAINER_NGINX_HASH)
-            .containerCreated(CONTAINER_NGINX_CREATED)
+            .created(CONTAINER_NGINX_CREATED)
             .build();
 
     public final static List<TableColumn> TABLE_3_COLUMNS = List.of(TableColumn.builder()

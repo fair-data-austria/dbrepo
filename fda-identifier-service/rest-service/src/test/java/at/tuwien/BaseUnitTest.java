@@ -1,5 +1,6 @@
 package at.tuwien;
 
+import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.identifier.CreatorDto;
 import at.tuwien.api.identifier.IdentifierDto;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class BaseUnitTest {
@@ -128,8 +130,42 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static Long QUERY_1_ID = 1L;
+    public final static Long QUERY_1_DATABASE_ID = DATABASE_1_ID;
+    public final static String QUERY_1_STATEMENT = "SELECT * FROM `weather`;";
+    public final static String QUERY_1_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
+    public final static Long QUERY_1_RESULT_NUMBER = 9L;
+    public final static Instant QUERY_1_CREATED = Instant.now().minus(2, MINUTES);
+    public final static Instant QUERY_1_LAST_MODIFIED = Instant.now().minus(1, MINUTES);
 
-    public final static Long QUERY_2_ID = 1L;
+    public final static QueryDto QUERY_1_DTO = QueryDto.builder()
+            .id(QUERY_1_ID)
+            .query(QUERY_1_STATEMENT)
+            .queryNormalized(QUERY_1_STATEMENT)
+            .resultNumber(QUERY_1_RESULT_NUMBER)
+            .resultHash(QUERY_1_RESULT_HASH)
+            .databaseId(QUERY_1_DATABASE_ID)
+            .lastModified(QUERY_1_LAST_MODIFIED)
+            .created(QUERY_1_CREATED)
+            .build();
+
+    public final static Long QUERY_2_ID = 2L;
+    public final static Long QUERY_2_DATABASE_ID = DATABASE_1_ID;
+    public final static String QUERY_2_STATEMENT = "SELECT * FROM `weather`;";
+    public final static String QUERY_2_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
+    public final static Long QUERY_2_RESULT_NUMBER = 5L;
+    public final static Instant QUERY_2_CREATED = Instant.now().minus(2, MINUTES);
+    public final static Instant QUERY_2_LAST_MODIFIED = Instant.now().minus(1, MINUTES);
+
+    public final static QueryDto QUERY_2_DTO = QueryDto.builder()
+            .id(QUERY_2_ID)
+            .query(QUERY_2_STATEMENT)
+            .queryNormalized(QUERY_2_STATEMENT)
+            .resultNumber(QUERY_2_RESULT_NUMBER)
+            .resultHash(QUERY_2_RESULT_HASH)
+            .databaseId(QUERY_2_DATABASE_ID)
+            .lastModified(QUERY_2_LAST_MODIFIED)
+            .created(QUERY_2_CREATED)
+            .build();
 
     public final static Long IDENTIFIER_1_ID = 1L;
     public final static Long IDENTIFIER_1_QUERY_ID = QUERY_1_ID;
