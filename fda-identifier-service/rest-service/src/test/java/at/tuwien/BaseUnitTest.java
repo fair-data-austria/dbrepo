@@ -66,8 +66,8 @@ public abstract class BaseUnitTest {
     public final static Long CREATOR_1_IDENTIFIER_ID = 1L;
     public final static String CREATOR_1_FIRSTNAME = "Max";
     public final static String CREATOR_1_LASTNAME = "Mustermann";
-    public final static Instant CREATOR_1_CREATED = Instant.now();
-    public final static Instant CREATOR_1_MODIFIED = Instant.now().minus(1, HOURS);
+    public final static Instant CREATOR_1_CREATED = Instant.ofEpochSecond(1641588352);
+    public final static Instant CREATOR_1_MODIFIED = Instant.ofEpochSecond(1541588352);
 
     public final static Creator CREATOR_1 = Creator.builder()
             .id(CREATOR_1_ID)
@@ -96,12 +96,12 @@ public abstract class BaseUnitTest {
             .build();
 
     public final static Long CREATOR_2_ID = 2L;
-    public final static Long CREATOR_2_QUERY_ID = 2L;
-    public final static Long CREATOR_2_IDENTIFIER_ID = 2L;
+    public final static Long CREATOR_2_QUERY_ID = 1L;
+    public final static Long CREATOR_2_IDENTIFIER_ID = 1L;
     public final static String CREATOR_2_FIRSTNAME = "Martina";
     public final static String CREATOR_2_LASTNAME = "Mustermann";
-    public final static Instant CREATOR_2_CREATED = Instant.now();
-    public final static Instant CREATOR_2_MODIFIED = Instant.now().minus(1, HOURS);
+    public final static Instant CREATOR_2_CREATED = Instant.ofEpochSecond(1641588352);
+    public final static Instant CREATOR_2_MODIFIED = Instant.ofEpochSecond(1541588352);
 
     public final static Creator CREATOR_2 = Creator.builder()
             .id(CREATOR_2_ID)
@@ -134,8 +134,8 @@ public abstract class BaseUnitTest {
     public final static String QUERY_1_STATEMENT = "SELECT * FROM `weather`;";
     public final static String QUERY_1_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
     public final static Long QUERY_1_RESULT_NUMBER = 9L;
-    public final static Instant QUERY_1_CREATED = Instant.now().minus(2, MINUTES);
-    public final static Instant QUERY_1_LAST_MODIFIED = Instant.now().minus(1, MINUTES);
+    public final static Instant QUERY_1_CREATED = Instant.ofEpochSecond(1641588352);
+    public final static Instant QUERY_1_LAST_MODIFIED = Instant.ofEpochSecond(1541588352);
 
     public final static QueryDto QUERY_1_DTO = QueryDto.builder()
             .id(QUERY_1_ID)
@@ -153,8 +153,8 @@ public abstract class BaseUnitTest {
     public final static String QUERY_2_STATEMENT = "SELECT * FROM `weather`;";
     public final static String QUERY_2_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
     public final static Long QUERY_2_RESULT_NUMBER = 5L;
-    public final static Instant QUERY_2_CREATED = Instant.now().minus(2, MINUTES);
-    public final static Instant QUERY_2_LAST_MODIFIED = Instant.now().minus(1, MINUTES);
+    public final static Instant QUERY_2_CREATED = Instant.ofEpochSecond(1641588352);
+    public final static Instant QUERY_2_LAST_MODIFIED = Instant.ofEpochSecond(1541588352);
 
     public final static QueryDto QUERY_2_DTO = QueryDto.builder()
             .id(QUERY_2_ID)
@@ -175,8 +175,8 @@ public abstract class BaseUnitTest {
     public final static String IDENTIFIER_1_DOI = "10.1000/182";
     public final static VisibilityType IDENTIFIER_1_VISIBILITY = VisibilityType.SELF;
     public final static VisibilityTypeDto IDENTIFIER_1_VISIBILITY_DTO = VisibilityTypeDto.SELF;
-    public final static Instant IDENTIFIER_1_CREATED = Instant.now().minus(1, HOURS);
-    public final static Instant IDENTIFIER_1_MODIFIED = Instant.now();
+    public final static Instant IDENTIFIER_1_CREATED = Instant.ofEpochSecond(1641588352);
+    public final static Instant IDENTIFIER_1_MODIFIED = Instant.ofEpochSecond(1541588352);
 
     public final static Long IDENTIFIER_2_ID = 2L;
     public final static Long IDENTIFIER_2_QUERY_ID = QUERY_2_ID;
@@ -186,8 +186,8 @@ public abstract class BaseUnitTest {
     public final static String IDENTIFIER_2_DOI = "10.1000/183";
     public final static VisibilityType IDENTIFIER_2_VISIBILITY = VisibilityType.SELF;
     public final static VisibilityTypeDto IDENTIFIER_2_VISIBILITY_DTO = VisibilityTypeDto.SELF;
-    public final static Instant IDENTIFIER_2_CREATED = Instant.now().minus(5, HOURS);
-    public final static Instant IDENTIFIER_2_MODIFIED = Instant.now().minus(3, HOURS);
+    public final static Instant IDENTIFIER_2_CREATED = Instant.ofEpochSecond(1641588352);
+    public final static Instant IDENTIFIER_2_MODIFIED = Instant.ofEpochSecond(1541588352);
 
     public final static Identifier IDENTIFIER_1 = Identifier.builder()
             .id(IDENTIFIER_1_ID)
@@ -199,7 +199,6 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_1_VISIBILITY)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
-            .creators(List.of())
             .build();
 
     public final static Identifier IDENTIFIER_2 = Identifier.builder()
@@ -212,7 +211,6 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_2_VISIBILITY)
             .created(IDENTIFIER_2_CREATED)
             .lastModified(IDENTIFIER_2_MODIFIED)
-            .creators(List.of())
             .build();
 
     public final static Identifier IDENTIFIER_1_REQUEST = Identifier.builder()
@@ -276,17 +274,6 @@ public abstract class BaseUnitTest {
     public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
     public final static String[] METADATA_1_CREATORS = new String[]{CREATOR_1_NAME, CREATOR_2_NAME};
 
-    public final static Long DEPOSIT_2_ID = 2L;
-    public final static String DEPOSIT_2_TITLE = "Test Document " + RandomStringUtils.randomAlphanumeric(10);
-    public final static String DEPOSIT_2_DESCRIPTION = "Test Description " + RandomStringUtils.randomAlphanumeric(100);
-    public final static Instant DEPOSIT_2_CREATED = Instant.now().minus(2, ChronoUnit.HOURS);
-    public final static Instant DEPOSIT_2_MODIFIED = Instant.now();
-    public final static String DEPOSIT_2_STATE = "draft";
-    public final static Boolean DEPOSIT_2_SUBMITTED = false;
-
-    public final static String DEPOSIT_1_DOI = "10.5072/zenodo.542201";
-    public final static Long DEPOSIT_1_REC_ID = 542201L;
-
     public final static Long IMAGE_1_ID = 1L;
     public final static String IMAGE_1_REPOSITORY = "postgres";
     public final static String IMAGE_1_TAG = "13-alpine";
@@ -297,7 +284,7 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_JDBC = "postgresql";
     public final static Long IMAGE_1_SIZE = 12000L;
     public final static String IMAGE_1_LOGO = "AAAA";
-    public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
+    public final static Instant IMAGE_1_BUILT = Instant.ofEpochSecond(1441588352);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
                     .key("POSTGRES_USER")
@@ -334,7 +321,7 @@ public abstract class BaseUnitTest {
     public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
     public final static String CONTAINER_1_DATABASE = "univie";
     public final static String CONTAINER_1_IP = "172.28.0.5";
-    public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
+    public final static Instant CONTAINER_1_CREATED = Instant.ofEpochSecond(1641588352);
 
     public final static Container CONTAINER_1 = Container.builder()
             .id(CONTAINER_1_ID)

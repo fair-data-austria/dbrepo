@@ -4,7 +4,7 @@ CREATE DATABASE root;
 BEGIN;
 
 CREATE TYPE gender AS ENUM ('F', 'M', 'T');
-CREATE TYPE visibility AS ENUM ('everyone', 'trusted', 'self');
+CREATE TYPE visibility AS ENUM ('EVERYONE', 'TRUSTED', 'SELF');
 CREATE TYPE accesstype AS ENUM ('R', 'W');
 CREATE TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER');
 
@@ -330,7 +330,7 @@ CREATE TABLE IF NOT EXISTS mdb_identifiers
     dbid          bigint                      NOT NULL,
     title         VARCHAR(255)                NOT NULL,
     description   TEXT                        NOT NULL,
-    visibility    visibility                  NOT NULL DEFAULT 'self',
+    visibility    visibility                  NOT NULL DEFAULT 'SELF',
     doi           VARCHAR(255),
     query         TEXT                        NOT NULL,
     created       timestamp without time zone NOT NULL DEFAULT NOW(),

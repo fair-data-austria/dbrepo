@@ -40,7 +40,8 @@ public class Creator {
     @Column(nullable = false)
     private String lastname;
 
-    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "pid", referencedColumnName = "id", insertable = false, updatable = false)
     private Identifier identifier;
 

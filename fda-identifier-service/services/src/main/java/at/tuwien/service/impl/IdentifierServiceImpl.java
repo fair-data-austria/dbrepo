@@ -13,6 +13,7 @@ import at.tuwien.service.IdentifierService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,17 +52,16 @@ public class IdentifierServiceImpl implements IdentifierService {
             throw new IdentifierPublishingNotAllowedException("Identifier not self-visible");
         }
         /* find */
-        final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
-        final QueryDto query = queryServiceGateway.find(data);
-        /* create in metadata database */
-        final Identifier entity;
-        try {
-            entity = identifierRepository.save(identifier);
-        } catch (ConstraintViolationException e) {
-            log.error("Identifier already issued for database {} and id {}", data.getDbid(), data.getQid());
+        final Optional<Identifier> optional = identifierRepository.findByQid(data.getQid());
+        if (optional.isPresent()) {
+            log.error("Identifier already issued for database {} and query id {}", data.getDbid(), data.getQid());
             log.debug("identifier already exists similar to request {}", data);
             throw new IdentifierAlreadyExistsException("Identifier exists");
         }
+        final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
+        final QueryDto query = queryServiceGateway.find(data);
+        /* create in metadata database */
+        final Identifier entity = identifierRepository.save(identifier);
         log.info("Created identifier with id {}", entity.getId());
         log.debug("created identifier {}", entity);
         return entity;
@@ -116,6 +116,7 @@ public class IdentifierServiceImpl implements IdentifierService {
     }
 
     @Override
+    @Transactional
     public void delete(Long identifierId) throws IdentifierNotFoundException {
         final Identifier identifier = find(identifierId);
         identifierRepository.delete(identifier);

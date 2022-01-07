@@ -49,14 +49,14 @@ public class Identifier {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false, columnDefinition = "enum('everyone', 'trusted', 'self')")
+    @Column(nullable = false, columnDefinition = "enum('EVERYONE', 'TRUSTED', 'SELF')")
     @Enumerated(EnumType.STRING)
     private VisibilityType visibility = VisibilityType.SELF;
 
     @Column
     private String doi;
 
-    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "identifier")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "identifier")
     private List<Creator> creators;
 
     @Column(nullable = false, updatable = false)
