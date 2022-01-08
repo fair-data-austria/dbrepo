@@ -65,11 +65,11 @@ public class ContainerServiceUnitTest extends BaseUnitTest {
     public void create_noImage_fails() {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
-                .repository(CONTAINER_1_IMAGE.getRepository())
-                .tag(CONTAINER_1_IMAGE.getTag())
+                .repository(IMAGE_1.getRepository())
+                .tag(IMAGE_1.getTag())
                 .name(CONTAINER_1_DATABASE)
                 .build();
-        when(imageRepository.findByRepositoryAndTag(CONTAINER_1_IMAGE.getRepository(), CONTAINER_1_IMAGE.getTag()))
+        when(imageRepository.findByRepositoryAndTag(IMAGE_1.getRepository(), IMAGE_1.getTag()))
                 .thenReturn(Optional.empty());
 
         /* test */
@@ -82,12 +82,12 @@ public class ContainerServiceUnitTest extends BaseUnitTest {
     public void create_docker_fails() {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
-                .repository(CONTAINER_1_IMAGE.getRepository())
-                .tag(CONTAINER_1_IMAGE.getTag())
+                .repository(IMAGE_1.getRepository())
+                .tag(IMAGE_1.getTag())
                 .name(CONTAINER_1_DATABASE)
                 .build();
-        when(imageRepository.findByRepositoryAndTag(CONTAINER_1_IMAGE.getRepository(), CONTAINER_1_IMAGE.getTag()))
-                .thenReturn(Optional.of(CONTAINER_1_IMAGE));
+        when(imageRepository.findByRepositoryAndTag(IMAGE_1.getRepository(), IMAGE_1.getTag()))
+                .thenReturn(Optional.of(IMAGE_1));
         when(dockerClient.createContainerCmd(any()))
                 .thenThrow(ConflictException.class);
 

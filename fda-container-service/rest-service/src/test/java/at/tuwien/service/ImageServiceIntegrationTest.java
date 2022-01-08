@@ -40,6 +40,7 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     @BeforeEach
     public void beforeEach() {
+        log.debug("save container {}", CONTAINER_1);
         containerRepository.save(CONTAINER_1);
     }
 

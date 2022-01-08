@@ -25,7 +25,7 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_TAG = "10.5";
     public final static String IMAGE_1_HASH = "83b40f2726e5";
     public final static Integer IMAGE_1_PORT = 5432;
-    public final static String IMAGE_1_DIALECT = "MARIADB";
+    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.MariaDBDialect";
     public final static String IMAGE_1_DRIVER = "org.mariadb.jdbc.Driver";
     public final static String IMAGE_1_JDBC = "mariadb";
     public final static Long IMAGE_1_SIZE = 12000L;
@@ -83,7 +83,6 @@ public abstract class BaseUnitTest {
 
     public final static Long CONTAINER_1_ID = 1L;
     public final static String CONTAINER_1_HASH = "deadbeef";
-    public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
     public final static String CONTAINER_1_NAME = "fda-userdb-u01";
     public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
     public final static String CONTAINER_1_DATABASE = "univie";
@@ -92,7 +91,6 @@ public abstract class BaseUnitTest {
 
     public final static Long CONTAINER_2_ID = 2L;
     public final static String CONTAINER_2_HASH = "deadbeef";
-    public final static ContainerImage CONTAINER_2_IMAGE = IMAGE_1;
     public final static String CONTAINER_2_NAME = "fda-userdb-u02";
     public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-u02";
     public final static String CONTAINER_2_DATABASE = "univie";
@@ -105,7 +103,7 @@ public abstract class BaseUnitTest {
             .id(CONTAINER_1_ID)
             .name(CONTAINER_1_NAME)
             .internalName(CONTAINER_1_INTERNALNAME)
-            .image(CONTAINER_1_IMAGE)
+            .image(IMAGE_1)
             .hash(CONTAINER_1_HASH)
             .created(CONTAINER_1_CREATED)
             .build();
@@ -114,7 +112,7 @@ public abstract class BaseUnitTest {
             .id(CONTAINER_2_ID)
             .name(CONTAINER_2_NAME)
             .internalName(CONTAINER_2_INTERNALNAME)
-            .image(CONTAINER_2_IMAGE)
+            .image(IMAGE_1)
             .hash(CONTAINER_2_HASH)
             .created(CONTAINER_2_CREATED)
             .build();

@@ -55,10 +55,6 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private DockerUtil dockerUtil;
 
-    /**
-     * Unfortunately since we depend on the {@link DockerUtil}, we cannot use it in a static
-     * context which dramatically slows down the testing.
-     */
     @Transactional
     @BeforeEach
     public void beforeEach() {
@@ -92,8 +88,11 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
         CONTAINER_1.setHash(request.getId());
 
         /* mock data */
+        log.debug("save image {}", IMAGE_1);
         imageRepository.save(IMAGE_1);
+        log.debug("save container {}", CONTAINER_1);
         containerRepository.save(CONTAINER_1);
+        log.debug("save container {}", CONTAINER_2);
         containerRepository.save(CONTAINER_2);
     }
 

@@ -59,7 +59,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
                 .environment(IMAGE_1_ENV_DTO)
                 .build();
         when(imageService.create(request))
-                .thenReturn(CONTAINER_1_IMAGE);
+                .thenReturn(IMAGE_1);
 
         /* test */
         final ResponseEntity<ImageDto> response = imageEndpoint.create(request);
@@ -109,7 +109,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     @Test
     public void findById_succeeds() throws ImageNotFoundException {
         when(imageService.getById(IMAGE_1_ID))
-                .thenReturn(CONTAINER_1_IMAGE);
+                .thenReturn(IMAGE_1);
 
         /* test */
         final ResponseEntity<ImageDto> response = imageEndpoint.findById(IMAGE_1_ID);

@@ -58,8 +58,8 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     public void create_succeeds() throws ImageNotFoundException, DockerClientException, ContainerNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
-                .repository(CONTAINER_1_IMAGE.getRepository())
-                .tag(CONTAINER_1_IMAGE.getTag())
+                .repository(IMAGE_1.getRepository())
+                .tag(IMAGE_1.getTag())
                 .build();
         when(containerService.create(request))
                 .thenReturn(CONTAINER_1);
@@ -93,8 +93,8 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     public void create_docker_fails() throws DockerClientException, ImageNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
-                .repository(CONTAINER_1_IMAGE.getRepository())
-                .tag(CONTAINER_1_IMAGE.getTag())
+                .repository(IMAGE_1.getRepository())
+                .tag(IMAGE_1.getTag())
                 .build();
         when(imageRepository.findByRepositoryAndTag(request.getRepository(), request.getTag()))
                 .thenReturn(Optional.of(IMAGE_1));
