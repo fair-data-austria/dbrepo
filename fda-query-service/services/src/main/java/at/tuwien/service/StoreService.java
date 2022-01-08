@@ -3,7 +3,7 @@ package at.tuwien.service;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
-import at.tuwien.entities.Query;
+import at.tuwien.querystore.Query;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.ImageNotSupportedException;
 import at.tuwien.exception.QueryNotFoundException;

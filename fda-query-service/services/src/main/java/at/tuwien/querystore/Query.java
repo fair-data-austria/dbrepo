@@ -1,4 +1,4 @@
-package at.tuwien.entities;
+package at.tuwien.querystore;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
