@@ -119,7 +119,6 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         final Identifier response = identifierService.create(IDENTIFIER_2_DTO_REQUEST);
-        IDENTIFIER_2.setCreators(List.of(CREATOR_1, CREATOR_2)) /* mock */;
         assertEquals(IDENTIFIER_2_ID, response.getId());
         assertEquals(IDENTIFIER_2_DATABASE_ID, response.getDbid());
         assertEquals(IDENTIFIER_2_QUERY_ID, response.getQid());
@@ -127,10 +126,6 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
         assertEquals(IDENTIFIER_2_TITLE, response.getTitle());
         assertEquals(IDENTIFIER_2_DESCRIPTION, response.getDescription());
         assertEquals(2, response.getCreators().size());
-        assertEquals(CREATOR_1_ID, response.getCreators().get(0).getId());
-        assertEquals(CREATOR_1_QUERY_ID, response.getCreators().get(0).getPid());
-        assertEquals(CREATOR_2_ID, response.getCreators().get(1).getId());
-        assertEquals(CREATOR_2_QUERY_ID, response.getCreators().get(1).getPid());
     }
 
     @Test
@@ -209,10 +204,6 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
         assertEquals(IDENTIFIER_1_DESCRIPTION, response.getDescription());
         assertEquals(IDENTIFIER_1_DOI, response.getDoi());
         assertEquals(2, response.getCreators().size());
-        assertEquals(CREATOR_1_ID, response.getCreators().get(0).getId());
-        assertEquals(CREATOR_1_QUERY_ID, response.getCreators().get(0).getPid());
-        assertEquals(CREATOR_2_ID, response.getCreators().get(1).getId());
-        assertEquals(CREATOR_2_QUERY_ID, response.getCreators().get(1).getPid());
     }
 
     @Test
@@ -234,7 +225,7 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_succeeds() throws IdentifierNotFoundException, IdentifierPublishingNotAllowedException {
+    public void update_succeeds() throws IdentifierNotFoundException {
 
         /* test */
         final Identifier response = identifierService.update(IDENTIFIER_1_ID, IDENTIFIER_1_DTO);
@@ -245,31 +236,6 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
         assertEquals(IDENTIFIER_1_DESCRIPTION, response.getDescription());
         assertEquals(IDENTIFIER_1_DOI, response.getDoi());
         assertEquals(2, response.getCreators().size());
-        assertEquals(CREATOR_1_ID, response.getCreators().get(0).getId());
-        assertEquals(CREATOR_1_QUERY_ID, response.getCreators().get(0).getPid());
-        assertEquals(CREATOR_2_ID, response.getCreators().get(1).getId());
-        assertEquals(CREATOR_2_QUERY_ID, response.getCreators().get(1).getPid());
-    }
-
-    @Test
-    public void update_visibilityTrusted_fails() {
-        final IdentifierDto request = IdentifierDto.builder()
-                .id(IDENTIFIER_1_ID)
-                .qid(IDENTIFIER_1_QUERY_ID)
-                .dbid(IDENTIFIER_1_DATABASE_ID)
-                .description(IDENTIFIER_1_DESCRIPTION)
-                .title(IDENTIFIER_1_TITLE)
-                .doi(IDENTIFIER_1_DOI)
-                .visibility(VisibilityTypeDto.TRUSTED)
-                .created(IDENTIFIER_1_CREATED)
-                .lastModified(IDENTIFIER_1_MODIFIED)
-                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
-                .build();
-
-        /* test */
-        assertThrows(IdentifierPublishingNotAllowedException.class, () -> {
-            identifierService.update(IDENTIFIER_1_ID, request);
-        });
     }
 
     @Test

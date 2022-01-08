@@ -58,8 +58,9 @@ public class IdentifierServiceImpl implements IdentifierService {
             log.debug("identifier already exists similar to request {}", data);
             throw new IdentifierAlreadyExistsException("Identifier exists");
         }
+        final QueryDto query = queryServiceGateway.find(data) /* check if exists */;
         final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
-        final QueryDto query = queryServiceGateway.find(data);
+        identifier.setVisibility(identifierMapper.visibilityTypeDtoToVisibilityType(data.getVisibility()));
         /* create in metadata database */
         final Identifier entity = identifierRepository.save(identifier);
         log.info("Created identifier with id {}", entity.getId());
@@ -80,16 +81,10 @@ public class IdentifierServiceImpl implements IdentifierService {
 
     @Override
     @Transactional
-    public Identifier update(Long identifierId, IdentifierDto data) throws IdentifierNotFoundException,
-            IdentifierPublishingNotAllowedException {
-        final Identifier identifier = find(identifierId);
-        final Identifier entity = identifierMapper.identifierDtoToIdentifier(data);
-        if (!identifier.getVisibility().equals(entity.getVisibility())) {
-            /* in the future we might want to escalate privileges, so use own method for this */
-            log.error("Identifier visibility changes not allowed");
-            log.debug("visibility changes only supported through the publish() method");
-            throw new IdentifierPublishingNotAllowedException("Visibility modification not allowed");
-        }
+    public Identifier update(Long identifierId, IdentifierDto data) throws IdentifierNotFoundException {
+        final Identifier entity = find(identifierId);
+        final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
+        identifier.setVisibility(entity.getVisibility()) /* never update visibility */;
         final Identifier entityUpdated = identifierRepository.save(identifier);
         log.info("Updated identifier with id {}", identifierId);
         log.debug("updated identifier {}", entityUpdated);
@@ -101,8 +96,7 @@ public class IdentifierServiceImpl implements IdentifierService {
     public Identifier publish(Long identifierId, VisibilityTypeDto visibility) throws IdentifierNotFoundException,
             IdentifierAlreadyPublishedException {
         final Identifier identifier = find(identifierId);
-        if (identifier.getVisibility().equals(VisibilityType.EVERYONE)
-                && !visibility.equals(VisibilityTypeDto.EVERYONE)) {
+        if (identifier.getVisibility().equals(VisibilityType.EVERYONE)) {
             /* once published, the identifier cannot be reverted back, it is persistent! */
             log.error("Identifier is already published");
             log.debug("unpublish not supported for identifier {}", identifier);

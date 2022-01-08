@@ -108,30 +108,6 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void update_visibilityEveryone_fails() {
-        final IdentifierDto request = IdentifierDto.builder()
-                .id(IDENTIFIER_1_ID)
-                .qid(IDENTIFIER_1_QUERY_ID)
-                .description(IDENTIFIER_1_DESCRIPTION)
-                .title(IDENTIFIER_1_TITLE)
-                .doi(IDENTIFIER_1_DOI)
-                .visibility(VisibilityTypeDto.EVERYONE)
-                .created(IDENTIFIER_1_CREATED)
-                .lastModified(IDENTIFIER_1_MODIFIED)
-                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
-                .build();
-
-        /* mock */
-        when(identifierRepository.findById(IDENTIFIER_1_ID))
-                .thenReturn(Optional.of(IDENTIFIER_1));
-
-        /* test */
-        assertThrows(IdentifierPublishingNotAllowedException.class, () -> {
-            identifierService.update(IDENTIFIER_1_ID, request);
-        });
-    }
-
-    @Test
     public void publish_succeeds() throws IdentifierNotFoundException, IdentifierAlreadyPublishedException {
 
         /* mock */
