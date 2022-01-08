@@ -32,33 +32,38 @@ public abstract class BaseUnitTest {
     public final static String IMAGE_1_LOGO = "AAAA";
     public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .key("MARIADB_USER")
                     .value("mariadb")
                     .type(ContainerImageEnvironmentItemType.OTHER)
                     .build(),
             ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .key("MARIADB_PASSWORD")
                     .value("mariadb")
                     .type(ContainerImageEnvironmentItemType.OTHER)
                     .build(),
             ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .key("MARIADB_ROOT_PASSWORD")
                     .value("mariadb")
                     .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .build());
     public final static ImageEnvItemDto[] IMAGE_1_ENV_DTO = List.of(ImageEnvItemDto.builder()
-                    .key("POSTGRES_USER")
-                    .value("postgres")
+                            .iid(IMAGE_1_ID)
+                    .key("MARIADB_USER")
+                    .value("mariadb")
                     .type(ImageEnvItemTypeDto.USERNAME)
                     .build(),
             ImageEnvItemDto.builder()
-                    .key("POSTGRES_PASSWORD")
-                    .value("postgres")
+                    .iid(IMAGE_1_ID)
+                    .key("MARIADB_PASSWORD")
+                    .value("mariadb")
                     .type(ImageEnvItemTypeDto.PASSWORD)
                     .build())
             .toArray(new ImageEnvItemDto[0]);
-    public final static List<String> IMAGE_1_ENVIRONMENT = List.of("POSTGRES_USER=postgres",
-            "POSTGRES_PASSWORD=postgres");
+    public final static List<String> IMAGE_1_ENVIRONMENT = List.of("MARIADB_USER=mariadb",
+            "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb");
 
     public final static ContainerImage IMAGE_1 = ContainerImage.builder()
             .id(IMAGE_1_ID)
@@ -72,20 +77,6 @@ public abstract class BaseUnitTest {
             .compiled(IMAGE_1_BUILT)
             .size(IMAGE_1_SIZE)
             .environment(IMAGE_1_ENV)
-            .defaultPort(IMAGE_1_PORT)
-            .logo(IMAGE_1_LOGO)
-            .build();
-
-    public final static ImageDto IMAGE_1_DTO = ImageDto.builder()
-            .repository(IMAGE_1_REPOSITORY)
-            .tag(IMAGE_1_TAG)
-            .hash(IMAGE_1_HASH)
-            .jdbcMethod(IMAGE_1_JDBC)
-            .dialect(IMAGE_1_DIALECT)
-            .driverClass(IMAGE_1_DRIVER)
-            .compiled(IMAGE_1_BUILT)
-            .size(BigInteger.valueOf(IMAGE_1_SIZE))
-            .environment(IMAGE_1_ENV_DTO)
             .defaultPort(IMAGE_1_PORT)
             .logo(IMAGE_1_LOGO)
             .build();

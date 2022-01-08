@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -12,6 +13,10 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ImageEnvItemDto {
+
+    @NotNull
+    @ApiModelProperty(required = true, example = "1")
+    private Long iid;
 
     @NotBlank
     @ApiModelProperty(required = true, example = "POSTGRES_USER")

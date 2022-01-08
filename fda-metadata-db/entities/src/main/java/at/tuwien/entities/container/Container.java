@@ -23,7 +23,7 @@ import java.util.List;
 @Where(clause = "deleted is null")
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@SQLDelete(sql = "update mdb_container set deleted = NOW() where id = ?")
+@SQLDelete(sql = "update mdb_containers set deleted = NOW() where id = ?")
 @Table(name = "mdb_containers")
 public class Container {
 

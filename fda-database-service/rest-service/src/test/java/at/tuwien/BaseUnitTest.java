@@ -34,21 +34,25 @@ public abstract class BaseUnitTest {
     public final static Instant IMAGE_1_CREATED = Instant.now().minus(40, HOURS);
     public final static Instant IMAGE_1_UPDATED = Instant.now().minus(39, HOURS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENVIRONMENT = List.of(ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .key("MARIADB_ROOT_PASSWORD")
                     .value("mariadb")
                     .build(),
             ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .type(ContainerImageEnvironmentItemType.USERNAME)
                     .key("UZERNAME")
                     .value("root")
                     .build(),
             ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .type(ContainerImageEnvironmentItemType.OTHER)
                     .key("MARIADB_USER")
                     .value("mariadb")
                     .build(),
             ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
                     .type(ContainerImageEnvironmentItemType.OTHER)
                     .key("MARIADB_PASSWORD")
                     .value("mariadb")
@@ -112,7 +116,7 @@ public abstract class BaseUnitTest {
             .name(CONTAINER_1_NAME)
             .hash(CONTAINER_1_HASH)
             .internalName(CONTAINER_1_INTERNALNAME)
-            .containerCreated(CONTAINER_1_CREATED)
+            .created(CONTAINER_1_CREATED)
             .lastModified(CONTAINER_1_UPDATED)
             .image(IMAGE_1)
             .build();
@@ -122,7 +126,7 @@ public abstract class BaseUnitTest {
             .name(CONTAINER_2_NAME)
             .hash(CONTAINER_2_HASH)
             .internalName(CONTAINER_2_INTERNALNAME)
-            .containerCreated(CONTAINER_2_CREATED)
+            .created(CONTAINER_2_CREATED)
             .lastModified(CONTAINER_2_UPDATED)
             .image(IMAGE_1)
             .build();
