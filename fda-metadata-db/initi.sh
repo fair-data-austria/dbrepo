@@ -309,7 +309,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     query TEXT NOT NULL,
 		created timestamp without time zone NOT NULL DEFAULT NOW(),
 		last_modified timestamp without time zone NOT NULL,
-		deleted timestamp without time zone,
+		deleted timestamp without time zone
 	);
 	
 	CREATE TABLE IF NOT EXISTS mdb_views_databases( 
