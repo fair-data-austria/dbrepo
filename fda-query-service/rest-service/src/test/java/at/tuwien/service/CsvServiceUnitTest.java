@@ -5,6 +5,7 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.DatabaseNotFoundException;
+import at.tuwien.exception.FileStorageException;
 import at.tuwien.exception.TableNotFoundException;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
@@ -12,7 +13,6 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
-import com.opencsv.exceptions.CsvException;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.AfterAll;
@@ -26,7 +26,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -47,7 +46,7 @@ public class CsvServiceUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private DataService dataService;
+    private CommaValueService dataService;
 
     @MockBean
     private DatabaseRepository databaseRepository;
@@ -115,7 +114,7 @@ public class CsvServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void read_succeeds() throws IOException, CsvException, TableNotFoundException, DatabaseNotFoundException {
+    public void read_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
         final String location = "test:csv/csv_01.csv";
         final Character separator = ',';
         final Boolean skipHeader = true;
@@ -136,7 +135,7 @@ public class CsvServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void read2_succeeds() throws IOException, CsvException, TableNotFoundException, DatabaseNotFoundException {
+    public void read2_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
         final String location = "test:csv/csv_01.csv";
 
         /* mock */
@@ -151,8 +150,8 @@ public class CsvServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void read_nullElement_succeeds() throws IOException, CsvException, TableNotFoundException,
-            DatabaseNotFoundException {
+    public void read_nullElement_succeeds() throws TableNotFoundException,
+            DatabaseNotFoundException, FileStorageException {
         final String location = "test:csv/csv_01.csv";
         final Character separator = ',';
         final Boolean skipHeader = true;
@@ -173,8 +172,8 @@ public class CsvServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void read_skipHeader_succeeds() throws IOException, CsvException, TableNotFoundException,
-            DatabaseNotFoundException {
+    public void read_skipHeader_succeeds() throws TableNotFoundException,
+            DatabaseNotFoundException, FileStorageException {
         final String location = "test:csv/csv_01.csv";
         final Character separator = ',';
         final Boolean skipHeader = false;
@@ -195,8 +194,8 @@ public class CsvServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void read_skipHeaderYes_succeeds() throws IOException, CsvException, TableNotFoundException,
-            DatabaseNotFoundException {
+    public void read_skipHeaderYes_succeeds() throws TableNotFoundException,
+            DatabaseNotFoundException, FileStorageException {
         final String location = "test:csv/csv_01.csv";
         final Character separator = ',';
         final Boolean skipHeader = false;

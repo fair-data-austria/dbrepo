@@ -11,7 +11,6 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
-import com.opencsv.exceptions.CsvException;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.AfterAll;
@@ -27,7 +26,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -48,7 +46,7 @@ public class CsvServiceIntegrationTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private DataService dataService;
+    private CommaValueService dataService;
 
     @Autowired
     private TableRepository tableRepository;
@@ -136,15 +134,16 @@ public class CsvServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void write_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException {
+    public void write_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException {
 
         /* test */
-        final Resource response = dataService.write(DATABASE_1_ID, TABLE_1_ID);
+        final Resource response = dataService.export(DATABASE_1_ID, TABLE_1_ID);
         assertTrue(response.exists());
     }
 
     @Test
-    public void read_url_succeeds() throws IOException, CsvException, TableNotFoundException, DatabaseNotFoundException {
+    public void read_url_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
         final String location = "http://" + CONTAINER_NGINX_IP + "/weather_aus.csv";
 
         /* test */

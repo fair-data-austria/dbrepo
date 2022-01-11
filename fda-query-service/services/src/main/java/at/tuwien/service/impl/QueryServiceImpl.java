@@ -78,17 +78,6 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     public QueryResultDto findAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp, Long page,
                                   Long size) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException {
-        if ((page == null && size != null) || (page != null && size == null)) {
-            log.error("Cannot perform pagination with only one of page/size set.");
-            log.debug("invalid pagination specification, one of page/size is null, either both should be null or none.");
-            throw new PaginationException("Invalid pagination parameters");
-        }
-        if (page != null && page < 0) {
-            throw new PaginationException("Page number cannot be lower than 0");
-        }
-        if (size != null && size <= 0) {
-            throw new PaginationException("Page number cannot be lower or equal to 0");
-        }
         /* find */
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
