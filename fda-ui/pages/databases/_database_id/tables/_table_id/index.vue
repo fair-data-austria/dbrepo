@@ -139,10 +139,10 @@ export default {
         description: null
       },
       items: [
-        { text: 'Databases', href: '/databases' },
-        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` },
-        { text: 'Tables', href: `/databases/${this.$route.params.database_id}/tables` },
-        { text: `${this.$route.params.table_id}`, href: `/databases/${this.$route.params.database_id}/tables/${this.$route.params.table_id}` }
+        { text: 'Databases', to: '/databases', activeClass: '' },
+        { text: `${this.$route.params.database_id}`, to: `/databases/${this.$route.params.database_id}/info`, activeClass: '' },
+        { text: 'Tables', to: `/databases/${this.$route.params.database_id}/tables`, activeClass: '' },
+        { text: `${this.$route.params.table_id}`, to: `/databases/${this.$route.params.database_id}/tables/${this.$route.params.table_id}`, activeclass: '' }
       ],
       headers: [],
       rows: []
