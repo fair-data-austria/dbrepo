@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
+    <v-progress-linear v-if="loading" :color="loadingColor" />
     <v-toolbar v-if="db" flat>
       <img id="engine-logo" :alt="`${db.image.repository}`" :src="`data:image/png;base64,${db.image.logo}`">
       <v-toolbar-title>
@@ -55,8 +55,6 @@ export default {
     },
     loadingColor () {
       return 'primary'
-      // XXX we have no `error` here...
-      // return this.error ? 'red lighten-2' : 'primary'
     }
   },
   mounted () {

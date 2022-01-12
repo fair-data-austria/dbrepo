@@ -38,8 +38,8 @@ export default {
     return {
       loading: false,
       items: [
-        { text: 'Databases', href: '/databases' },
-        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` }
+        { text: 'Databases', to: '/databases', activeClass: '' },
+        { text: `${this.$route.params.database_id}`, to: `/databases/${this.$route.params.database_id}/info`, activeClass: '' }
       ]
     }
   },

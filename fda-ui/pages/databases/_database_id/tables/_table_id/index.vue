@@ -105,7 +105,7 @@
   </div>
 </template>
 <script>
-import { format, parse } from 'date-fns'
+import { format, parse, addMinutes } from 'date-fns'
 
 export default {
   name: 'TableListing',
@@ -139,10 +139,10 @@ export default {
         description: null
       },
       items: [
-        { text: 'Databases', href: '/databases' },
-        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` },
-        { text: 'Tables', href: `/databases/${this.$route.params.database_id}/tables` },
-        { text: `${this.$route.params.table_id}`, href: `/databases/${this.$route.params.database_id}/tables/${this.$route.params.table_id}` }
+        { text: 'Databases', to: '/databases', activeClass: '' },
+        { text: `${this.$route.params.database_id}`, to: `/databases/${this.$route.params.database_id}/info`, activeClass: '' },
+        { text: 'Tables', to: `/databases/${this.$route.params.database_id}/tables`, activeClass: '' },
+        { text: `${this.$route.params.table_id}`, to: `/databases/${this.$route.params.database_id}/tables/${this.$route.params.table_id}`, activeclass: '' }
       ],
       headers: [],
       rows: []
@@ -150,14 +150,12 @@ export default {
   },
   watch: {
     date (val) {
-      console.log('new date', val)
       if (!val) {
         this.date = format(new Date(), 'yyyy-MM-dd')
       }
       this.loadData()
     },
     time (val) {
-      console.log('new time', val)
       if (!val) {
         this.time = '00:00'
       }
@@ -192,8 +190,8 @@ export default {
       }
     },
     async loadData () {
-      const datetime = parse(`${this.date} ${this.time}`, 'yyyy-MM-dd HH:mm', new Date()).toISOString()
-      console.log(datetime)
+      let datetime = parse(`${this.date} ${this.time}`, 'yyyy-MM-dd HH:mm', new Date())
+      datetime = addMinutes(datetime, datetime.getTimezoneOffset()).toISOString()
       this.loading = true
       try {
         let url = `/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
