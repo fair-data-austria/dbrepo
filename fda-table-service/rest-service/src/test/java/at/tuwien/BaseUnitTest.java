@@ -147,19 +147,25 @@ public abstract class BaseUnitTest extends CsvUnitTest {
                     .iid(IMAGE_1_ID)
                     .key("MARIADB_USER")
                     .value("mariadb")
-                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
                     .key("MARIADB_PASSWORD")
                     .value("mariadb")
-                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
+                    .key("UZERNAME")
+                    .value("root")
+                    .type(ContainerImageEnvironmentItemType.PRIVILEGED_USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
                     .key("MARIADB_ROOT_PASSWORD")
                     .value("mariadb")
-                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .type(ContainerImageEnvironmentItemType.PRIVILEGED_PASSWORD)
                     .build());
 
     public final static ContainerImage IMAGE_1 = ContainerImage.builder()

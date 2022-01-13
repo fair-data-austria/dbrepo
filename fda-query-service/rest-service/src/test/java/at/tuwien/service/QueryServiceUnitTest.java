@@ -166,40 +166,6 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void selectAll_parameter_fails() {
-        final Long page = -1L;
-        final Long size = 10L;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
-        });
-    }
-
-    @Test
-    public void selectAll_parameter2_fails() {
-        final Long page = 1L;
-        final Long size = 0L;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
-        });
-    }
-
-    @Test
     public void insert_columns_fails() {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of(Map.of("not_existing", "some value")))

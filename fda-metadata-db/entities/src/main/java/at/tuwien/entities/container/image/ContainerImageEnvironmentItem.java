@@ -42,7 +42,7 @@ public class ContainerImageEnvironmentItem {
     @Column(nullable = false)
     private String value;
 
-    @Column(nullable = false, name = "etype", columnDefinition = "enum('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER')")
+    @Column(nullable = false, name = "etype", columnDefinition = "enum('USERNAME', 'PASSWORD', 'PRIVILEGED_USERNAME', 'PRIVILEGED_PASSWORD')")
     @Enumerated(EnumType.STRING)
     private ContainerImageEnvironmentItemType type;
 

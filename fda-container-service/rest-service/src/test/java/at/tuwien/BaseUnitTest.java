@@ -35,19 +35,25 @@ public abstract class BaseUnitTest {
                     .iid(IMAGE_1_ID)
                     .key("MARIADB_USER")
                     .value("mariadb")
-                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
                     .key("MARIADB_PASSWORD")
                     .value("mariadb")
-                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
                     .key("MARIADB_ROOT_PASSWORD")
                     .value("mariadb")
-                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .type(ContainerImageEnvironmentItemType.PRIVILEGED_PASSWORD)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
+                    .key("UZERNAME")
+                    .value("root")
+                    .type(ContainerImageEnvironmentItemType.PRIVILEGED_USERNAME)
                     .build());
     public final static ImageEnvItemDto[] IMAGE_1_ENV_DTO = List.of(ImageEnvItemDto.builder()
                             .iid(IMAGE_1_ID)

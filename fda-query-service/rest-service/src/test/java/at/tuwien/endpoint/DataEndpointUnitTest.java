@@ -21,8 +21,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @Log4j2
 @SpringBootTest
@@ -156,6 +158,28 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     public void findAll_sizeNegative_fails() {
         final Long page = 1L /* arbitrary */;
         final Long size = -1L;
+
+        /* test */
+        assertThrows(PaginationException.class, () -> {
+            dataEndpoint.getAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        });
+    }
+
+    @Test
+    public void getAll_parameter2_fails() {
+        final Long page = 1L;
+        final Long size = 0L;
+
+        /* test */
+        assertThrows(PaginationException.class, () -> {
+            dataEndpoint.getAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        });
+    }
+
+    @Test
+    public void getAll_parameter_fails() {
+        final Long page = -1L;
+        final Long size = 10L;
 
         /* test */
         assertThrows(PaginationException.class, () -> {

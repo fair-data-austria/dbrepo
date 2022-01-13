@@ -35,25 +35,25 @@ public abstract class BaseUnitTest {
     public final static Instant IMAGE_1_UPDATED = Instant.now().minus(39, HOURS);
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENVIRONMENT = List.of(ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
-                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .type(ContainerImageEnvironmentItemType.PRIVILEGED_PASSWORD)
                     .key("MARIADB_ROOT_PASSWORD")
                     .value("mariadb")
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
-                    .type(ContainerImageEnvironmentItemType.USERNAME)
+                    .type(ContainerImageEnvironmentItemType.PRIVILEGED_USERNAME)
                     .key("UZERNAME")
                     .value("root")
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
-                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
                     .key("MARIADB_USER")
                     .value("mariadb")
                     .build(),
             ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
-                    .type(ContainerImageEnvironmentItemType.OTHER)
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .key("MARIADB_PASSWORD")
                     .value("mariadb")
                     .build());
