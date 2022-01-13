@@ -26,7 +26,7 @@ test('create database', pageMacro, async (t, page) => {
   await page.press('#engine', 'ArrowDown')
 
   // Click submit button
-  await page.click('#createDB')
+  await page.click('button:has-text("Create")')
 
   // See page load
   const success = await page.waitForSelector('.v-toolbar__title')

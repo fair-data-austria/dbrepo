@@ -98,10 +98,7 @@ export default {
         this.loading = true
         this.error = false
         res = await this.$axios.get('/api/image/')
-        this.engines = res.data.map((e) => {
-          e.disabled = (e.id !== 3)
-          return e
-        })
+        this.engines = res.data
         console.debug('engines', this.engines)
         this.loading = false
       } catch (err) {

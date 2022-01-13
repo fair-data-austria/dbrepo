@@ -6,7 +6,7 @@ BEGIN;
 CREATE TYPE gender AS ENUM ('F', 'M', 'T');
 CREATE TYPE visibility AS ENUM ('EVERYONE', 'TRUSTED', 'SELF');
 CREATE TYPE accesstype AS ENUM ('R', 'W');
-CREATE TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'DATABASE', 'OTHER');
+CREATE TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'PRIVILEGED_USERNAME', 'PRIVILEGED_PASSWORD');
 
 CREATE CAST (character varying AS image_environment_type) WITH INOUT AS ASSIGNMENT;
 
