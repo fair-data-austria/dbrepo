@@ -60,6 +60,7 @@ public abstract class BaseUnitTest {
 
     public final static Long DATABASE_1_ID = 1L;
     public final static String DATABASE_1_NAME = "Weather";
+    public final static String DATABASE_1_DESCRIPTION = "Weather somewhere in the world";
     public final static Boolean DATABASE_1_PUBLIC = false;
     public final static String DATABASE_1_INTERNALNAME = "weather";
     public final static String DATABASE_1_EXCHANGE = "fda." + DATABASE_1_INTERNALNAME;

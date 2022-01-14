@@ -123,7 +123,8 @@ public class EndpointUnitTest extends BaseUnitTest {
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
-                .name(CONTAINER_1_NAME)
+                .name(DATABASE_1_NAME)
+                .description(DATABASE_1_DESCRIPTION)
                 .build();
         when(databaseService.create(request))
                 .thenReturn(DATABASE_1);
@@ -141,9 +142,11 @@ public class EndpointUnitTest extends BaseUnitTest {
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
-                .name(CONTAINER_1_NAME)
+                .name(DATABASE_1_NAME)
+                .description(DATABASE_1_DESCRIPTION)
                 .build();
 
+        /* test */
         when(databaseService.create(request))
                 .thenThrow(ContainerNotFoundException.class);
 
@@ -158,7 +161,8 @@ public class EndpointUnitTest extends BaseUnitTest {
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
-                .name(CONTAINER_1_NAME)
+                .name(DATABASE_1_NAME)
+                .description(DATABASE_1_DESCRIPTION)
                 .build();
 
         when(databaseService.create(request))

@@ -15,6 +15,7 @@ import at.tuwien.service.impl.HibernateConnector;
 import at.tuwien.service.impl.MariaDbServiceImpl;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
@@ -64,6 +65,8 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private HibernateConnector hibernateConnector;
 
+    private static Container CONTAINER_BROKER;
+
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
         afterAll();
@@ -110,11 +113,9 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
         /* start container */
         CONTAINER_1.setHash(container1.getId());
         CONTAINER_2.setHash(container2.getId());
-        DockerConfig.startContainer(Container.builder()
+        CONTAINER_BROKER = Container.builder()
                 .hash(broker.getId())
-                .build());
-        DockerConfig.startContainer(CONTAINER_1);
-        DockerConfig.startContainer(CONTAINER_2);
+                .build();
     }
 
     @Transactional
@@ -165,12 +166,16 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     @Test
     public void create_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, InterruptedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID) /* we need this container */
                 .name(DATABASE_1_NAME)
                 .isPublic(DATABASE_1_PUBLIC)
                 .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
+        DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
         final Database response = databaseService.create(request);
@@ -180,12 +185,16 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_notFound_fails() {
+    public void create_notFound_fails() throws InterruptedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(9999L)
                 .name(DATABASE_1_NAME)
                 .isPublic(DATABASE_1_PUBLIC)
                 .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
+        DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
@@ -202,6 +211,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
@@ -211,7 +221,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_notRunning_fails() {
+    public void create_notRunning_fails() throws InterruptedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .containerId(CONTAINER_1_ID)
                 .name(DATABASE_1_NAME)
@@ -219,6 +229,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
                 .build();
 
         /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
         DockerConfig.stopContainer(CONTAINER_1);
 
         /* test */
@@ -232,6 +243,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
             DatabaseMalformedException, AmqpException, InterruptedException, ContainerConnectionException {
 
         /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
         DockerConfig.startContainer(CONTAINER_2);
 
         /* test */
@@ -241,7 +253,10 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_notFound_fails() {
+    public void delete_notFound_fails() throws InterruptedException {
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
@@ -250,9 +265,10 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_notRunning_fails() {
+    public void delete_notRunning_fails() throws InterruptedException {
 
         /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
         DockerConfig.stopContainer(CONTAINER_1);
 
         /* test */
@@ -274,6 +290,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     public void find_succeeds() throws DatabaseNotFoundException, InterruptedException {
 
         /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
@@ -287,6 +304,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     public void find_notFound_fails() throws InterruptedException {
 
         /* mock */
+        DockerConfig.startContainer(CONTAINER_BROKER);
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */

@@ -11,8 +11,6 @@ import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.elastic.DatabaseidxRepository;
 import at.tuwien.service.DatabaseService;
-import at.tuwien.service.MessageQueueService;
-import at.tuwien.service.impl.RabbitMqServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -27,15 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceException;
-import java.net.NoRouteToHostException;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 
 @Log4j2
 @Service
@@ -111,10 +104,6 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
     @Transactional
     public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
-        if (createDto.getName().contains("-")) {
-            log.error("Database name cannot contain -");
-            throw new DatabaseMalformedException("Database name cannot contain -");
-        }
         final Optional<Container> container = containerRepository.findById(createDto.getContainerId());
         if (container.isEmpty()) {
             log.warn("Container with id {} does not exist", createDto.getContainerId());
@@ -162,7 +151,7 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
     private Session getSession(Database database) throws ContainerConnectionException, DatabaseMalformedException {
         final SessionFactory factory;
         try {
-            factory = getSessionFactory(database.getContainer());
+            factory = getSessionFactory(database);
         } catch (HibernateException e) {
             log.error("Connection failed");
             throw new ContainerConnectionException("Connection failed", e);
