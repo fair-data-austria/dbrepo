@@ -153,7 +153,8 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
         try {
             factory = getSessionFactory(database);
         } catch (HibernateException e) {
-            log.error("Connection failed");
+            log.error("Connection failed: {}", e.getMessage());
+            log.throwing(e);
             throw new ContainerConnectionException("Connection failed", e);
         }
         final Session session;

@@ -170,7 +170,6 @@ CREATE TABLE IF NOT EXISTS mdb_users
 CREATE TABLE IF NOT EXISTS mdb_databases
 (
     id            bigint                      NOT NULL DEFAULT nextval('mdb_databases_seq'),
-    container_id  bigint                      NOT NULL,
     name          character varying(255)      NOT NULL,
     internal_name character varying(255)      NOT NULL,
     exchange      character varying(255)      NOT NULL,
@@ -186,7 +185,7 @@ CREATE TABLE IF NOT EXISTS mdb_databases
     last_modified timestamp without time zone,
     deleted       timestamp without time zone NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (container_id) REFERENCES mdb_containers (id)
+    FOREIGN KEY (id) REFERENCES mdb_containers (id) /* currently we only support one-to-one */
 );
 
 CREATE TABLE IF NOT EXISTS mdb_tables
