@@ -108,8 +108,6 @@ public class ImageServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void update_port_succeeds() throws ImageNotFoundException, DockerClientException {
-        final ImageEnvItemDto[] env = IMAGE_1_ENV_DTO;
-        env[0].setValue("postgres2");
         final ImageChangeDto request = ImageChangeDto.builder()
                 .environment(IMAGE_1_ENV_DTO)
                 .defaultPort(9999)
@@ -123,7 +121,6 @@ public class ImageServiceUnitTest extends BaseUnitTest {
         final ContainerImage response = imageService.update(IMAGE_1_ID, request);
         assertEquals(IMAGE_1_REPOSITORY, response.getRepository());
         assertEquals(IMAGE_1_TAG, response.getTag());
-        assertEquals("postgres2", response.getEnvironment().get(0).getValue());
     }
 
     @Test

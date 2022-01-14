@@ -1,17 +1,12 @@
 package at.tuwien;
 
-import at.tuwien.api.container.ContainerBriefDto;
-import at.tuwien.api.container.ContainerCreateRequestDto;
-import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.image.*;
-import at.tuwien.api.container.network.IpAddressDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import org.springframework.test.context.TestPropertySource;
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.List;
 
