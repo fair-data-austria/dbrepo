@@ -10,6 +10,7 @@ import at.tuwien.exception.DockerClientException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.ImageRepository;
+import at.tuwien.service.impl.ContainerServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
@@ -37,7 +38,7 @@ public class ContainerServiceUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private ContainerService containerService;
+    private ContainerServiceImpl containerService;
 
     @MockBean
     private ContainerRepository containerRepository;
@@ -98,11 +99,11 @@ public class ContainerServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() {
+    public void findById_succeeds() throws ContainerNotFoundException {
         when(containerRepository.findById(CONTAINER_1_ID))
                 .thenReturn(Optional.of(CONTAINER_1));
 
-        final Container response = containerService.getById(CONTAINER_1_ID);
+        final Container response = containerService.find(CONTAINER_1_ID);
 
         /* test */
         assertEquals(CONTAINER_1_ID, response.getId());
@@ -116,7 +117,7 @@ public class ContainerServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            containerService.getById(CONTAINER_1_ID);
+            containerService.find(CONTAINER_1_ID);
         });
     }
 

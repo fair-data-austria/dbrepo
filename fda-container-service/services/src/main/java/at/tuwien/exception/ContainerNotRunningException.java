@@ -3,7 +3,7 @@ package at.tuwien.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.CONFLICT)
+@ResponseStatus(code = HttpStatus.CONFLICT,reason = "Container is not running")
 public class ContainerNotRunningException extends Exception {
 
     public ContainerNotRunningException(String message) {

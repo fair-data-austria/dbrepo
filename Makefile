@@ -135,6 +135,9 @@ run-sandbox: config-frontend
 logs:
 	docker-compose -f docker-compose.prod.yml logs
 
+seed:
+	./.fda-deployment/seed
+
 clean-ide:
 	rm -rf .idea/
 	rm -rf ./fda-authentication-service/.idea/

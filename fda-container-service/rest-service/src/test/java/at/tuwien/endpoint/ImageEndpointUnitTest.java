@@ -8,7 +8,7 @@ import at.tuwien.api.container.image.ImageDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.ImageEndpoint;
 import at.tuwien.exception.*;
-import at.tuwien.service.ImageService;
+import at.tuwien.service.impl.ImageServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @MockBean
-    private ImageService imageService;
+    private ImageServiceImpl imageService;
 
     @Autowired
     private ImageEndpoint imageEndpoint;
@@ -51,7 +51,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws ImageNotFoundException, DockerClientException {
+    public void create_succeeds() throws ImageNotFoundException, DockerClientException, ImageAlreadyExistsException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -69,7 +69,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_duplicate_fails() throws ImageNotFoundException, DockerClientException {
+    public void create_duplicate_fails() throws ImageNotFoundException, DockerClientException, ImageAlreadyExistsException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -88,7 +88,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_notExists_fails() throws ImageNotFoundException, DockerClientException {
+    public void create_notExists_fails() throws ImageNotFoundException, DockerClientException, ImageAlreadyExistsException {
         final ImageCreateDto request = ImageCreateDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -108,7 +108,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void findById_succeeds() throws ImageNotFoundException {
-        when(imageService.getById(IMAGE_1_ID))
+        when(imageService.find(IMAGE_1_ID))
                 .thenReturn(IMAGE_1);
 
         /* test */
@@ -118,7 +118,7 @@ public class ImageEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void findById_notFound_fails() throws ImageNotFoundException {
-        given(imageService.getById(IMAGE_1_ID))
+        given(imageService.find(IMAGE_1_ID))
                 .willAnswer(invocation -> {
                     throw new ImageNotFoundException("not existing in docker hub");
                 });

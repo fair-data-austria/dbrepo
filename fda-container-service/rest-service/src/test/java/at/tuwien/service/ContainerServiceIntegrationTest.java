@@ -9,6 +9,7 @@ import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.ImageRepository;
+import at.tuwien.service.impl.ContainerServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -38,7 +39,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private ContainerService containerService;
+    private ContainerServiceImpl containerService;
 
     @Autowired
     private HostConfig hostConfig;
@@ -125,68 +126,6 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void findIpAddress_succeeds() throws ContainerNotRunningException, InterruptedException {
-
-        /* mock */
-        dockerUtil.startContainer(CONTAINER_1);
-
-        /* test */
-        final Map<String, String> response = containerService.findIpAddresses(CONTAINER_1.getHash());
-        assertTrue(response.containsKey("fda-userdb"));
-        assertEquals(CONTAINER_1_IP, response.get("fda-userdb"));
-    }
-
-    @Test
-    public void findIpAddress_notRunning_fails() {
-
-        /* mock */
-        dockerUtil.stopContainer(CONTAINER_1);
-
-
-        /* test */
-        assertThrows(ContainerNotRunningException.class, () -> {
-            containerService.findIpAddresses(CONTAINER_1.getHash());
-        });
-    }
-
-    @Test
-    public void findIpAddress_notFound_fails() {
-
-        /* mock */
-        dockerUtil.stopContainer(CONTAINER_1);
-        dockerUtil.removeContainer(CONTAINER_1);
-
-        /* test */
-        assertThrows(ContainerNotFoundException.class, () -> {
-            containerService.findIpAddresses(CONTAINER_1.getHash());
-        });
-    }
-
-    @Test
-    public void getContainerState_succeeds() throws DockerClientException, InterruptedException {
-
-        /* mock */
-        dockerUtil.startContainer(CONTAINER_1);
-
-        /* test */
-        final ContainerStateDto response = containerService.getContainerState(CONTAINER_1.getHash());
-        assertEquals(ContainerStateDto.RUNNING, response);
-    }
-
-    @Test
-    public void getContainerState_notFound_fails() {
-
-        /* mock */
-        dockerUtil.stopContainer(CONTAINER_1);
-        dockerUtil.removeContainer(CONTAINER_1);
-
-        /* test */
-        assertThrows(DockerClientException.class, () -> {
-            containerService.getContainerState(CONTAINER_1.getHash());
-        });
-    }
-
-    @Test
     public void create_succeeds() throws DockerClientException, ImageNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
@@ -205,12 +144,12 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            containerService.getById(CONTAINER_3_ID);
+            containerService.find(CONTAINER_3_ID);
         });
     }
 
     @Test
-    public void change_start_succeeds() throws DockerClientException {
+    public void change_start_succeeds() throws DockerClientException, ContainerNotFoundException {
 
         /* mock */
         dockerUtil.stopContainer(CONTAINER_1);
@@ -220,7 +159,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_stop_succeeds() throws DockerClientException, InterruptedException {
+    public void change_stop_succeeds() throws DockerClientException, InterruptedException, ContainerNotFoundException {
 
         /* mock */
         dockerUtil.startContainer(CONTAINER_1);
@@ -239,7 +178,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void remove_succeeds() throws DockerClientException {
+    public void remove_succeeds() throws DockerClientException, ContainerStillRunningException, ContainerNotFoundException {
 
         /* mock */
         dockerUtil.stopContainer(CONTAINER_1);

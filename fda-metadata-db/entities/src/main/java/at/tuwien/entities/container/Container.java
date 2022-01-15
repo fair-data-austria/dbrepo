@@ -59,6 +59,9 @@ public class Container {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ContainerImage image;
 
+    @Column
+    private String ipAddress;
+
     @CreatedDate
     @Column(name = "created", nullable = false, updatable = false)
     private Instant created;

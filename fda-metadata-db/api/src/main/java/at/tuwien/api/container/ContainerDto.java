@@ -1,7 +1,6 @@
 package at.tuwien.api.container;
 
 import at.tuwien.api.container.image.ImageDto;
-import at.tuwien.api.container.network.IpAddressDto;
 import at.tuwien.api.database.DatabaseDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -44,7 +43,7 @@ public class ContainerDto {
     private List<DatabaseDto> databases;
 
     @NotNull
-    private IpAddressDto ipAddress;
+    private String ipAddress;
 
     @NotNull
     private ImageDto image;

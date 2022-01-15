@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS mdb_containers
     NAME          character varying(255)      NOT NULL,
     PORT          integer,
     image_id      bigint,
-    IP_ADDRESS    character varying(255),
+    ip_address    character varying(255),
     created       timestamp without time zone NOT NULL DEFAULT NOW(),
     LAST_MODIFIED timestamp without time zone,
     deleted       timestamp without time zone,

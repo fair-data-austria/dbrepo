@@ -10,7 +10,7 @@ import at.tuwien.exception.ImageAlreadyExistsException;
 import at.tuwien.exception.ImageNotFoundException;
 import at.tuwien.exception.PersistenceException;
 import at.tuwien.mapper.ImageMapper;
-import at.tuwien.service.ImageService;
+import at.tuwien.service.impl.ImageServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -33,11 +33,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/image")
 public class ImageEndpoint {
 
-    private final ImageService imageService;
+    private final ImageServiceImpl imageService;
     private final ImageMapper imageMapper;
 
     @Autowired
-    public ImageEndpoint(ImageService imageService, ImageMapper imageMapper) {
+    public ImageEndpoint(ImageServiceImpl imageService, ImageMapper imageMapper) {
         this.imageService = imageService;
         this.imageMapper = imageMapper;
     }
@@ -82,7 +82,7 @@ public class ImageEndpoint {
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
     public ResponseEntity<ImageDto> findById(@NotNull @PathVariable Long id) throws ImageNotFoundException {
-        final ContainerImage image = imageService.getById(id);
+        final ContainerImage image = imageService.find(id);
         return ResponseEntity.ok()
                 .body(imageMapper.containerImageToImageDto(image));
     }

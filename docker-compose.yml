@@ -31,7 +31,7 @@ services:
     build: ./fda-metadata-db
     image: fda-metadata-db
     networks:
-      - fda-public
+      fda-public:
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
     ports:
@@ -68,8 +68,6 @@ services:
     image: fda-gateway-service
     networks:
       fda-public:
-        aliases:
-          - fda-gateway-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna

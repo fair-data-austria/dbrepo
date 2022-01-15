@@ -1,11 +1,10 @@
 #!/bin/bash
-GATEWAY="fda-gateway-service:9095"
+GATEWAY="$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' fda-gateway-service):9095"
 
 # fda-container-service
-curl -d '@fda-container-service/create-image.json' -X POST "http://${GATEWAY}/api/image/" -H "Content-Type: application/json"
-#curl -d '@fda-container-service/create-container-air.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json"
-#curl -d '@fda-container-service/create-container-infection.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json"
-#curl -d '@fda-container-service/create-container-weather.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json"
+curl -d '@.fda-deployment/fda-container-service/create-container-air.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json" && echo "seeded container air"
+#curl -d '@fda-container-service/create-container-infection.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json" && echo "seeded container infection"
+#curl -d '@fda-container-service/create-container-weather.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json" && echo "seeded container weather"
 #
 ## fda-database-service
 #curl -d '@fda-database-service/create-database-air.json' -X POST "http://${GATEWAY}/api/database/" -H "Content-Type: application/json"
