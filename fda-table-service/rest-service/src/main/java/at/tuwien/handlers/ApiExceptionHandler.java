@@ -13,6 +13,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler({AmqpException.class})
+    public ResponseEntity<Object> handle(AmqpException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(e.getLocalizedMessage())
+                .code("error.amqp.queue")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
     @ExceptionHandler({ArbitraryPrimaryKeysException.class})
     public ResponseEntity<Object> handle(ArbitraryPrimaryKeysException e, WebRequest request) {
         final ApiErrorDto response = ApiErrorDto.builder()
@@ -69,6 +79,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .message(e.getLocalizedMessage())
                 .code("error.database.image")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
+    @ExceptionHandler({PaginationException.class})
+    public ResponseEntity<Object> handle(PaginationException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.CONFLICT)
+                .message(e.getLocalizedMessage())
+                .code("error.database.pagination")
                 .build();
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }

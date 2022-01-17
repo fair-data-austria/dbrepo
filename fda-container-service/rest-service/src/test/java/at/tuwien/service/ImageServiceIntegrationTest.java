@@ -2,6 +2,7 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.image.ImageCreateDto;
+import at.tuwien.api.container.image.ImageEnvItemDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ContainerRepository;
@@ -43,6 +44,32 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
     public void beforeEach() {
         log.debug("save container {}", CONTAINER_1);
         containerRepository.save(CONTAINER_1);
+    }
+
+    @Test
+    public void create_succeeds() throws ImageAlreadyExistsException, DockerClientException, ImageNotFoundException {
+        final ImageCreateDto request = ImageCreateDto.builder()
+                .repository(IMAGE_2_REPOSITORY)
+                .tag(IMAGE_2_TAG)
+                .dialect(IMAGE_2_DIALECT)
+                .driverClass(IMAGE_2_DRIVER)
+                .jdbcMethod(IMAGE_2_JDBC)
+                .defaultPort(IMAGE_2_PORT)
+                .environment(IMAGE_1_ENV_DTO)
+                .logo(IMAGE_2_LOGO)
+                .build();
+
+        /* test */
+        imageService.create(request);
+    }
+
+    @Test
+    public void inspect_notFound_fails() {
+
+        /* test */
+        assertThrows(ImageNotFoundException.class, () -> {
+            imageService.inspect("abcdefu", "999.999");
+        });
     }
 
     @Test

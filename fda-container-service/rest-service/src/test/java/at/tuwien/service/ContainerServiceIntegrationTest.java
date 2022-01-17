@@ -12,6 +12,7 @@ import at.tuwien.repository.jpa.ImageRepository;
 import at.tuwien.service.impl.ContainerServiceImpl;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.*;
 import lombok.extern.log4j.Log4j2;
@@ -25,9 +26,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 @Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -138,6 +143,74 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
         assertEquals(CONTAINER_1_NAME, container.getName());
     }
 
+    @Test
+    public void create_conflictingNames_fails() throws DockerClientException, ImageNotFoundException {
+        final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
+                .repository(IMAGE_1_REPOSITORY)
+                .tag(IMAGE_1_TAG)
+                .name(CONTAINER_1_NAME)
+                .build();
+
+        /* mock */
+        containerService.create(request);
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.create(request);
+        });
+    }
+
+    @Test
+    public void remove_hashNotFound_fails() {
+        /* request */
+        final Container CONTAINER = Container.builder()
+                .id(CONTAINER_3_ID)
+                .name(CONTAINER_3_NAME)
+                .internalName(CONTAINER_3_INTERNALNAME)
+                .image(IMAGE_1)
+                .hash("deadbeef")
+                .created(CONTAINER_3_CREATED)
+                .build();
+
+        /* mock */
+        final Container container = containerRepository.save(CONTAINER);
+        log.debug("inserted container with id {}", container.getId());
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.remove(CONTAINER_3_ID);
+        });
+    }
+
+    @Test
+    public void remove_alreadyRemoved_fails() throws DockerClientException, ContainerStillRunningException,
+            ContainerNotFoundException {
+
+        /* mock */
+        containerService.remove(CONTAINER_1_ID);
+        final Container container = containerRepository.save(CONTAINER_1);
+        log.debug("re-inserting container with id {}", container.getId());
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.remove(container.getId());
+        });
+    }
+
+    @Test
+    public void create_notFound_fails() {
+        final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
+                .repository(IMAGE_2_REPOSITORY)
+                .tag(IMAGE_2_TAG)
+                .name(CONTAINER_3_NAME)
+                .build();
+
+        /* test */
+        assertThrows(ImageNotFoundException.class, () -> {
+            containerService.create(request);
+        });
+    }
+
 
     @Test
     public void findById_notFound_fails() {
@@ -178,6 +251,14 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
+    public void getAll_succeeds() {
+
+        /* test */
+        final List<Container> response = containerService.getAll();
+        assertEquals(2, response.size());
+    }
+
+    @Test
     public void remove_succeeds() throws DockerClientException, ContainerStillRunningException, ContainerNotFoundException {
 
         /* mock */
@@ -205,6 +286,90 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
         /* test */
         assertThrows(ContainerStillRunningException.class, () -> {
             containerService.remove(CONTAINER_1_ID);
+        });
+    }
+
+    @Test
+    public void change_alreadyRunning_fails() throws InterruptedException {
+
+        /* mock */
+        dockerUtil.startContainer(CONTAINER_1);
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.start(CONTAINER_1_ID);
+        });
+    }
+
+    @Test
+    public void change_startNotFound_fails() {
+
+        /* mock */
+        containerRepository.save(CONTAINER_3);
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.start(CONTAINER_3_ID);
+        });
+    }
+
+    @Test
+    public void change_alreadyStopped_fails() {
+
+        /* mock */
+        dockerUtil.stopContainer(CONTAINER_1);
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.stop(CONTAINER_1_ID);
+        });
+    }
+
+    @Test
+    public void change_stoppedNotFound_fails() {
+
+        /* mock */
+        dockerUtil.stopContainer(CONTAINER_1);
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.stop(CONTAINER_1_ID);
+        });
+    }
+
+    @Test
+    public void inspect_succeeds() throws InterruptedException, DockerClientException, ContainerNotFoundException,
+            ContainerNotRunningException {
+
+        /* mock */
+        dockerUtil.startContainer(CONTAINER_1);
+
+        /* test */
+        final Container response = containerService.inspect(CONTAINER_1_ID);
+        assertEquals(CONTAINER_1_ID, response.getId());
+        assertEquals(CONTAINER_1_NAME, response.getName());
+        assertEquals(CONTAINER_1_INTERNALNAME, response.getInternalName());
+        assertEquals(CONTAINER_1_IP, response.getIpAddress());
+    }
+
+    @Test
+    public void inspect_notFound_fails() {
+
+        /* test */
+        assertThrows(DockerClientException.class, () -> {
+            containerService.inspect(CONTAINER_2_ID);
+        });
+    }
+
+    @Test
+    public void inspect_notRunning_fails() {
+
+        /* mock */
+        dockerUtil.stopContainer(CONTAINER_1);
+
+        /* test */
+        assertThrows(ContainerNotRunningException.class, () -> {
+            containerService.inspect(CONTAINER_1_ID);
         });
     }
 

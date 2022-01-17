@@ -89,13 +89,13 @@ test-backend: test-backend-auth test-backend-container test-backend-database tes
 test-backend-auth:
 	mvn -f ./fda-authentication-service/pom.xml clean test verify
 
-test-backend-identifier: config-docker
+test-backend-identifier:
 	mvn -f ./fda-identifier-service/pom.xml clean test verify
 
-test-backend-container: config-docker
+test-backend-container:
 	mvn -f ./fda-container-service/pom.xml clean test verify
 
-test-backend-database: config-docker
+test-backend-database:
 	mvn -f ./fda-database-service/pom.xml clean test verify
 
 test-backend-discovery:
@@ -104,10 +104,10 @@ test-backend-discovery:
 test-backend-gateway:
 	mvn -f ./fda-gateway-service/pom.xml clean test verify
 
-test-backend-query: config-docker
+test-backend-query:
 	mvn -f ./fda-query-service/pom.xml clean test verify
 
-test-backend-table: config-docker
+test-backend-table:
 	mvn -f ./fda-table-service/pom.xml clean test verify
 
 coverage-frontend: clean build-frontend

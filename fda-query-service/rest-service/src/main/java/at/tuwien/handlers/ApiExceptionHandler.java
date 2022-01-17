@@ -34,12 +34,32 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 
+    @ExceptionHandler({FileStorageException.class})
+    public ResponseEntity<Object> handle(FileStorageException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.NOT_FOUND)
+                .message(e.getLocalizedMessage())
+                .code("error.file.store")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
     @ExceptionHandler({ImageNotSupportedException.class})
     public ResponseEntity<Object> handle(ImageNotSupportedException e, WebRequest request) {
         final ApiErrorDto response = ApiErrorDto.builder()
                 .status(HttpStatus.CONFLICT)
                 .message(e.getLocalizedMessage())
                 .code("error.database.image")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
+    @ExceptionHandler({PaginationException.class})
+    public ResponseEntity<Object> handle(PaginationException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(e.getLocalizedMessage())
+                .code("error.query.pagination")
                 .build();
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
@@ -54,12 +74,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 
-    @ExceptionHandler({JSQLParserException.class})
-    public ResponseEntity<Object> handle(JSQLParserException e, WebRequest request) {
+    @ExceptionHandler({QueryNotFoundException.class})
+    public ResponseEntity<Object> handle(QueryNotFoundException e, WebRequest request) {
         final ApiErrorDto response = ApiErrorDto.builder()
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.NOT_FOUND)
                 .message(e.getLocalizedMessage())
-                .code("error.query.parsing")
+                .code("error.query.notfound")
                 .build();
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
@@ -74,5 +94,24 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 
+    @ExceptionHandler({TableMalformedException.class})
+    public ResponseEntity<Object> handle(TableMalformedException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(e.getLocalizedMessage())
+                .code("error.table.malformed")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
+    @ExceptionHandler({TableNotFoundException.class})
+    public ResponseEntity<Object> handle(TableNotFoundException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.NOT_FOUND)
+                .message(e.getLocalizedMessage())
+                .code("error.table.notfound")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
 
 }

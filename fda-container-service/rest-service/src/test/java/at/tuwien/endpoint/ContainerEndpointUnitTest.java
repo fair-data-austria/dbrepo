@@ -151,7 +151,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_start_succeeds() throws DockerClientException, ContainerNotFoundException {
+    public void modify_start_succeeds() throws DockerClientException, ContainerNotFoundException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.START)
                 .build();
@@ -165,7 +165,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_stop_succeeds() throws DockerClientException, ContainerNotFoundException, ContainerStillRunningException {
+    public void modify_stop_succeeds() throws DockerClientException, ContainerNotFoundException, ContainerStillRunningException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.STOP)
                 .build();
@@ -179,7 +179,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_start_docker_fails() throws DockerClientException, ContainerNotFoundException {
+    public void modify_startDocker_fails() throws DockerClientException, ContainerNotFoundException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.START)
                 .build();
@@ -193,7 +193,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_stop_docker_fails() throws DockerClientException, ContainerNotFoundException {
+    public void modify_stopDocker_fails() throws DockerClientException, ContainerNotFoundException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.STOP)
                 .build();
@@ -207,7 +207,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_stop_noContainer_fails() throws DockerClientException, ContainerNotFoundException {
+    public void modify_stopNoContainer_fails() throws DockerClientException, ContainerNotFoundException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.STOP)
                 .build();

@@ -94,13 +94,9 @@ public class ContainerServiceImpl implements ContainerService {
     @Override
     @Transactional
     public Container stop(Long containerId) throws ContainerNotFoundException, DockerClientException {
-        final Optional<Container> container = containerRepository.findById(containerId);
-        if (container.isEmpty()) {
-            log.error("failed to get container with id {}", containerId);
-            throw new ContainerNotFoundException("no container with this id in metadata database");
-        }
+        final Container container = find(containerId);
         try {
-            dockerClient.stopContainerCmd(container.get().getHash()).exec();
+            dockerClient.stopContainerCmd(container.getHash()).exec();
         } catch (NotFoundException e) {
             log.error("docker client failed {}", e.getMessage());
             throw new DockerClientException("docker client failed", e);
@@ -108,9 +104,9 @@ public class ContainerServiceImpl implements ContainerService {
             log.warn("container already stopped {}", e.getMessage());
             throw new DockerClientException("container already stopped", e);
         }
-        log.info("Stopped container {}", containerId);
-        log.debug("Stopped container {}", container.get());
-        return container.get();
+        log.info("Stopped container with id {}", containerId);
+        log.debug("stopped container {}", container);
+        return container;
     }
 
     @Override
@@ -131,8 +127,8 @@ public class ContainerServiceImpl implements ContainerService {
             throw new ContainerStillRunningException("docker client failed", e);
         }
         containerRepository.deleteById(containerId);
-        log.info("Removed container {}", containerId);
-        log.debug("Removed container {}", container);
+        log.info("Removed container with id {}", containerId);
+        log.debug("removed container {}", container);
     }
 
     @Override
@@ -180,7 +176,9 @@ public class ContainerServiceImpl implements ContainerService {
     @Override
     @Transactional
     public List<Container> getAll() {
-        return containerRepository.findAll();
+        final List<Container> containers = containerRepository.findAll();
+        log.info("Found {} containers", containers.size());
+        return containers;
     }
 
     @Override
@@ -197,8 +195,8 @@ public class ContainerServiceImpl implements ContainerService {
             log.warn("container already started {}", e.getMessage());
             throw new DockerClientException("container already started", e);
         }
-        log.info("Started container {}", containerId);
-        log.debug("Started container {}", container);
+        log.info("Started container with id {}", containerId);
+        log.debug("started container {}", container);
         return container;
     }
 

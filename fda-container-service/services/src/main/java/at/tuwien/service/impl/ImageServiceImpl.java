@@ -64,7 +64,8 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
-    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException, DockerClientException {
+    public ContainerImage create(ImageCreateDto createDto) throws ImageNotFoundException, ImageAlreadyExistsException,
+            DockerClientException {
         pull(createDto.getRepository(), createDto.getTag());
         final ContainerImage image = inspect(createDto.getRepository(), createDto.getTag());
         if (imageRepository.findByRepositoryAndTag(createDto.getRepository(), createDto.getTag()).isPresent()) {
@@ -91,7 +92,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
-    public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException, DockerClientException {
+    public ContainerImage update(Long imageId, ImageChangeDto changeDto) throws ImageNotFoundException {
         final ContainerImage image = find(imageId);
         /* pull changes */
         pull(image.getRepository(), image.getTag());
@@ -123,23 +124,22 @@ public class ImageServiceImpl implements ImageService {
     public void delete(Long id) throws ImageNotFoundException, PersistenceException {
         try {
             imageRepository.deleteById(id);
-        } catch (EntityNotFoundException | EmptyResultDataAccessException e) {
+        } catch (EntityNotFoundException | EmptyResultDataAccessException | ConstraintViolationException e) {
             log.warn("image id {} not found in metadata database", id);
-            throw new ImageNotFoundException("no image with this id found in metadata database.");
-        } catch (ConstraintViolationException e) {
-            throw new PersistenceException(e);
+            throw new ImageNotFoundException("Container image not found", e);
         }
         log.info("Deleted image {}", id);
     }
 
     /**
+     * Inspects a container image by given repository and tag.
      *
-     * @param repository
-     * @param tag
-     * @return
-     * @throws ImageNotFoundException
+     * @param repository The repository.
+     * @param tag        The tag.
+     * @return The container image if successful.
+     * @throws ImageNotFoundException The image was not found.
      */
-    protected ContainerImage inspect(String repository, String tag) throws ImageNotFoundException {
+    public ContainerImage inspect(String repository, String tag) throws ImageNotFoundException {
         final InspectImageResponse response;
         try {
             response = dockerClient.inspectImageCmd(repository + ":" + tag)
@@ -152,13 +152,13 @@ public class ImageServiceImpl implements ImageService {
     }
 
     /**
+     * Pulls a container image by given repository and tag.
      *
-     * @param repository
-     * @param tag
-     * @throws ImageNotFoundException
-     * @throws DockerClientException
+     * @param repository The repository.
+     * @param tag        The tag.
+     * @throws ImageNotFoundException The image was not found.
      */
-    protected void pull(String repository, String tag) throws ImageNotFoundException, DockerClientException {
+    public void pull(String repository, String tag) throws ImageNotFoundException {
         final ResultCallback.Adapter<PullResponseItem> response;
         try {
             response = dockerClient.pullImageCmd(repository)
@@ -167,11 +167,9 @@ public class ImageServiceImpl implements ImageService {
             final Instant now = Instant.now();
             response.awaitCompletion();
             log.debug("pulled image in {} seconds", Duration.between(now, Instant.now()).getSeconds());
-        } catch (NotFoundException | InterruptedException e) {
+        } catch (NotFoundException | InterruptedException | InternalServerErrorException e) {
             log.warn("image {}:{} not found in library", repository, tag);
             throw new ImageNotFoundException("image not found in library", e);
-        } catch(InternalServerErrorException e) {
-            throw new DockerClientException("failed to pull from docker registry", e);
         }
     }
 
