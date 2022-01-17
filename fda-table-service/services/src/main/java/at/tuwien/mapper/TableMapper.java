@@ -228,7 +228,7 @@ public interface TableMapper {
                         .append("`) ON DELETE CASCADE ON UPDATE RESTRICT"));
         query.append(") WITH SYSTEM VERSIONING;");
         log.debug("create table query built with {} columns and system versioning", data.getColumns().length);
-        log.trace("raw create table query: [{}]", query);
+        log.debug("raw create table query: [{}]", query);
         return CreateTableRawQuery.builder()
                 .query(query.toString())
                 .generated(!primaryColumnExists)
