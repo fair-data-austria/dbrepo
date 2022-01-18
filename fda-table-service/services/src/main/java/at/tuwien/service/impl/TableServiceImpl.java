@@ -90,9 +90,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         session.close();
         int[] idx = {0};
         /* save in metadata database */
-        final Table prototype = tableMapper.tableCreateDtoToTable(database, createDto);
-        prototype.setColumns(List.of());
-        final Table table = tableRepository.save(prototype);
+        final Table table = tableRepository.save(tableMapper.tableCreateDtoToTable(database, createDto));
         table.setColumns(Arrays.stream(createDto.getColumns())
                 .map(tableMapper::columnCreateDtoToTableColumn)
                 .map(column -> tableMapper.tableColumnToTableColumn(table, column, query))

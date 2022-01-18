@@ -29,7 +29,7 @@ public class Seeder {
     private final static List<ContainerImageEnvironmentItem> IMAGE_MARIADB_ENVIRONMENT = List.of(
             ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_MARIADB_ID)
-                    .key("UZERNAME")
+                    .key("ROOT")
                     .value("root")
                     .type(ContainerImageEnvironmentItemType.PRIVILEGED_USERNAME)
                     .build(),

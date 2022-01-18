@@ -57,6 +57,8 @@ public interface TableMapper {
             @Mapping(source = "data.description", target = "description"),
             @Mapping(source = "database.id", target = "tdbid"),
             @Mapping(source = "database", target = "database"),
+            @Mapping(target = "topic", expression = "java(database.getExchange()+\".\"+nameToInternalName(data.getName()))"),
+            @Mapping(target = "columns", expression = "java(List.of())"),
     })
     Table tableCreateDtoToTable(Database database, TableCreateDto data);
 

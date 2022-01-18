@@ -82,7 +82,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
-        final Session session = getSessionFactory(database)
+        final Session session = getSessionFactory(database, true)
                 .openSession();
         session.beginTransaction();
         final NativeQuery<?> query = session.createSQLQuery(queryMapper.tableToRawFindAllQuery(table, timestamp, size,
@@ -109,7 +109,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
         if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return;
-        final Session session = getSessionFactory(database, "root")
+        final Session session = getSessionFactory(database, true)
                 .openSession();
         session.beginTransaction();
         /* prepare the statement */

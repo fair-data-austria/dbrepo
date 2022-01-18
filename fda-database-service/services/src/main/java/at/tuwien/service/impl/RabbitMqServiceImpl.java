@@ -61,14 +61,14 @@ public class RabbitMqServiceImpl implements MessageQueueService {
         }
     }
 
-    private void create(Database database) throws IOException {
+    public void create(Database database) throws IOException {
         channel.exchangeDeclare(database.getExchange(), BuiltinExchangeType.FANOUT, true);
         log.debug("declare fanout exchange {}", database.getExchange());
         channel.exchangeBind(database.getExchange(), AMQP_EXCHANGE, database.getExchange());
         log.debug("bind exchange {} to {}", database.getExchange(), AMQP_EXCHANGE);
     }
 
-    private void delete(Database database) throws IOException {
+    public void delete(Database database) throws IOException {
         channel.exchangeDelete(database.getExchange());
         log.debug("delete exchange {}", database.getExchange());
         for (Table table : database.getTables()) {
@@ -76,7 +76,7 @@ public class RabbitMqServiceImpl implements MessageQueueService {
         }
     }
 
-    private void delete(Table table) throws IOException {
+    public void delete(Table table) throws IOException {
         channel.queueDelete(table.getTopic());
         log.debug("delete queue {}", table.getTopic());
     }

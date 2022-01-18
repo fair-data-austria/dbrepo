@@ -44,8 +44,9 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
+        log.debug("find all queries in database id {}", databaseId);
         /* run query */
-        final SessionFactory sessionFactory = getSessionFactory(database);
+        final SessionFactory sessionFactory = getSessionFactory(database, true);
         final Session session = sessionFactory.openSession();
         final Transaction transaction = session.beginTransaction();
         /* use jpq to select all */
@@ -53,6 +54,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         transaction.commit();
         final List<Query> out = queries.list();
         log.info("Found {} queries", out.size());
+        log.debug("found queries {}", out);
         session.close();
         return out;
     }
@@ -65,8 +67,9 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
+        log.debug("find one query in database id {} with id {}", databaseId, queryId);
         /* run query */
-        final SessionFactory sessionFactory = getSessionFactory(database);
+        final SessionFactory sessionFactory = getSessionFactory(database, true);
         final Session session = sessionFactory.openSession();
         final Transaction transaction = session.beginTransaction();
         /* use jpa to select one */
@@ -81,6 +84,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             throw new QueryNotFoundException("Query was not found");
         }
         log.info("Found query with id {}", queryId);
+        log.debug("saved query {}", query);
         session.close();
         return result;
     }
@@ -101,10 +105,11 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
+        log.debug("Insert into database id {}, record {}, metadata {}", databaseId, result, metadata);
         /* save */
         final SessionFactory sessionFactory;
         try {
-            sessionFactory = getSessionFactory(database);
+            sessionFactory = getSessionFactory(database, true);
         } catch (HibernateException e) {
             log.error("Failed to open session");
             throw new QueryStoreException("Failed to open session", e);

@@ -54,12 +54,12 @@ export default {
     async loadMetadata () {
       this.loading = true
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/metadata/query/${this.$route.params.query_id}`)
-        console.debug('query metadata', res.data)
+        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/query/${this.$route.params.query_id}`)
+        console.debug('query', res.data)
         this.query = res.data
       } catch (err) {
-        console.error('Could not load query metadata', err)
-        this.$toast.error('Could not load query metadata')
+        console.error('Could not load query', err)
+        this.$toast.error('Could not load query')
         this.loading = false
       }
       this.loading = false

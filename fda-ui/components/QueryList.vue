@@ -74,7 +74,7 @@
                 <v-btn color="primary" :to="`/databases/${databaseId}/queries/${item.id}`">
                   <v-icon left>mdi-run</v-icon> Execute Again
                 </v-btn>
-                <v-btn :disabled="queryDetails.doi" :to="`/databases/${databaseId}/queries/${item.id}/metadata`">
+                <v-btn :disabled="queryDetails.doi" :to="`/databases/${databaseId}/queries/${item.id}`">
                   <v-icon left>mdi-fingerprint</v-icon> Cite Dataset
                 </v-btn>
               </v-col>
@@ -116,7 +116,7 @@ export default {
       let res
       try {
         this.loading = true
-        res = await this.$axios.get(`/api/database/${this.databaseId}/metadata/query`)
+        res = await this.$axios.get(`/api/database/${this.databaseId}/query`)
         console.debug('queries', res)
         this.queries = res.data
         this.loading = false

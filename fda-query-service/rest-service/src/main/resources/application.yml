@@ -14,7 +14,7 @@ spring:
   application:
     name: fda-query-service
   rabbitmq:
-    host: fda-broker-service
+    host: localhost
     username: guest
     password: guest
   cloud:

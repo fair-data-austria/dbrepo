@@ -69,8 +69,7 @@
         width="100%"
         class="primary text-center">
         <v-card-text class="white--text">
-          <strong>Sandbox Environment</strong> — Reset in {{ timer }} —
-          <a href="//github.com/fair-data-austria/dbrepo/issues/new" class="white--text">Report a bug</a>
+          <strong>Sandbox Environment</strong> — <a href="//github.com/fair-data-austria/dbrepo/issues/new" class="white--text">Report a bug</a>
         </v-card-text>
       </v-card>
     </v-footer>

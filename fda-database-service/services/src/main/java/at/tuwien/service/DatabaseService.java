@@ -3,6 +3,8 @@ package at.tuwien.service;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.util.List;
 
@@ -48,4 +50,23 @@ public interface DatabaseService {
      */
     Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException;
+
+    /**
+     * Returns a new session for a given {@link Database} entity.
+     *
+     * @param database The database entity.
+     * @return A new session if successful.
+     * @throws ContainerConnectionException The container is not reachable from the database service.
+     * @throws DatabaseMalformedException   The database is malformed e.g. a session can be created.
+     */
+    Session getSession(Database database) throws ContainerConnectionException, DatabaseMalformedException;
+
+    /**
+     * Returns a new transaction for a given session.
+     *
+     * @param session The session.
+     * @return The transaction if successful.
+     * @throws ContainerConnectionException When no connection to the remote database fails (e.g. the container is not running).
+     */
+    Transaction getTransaction(Session session) throws ContainerConnectionException;
 }

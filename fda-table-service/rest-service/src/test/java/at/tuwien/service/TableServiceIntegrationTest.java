@@ -142,6 +142,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         assertEquals(TABLE_2_NAME, response.getName());
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
+        assertEquals(TABLE_2_TOPIC, response.getTopic());
         assertEquals(DATABASE_1_ID, response.getTdbid());
         assertEquals(COLUMNS_CSV01.length, response.getColumns().size());
     }

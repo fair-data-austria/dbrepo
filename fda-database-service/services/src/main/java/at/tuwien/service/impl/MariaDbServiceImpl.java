@@ -140,15 +140,8 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
         return out;
     }
 
-    /**
-     * Returns a new session for a given {@link Database} entity.
-     *
-     * @param database The database entity.
-     * @return A new session if successful.
-     * @throws ContainerConnectionException The container is not reachable from the database service.
-     * @throws DatabaseMalformedException   The database is malformed e.g. a session can be created.
-     */
-    private Session getSession(Database database) throws ContainerConnectionException, DatabaseMalformedException {
+    @Override
+    public Session getSession(Database database) throws ContainerConnectionException, DatabaseMalformedException {
         final SessionFactory factory;
         try {
             factory = getSessionFactory(database);
@@ -167,14 +160,8 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
         return session;
     }
 
-    /**
-     * Returns a new transaction for a given session.
-     *
-     * @param session The session.
-     * @return The transaction if successful.
-     * @throws ContainerConnectionException When no connection to the remote database fails (e.g. the container is not running).
-     */
-    private static Transaction getTransaction(Session session) throws ContainerConnectionException {
+    @Override
+    public Transaction getTransaction(Session session) throws ContainerConnectionException {
         final Transaction transaction;
         try {
             transaction = session.beginTransaction();

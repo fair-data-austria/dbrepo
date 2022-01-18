@@ -12,6 +12,7 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Network;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.Session;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -110,18 +111,21 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void findAll_succeeds() {
+
+        /* mock */
         when(databaseRepository.findAll())
                 .thenReturn(List.of(DATABASE_1));
 
-        final List<Database> response = databaseService.findAll();
-
         /* test */
+        final List<Database> response = databaseService.findAll();
         assertEquals(1, response.size());
         assertEquals(DATABASE_1, response.get(0));
     }
 
     @Test
     public void findById_succeeds() throws DatabaseNotFoundException {
+
+        /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
 
@@ -133,6 +137,8 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void findById_notFound_fails() {
+
+        /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.empty());
 
@@ -144,6 +150,8 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() {
+
+        /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.empty());
 
@@ -159,12 +167,24 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
                 .name(DATABASE_1_NAME)
                 .containerId(CONTAINER_1_ID)
                 .build();
+
+        /* mock */
         when(containerRepository.findById(CONTAINER_1_ID))
                 .thenReturn(Optional.empty());
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
             databaseService.create(request);
+        });
+    }
+
+    @Test
+    public void getSession_fails() {
+        /* no mock needed since unit test */
+
+        /* test */
+        assertThrows(ContainerConnectionException.class, () -> {
+            databaseService.getSession(DATABASE_1);
         });
     }
 

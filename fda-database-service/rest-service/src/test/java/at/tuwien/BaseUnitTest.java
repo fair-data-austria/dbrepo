@@ -5,6 +5,7 @@ import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.Table;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
@@ -75,11 +76,6 @@ public abstract class BaseUnitTest {
     public final static Instant DATABASE_2_CREATED = Instant.now().minus(2, HOURS);
     public final static Instant DATABASE_2_UPDATED = Instant.now();
 
-    public final static Long TABLE_1_ID = 1L;
-    public final static String TABLE_1_NAME = "NYSE";
-    public final static String TABLE_1_INTERNALNAME = "nyse";
-    public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNALNAME;
-
     public final static Long CONTAINER_1_ID = 1L;
     public final static String CONTAINER_1_HASH = "deadbeef";
     public final static String CONTAINER_1_IP = "172.28.0.5";
@@ -143,6 +139,20 @@ public abstract class BaseUnitTest {
             .lastModified(DATABASE_1_UPDATED)
             .container(CONTAINER_1)
             .exchange(DATABASE_1_EXCHANGE)
+            .build();
+
+    public final static Long TABLE_1_ID = 1L;
+    public final static String TABLE_1_NAME = "NYSE";
+    public final static String TABLE_1_INTERNALNAME = "nyse";
+    public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNALNAME;
+
+    public final static Table TABLE_1 = Table.builder()
+            .id(TABLE_1_ID)
+            .name(TABLE_1_NAME)
+            .internalName(TABLE_1_INTERNALNAME)
+            .topic(TABLE_1_TOPIC)
+            .tdbid(DATABASE_1_ID)
+            .database(DATABASE_1)
             .build();
 
     public final static Database DATABASE_2 = Database.builder()

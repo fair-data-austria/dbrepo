@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.entities.database.Database;
+import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 
 import java.io.IOException;
@@ -28,4 +29,5 @@ public interface MessageQueueService {
      * @throws AmqpException Could not delete the exchange.
      */
     void deleteExchange(Database database) throws AmqpException;
+
 }
