@@ -16,11 +16,13 @@
       <v-card-text>
         <v-text-field
           v-model="name"
+          name="name"
           label="Table Name"
           :rules="[v => !!v || $t('Required')]"
           required />
         <v-text-field
           v-model="description"
+          name="description"
           label="Description" />
       </v-card-text>
       <v-card-text>

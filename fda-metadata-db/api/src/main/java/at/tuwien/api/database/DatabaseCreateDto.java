@@ -1,5 +1,6 @@
 package at.tuwien.api.database;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
@@ -16,6 +17,7 @@ import javax.validation.constraints.NotNull;
 public class DatabaseCreateDto {
 
     @NotNull
+    @JsonProperty("container_id")
     @ApiModelProperty(name = "container id", example = "1")
     private Long containerId;
 
@@ -24,6 +26,7 @@ public class DatabaseCreateDto {
     private String name;
 
     @NotNull
+    @JsonProperty("is_public")
     @Parameter(name = "database publicity", example = "true")
     private Boolean isPublic;
 

@@ -1,5 +1,6 @@
 package at.tuwien.api.identifier;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -36,6 +37,7 @@ public class CreatorDto {
     private Instant created;
 
     @NotNull
+    @JsonProperty("last_modified")
     private Instant lastModified;
 
 }

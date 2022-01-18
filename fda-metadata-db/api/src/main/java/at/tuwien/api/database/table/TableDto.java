@@ -2,6 +2,7 @@ package at.tuwien.api.database.table;
 
 import at.tuwien.api.database.table.columns.RowDto;
 import at.tuwien.api.database.table.columns.ColumnDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -20,15 +21,12 @@ public class TableDto {
     @ApiModelProperty(name = "table id", example = "1")
     private Long id;
 
-    @NotNull
-    @ApiModelProperty(name = "deposition id", example = "100")
-    private Long depositId;
-
     @NotBlank
     @ApiModelProperty(name = "table name", example = "Weather Australia")
     private String name;
 
     @NotBlank
+    @JsonProperty("internal_name")
     @ApiModelProperty(name = "table internal name", example = "weather_australia")
     private String internalName;
 

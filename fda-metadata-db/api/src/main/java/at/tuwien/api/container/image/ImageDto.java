@@ -1,5 +1,6 @@
 package at.tuwien.api.container.image;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class ImageDto {
     private String tag;
 
     @NotBlank
+    @JsonProperty("driver_class")
     @ApiModelProperty(required = true, example = "org.postgresql.Driver")
     private String driverClass;
 
@@ -37,6 +39,7 @@ public class ImageDto {
     private String dialect;
 
     @NotBlank
+    @JsonProperty("jdbc_method")
     @ApiModelProperty(required = true, example = "postgres")
     private String jdbcMethod;
 
@@ -50,6 +53,7 @@ public class ImageDto {
     private BigInteger size;
 
     @NotNull
+    @JsonProperty("default_port")
     @ApiModelProperty(required = true, example = "5432")
     private Integer defaultPort;
 

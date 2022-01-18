@@ -1,5 +1,6 @@
 package at.tuwien.api.container;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -27,6 +28,7 @@ public class ContainerBriefDto {
     private String name;
 
     @NotBlank
+    @JsonProperty("internal_name")
     @ApiModelProperty(name = "container internal name", example = "weather-world")
     private String internalName;
 }

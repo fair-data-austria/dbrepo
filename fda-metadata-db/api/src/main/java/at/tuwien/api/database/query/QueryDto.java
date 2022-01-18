@@ -1,5 +1,6 @@
 package at.tuwien.api.database.query;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class QueryDto {
     private Long id;
 
     @NotNull
+    @JsonProperty("database_id")
     @ApiModelProperty(name = "database id", example = "1")
     private Long databaseId;
 
@@ -30,16 +32,20 @@ public class QueryDto {
     @ApiModelProperty(name = "query raw", example = "select * from table")
     private String query;
 
+    @JsonProperty("query_normalized")
     @ApiModelProperty(name = "query normalized", example = "select id, name from table")
     private String queryNormalized;
 
     @NotBlank
+    @JsonProperty("query_hash")
     @ApiModelProperty(name = "query hash sha256", example = "17e682f060b5f8e47ea04c5c4855908b0a5ad612022260fe50e11ecb0cc0ab76")
     private String queryHash;
 
+    @JsonProperty("result_hash")
     @ApiModelProperty(name = "result hash sha256", example = "17e682f060b5f8e47ea04c5c4855908b0a5ad612022260fe50e11ecb0cc0ab76")
     private String resultHash;
 
+    @JsonProperty("result_number")
     @ApiModelProperty(name = "result number of records", example = "1")
     private Long resultNumber;
 
@@ -47,6 +53,7 @@ public class QueryDto {
     private Instant created;
 
     @NotNull
+    @JsonProperty("last_modified")
     private Instant lastModified;
 
 }
