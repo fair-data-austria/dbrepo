@@ -79,6 +79,8 @@ public class TableServiceImpl extends HibernateConnector implements TableService
                 .openSession();
         final Transaction transaction = session.beginTransaction();
         final CreateTableRawQuery query = tableMapper.tableToCreateTableRawQuery(database, createDto);
+        log.debug("Create Table Raw query is [{}]", query);
+
         if (query.getGenerated()) {
             /* in case the id column needs to be generated, we need to generate the sequence too */
             session.createSQLQuery(tableMapper.tableToCreateSequenceRawQuery(database, createDto))
@@ -100,6 +102,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
                 .forEach(column -> {
                     column.setOrdinalPosition(idx[0]++);
                 });
+        log.debug("Saving table {}",table);
         return tableRepository.save(table);
     }
 }
