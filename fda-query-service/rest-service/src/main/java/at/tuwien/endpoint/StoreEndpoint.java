@@ -12,10 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/database/{id}/query")
+@RequestMapping("/api/container/{id}/database/{databaseId}/query")
 public class StoreEndpoint {
 
     private final QueryMapper queryMapper;
@@ -34,9 +35,10 @@ public class StoreEndpoint {
             @ApiResponse(code = 400, message = "Problem with reading the stored query."),
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
-    public ResponseEntity<List<QueryDto>> findAll(@PathVariable Long id) throws QueryStoreException,
+    public ResponseEntity<List<QueryDto>> findAll(@NotNull @PathVariable("id") Long id,
+                                                  @NotNull @PathVariable("databaseId") Long databaseId) throws QueryStoreException,
             DatabaseNotFoundException, ImageNotSupportedException {
-        final List<Query> queries = storeService.findAll(id);
+        final List<Query> queries = storeService.findAll(databaseId);
         return ResponseEntity.ok(queryMapper.queryListToQueryDtoList(queries));
     }
 
@@ -47,11 +49,12 @@ public class StoreEndpoint {
             @ApiResponse(code = 400, message = "Problem with reading the stored queries."),
             @ApiResponse(code = 404, message = "The database does not exist."),
     })
-    public ResponseEntity<QueryDto> find(@PathVariable Long id,
-                                         @PathVariable Long queryId)
+    public ResponseEntity<QueryDto> find(@NotNull @PathVariable("id") Long id,
+                                         @NotNull @PathVariable("databaseId") Long databaseId,
+                                         @NotNull @PathVariable Long queryId)
             throws DatabaseNotFoundException, ImageNotSupportedException,
             QueryStoreException, QueryNotFoundException {
-        final Query query = storeService.findOne(id, queryId);
+        final Query query = storeService.findOne(databaseId, queryId);
         return ResponseEntity.ok(queryMapper.queryToQueryDto(query));
     }
 }

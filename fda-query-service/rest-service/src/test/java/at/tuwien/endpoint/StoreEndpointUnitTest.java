@@ -50,7 +50,7 @@ public class StoreEndpointUnitTest extends BaseUnitTest {
                 .thenReturn(List.of(QUERY_1));
 
         /* test */
-        final ResponseEntity<List<QueryDto>> response = storeEndpoint.findAll(DATABASE_1_ID);
+        final ResponseEntity<List<QueryDto>> response = storeEndpoint.findAll(CONTAINER_1_ID, DATABASE_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
@@ -66,7 +66,7 @@ public class StoreEndpointUnitTest extends BaseUnitTest {
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryDto> response = storeEndpoint.find(DATABASE_1_ID, QUERY_1_ID);
+        final ResponseEntity<QueryDto> response = storeEndpoint.find(CONTAINER_1_ID, DATABASE_1_ID, QUERY_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(QUERY_1_DTO, response.getBody());
     }
@@ -81,7 +81,7 @@ public class StoreEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryNotFoundException.class, () -> {
-            storeEndpoint.find(DATABASE_1_ID, QUERY_1_ID);
+            storeEndpoint.find(CONTAINER_1_ID, DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
@@ -95,7 +95,7 @@ public class StoreEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            storeEndpoint.find(DATABASE_1_ID, QUERY_1_ID);
+            storeEndpoint.find(CONTAINER_1_ID, DATABASE_1_ID, QUERY_1_ID);
         });
     }
 

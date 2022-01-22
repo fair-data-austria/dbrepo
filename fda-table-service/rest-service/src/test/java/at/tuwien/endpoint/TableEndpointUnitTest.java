@@ -65,7 +65,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
-        final ResponseEntity<List<TableBriefDto>> response = tableEndpoint.findAll(DATABASE_1_ID);
+        final ResponseEntity<List<TableBriefDto>> response = tableEndpoint.findAll(CONTAINER_1_ID, DATABASE_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, Objects.requireNonNull(response.getBody()).size());
     }
@@ -90,7 +90,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
                 .create(TABLE_1);
 
         /* test */
-        final ResponseEntity<TableBriefDto> response = tableEndpoint.create(DATABASE_1_ID, request);
+        final ResponseEntity<TableBriefDto> response = tableEndpoint.create(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
@@ -109,7 +109,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableEndpoint.create(DATABASE_1_ID, request);
+            tableEndpoint.create(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
@@ -120,7 +120,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
                 .thenReturn(TABLE_1);
 
         /* test */
-        final ResponseEntity<TableDto> response = tableEndpoint.findById(DATABASE_1_ID, TABLE_1_ID);
+        final ResponseEntity<TableDto> response = tableEndpoint.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(TABLE_1_ID, Objects.requireNonNull(response.getBody()).getId());
         assertEquals(TABLE_1_NAME, Objects.requireNonNull(response.getBody()).getName());
@@ -136,7 +136,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            tableEndpoint.findById(DATABASE_1_ID, TABLE_1_ID);
+            tableEndpoint.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
@@ -149,7 +149,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            tableEndpoint.delete(DATABASE_1_ID, TABLE_1_ID);
+            tableEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
@@ -157,13 +157,13 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
             DataProcessingException {
         /* test */
-        tableEndpoint.delete(DATABASE_1_ID, TABLE_1_ID);
+        tableEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
     }
 
     @Test
     public void update_fails() {
         /* test */
-        final ResponseEntity<TableBriefDto> response = tableEndpoint.update(DATABASE_1_ID, TABLE_1_ID);
+        final ResponseEntity<TableBriefDto> response = tableEndpoint.update(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
     }
 

@@ -113,11 +113,11 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
     public void findAll_succeeds() {
 
         /* mock */
-        when(databaseRepository.findAll())
+        when(databaseRepository.findAllByContainerId(CONTAINER_1_ID))
                 .thenReturn(List.of(DATABASE_1));
 
         /* test */
-        final List<Database> response = databaseService.findAll();
+        final List<Database> response = databaseService.findAll(CONTAINER_1_ID);
         assertEquals(1, response.size());
         assertEquals(DATABASE_1, response.get(0));
     }
@@ -129,7 +129,7 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
 
-        final Database response = databaseService.findById(DATABASE_1_ID);
+        final Database response = databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID);
 
         /* test */
         assertEquals(DATABASE_1, response);
@@ -144,7 +144,7 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseService.findById(DATABASE_1_ID);
+            databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 
@@ -157,7 +157,7 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseService.delete(DATABASE_1_ID);
+            databaseService.delete(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 
@@ -165,7 +165,6 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
     public void create_notFound_fails() {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .name(DATABASE_1_NAME)
-                .containerId(CONTAINER_1_ID)
                 .build();
 
         /* mock */
@@ -174,7 +173,7 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            databaseService.create(request);
+            databaseService.create(CONTAINER_1_ID, request);
         });
     }
 

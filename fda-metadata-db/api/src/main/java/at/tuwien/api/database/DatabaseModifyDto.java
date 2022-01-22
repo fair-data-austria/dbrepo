@@ -15,11 +15,6 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class DatabaseModifyDto {
 
-    @NotNull
-    @JsonProperty("database_id")
-    @Parameter(name = "database id", example = "1")
-    private Long databaseId;
-
     @NotBlank
     @JsonProperty("is_public")
     @Parameter(name = "database publicity", example = "true")

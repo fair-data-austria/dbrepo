@@ -108,10 +108,10 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void findAll_succeeds() {
-        when(databaseService.findAll())
+        when(databaseService.findAll(CONTAINER_1_ID))
                 .thenReturn(List.of(DATABASE_1));
 
-        final ResponseEntity<List<DatabaseBriefDto>> response = databaseEndpoint.findAll();
+        final ResponseEntity<List<DatabaseBriefDto>> response = databaseEndpoint.findAll(CONTAINER_1_ID);
 
         /* test */
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -122,14 +122,13 @@ public class EndpointUnitTest extends BaseUnitTest {
     public void create_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(CONTAINER_1_ID)
                 .name(DATABASE_1_NAME)
                 .description(DATABASE_1_DESCRIPTION)
                 .build();
-        when(databaseService.create(request))
+        when(databaseService.create(CONTAINER_1_ID, request))
                 .thenReturn(DATABASE_1);
 
-        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.create(request);
+        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.create(CONTAINER_1_ID, request);
 
         /* test */
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -141,18 +140,17 @@ public class EndpointUnitTest extends BaseUnitTest {
     public void create_containerNotFound_fails() throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(CONTAINER_1_ID)
                 .name(DATABASE_1_NAME)
                 .description(DATABASE_1_DESCRIPTION)
                 .build();
 
         /* test */
-        when(databaseService.create(request))
+        when(databaseService.create(CONTAINER_1_ID, request))
                 .thenThrow(ContainerNotFoundException.class);
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            databaseEndpoint.create(request);
+            databaseEndpoint.create(CONTAINER_1_ID, request);
         });
     }
 
@@ -160,26 +158,25 @@ public class EndpointUnitTest extends BaseUnitTest {
     public void create_imageNotSupported_fails() throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(CONTAINER_1_ID)
                 .name(DATABASE_1_NAME)
                 .description(DATABASE_1_DESCRIPTION)
                 .build();
 
-        when(databaseService.create(request))
+        when(databaseService.create(CONTAINER_1_ID, request))
                 .thenThrow(ImageNotSupportedException.class);
 
         /* test */
         assertThrows(ImageNotSupportedException.class, () -> {
-            databaseEndpoint.create(request);
+            databaseEndpoint.create(CONTAINER_1_ID, request);
         });
     }
 
     @Test
     public void findById_succeeds() throws DatabaseNotFoundException {
-        when(databaseService.findById(DATABASE_1_ID))
+        when(databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID))
                 .thenReturn(DATABASE_1);
 
-        final ResponseEntity<DatabaseDto> response = databaseEndpoint.findById(DATABASE_1_ID);
+        final ResponseEntity<DatabaseDto> response = databaseEndpoint.findById(CONTAINER_1_ID, DATABASE_1_ID);
 
         /* test */
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -189,19 +186,19 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void findById_notFound_fails() throws DatabaseNotFoundException {
-        when(databaseService.findById(DATABASE_1_ID))
+        when(databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID))
                 .thenThrow(DatabaseNotFoundException.class);
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseEndpoint.findById(DATABASE_1_ID);
+            databaseEndpoint.findById(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 
     @Test
     public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
-        final ResponseEntity<?> response = databaseEndpoint.delete(DATABASE_1_ID);
+        final ResponseEntity<?> response = databaseEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID);
 
         /* test */
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
@@ -212,11 +209,11 @@ public class EndpointUnitTest extends BaseUnitTest {
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
         willThrow(ImageNotSupportedException.class)
                 .given(databaseService)
-                .delete(DATABASE_1_ID);
+                .delete(CONTAINER_1_ID, DATABASE_1_ID);
 
         /* test */
         assertThrows(ImageNotSupportedException.class, () -> {
-            databaseEndpoint.delete(DATABASE_1_ID);
+            databaseEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 
@@ -225,11 +222,11 @@ public class EndpointUnitTest extends BaseUnitTest {
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
         willThrow(DatabaseNotFoundException.class)
                 .given(databaseService)
-                .delete(DATABASE_1_ID);
+                .delete(CONTAINER_1_ID, DATABASE_1_ID);
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseEndpoint.delete(DATABASE_1_ID);
+            databaseEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 

@@ -16,12 +16,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Log4j2
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/database/{id}/table/{tableId}/data")
+@RequestMapping("/api/container/{id}/database/{databaseId}/table/{tableId}/data")
 public class DataEndpoint {
 
     private final QueryService queryService;
@@ -44,8 +45,9 @@ public class DataEndpoint {
             @ApiResponse(code = 415, message = "The file provided is not in csv format"),
             @ApiResponse(code = 422, message = "The csv was not processible."),
     })
-    public ResponseEntity<?> insert(@PathVariable("id") Long databaseId,
-                                    @PathVariable("tableId") Long tableId,
+    public ResponseEntity<?> insert(@NotNull @PathVariable("id") Long id,
+                                    @NotNull @PathVariable("databaseId") Long databaseId,
+                                    @NotNull @PathVariable("tableId") Long tableId,
                                     @RequestParam(required = false) String location,
                                     @Valid @RequestBody(required = false) TableCsvDto data) throws TableNotFoundException,
             DatabaseNotFoundException, FileStorageException, TableMalformedException, ImageNotSupportedException {
@@ -71,8 +73,9 @@ public class DataEndpoint {
             @ApiResponse(code = 404, message = "The table is not found in database."),
             @ApiResponse(code = 405, message = "The connection to the database was unsuccessful."),
     })
-    public ResponseEntity<QueryResultDto> getAll(@PathVariable("id") Long databaseId,
-                                                 @PathVariable Long tableId,
+    public ResponseEntity<QueryResultDto> getAll(@NotNull @PathVariable("id") Long id,
+                                                 @NotNull @PathVariable("databaseId") Long databaseId,
+                                                 @NotNull @PathVariable("tableId") Long tableId,
                                                  @RequestParam(required = false) Instant timestamp,
                                                  @RequestParam(required = false) Long page,
                                                  @RequestParam(required = false) Long size)
@@ -101,8 +104,9 @@ public class DataEndpoint {
             @ApiResponse(code = 404, message = "The table is not found in database."),
             @ApiResponse(code = 405, message = "The connection to the database was unsuccessful."),
     })
-    public ResponseEntity<InputStreamResource> export(@PathVariable("id") Long databaseId,
-                                                      @PathVariable Long tableId,
+    public ResponseEntity<InputStreamResource> export(@NotNull @PathVariable("id") Long id,
+                                                      @NotNull @PathVariable("databaseId") Long databaseId,
+                                                      @NotNull @PathVariable("tableId") Long tableId,
                                                       @RequestParam(required = false) Instant timestamp)
             throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
             ImageNotSupportedException, TableMalformedException, FileStorageException, PaginationException {

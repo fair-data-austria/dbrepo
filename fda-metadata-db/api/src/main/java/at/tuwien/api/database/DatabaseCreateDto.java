@@ -16,11 +16,6 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class DatabaseCreateDto {
 
-    @NotNull
-    @JsonProperty("container_id")
-    @ApiModelProperty(name = "container id", example = "1")
-    private Long containerId;
-
     @NotBlank
     @ApiModelProperty(name = "database name", example = "Weather Australia")
     private String name;

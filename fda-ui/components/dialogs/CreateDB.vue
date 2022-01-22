@@ -156,7 +156,7 @@ export default {
       // wait for it to finish
       this.loading = true
       this.error = false
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 5; i++) {
         try {
           res = await this.$axios.post('/api/database/', {
             name: this.database,
@@ -164,7 +164,7 @@ export default {
             description: this.description,
             isPublic: this.isPublic
           }, { progress: false })
-          i = 31
+          break
         } catch (err) {
           console.debug('wait', res)
           await this.sleep(3000)

@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,13 +55,13 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
 
     @Override
     @Transactional
-    public List<Database> findAll() {
-        return new ArrayList<>(databaseRepository.findAll());
+    public List<Database> findAll(Long id) {
+        return databaseRepository.findAllByContainerId(id);
     }
 
     @Override
     @Transactional
-    public Database findById(Long databaseId) throws DatabaseNotFoundException {
+    public Database findById(Long id, Long databaseId) throws DatabaseNotFoundException {
         final Optional<Database> database = databaseRepository.findById(databaseId);
         if (database.isEmpty()) {
             log.warn("could not find database with id {}", databaseId);
@@ -73,9 +72,9 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
 
     @Override
     @Transactional
-    public void delete(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
+    public void delete(Long id, Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
-        final Database database = findById(databaseId);
+        final Database database = findById(id, databaseId);
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
@@ -102,11 +101,11 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
 
     @Override
     @Transactional
-    public Database create(DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
+    public Database create(Long id, DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException {
-        final Optional<Container> container = containerRepository.findById(createDto.getContainerId());
+        final Optional<Container> container = containerRepository.findById(id);
         if (container.isEmpty()) {
-            log.warn("Container with id {} does not exist", createDto.getContainerId());
+            log.warn("Container with id {} does not exist", id);
             throw new ContainerNotFoundException("Container does not exist.");
         }
         /* start the object */

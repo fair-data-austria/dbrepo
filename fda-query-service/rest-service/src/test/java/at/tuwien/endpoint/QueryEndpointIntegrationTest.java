@@ -147,7 +147,7 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
         storeService.insert(DATABASE_1_ID, result, statement);
 
         /* test */
-        final ResponseEntity<QueryResultDto> response = queryEndpoint.reExecute(DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
+        final ResponseEntity<QueryResultDto> response = queryEndpoint.reExecute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, QUERY_1_ID);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(QUERY_1_ID, response.getBody().getId());
@@ -165,7 +165,7 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearQueryStore(TABLE_1);
 
         /* test */
-        final ResponseEntity<QueryDto> response = queryEndpoint.save(DATABASE_1_ID, TABLE_1_ID, statement);
+        final ResponseEntity<QueryDto> response = queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, statement);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(QUERY_1_ID, response.getBody().getId());

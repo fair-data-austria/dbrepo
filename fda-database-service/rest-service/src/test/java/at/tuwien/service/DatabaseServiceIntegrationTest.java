@@ -15,7 +15,6 @@ import at.tuwien.service.impl.HibernateConnector;
 import at.tuwien.service.impl.MariaDbServiceImpl;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
@@ -28,7 +27,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -155,20 +153,11 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
                 });
     }
 
-    @Test
-    public void findAll_succeeds() {
-
-        /* test */
-        final List<Database> response = databaseService.findAll();
-        assertEquals(2, response.size());
-    }
-
     @Transactional
     @Test
     public void create_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException, InterruptedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(CONTAINER_1_ID) /* we need this container */
                 .name(DATABASE_1_NAME)
                 .isPublic(DATABASE_1_PUBLIC)
                 .build();
@@ -178,7 +167,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Database response = databaseService.create(request);
+        final Database response = databaseService.create(CONTAINER_1_ID, request);
         assertEquals(DATABASE_1_NAME, response.getName());
         assertEquals(DATABASE_1_PUBLIC, response.getIsPublic());
         assertEquals(CONTAINER_1_ID, response.getContainer().getId());
@@ -187,7 +176,6 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void create_notFound_fails() throws InterruptedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(9999L)
                 .name(DATABASE_1_NAME)
                 .isPublic(DATABASE_1_PUBLIC)
                 .build();
@@ -198,14 +186,13 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            databaseService.create(request);
+            databaseService.create(9999L, request);
         });
     }
 
     @Test
     public void create_duplicate_fails() throws InterruptedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(DATABASE_1_ID)
                 .name(DATABASE_1_NAME)
                 .isPublic(DATABASE_1_PUBLIC)
                 .build();
@@ -216,14 +203,13 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseMalformedException.class, () -> {
-            databaseService.create(request);
+            databaseService.create(CONTAINER_1_ID, request);
         });
     }
 
     @Test
     public void create_notRunning_fails() throws InterruptedException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
-                .containerId(CONTAINER_1_ID)
                 .name(DATABASE_1_NAME)
                 .isPublic(DATABASE_1_PUBLIC)
                 .build();
@@ -234,7 +220,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ContainerConnectionException.class, () -> {
-            databaseService.create(request);
+            databaseService.create(CONTAINER_1_ID, request);
         });
     }
 
@@ -247,7 +233,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_2);
 
         /* test */
-        databaseService.delete(DATABASE_2_ID);
+        databaseService.delete(CONTAINER_2_ID, DATABASE_2_ID);
         final Optional<Database> response = databaseRepository.findById(DATABASE_2_ID);
         assertTrue(response.isEmpty());
     }
@@ -260,7 +246,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseService.delete(9999L);
+            databaseService.delete(CONTAINER_1_ID, 9999L);
         });
     }
 
@@ -273,7 +259,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ContainerConnectionException.class, () -> {
-            databaseService.delete(DATABASE_1_ID);
+            databaseService.delete(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 
@@ -282,7 +268,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseService.delete(9999L);
+            databaseService.delete(CONTAINER_1_ID, 9999L);
         });
     }
 
@@ -294,7 +280,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Database response = databaseService.findById(DATABASE_1_ID);
+        final Database response = databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID);
         assertEquals(DATABASE_1_ID, response.getId());
         assertEquals(DATABASE_1_NAME, response.getName());
         assertEquals(DATABASE_1_PUBLIC, response.getIsPublic());
@@ -309,7 +295,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseService.findById(999L);
+            databaseService.findById(CONTAINER_1_ID, 9999L);
         });
     }
 

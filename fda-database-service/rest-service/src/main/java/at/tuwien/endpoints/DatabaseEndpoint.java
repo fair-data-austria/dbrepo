@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Log4j2
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/database")
+@RequestMapping("/api/container/{id}/database")
 public class DatabaseEndpoint {
 
     private final DatabaseMapper databaseMapper;
@@ -44,8 +44,8 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 200, message = "All databases running in all containers are listed."),
             @ApiResponse(code = 401, message = "Not authorized to list all databases."),
     })
-    public ResponseEntity<List<DatabaseBriefDto>> findAll() {
-        final List<DatabaseBriefDto> databases = databaseService.findAll()
+    public ResponseEntity<List<DatabaseBriefDto>> findAll(@NotBlank @PathVariable("id") Long id) {
+        final List<DatabaseBriefDto> databases = databaseService.findAll(id)
                 .stream()
                 .map(databaseMapper::databaseToDatabaseBriefDto)
                 .collect(Collectors.toList());
@@ -62,24 +62,26 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 404, message = "Container does not exist with this id."),
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
-    public ResponseEntity<DatabaseBriefDto> create(@Valid @RequestBody DatabaseCreateDto createDto)
+    public ResponseEntity<DatabaseBriefDto> create(@NotBlank @PathVariable("id") Long id,
+                                                   @Valid @RequestBody DatabaseCreateDto createDto)
             throws ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException,
             AmqpException, ContainerConnectionException {
-        final Database database = databaseService.create(createDto);
+        final Database database = databaseService.create(id, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(databaseMapper.databaseToDatabaseBriefDto(database));
     }
 
     @Transactional
-    @GetMapping("/{id}")
+    @GetMapping("/{databaseId}")
     @ApiOperation(value = "Get all informations about a database")
     @ApiResponses({
             @ApiResponse(code = 200, message = "The database information is displayed."),
             @ApiResponse(code = 400, message = "The payload contains invalid data."),
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
-    public ResponseEntity<DatabaseDto> findById(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException {
-        return ResponseEntity.ok(databaseMapper.databaseToDatabaseDto(databaseService.findById(id)));
+    public ResponseEntity<DatabaseDto> findById(@NotBlank @PathVariable("id") Long id,
+                                                @NotBlank @PathVariable Long databaseId) throws DatabaseNotFoundException {
+        return ResponseEntity.ok(databaseMapper.databaseToDatabaseDto(databaseService.findById(id, databaseId)));
     }
 
     @DeleteMapping("/{id}")
@@ -91,9 +93,10 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
-    public ResponseEntity<?> delete(@NotBlank @PathVariable Long id) throws DatabaseNotFoundException,
+    public ResponseEntity<?> delete(@NotBlank @PathVariable("id") Long id,
+                                    @NotBlank @PathVariable Long databaseId) throws DatabaseNotFoundException,
             ImageNotSupportedException, DatabaseMalformedException, AmqpException, ContainerConnectionException {
-        databaseService.delete(id);
+        databaseService.delete(id, databaseId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
