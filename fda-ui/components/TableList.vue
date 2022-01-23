@@ -59,11 +59,11 @@
           </v-row>
           <v-row dense>
             <v-col>
-              <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}`" outlined>
+              <v-btn :to="`/container/${this.$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}`" outlined>
                 <v-icon>mdi-table</v-icon>
                 View
               </v-btn>
-              <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}/import`" outlined>
+              <v-btn :to="`/container/${this.$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}/import`" outlined>
                 Import CSV
               </v-btn>
             </v-col>
@@ -151,7 +151,7 @@ export default {
         return
       }
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${table.id}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${table.id}`)
         console.debug('table', res.data)
         this.tableDetails = res.data
       } catch (err) {
@@ -164,7 +164,7 @@ export default {
       let res
       try {
         this.loading = true
-        res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table`)
+        res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
         this.loading = false
       } catch (err) {
@@ -174,7 +174,7 @@ export default {
     async deleteTable () {
       try {
         this.loading = true
-        await this.$axios.delete(`/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
+        await this.$axios.delete(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
         this.loading = false
         this.refresh()
       } catch (err) {

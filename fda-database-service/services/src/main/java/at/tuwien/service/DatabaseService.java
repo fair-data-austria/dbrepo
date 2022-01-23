@@ -5,17 +5,24 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface DatabaseService {
     /**
-     * Finds all known databases in the metadata database.
+     * Finds all known databases in the metadata database for a given container id.
      *
      * @param id The container id.
      * @return A list of databases
      */
     List<Database> findAll(Long id);
+
+    /**
+     * Finds all known databases in the metadata database.
+     * @return List of databases.
+     */
+    List<Database> findAll();
 
     /**
      * Finds a specific database for a given id in the metadata database.

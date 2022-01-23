@@ -49,7 +49,7 @@ export default {
       confirm: null,
       items: [
         { text: 'Databases', href: '/databases' },
-        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` }
+        { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` }
       ]
     }
   },
@@ -73,7 +73,7 @@ export default {
   methods: {
     async deleteDatabase () {
       try {
-        await this.$axios.delete(`/api/database/${this.$route.params.database_id}`)
+        await this.$axios.delete(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}`)
         this.$router.push({ path: '/databases' })
         this.$toast.success(`Database "${this.db.name}" deleted.`)
       } catch (err) {
@@ -87,7 +87,7 @@ export default {
       }
       try {
         this.loading = true
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}`)
         console.debug('database', res.data)
         this.$store.commit('SET_DATABASE', res.data)
         this.loading = false

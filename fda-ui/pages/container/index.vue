@@ -33,7 +33,7 @@
               v-for="item in databases"
               :key="item.id">
               <td>
-                <v-btn :to="`/databases/${item.id}/info`" icon>
+                <v-btn :to="`/container/${item.container_id}/database/${item.id}/info`" icon>
                   <v-icon>{{ iconSelect }}</v-icon>
                 </v-btn>
                 {{ item.name }}
@@ -86,13 +86,20 @@ export default {
       this.createDbDialog = false
       try {
         this.loading = true
-        const res = await this.$axios.get('/api/database/')
-        this.databases = res.data
+        let res = await this.$axios.get('/api/container/')
+        this.containers = res.data
+        console.debug('containers', this.containers)
+        for (const container of this.containers) {
+          res = await this.$axios.get(`/api/container/${container.id}/database`)
+          for (const database of res.data) {
+            this.databases.push(database)
+          }
+        }
+        console.debug('databases', this.databases)
         this.loading = false
         this.error = false
-        console.debug('databases', res.data)
       } catch (err) {
-        console.error('databases', err)
+        console.error('containers', err)
         this.error = true
       }
     },

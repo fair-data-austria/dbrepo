@@ -158,12 +158,12 @@ export default {
       this.error = false
       for (let i = 0; i < 5; i++) {
         try {
-          res = await this.$axios.post('/api/database/', {
+          res = await this.$axios.post(`/api/container/${containerId}/database/`, {
             name: this.database,
-            containerId,
             description: this.description,
-            isPublic: this.isPublic
-          }, { progress: false })
+            is_public: this.isPublic
+          })
+          console.debug('created database', res)
           break
         } catch (err) {
           console.debug('wait', res)
@@ -171,6 +171,7 @@ export default {
         }
       }
       if (res.status !== 201) {
+        this.loading = false
         this.error = true
         this.$toast.error('Could not create database.')
         return
@@ -178,7 +179,7 @@ export default {
       this.loading = false
       this.$toast.success(`Database "${res.data.name}" created.`)
       this.$emit('close')
-      await this.$router.push(`/databases/${containerId}/info`)
+      await this.$router.push(`/container/${containerId}/database/${res.data.id}/info`)
     }
   }
 }

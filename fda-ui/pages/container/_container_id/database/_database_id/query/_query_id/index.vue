@@ -54,7 +54,7 @@ export default {
     async loadMetadata () {
       this.loading = true
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/query/${this.$route.params.query_id}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/query/${this.$route.params.query_id}`)
         console.debug('query', res.data)
         this.query = res.data
       } catch (err) {
@@ -67,7 +67,7 @@ export default {
     async reExecute () {
       this.loading = true
       try {
-        const res = await this.$axios.put(`/api/database/${this.$route.params.database_id}/store/table/1/execute/${this.$route.params.query_id}`)
+        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/store/table/1/execute/${this.$route.params.query_id}`)
         this.headers = Object.keys(res.data.result[0]).map((c) => {
           return { text: c, value: c }
         })

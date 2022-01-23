@@ -100,7 +100,7 @@ export default {
         {
           icon: mdiDatabase,
           title: 'Databases',
-          to: '/databases'
+          to: '/container'
         },
         {
           icon: mdiTable,

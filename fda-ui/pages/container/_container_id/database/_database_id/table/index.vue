@@ -21,8 +21,8 @@ export default {
     return {
       db: null,
       items: [
-        { text: 'Databases', href: '/databases' },
-        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/tables` }
+        { text: 'Databases', href: '/container' },
+        { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table` }
       ]
     }
   },

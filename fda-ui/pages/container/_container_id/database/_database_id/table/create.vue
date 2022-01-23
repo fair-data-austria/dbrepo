@@ -163,12 +163,12 @@ export default {
       }
       try {
         this.loading = true
-        const res = await this.$axios.post(`/api/database/${this.databaseId}/table`, data)
+        const res = await this.$axios.post(`/api/container/${this.route.params.container_id}/database/${this.databaseId}/table`, data)
         if (res.status === 201) {
           this.error = false
           this.$toast.success('Table created.')
           const tableId = res.data.id
-          await this.$router.push(`/databases/${this.databaseId}/tables/${tableId}/import`)
+          await this.$router.push(`/container/${this.route.params.container_id}/database/${this.databaseId}/table/${tableId}/import`)
           this.$root.$emit('table-create', res.data)
         } else {
           this.error = true

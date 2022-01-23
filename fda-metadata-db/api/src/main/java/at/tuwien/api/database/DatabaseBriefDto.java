@@ -3,7 +3,6 @@ package at.tuwien.api.database;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -17,7 +16,6 @@ import java.time.Instant;
 public class DatabaseBriefDto {
 
     @NotNull
-    @Min(value = 1)
     @Parameter(name = "database id", example = "1")
     private Long id;
 

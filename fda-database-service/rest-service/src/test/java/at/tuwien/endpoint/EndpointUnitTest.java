@@ -5,7 +5,7 @@ import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.api.database.DatabaseDto;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.endpoints.DatabaseEndpoint;
+import at.tuwien.endpoints.ContainerDatabaseEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.service.impl.MariaDbServiceImpl;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -44,7 +44,7 @@ public class EndpointUnitTest extends BaseUnitTest {
     private MariaDbServiceImpl databaseService;
 
     @Autowired
-    private DatabaseEndpoint databaseEndpoint;
+    private ContainerDatabaseEndpoint databaseEndpoint;
 
     @MockBean
     private RabbitTemplate rabbitTemplate;
@@ -128,7 +128,7 @@ public class EndpointUnitTest extends BaseUnitTest {
         when(databaseService.create(CONTAINER_1_ID, request))
                 .thenReturn(DATABASE_1);
 
-        final ResponseEntity<DatabaseBriefDto> response = databaseEndpoint.create(CONTAINER_1_ID, request);
+        final ResponseEntity<DatabaseDto> response = databaseEndpoint.create(CONTAINER_1_ID, request);
 
         /* test */
         assertEquals(HttpStatus.CREATED, response.getStatusCode());

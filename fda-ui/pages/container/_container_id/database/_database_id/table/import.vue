@@ -117,7 +117,7 @@
       <v-stepper-content step="4">
         Proceed to table view.
         <div class="mt-2">
-          <v-btn :to="`/databases/${$route.params.database_id}/tables/${newTableId}`" outlined>
+          <v-btn :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${newTableId}`" outlined>
             <v-icon>mdi-table</v-icon>
             View
           </v-btn>
@@ -216,7 +216,7 @@ export default {
           column.enumValues = column.enumValues.split(',')
         }
       })
-      const createUrl = `/api/database/${this.$route.params.database_id}/table`
+      const createUrl = `/api/container/${this.route.params.container_id}/database/${this.$route.params.database_id}/table`
       let createResult
       try {
         createResult = await this.$axios.post(createUrl, this.tableCreate)
@@ -226,7 +226,7 @@ export default {
         console.log(err)
         return
       }
-      const insertUrl = `/api/database/${this.$route.params.database_id}/table/${createResult.data.id}/data/csv`
+      const insertUrl = `/api/container/${this.route.params.container_id}/database/${this.$route.params.database_id}/table/${createResult.data.id}/data/csv`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)

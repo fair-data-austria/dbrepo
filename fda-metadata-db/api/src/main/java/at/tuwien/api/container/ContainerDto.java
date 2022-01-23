@@ -41,6 +41,7 @@ public class ContainerDto {
     private ContainerStateDto state;
 
     @NotNull
+    @ToString.Exclude
     @ApiModelProperty(name = "databases")
     private List<DatabaseDto> databases;
 

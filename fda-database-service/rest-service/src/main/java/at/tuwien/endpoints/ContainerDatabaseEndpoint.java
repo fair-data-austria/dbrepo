@@ -26,19 +26,19 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/container/{id}/database")
-public class DatabaseEndpoint {
+public class ContainerDatabaseEndpoint {
 
     private final DatabaseMapper databaseMapper;
     private final MariaDbServiceImpl databaseService;
 
     @Autowired
-    public DatabaseEndpoint(DatabaseMapper databaseMapper, MariaDbServiceImpl databaseService) {
+    public ContainerDatabaseEndpoint(DatabaseMapper databaseMapper, MariaDbServiceImpl databaseService) {
         this.databaseMapper = databaseMapper;
         this.databaseService = databaseService;
     }
 
     @Transactional
-    @GetMapping("/")
+    @GetMapping
     @ApiOperation(value = "List all databases", notes = "Currently a container supports only databases of the same image, e.g. there is one PostgreSQL engine running with multiple databases inside a container.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All databases running in all containers are listed."),
@@ -53,7 +53,7 @@ public class DatabaseEndpoint {
     }
 
     @Transactional
-    @PostMapping("/")
+    @PostMapping
     @ApiOperation(value = "Creates a new database in a container", notes = "Creates a new database in a container. Note that the backend distincts between numerical (req: categories), nominal (req: max_length) and categorical (req: max_length, siUnit, min, max, mean, median, standard_deviation, histogram) column types.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "The database was successfully created."),
@@ -62,13 +62,13 @@ public class DatabaseEndpoint {
             @ApiResponse(code = 404, message = "Container does not exist with this id."),
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
-    public ResponseEntity<DatabaseBriefDto> create(@NotBlank @PathVariable("id") Long id,
+    public ResponseEntity<DatabaseDto> create(@NotBlank @PathVariable("id") Long id,
                                                    @Valid @RequestBody DatabaseCreateDto createDto)
             throws ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException,
             AmqpException, ContainerConnectionException {
         final Database database = databaseService.create(id, createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(databaseMapper.databaseToDatabaseBriefDto(database));
+                .body(databaseMapper.databaseToDatabaseDto(database));
     }
 
     @Transactional
