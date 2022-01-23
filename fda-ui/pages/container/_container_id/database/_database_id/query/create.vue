@@ -20,7 +20,7 @@ export default {
       items: [
         { text: 'Databases', href: '/container' },
         { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` },
-        { text: 'Tables', href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/tables` }
+        { text: 'Tables', href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table` }
       ]
     }
   },

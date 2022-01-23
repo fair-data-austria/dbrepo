@@ -139,10 +139,10 @@ export default {
         description: null
       },
       items: [
-        { text: 'Databases', href: '/databases' },
-        { text: `${this.$route.params.database_id}`, href: `/databases/${this.$route.params.database_id}/info` },
-        { text: 'Tables', href: `/databases/${this.$route.params.database_id}/tables` },
-        { text: `${this.$route.params.table_id}`, href: `/databases/${this.$route.params.database_id}/tables/${this.$route.params.table_id}` }
+        { text: 'Databases', href: '/container' },
+        { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` },
+        { text: 'Tables', href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table` },
+        { text: `${this.$route.params.table_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}` }
       ],
       headers: [],
       rows: []
@@ -177,12 +177,12 @@ export default {
   methods: {
     async loadProperties () {
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`)
         this.table = res.data
         console.debug('headers', res.data.columns)
         this.headers = res.data.columns.map((c) => {
           return {
-            value: c.internalName,
+            value: c.internal_name,
             text: this.columnAddition(c) + c.name
           }
         })
@@ -196,7 +196,7 @@ export default {
       console.log(datetime)
       this.loading = true
       try {
-        let url = `/api/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
+        let url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
         url += `?page=${this.options.page - 1}&size=${this.options.itemsPerPage}&timestamp=${datetime}`
         const res = await this.$axios.get(url)
         this.rows = res.data.result
@@ -207,7 +207,7 @@ export default {
       this.loading = false
     },
     columnAddition (column) {
-      if (column.isPrimaryKey) {
+      if (column.is_primary_key) {
         return '‡ '
       }
       if (column.unique) {

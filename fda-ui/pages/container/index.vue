@@ -92,6 +92,7 @@ export default {
         for (const container of this.containers) {
           res = await this.$axios.get(`/api/container/${container.id}/database`)
           for (const database of res.data) {
+            database.container_id = container.id
             this.databases.push(database)
           }
         }

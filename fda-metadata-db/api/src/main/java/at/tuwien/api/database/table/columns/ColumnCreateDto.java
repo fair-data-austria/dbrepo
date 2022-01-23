@@ -29,11 +29,10 @@ public class ColumnCreateDto {
     private ColumnTypeDto type;
 
     @NotNull
-    @JsonProperty("null_value")
+    @JsonProperty("null_allowed")
     @ApiModelProperty(name = "null value", example = "false")
     private Boolean nullAllowed = true;
 
-    @NotBlank
     @JsonProperty("date_format")
     @ApiModelProperty(name = "date format", example = "YYYY-mm-dd")
     private String dateFormat;

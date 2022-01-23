@@ -8,13 +8,13 @@
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
-        <v-btn :to="`/databases/${databaseId}/tables/import`" class="mr-2">
+        <v-btn :to="`/container/${$route.params.container_id}/database/${databaseId}/table/import`" class="mr-2">
           <v-icon left>mdi-cloud-upload</v-icon> Import CSV
         </v-btn>
         <v-btn color="blue-grey" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/create`" class="mr-2 white--text">
           <v-icon left>mdi-wrench</v-icon> Query Builder
         </v-btn>
-        <v-btn color="primary" :to="`/container/${$route.params.container_id}/database/${databaseId}/tables/create`">
+        <v-btn color="primary" :to="`/container/${$route.params.container_id}/database/${databaseId}/table/create`">
           <v-icon left>mdi-table-large-plus</v-icon> Create Table
         </v-btn>
       </v-toolbar-title>

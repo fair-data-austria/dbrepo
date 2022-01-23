@@ -33,7 +33,6 @@ public interface DatabaseMapper {
             @Mapping(target = "id", source = "id"),
             @Mapping(target = "engine", expression = "java(data.getContainer().getImage().getRepository()+\":\"+data.getContainer().getImage().getTag())"),
             @Mapping(target = "created", source = "created", dateFormat = "dd-MM-yyyy HH:mm"),
-            @Mapping(target = "containerId", source = "container.id")
     })
     DatabaseBriefDto databaseToDatabaseBriefDto(Database data);
 

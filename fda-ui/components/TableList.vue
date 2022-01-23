@@ -30,7 +30,7 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
-                      Internal Name: <code>{{ tableDetails.internalName }}</code>
+                      Internal Name: <code>{{ tableDetails.internal_name }}</code>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -59,11 +59,11 @@
           </v-row>
           <v-row dense>
             <v-col>
-              <v-btn :to="`/container/${this.$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}`" outlined>
+              <v-btn :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}`" outlined>
                 <v-icon>mdi-table</v-icon>
                 View
               </v-btn>
-              <v-btn :to="`/container/${this.$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}/import`" outlined>
+              <v-btn :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}/import`" outlined>
                 Import CSV
               </v-btn>
             </v-col>
@@ -89,16 +89,16 @@
                       {{ col.name }}
                     </td>
                     <td>
-                      {{ col.columnType }}
+                      {{ col.column_type }}
                     </td>
                     <td>
-                      <v-simple-checkbox v-model="col.isPrimaryKey" disabled aria-readonly="true" />
+                      <v-simple-checkbox v-model="col.is_primary_key" disabled aria-readonly="true" />
                     </td>
                     <td>
                       <v-simple-checkbox v-model="col.unique" disabled aria-readonly="true" />
                     </td>
                     <td>
-                      <v-simple-checkbox v-model="col.isNullAllowed" disabled aria-readonly="true" />
+                      <v-simple-checkbox v-model="col.is_null_allowed" disabled aria-readonly="true" />
                     </td>
                   </tr>
                 </tbody>

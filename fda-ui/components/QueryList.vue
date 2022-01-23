@@ -9,7 +9,7 @@
       <v-expansion-panels v-if="!loading && queries.length > 0" accordion>
         <v-expansion-panel v-for="(item, i) in queries" :key="i" @click="details(item)">
           <v-expansion-panel-header>
-            {{ item.title }}
+            Query {{ item.id }}
           </v-expansion-panel-header>
           <v-expansion-panel-content>
             <v-row dense>
@@ -42,7 +42,7 @@
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
-                        Query Hash: <code>{{ queryDetails.queryHash }}</code>
+                        Query Hash: <code>{{ queryDetails.query_hash }}</code>
                       </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
@@ -52,7 +52,7 @@
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
-                        Execution Timestamp: {{ queryDetails.executionTimestamp }}
+                        Execution Timestamp: {{ queryDetails.execution_timestamp }}
                       </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
@@ -71,10 +71,10 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <v-btn color="primary" :to="`/container/${this.$route.params.container_id}/database/${databaseId}/query/${item.id}`">
+                <v-btn color="primary" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/${item.id}`">
                   <v-icon left>mdi-run</v-icon> Execute Again
                 </v-btn>
-                <v-btn :disabled="queryDetails.doi" :to="`/container/${this.$route.params.container_id}/database/${databaseId}/query/${item.id}`">
+                <v-btn :disabled="queryDetails.doi" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/${item.id}`">
                   <v-icon left>mdi-fingerprint</v-icon> Cite Dataset
                 </v-btn>
               </v-col>
@@ -117,8 +117,8 @@ export default {
       try {
         this.loading = true
         res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query`)
-        console.debug('queries', res)
         this.queries = res.data
+        console.debug('queries', this.queries)
         this.loading = false
       } catch (err) {
         this.$toast.error('Could not list queries.')

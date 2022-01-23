@@ -4,13 +4,13 @@
       <v-card-title v-if="!loading">
         Import Data
       </v-card-title>
-      <v-card-subtitle>{{ table.name }} ({{ table.internalName }})</v-card-subtitle>
+      <v-card-subtitle>{{ table.name }} ({{ table.internal_name }})</v-card-subtitle>
       <v-card-text>
         <v-checkbox
-          v-model="tableInsert.skipHeader"
+          v-model="tableInsert.skip_header"
           label="First row contains headers" />
         <v-text-field
-          v-model="tableInsert.nullElement"
+          v-model="tableInsert.null_element"
           placeholder="e.g. NA or leave empty"
           label="NULL Element" />
         <v-text-field
@@ -68,7 +68,7 @@ export default {
   methods: {
     async info () {
       this.loading = true
-      const infoUrl = `/api/database/${this.databaseId}/table/${this.tableId}`
+      const infoUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}`
       try {
         const res = await this.$axios.get(infoUrl)
         console.debug('got table', res.data)
@@ -98,7 +98,7 @@ export default {
         console.error('Could not upload data.', err)
         return
       }
-      const insertUrl = `/api/database/${this.databaseId}/table/${this.tableId}/data/csv`
+      const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/data/csv`
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, this.tableInsert)

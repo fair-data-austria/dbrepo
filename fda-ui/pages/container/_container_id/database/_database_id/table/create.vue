@@ -40,24 +40,24 @@
           </v-col>
           <v-col cols="2">
             <v-checkbox
-              v-model="c.primaryKey"
+              v-model="c.primary_key"
               label="Primary Key"
               @click="setOthers(c)"
-              @change="(x) => onChange(idx, x, 'primaryKey')" />
+              @change="(x) => onChange(idx, x, 'primary_key')" />
           </v-col>
           <v-col cols="1">
             <v-checkbox
               v-model="c.unique"
               label="Unique"
-              :disabled="c.primaryKey"
+              :disabled="c.primary_key"
               @change="(x) => onChange(idx, x, 'unique')" />
           </v-col>
           <v-col cols="2">
             <v-checkbox
-              v-model="c.nullAllowed"
+              v-model="c.null_allowed"
               label="NULL Allowed"
-              :disabled="c.primaryKey"
-              @change="(x) => onChange(idx, x, 'nullAllowed')" />
+              :disabled="c.primary_key"
+              @change="(x) => onChange(idx, x, 'null_Allowed')" />
           </v-col>
           <v-spacer />
           <v-btn title="Remove column" outlined icon @click="removeColumn(idx)">
@@ -111,7 +111,7 @@ export default {
         const col = this.columns[i]
         if (col.name === '') { return false }
         if (col.type === '') { return false }
-        if (col.name === 'id' && (!col.primaryKey)) {
+        if (col.name === 'id' && (!col.primary_key)) {
           return false
         }
       }
@@ -119,11 +119,11 @@ export default {
     }
   },
   mounted () {
-    this.addColumn()
+    this.addColumn('id', 'NUMBER', false, true, true)
   },
   methods: {
     setOthers (column) {
-      column.nullAllowed = false
+      column.null_allowed = false
       column.unique = true
     },
     checkForm (e) {
@@ -131,25 +131,30 @@ export default {
     },
     onChange (idx, val, name) {
       const c = this.columns[idx]
-      if (name === 'nullAllowed' && val === true) {
-        if (c.primaryKey) {
-          c.primaryKey = false
+      if (name === 'null_allowed' && val === true) {
+        if (c.primary_key) {
+          c.primary_key = false
         }
       }
-      if (name === 'primaryKey' && val === true) {
-        if (c.nullAllowed) {
-          c.nullAllowed = false
+      if (name === 'primary_key' && val === true) {
+        if (c.null_allowed) {
+          c.null_allowed = false
         }
       }
       this.columns[idx] = c
     },
-    addColumn () {
+    addColumn (name = '', type = '', null_allowed = true, primary_key = false, unique = true) {
       this.columns.push({
         // default column
-        name: '',
-        type: '',
-        nullAllowed: true,
-        primaryKey: false
+        name,
+        type,
+        null_allowed,
+        primary_key,
+        check_expression: null,
+        date_format: null,
+        foreign_key: null,
+        references: null,
+        unique
       })
     },
     removeColumn (idx) {
@@ -163,19 +168,19 @@ export default {
       }
       try {
         this.loading = true
-        const res = await this.$axios.post(`/api/container/${this.route.params.container_id}/database/${this.databaseId}/table`, data)
+        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table`, data)
         if (res.status === 201) {
           this.error = false
           this.$toast.success('Table created.')
-          const tableId = res.data.id
-          await this.$router.push(`/container/${this.route.params.container_id}/database/${this.databaseId}/table/${tableId}/import`)
           this.$root.$emit('table-create', res.data)
+          await this.$router.push(`/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${res.data.id}`)
         } else {
           this.error = true
           this.$toast.error(`Could not create table: status ${res.status}`)
         }
       } catch (err) {
         this.error = true
+        console.error('could not create table', err)
         this.$toast.error('Could not create table.')
       }
     }
