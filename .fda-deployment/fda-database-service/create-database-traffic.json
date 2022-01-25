@@ -1,0 +1,5 @@
+{
+  "description": "The data was collected and organized by https://data.stadt-zuerich.ch/ specifically under the link https://data.stadt-zuerich.ch/dataset/vbz-fahrzeiten-ogd. The data table is a variance analysis of the times certain trams and busses should have departed and when they actually departed. What is the fastest way between Klusplatz and Oerlikon at different times of day? What is the most punctual tram stop in Zurich?",
+  "is_public": true,
+  "name": "Public Transport in Zurich"
+}
