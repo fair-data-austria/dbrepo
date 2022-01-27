@@ -3,15 +3,19 @@ package at.tuwien.endpoint;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCreateDto;
-import at.tuwien.api.database.table.TableDto;
+import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.TableEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
-import at.tuwien.repository.jpa.TableRepository;
-import at.tuwien.service.MessageQueueService;
-import at.tuwien.service.impl.TableServiceImpl;
+import at.tuwien.repository.jpa.ImageRepository;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,19 +24,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Arrays;
 
+import static at.tuwien.config.DockerConfig.dockerClient;
+import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
+@Slf4j
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class TableEndpointUnitTest extends BaseUnitTest {
+public class TableEndpointIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -40,130 +43,88 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     @MockBean
     private ReadyConfig readyConfig;
 
-    @MockBean
-    private TableServiceImpl tableService;
-
-    @MockBean
-    private TableRepository tableRepository;
-
-    @MockBean
-    private DatabaseRepository databaseRepository;
-
-    @MockBean
-    private MessageQueueService messageQueueService;
-
     @Autowired
     private TableEndpoint tableEndpoint;
 
-    @Test
-    public void findAll_succeeds() throws DatabaseNotFoundException {
+    @Autowired
+    private ImageRepository imageRepository;
 
-        /* mock */
-        when(tableRepository.findByDatabase(DATABASE_1))
-                .thenReturn(List.of(TABLE_1));
-        when(tableService.findAll(DATABASE_1_ID))
-                .thenReturn(List.of(TABLE_1));
+    @Autowired
+    private DatabaseRepository databaseRepository;
 
-        /* test */
-        final ResponseEntity<List<TableBriefDto>> response = tableEndpoint.findAll(CONTAINER_1_ID, DATABASE_1_ID);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, Objects.requireNonNull(response.getBody()).size());
+    @BeforeEach
+    @Transactional
+    public void beforeEach() {
+        afterEach();
+
+        /* create network */
+        dockerClient.createNetworkCmd()
+                .withName("fda-userdb")
+                .withIpam(new Network.Ipam()
+                        .withConfig(new Network.Ipam.Config()
+                                .withSubnet("172.28.0.0/16")))
+                .withEnableIpv6(false)
+                .exec();
+
+        /* create container */
+        final CreateContainerResponse response = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(CONTAINER_3_INTERNALNAME)
+                .withIpv4Address(CONTAINER_3_IP)
+                .withHostName(CONTAINER_3_INTERNALNAME)
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=traffic")
+                .exec();
+        CONTAINER_3.setHash(response.getId());
+
+        /* repository */
+        imageRepository.save(IMAGE_1);
+        databaseRepository.save(DATABASE_1);
+        databaseRepository.save(DATABASE_2);
+        databaseRepository.save(DATABASE_3);
+    }
+
+    @AfterEach
+    public void afterEach() {
+        /* stop containers and remove them */
+        dockerClient.listContainersCmd()
+                .withShowAll(true)
+                .exec()
+                .forEach(container -> {
+                    log.info("Delete container {}", Arrays.asList(container.getNames()));
+                    try {
+                        dockerClient.stopContainerCmd(container.getId()).exec();
+                    } catch (NotModifiedException e) {
+                        // ignore
+                    }
+                    dockerClient.removeContainerCmd(container.getId()).exec();
+                });
+        /* remove networks */
+        dockerClient.listNetworksCmd()
+                .exec()
+                .stream()
+                .filter(n -> n.getName().startsWith("fda"))
+                .forEach(network -> {
+                    log.info("Delete network {}", network.getName());
+                    dockerClient.removeNetworkCmd(network.getId()).exec();
+                });
     }
 
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
-            AmqpException, IOException, TableNameExistsException {
+            DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
+            AmqpException, TableNameExistsException, InterruptedException {
         final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
+                .name(TABLE_3_NAME)
+                .description(TABLE_3_DESCRIPTION)
+                .columns(COLUMNS_CSV_CH)
                 .build();
 
         /* mock */
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-        when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
-                .thenReturn(TABLE_1);
-        doNothing()
-                .when(messageQueueService)
-                .create(TABLE_1);
+        DockerConfig.startContainer(CONTAINER_3);
 
         /* test */
-        final ResponseEntity<TableBriefDto> response = tableEndpoint.create(CONTAINER_1_ID, DATABASE_1_ID, request);
+        final ResponseEntity<TableBriefDto> response = tableEndpoint.create(CONTAINER_3_ID, DATABASE_3_ID, request);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    }
-
-    @Test
-    public void create_databaseNotFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableMalformedException, TableNameExistsException {
-        final TableCreateDto request = TableCreateDto.builder()
-                .name(TABLE_1_NAME)
-                .description(TABLE_1_DESCRIPTION)
-                .columns(COLUMNS_CSV01)
-                .build();
-        when(tableService.createTable(DATABASE_1_ID, request))
-                .thenAnswer(invocation -> {
-                    throw new DatabaseNotFoundException("no db");
-                });
-
-        /* test */
-        assertThrows(DatabaseNotFoundException.class, () -> {
-            tableEndpoint.create(CONTAINER_1_ID, DATABASE_1_ID, request);
-        });
-    }
-
-    @Test
-    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
-        when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
-                .thenReturn(TABLE_1);
-
-        /* test */
-        final ResponseEntity<TableDto> response = tableEndpoint.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(TABLE_1_ID, Objects.requireNonNull(response.getBody()).getId());
-        assertEquals(TABLE_1_NAME, Objects.requireNonNull(response.getBody()).getName());
-    }
-
-    @Test
-    public void findById_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException {
-        when(tableRepository.findById(TABLE_1_ID))
-                .thenReturn(Optional.empty());
-        doThrow(TableNotFoundException.class)
-                .when(tableService)
-                .findById(DATABASE_1_ID, TABLE_1_ID);
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
-            tableEndpoint.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
-        });
-    }
-
-    @Test
-    public void delete_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
-        doThrow(TableNotFoundException.class)
-                .when(tableService)
-                .deleteTable(DATABASE_1_ID, TABLE_1_ID);
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
-            tableEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
-        });
-    }
-
-    @Test
-    public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException {
-        /* test */
-        tableEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
-    }
-
-    @Test
-    public void update_fails() {
-        /* test */
-        final ResponseEntity<TableBriefDto> response = tableEndpoint.update(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
     }
 
 }

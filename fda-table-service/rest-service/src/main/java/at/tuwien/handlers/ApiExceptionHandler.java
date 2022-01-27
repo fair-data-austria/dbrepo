@@ -93,6 +93,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
     }
 
+    @ExceptionHandler({TableNameExistsException.class})
+    public ResponseEntity<Object> handle(TableNameExistsException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.CONFLICT)
+                .message(e.getLocalizedMessage())
+                .code("error.database.name")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
     @ExceptionHandler({TableMalformedException.class})
     public ResponseEntity<Object> handle(TableMalformedException e, WebRequest request) {
         final ApiErrorDto response = ApiErrorDto.builder()

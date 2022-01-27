@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-progress-linear v-if="loading" :indeterminate="!error" />
     <v-card v-if="!loading && tables.length === 0" flat>
       <v-card-title>
         (no tables)

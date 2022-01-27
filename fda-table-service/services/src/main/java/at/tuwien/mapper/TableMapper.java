@@ -199,7 +199,7 @@ public interface TableMapper {
                         /* null expressions */
                         .append(c.getNullAllowed() ? " NULL" : " NOT NULL")
                         /* default expressions */
-                        .append(!primaryColumnExists && c.getName().equals("id") ? " DEFAULT NEXTVAL(`seq_id`)" : "")
+                        .append(!primaryColumnExists && c.getName().equals("id") ? " DEFAULT NEXTVAL(" + tableCreateDtoToSequenceName(data) + ")" : "")
                         /* check expressions */
                         .append(c.getCheckExpression() != null &&
                                 !c.getCheckExpression().isEmpty() ? " CHECK (" + c.getCheckExpression() + ")" : ""));
@@ -237,12 +237,16 @@ public interface TableMapper {
                 .build();
     }
 
+    default String tableCreateDtoToSequenceName(TableCreateDto data) {
+        return "`seq_" + nameToInternalName(data.getName()) + "_id`";
+    }
+
     default String tableToCreateSequenceRawQuery(Database database, TableCreateDto data)
             throws ImageNotSupportedException {
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
-        return "CREATE SEQUENCE `seq_id` START WITH 1 INCREMENT BY 1;";
+        return "CREATE SEQUENCE " + tableCreateDtoToSequenceName(data) + " START WITH 1 INCREMENT BY 1;";
     }
 
 }

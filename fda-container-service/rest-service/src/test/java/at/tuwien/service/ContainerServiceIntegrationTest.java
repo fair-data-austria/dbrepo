@@ -94,7 +94,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
         CONTAINER_1.setHash(request.getId());
 
         /* mock data */
-        log.debug("save image {}", IMAGE_1);
+        log.debug("save image {}, dialect {}, driver {}", IMAGE_1, IMAGE_1_DIALECT, IMAGE_1_DRIVER);
         imageRepository.save(IMAGE_1);
         log.debug("save container {}", CONTAINER_1);
         containerRepository.save(CONTAINER_1);

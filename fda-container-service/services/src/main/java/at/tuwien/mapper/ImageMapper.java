@@ -18,9 +18,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface ImageMapper {
 
-    @Mappings({
-            @Mapping(target = "label", expression = "java(data.getRepository() + \":\" + data.getTag())")
-    })
+    @Mappings({})
     ImageBriefDto containerImageToImageBriefDto(ContainerImage data);
 
     @Mappings({

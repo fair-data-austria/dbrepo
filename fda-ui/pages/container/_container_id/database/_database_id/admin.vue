@@ -1,6 +1,7 @@
 <template>
   <div v-if="db">
     <DBToolbar />
+    <v-progress-linear v-if="loading" :indeterminate="!error" />
     <v-tabs-items v-model="tab">
       <v-card flat>
         <v-card-title>

@@ -55,6 +55,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         session.createSQLQuery(tableMapper.tableToDropTableRawQuery(table));
         transaction.commit();
         session.close();
+        log.info("Deleted table with id {}", table.getId());
     }
 
     @Override
@@ -71,7 +72,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     @Override
     @Transactional
     public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, TableMalformedException {
+            DatabaseNotFoundException, TableMalformedException, TableNameExistsException {
         /* find */
         final Database database = databaseService.findDatabase(databaseId);
         /* run query */
@@ -102,6 +103,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
                 .forEach(column -> {
                     column.setOrdinalPosition(idx[0]++);
                 });
+        log.info("Created table with id {}", table.getId());
         log.debug("Saving table {}",table);
         return tableRepository.save(table);
     }

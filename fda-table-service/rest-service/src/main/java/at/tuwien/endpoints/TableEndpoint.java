@@ -65,14 +65,13 @@ public class TableEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to create a tables."),
             @ApiResponse(code = 404, message = "The database does not exist."),
             @ApiResponse(code = 405, message = "The container is not running."),
-            @ApiResponse(code = 409, message = "The container image is not supported."),
-            @ApiResponse(code = 422, message = "The ."),
+            @ApiResponse(code = 409, message = "The table name already exists."),
     })
     public ResponseEntity<TableBriefDto> create(@NotNull @PathVariable("id") Long id,
                                                 @NotNull @PathVariable("databaseId") Long databaseId,
                                                 @NotNull @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException,
-            ArbitraryPrimaryKeysException, TableMalformedException, AmqpException {
+            ArbitraryPrimaryKeysException, TableMalformedException, AmqpException, TableNameExistsException {
         final Table table = tableService.createTable(databaseId, createDto);
         amqpService.createQueue(table);
         return ResponseEntity.status(HttpStatus.CREATED)

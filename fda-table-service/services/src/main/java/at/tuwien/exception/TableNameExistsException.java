@@ -3,20 +3,18 @@ package at.tuwien.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.io.IOException;
+@ResponseStatus(code = HttpStatus.CONFLICT)
+public class TableNameExistsException extends Exception {
 
-@ResponseStatus(code = HttpStatus.BAD_REQUEST)
-public class TableMalformedException extends Exception {
-
-    public TableMalformedException(String msg) {
+    public TableNameExistsException(String msg) {
         super(msg);
     }
 
-    public TableMalformedException(String msg, Throwable thr) {
+    public TableNameExistsException(String msg, Throwable thr) {
         super(msg, thr);
     }
 
-    public TableMalformedException(Throwable thr) {
+    public TableNameExistsException(Throwable thr) {
         super(thr);
     }
 

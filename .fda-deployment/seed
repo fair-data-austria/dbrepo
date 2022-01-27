@@ -2,21 +2,54 @@
 GATEWAY="$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' fda-gateway-service):9095"
 
 # fda-container-service
-curl -d '@.fda-deployment/fda-container-service/create-container-air.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json" && echo "seeded container air"
-#curl -d '@fda-container-service/create-container-infection.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json" && echo "seeded container infection"
-#curl -d '@fda-container-service/create-container-weather.json' -X POST "http://${GATEWAY}/api/container/" -H "Content-Type: application/json" && echo "seeded container weather"
-#
-## fda-database-service
-#curl -d '@fda-database-service/create-database-air.json' -X POST "http://${GATEWAY}/api/database/" -H "Content-Type: application/json"
-#curl -d '@fda-database-service/create-database-infection.json' -X POST "http://${GATEWAY}/api/database/" -H "Content-Type: application/json"
-#curl -d '@fda-database-service/create-database-weather.json' -X POST "http://${GATEWAY}/api/database/" -H "Content-Type: application/json"
-#
-## fda-table-service
-#curl -d '@fda-table-service/create-table-air.json' -X POST "http://${GATEWAY}/api/database/1/table" -H "Content-Type: application/json"
-#curl -d '@fda-table-service/create-table-infection.json' -X POST "http://${GATEWAY}/api/database/2/table" -H "Content-Type: application/json"
-#curl -d '@fda-table-service/create-table-weather.json' -X POST "http://${GATEWAY}/api/database/3/table" -H "Content-Type: application/json"
-#
-## fda-query-service
+STATUS=$(curl -X POST "http://${GATEWAY}/api/container/" \
+  -o /dev/null -w "%{http_code}" -s -m 10 -d '@.fda-deployment/fda-container-service/create-container-traffic.json' \
+  -H "Content-Type: application/json")
+if [ "${STATUS}" != 201 ]; then
+  echo "[ERROR] container create"
+  echo "${STATUS}"
+  exit 1
+fi
+echo "[INFO] Created container"
+STATUS=$(curl -X PUT "http://${GATEWAY}/api/container/1" \
+  -o /dev/null -w "%{http_code}" -s -m 10 -d '@.fda-deployment/fda-container-service/start-container-traffic.json' \
+  -H "Content-Type: application/json")
+if [ "${STATUS}" != 202 ]; then
+  echo "[ERROR] container start"
+  echo "${STATUS}"
+  exit 2
+fi
+echo "[INFO] Started container"
+# fda-database-service
+STATUS=$(curl -X POST "http://${GATEWAY}/api/container/1/database" \
+  -o /dev/null -w "%{http_code}" -s -m 10 -d '@.fda-deployment/fda-database-service/create-database-traffic.json' \
+  -H "Content-Type: application/json")
+if [ "${STATUS}" != 201 ]; then
+  echo "[ERROR] database create"
+  echo "${STATUS}"
+  exit 3
+fi
+echo "[INFO] Created database"
+# fda-table-service
+STATUS=$(curl -X POST "http://${GATEWAY}/api/container/1/database/1/table" \
+  -o /dev/null -w "%{http_code}" -s -m 10 -d '@.fda-deployment/fda-table-service/create-table-traffic.json' \
+  -H "Content-Type: application/json")
+if [ "${STATUS}" != 201 ]; then
+  echo "[ERROR] table create"
+  echo "${STATUS}"
+  exit 4
+fi
+echo "[INFO] Created table"
+# fda-query-service
+STATUS=$(curl -X POST "http://${GATEWAY}/api/container/1/database/1/table/1/data?location=%2Ftmp%2Ffahrzeitensollist2017011520170121.csv" \
+  -o /dev/null -w "%{http_code}" -s -m 10 \
+  -H "Content-Type: application/json")
+if [ "${STATUS}" != 201 ]; then
+  echo "[ERROR] dataset import"
+  echo "${STATUS}"
+  exit 5
+fi
+echo "[INFO] Imported dataset"
 #curl -d '@fda-query-service/create-query-air1.json' -X POST "http://${GATEWAY}/api/database/1/query" -H "Content-Type: application/json"
 #curl -d '@fda-query-service/create-query-air2.json' -X POST "http://${GATEWAY}/api/database/1/query" -H "Content-Type: application/json"
 #curl -d '@fda-query-service/create-query-air3.json' -X POST "http://${GATEWAY}/api/database/1/query" -H "Content-Type: application/json"

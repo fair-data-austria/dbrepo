@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h3 class="mb-2 mt-1">Table from CSV</h3>
+    <h3 class="mb-2 mt-1">Create Table Schema (and Import Data) from .csv</h3>
     <v-stepper v-model="step" vertical>
       <v-stepper-step :complete="step > 1" step="1">
-        Table
+        Table Metadata
       </v-stepper-step>
 
       <v-stepper-content class="pt-0 pb-1" step="1">
@@ -22,21 +22,31 @@
       </v-stepper-content>
 
       <v-stepper-step :complete="step > 2" step="2">
-        Upload CSV file
+        .csv Metadata
       </v-stepper-step>
 
       <v-stepper-content step="2">
         <v-row dense>
           <v-col cols="8">
             <v-checkbox
-              v-model="tableInsert.skipHeader"
+              v-model="tableInsert.skip_header"
               label="Skip first row" />
           </v-col>
         </v-row>
         <v-row dense>
           <v-col cols="8">
             <v-text-field
-              v-model="tableInsert.nullElement"
+              v-model="tableInsert.delimiter"
+              :rules="[rules.required]"
+              required
+              label="Delimiter"
+              placeholder="e.g. ;" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="tableInsert.null_element"
               placeholder="e.g. NA or leave empty"
               label="NULL Element" />
           </v-col>
@@ -44,9 +54,17 @@
         <v-row dense>
           <v-col cols="8">
             <v-text-field
-              v-model="tableInsert.delimiter"
-              label="Delimiter"
-              placeholder="e.g. ;" />
+              v-model="tableInsert.true_element"
+              label="Element for 'true'"
+              placeholder="e.g. 1, true or YES" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="tableInsert.false_element"
+              label="Element for 'false'"
+              placeholder="e.g. 0, false or NO" />
           </v-col>
         </v-row>
         <v-row dense>
@@ -54,6 +72,7 @@
             <v-file-input
               v-model="file"
               accept="text/csv"
+              :rules="[rules.required]"
               show-size
               label="CSV File" />
           </v-col>
@@ -124,6 +143,7 @@
         </div>
       </v-stepper-content>
     </v-stepper>
+    <v-breadcrumbs :items="items" class="pa-0 mt-2" />
   </div>
 </template>
 <script>
@@ -134,11 +154,20 @@ export default {
   data () {
     return {
       step: 1,
+      items: [
+        { text: 'Databases', href: '/container' },
+        { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` }
+      ],
+      rules: {
+        required: value => !!value || 'Required'
+      },
       tableInsert: {
-        skipHeader: true,
-        nullElement: null,
+        skip_header: true,
+        false_element: null,
+        true_element: null,
+        null_element: null,
         delimiter: null,
-        csvLocation: null
+        csv_location: null
       },
       tableCreate: {
         name: null,

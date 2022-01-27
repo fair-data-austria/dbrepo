@@ -73,7 +73,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
-            AmqpException, IOException {
+            AmqpException, IOException, TableNameExistsException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -96,7 +96,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_databaseNotFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableMalformedException {
+            TableMalformedException, TableNameExistsException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -114,8 +114,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
+    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
         when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
                 .thenReturn(TABLE_1);
 

@@ -32,6 +32,11 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String DATABASE_2_INTERNALNAME = "weather";
     public final static String DATABASE_2_EXCHANGE = "fda." + DATABASE_2_INTERNALNAME;
 
+    public final static Long DATABASE_3_ID = 3L;
+    public final static String DATABASE_3_NAME = "Traffic";
+    public final static String DATABASE_3_INTERNALNAME = "traffic";
+    public final static String DATABASE_3_EXCHANGE = "fda." + DATABASE_3_INTERNALNAME;
+
     public final static Long TABLE_1_ID = 1L;
     public final static String TABLE_1_NAME = "Weather AUS";
     public final static String TABLE_1_INTERNALNAME = "weather_aus";
@@ -55,6 +60,18 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static Character TABLE_2_SEPARATOR = ';';
     public final static String TABLE_2_TRUE_ELEMENT = null;
     public final static String TABLE_2_FALSE_ELEMENT = null;
+
+    public final static Long TABLE_3_ID = 3L;
+    public final static String TABLE_3_NAME = "Traffic";
+    public final static String TABLE_3_INTERNALNAME = "traffic";
+    public final static String TABLE_3_DESCRIPTION = "Traffic in Zürich";
+    public final static String TABLE_3_TOPIC = DATABASE_3_EXCHANGE + "." + TABLE_3_INTERNALNAME;
+    public final static Instant TABLE_3_LAST_MODIFIED = Instant.now();
+    public final static Boolean TABLE_3_SKIP_HEADERS = true;
+    public final static String TABLE_3_NULL_ELEMENT = "NA";
+    public final static Character TABLE_3_SEPARATOR = ',';
+    public final static String TABLE_3_TRUE_ELEMENT = null;
+    public final static String TABLE_3_FALSE_ELEMENT = null;
 
     public final static Long COLUMN_1_1_ID = 1L;
     public final static Integer COLUMN_1_1_ORDINALPOS = 0;
@@ -191,6 +208,22 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String CONTAINER_1_IP = "172.28.0.5";
     public final static Instant CONTAINER_1_CREATED = Instant.now().minus(1, HOURS);
 
+    public final static Long CONTAINER_2_ID = 2L;
+    public final static String CONTAINER_2_HASH = "deadbeef";
+    public final static ContainerImage CONTAINER_2_IMAGE = IMAGE_1;
+    public final static String CONTAINER_2_NAME = "u02";
+    public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-u02";
+    public final static String CONTAINER_2_IP = "172.28.0.6";
+    public final static Instant CONTAINER_2_CREATED = Instant.now().minus(1, HOURS);
+
+    public final static Long CONTAINER_3_ID = 3L;
+    public final static String CONTAINER_3_HASH = "deadbeef";
+    public final static ContainerImage CONTAINER_3_IMAGE = IMAGE_1;
+    public final static String CONTAINER_3_NAME = "u03";
+    public final static String CONTAINER_3_INTERNALNAME = "fda-userdb-u03";
+    public final static String CONTAINER_3_IP = "172.28.0.7";
+    public final static Instant CONTAINER_3_CREATED = Instant.now().minus(1, HOURS);
+
     public final static Container CONTAINER_1 = Container.builder()
             .id(CONTAINER_1_ID)
             .name(CONTAINER_1_NAME)
@@ -198,6 +231,24 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .image(CONTAINER_1_IMAGE)
             .hash(CONTAINER_1_HASH)
             .created(CONTAINER_1_CREATED)
+            .build();
+
+    public final static Container CONTAINER_2 = Container.builder()
+            .id(CONTAINER_2_ID)
+            .name(CONTAINER_2_NAME)
+            .internalName(CONTAINER_2_INTERNALNAME)
+            .image(CONTAINER_2_IMAGE)
+            .hash(CONTAINER_2_HASH)
+            .created(CONTAINER_2_CREATED)
+            .build();
+
+    public final static Container CONTAINER_3 = Container.builder()
+            .id(CONTAINER_3_ID)
+            .name(CONTAINER_3_NAME)
+            .internalName(CONTAINER_3_INTERNALNAME)
+            .image(CONTAINER_3_IMAGE)
+            .hash(CONTAINER_3_HASH)
+            .created(CONTAINER_3_CREATED)
             .build();
 
     public final static List<TableColumn> TABLE_1_COLUMNS = List.of(TableColumn.builder()
@@ -309,6 +360,22 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .skipHeaders(TABLE_2_SKIP_HEADERS)
             .build();
 
+    public final static Table TABLE_3 = Table.builder()
+            .id(TABLE_3_ID)
+            .created(Instant.now())
+            .internalName(TABLE_3_INTERNALNAME)
+            .description(TABLE_3_DESCRIPTION)
+            .name(TABLE_3_NAME)
+            .lastModified(TABLE_3_LAST_MODIFIED)
+            .tdbid(DATABASE_3_ID)
+            .topic(TABLE_3_TOPIC)
+            .separator(TABLE_3_SEPARATOR)
+            .nullElement(TABLE_3_NULL_ELEMENT)
+            .trueElement(TABLE_3_TRUE_ELEMENT)
+            .falseElement(TABLE_3_FALSE_ELEMENT)
+            .skipHeaders(TABLE_3_SKIP_HEADERS)
+            .build();
+
     public final static Database DATABASE_1 = Database.builder()
             .id(DATABASE_1_ID)
             .created(Instant.now().minus(1, HOURS))
@@ -319,6 +386,30 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .tables(List.of(TABLE_1))
             .internalName(DATABASE_1_INTERNALNAME)
             .exchange(DATABASE_1_EXCHANGE)
+            .build();
+
+    public final static Database DATABASE_2 = Database.builder()
+            .id(DATABASE_2_ID)
+            .created(Instant.now().minus(1, HOURS))
+            .lastModified(Instant.now())
+            .isPublic(false)
+            .name(DATABASE_2_NAME)
+            .container(CONTAINER_2)
+            .tables(List.of(TABLE_2))
+            .internalName(DATABASE_2_INTERNALNAME)
+            .exchange(DATABASE_2_EXCHANGE)
+            .build();
+
+    public final static Database DATABASE_3 = Database.builder()
+            .id(DATABASE_3_ID)
+            .created(Instant.now().minus(1, HOURS))
+            .lastModified(Instant.now())
+            .isPublic(false)
+            .name(DATABASE_3_NAME)
+            .container(CONTAINER_3)
+            .tables(List.of(TABLE_3))
+            .internalName(DATABASE_3_INTERNALNAME)
+            .exchange(DATABASE_3_EXCHANGE)
             .build();
 
     public final static ColumnCreateDto[] COLUMNS_CSV01 = new ColumnCreateDto[]{
@@ -357,5 +448,338 @@ public abstract class BaseUnitTest extends CsvUnitTest {
                     .primaryKey(COLUMN_1_5_PRIMARY)
                     .unique(COLUMN_1_5_UNIQUE)
                     .build()};
+
+    public final static ColumnCreateDto[] COLUMNS_CSV_CH = new ColumnCreateDto[]{
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("linie")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("richtung")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.DATE)
+                    .name("betriebsdatum")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat("dd.MM.yy")
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("fahrzeug")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("kurs")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("seq_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_diva_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_punkt_diva_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_kurz_von1")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.DATE)
+                    .name("datum_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat("dd.MM.yy")
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("soll_an_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("ist_an_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("soll_ab_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("seq_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_diva_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_punkt_diva_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_kurz_nach1")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.DATE)
+                    .name("datum_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat("dd.MM.yy")
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("soll_an_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("ist_an_nach1")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("soll_ab_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("ist_ab_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("fahrt_id")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("fahrweg_id")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("fw_no")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("fw_typ")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("fw_kurz")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.STRING)
+                    .name("fw_lang")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("umlauf_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_id_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_id_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_punkt_id_von")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build(),
+            ColumnCreateDto.builder()
+                    .type(ColumnTypeDto.NUMBER)
+                    .name("halt_punkt_id_nach")
+                    .nullAllowed(true)
+                    .primaryKey(false)
+                    .unique(false)
+                    .dateFormat(null)
+                    .checkExpression(null)
+                    .enumValues(null)
+                    .build()
+    };
 
 }

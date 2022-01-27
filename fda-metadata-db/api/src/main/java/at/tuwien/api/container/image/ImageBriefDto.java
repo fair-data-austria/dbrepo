@@ -19,19 +19,15 @@ public class ImageBriefDto {
     private Long id;
 
     @NotBlank
-    @ApiModelProperty(required = true, example = "postgres:latest")
-    private String label;
-
-    @NotBlank
-    @ApiModelProperty(required = true, example = "postgres")
+    @ApiModelProperty(required = true, example = "mariadb")
     private String repository;
 
-    @NotBlank
+    @ToString.Exclude
     @ApiModelProperty(required = true, example = "base64:aaaa")
     private String logo;
 
     @NotBlank
-    @ApiModelProperty(required = true, example = "latest")
+    @ApiModelProperty(required = true, example = "10.5")
     private String tag;
 
 }
