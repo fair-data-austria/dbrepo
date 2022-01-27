@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @Log4j2
-public class CsvServiceUnitTest extends BaseUnitTest {
+public class DataServiceUnitTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;

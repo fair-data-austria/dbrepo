@@ -74,6 +74,7 @@ public interface QueryMapper {
     }
 
     default InsertTableRawQuery tableTableCsvDtoToRawInsertQuery(Table table, TableCsvDto data) {
+        log.debug("build insert query for {} rows", data.getData().size());
         final int[] idx = {1} /* this needs to be >0 */;
         /* parameterized query for prepared statement */
         final StringBuilder query = new StringBuilder("INSERT INTO `")

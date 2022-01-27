@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class CsvServiceIntegrationTest extends BaseUnitTest {
+public class DataServiceIntegrationTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -149,6 +149,15 @@ public class CsvServiceIntegrationTest extends BaseUnitTest {
         /* test */
         final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location);
         assertEquals(3, response.getData().size());
+    }
+
+    @Test
+    public void read_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
+        final String location = "test:csv/csv_12.csv";
+
+        /* test */
+        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location);
+        assertEquals(10000, response.getData().size());
     }
 
 }

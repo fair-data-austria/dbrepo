@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
@@ -15,6 +16,8 @@ import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +67,12 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Autowired
     private DatabaseRepository databaseRepository;
 
+    @Autowired
+    private CommaValueService commaValueService;
+
+    @Rule
+    public Timeout globalTimeout = Timeout.seconds(60);
+
     @BeforeAll
     public static void beforeAll() {
         afterAll();
@@ -89,6 +98,18 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
                 .withBinds(Bind.parse(bind))
                 .exec();
         CONTAINER_1.setHash(response.getId());
+        /* create container */
+        final String bind2 = new File("./src/test/resources/traffic").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
+        log.trace("container bind {}", bind2);
+        final CreateContainerResponse response2 = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(CONTAINER_2_INTERNALNAME)
+                .withIpv4Address(CONTAINER_2_IP)
+                .withHostName(CONTAINER_2_INTERNALNAME)
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=traffic")
+                .withBinds(Bind.parse(bind2))
+                .exec();
+        CONTAINER_2.setHash(response2.getId());
     }
 
     @AfterAll
@@ -121,9 +142,10 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     public void beforeEach() {
         TABLE_1.setDatabase(DATABASE_1);
-        TABLE_2.setDatabase(DATABASE_1);
+        TABLE_2.setDatabase(DATABASE_2);
         imageRepository.save(IMAGE_1);
         databaseRepository.save(DATABASE_1);
+        databaseRepository.save(DATABASE_2);
     }
 
     @Test
@@ -274,6 +296,30 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         assertThrows(QueryMalformedException.class, () -> {
             queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
         });
+    }
+
+    @Test
+    public void insert_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
+            FileStorageException, TableMalformedException, ImageNotSupportedException {
+        final TableCsvDto request = commaValueService.read(DATABASE_2_ID, TABLE_2_ID, "test:csv/csv_12.csv");
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_2);
+
+        /* test */
+        queryService.insert(DATABASE_2_ID, TABLE_2_ID, request);
+    }
+
+    @Test
+    public void insert_large_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
+            FileStorageException, TableMalformedException, ImageNotSupportedException {
+        final TableCsvDto request = commaValueService.read(DATABASE_2_ID, TABLE_2_ID, "test:csv/csv_13.csv");
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_2);
+
+        /* test */
+        queryService.insert(DATABASE_2_ID, TABLE_2_ID, request);
     }
 
     @SneakyThrows

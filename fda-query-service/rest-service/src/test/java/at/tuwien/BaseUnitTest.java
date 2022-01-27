@@ -343,6 +343,15 @@ public abstract class BaseUnitTest {
             .created(CONTAINER_2_CREATED)
             .build();
 
+    public final static Container CONTAINER_3 = Container.builder()
+            .id(CONTAINER_3_ID)
+            .name(CONTAINER_3_NAME)
+            .internalName(CONTAINER_3_INTERNALNAME)
+            .image(CONTAINER_3_IMAGE)
+            .hash(CONTAINER_3_HASH)
+            .created(CONTAINER_3_CREATED)
+            .build();
+
     public final static List<TableColumn> TABLE_1_COLUMNS = List.of(TableColumn.builder()
                     .id(COLUMN_1_1_ID)
                     .ordinalPosition(COLUMN_1_1_ORDINALPOS)

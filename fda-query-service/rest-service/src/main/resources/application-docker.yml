@@ -30,4 +30,5 @@ eureka:
   instance.hostname: fda-query-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
+  gateway.endpoint: http://fda-gateway-service:9095
   ready.path: /ready
