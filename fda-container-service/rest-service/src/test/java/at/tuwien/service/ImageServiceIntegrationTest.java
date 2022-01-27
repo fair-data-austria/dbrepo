@@ -2,7 +2,6 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.image.ImageCreateDto;
-import at.tuwien.api.container.image.ImageEnvItemDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ContainerRepository;

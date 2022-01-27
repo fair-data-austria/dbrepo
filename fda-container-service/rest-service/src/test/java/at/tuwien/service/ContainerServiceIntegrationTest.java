@@ -6,6 +6,7 @@ import at.tuwien.api.container.ContainerStateDto;
 import at.tuwien.config.DockerUtil;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.container.Container;
+import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.ImageRepository;
@@ -94,7 +95,21 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
         CONTAINER_1.setHash(request.getId());
 
         /* mock data */
-        log.debug("save image {}, dialect {}, driver {}", IMAGE_1, IMAGE_1_DIALECT, IMAGE_1_DRIVER);
+        log.debug("save image {}", ContainerImage.builder()
+                .id(IMAGE_1_ID)
+                .repository(IMAGE_1_REPOSITORY)
+                .tag(IMAGE_1_TAG)
+                .hash(IMAGE_1_HASH)
+                .jdbcMethod(IMAGE_1_JDBC)
+                .dialect(IMAGE_1_DIALECT)
+                .driverClass(IMAGE_1_DRIVER)
+                .containers(List.of())
+                .compiled(IMAGE_1_BUILT)
+                .size(IMAGE_1_SIZE)
+                .environment(IMAGE_1_ENV)
+                .defaultPort(IMAGE_1_PORT)
+                .logo(IMAGE_1_LOGO)
+                .build());
         imageRepository.save(IMAGE_1);
         log.debug("save container {}", CONTAINER_1);
         containerRepository.save(CONTAINER_1);
