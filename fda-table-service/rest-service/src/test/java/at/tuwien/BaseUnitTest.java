@@ -43,7 +43,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String TABLE_1_DESCRIPTION = "Weather in the world";
     public final static String TABLE_1_TOPIC = DATABASE_1_EXCHANGE + "." + TABLE_1_INTERNALNAME;
     public final static Instant TABLE_1_LAST_MODIFIED = Instant.now();
-    public final static Boolean TABLE_1_SKIP_HEADERS = true;
+    public final static Long TABLE_1_SKIP_HEADERS = 1L;
     public final static String TABLE_1_NULL_ELEMENT = "NA";
     public final static Character TABLE_1_SEPARATOR = ',';
     public final static String TABLE_1_TRUE_ELEMENT = null;
@@ -55,7 +55,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String TABLE_2_DESCRIPTION = "Weather in austria";
     public final static String TABLE_2_TOPIC = DATABASE_2_EXCHANGE + "." + TABLE_2_INTERNALNAME;
     public final static Instant TABLE_2_LAST_MODIFIED = Instant.now();
-    public final static Boolean TABLE_2_SKIP_HEADERS = true;
+    public final static Long TABLE_2_SKIP_HEADERS = 1L;
     public final static String TABLE_2_NULL_ELEMENT = null;
     public final static Character TABLE_2_SEPARATOR = ';';
     public final static String TABLE_2_TRUE_ELEMENT = null;
@@ -67,7 +67,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String TABLE_3_DESCRIPTION = "Traffic in Zürich";
     public final static String TABLE_3_TOPIC = DATABASE_3_EXCHANGE + "." + TABLE_3_INTERNALNAME;
     public final static Instant TABLE_3_LAST_MODIFIED = Instant.now();
-    public final static Boolean TABLE_3_SKIP_HEADERS = true;
+    public final static Long TABLE_3_SKIP_HEADERS = 1L;
     public final static String TABLE_3_NULL_ELEMENT = "NA";
     public final static Character TABLE_3_SEPARATOR = ',';
     public final static String TABLE_3_TRUE_ELEMENT = null;
@@ -341,7 +341,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .nullElement(TABLE_1_NULL_ELEMENT)
             .trueElement(TABLE_1_TRUE_ELEMENT)
             .falseElement(TABLE_1_FALSE_ELEMENT)
-            .skipHeaders(TABLE_1_SKIP_HEADERS)
+            .skipLines(TABLE_1_SKIP_HEADERS)
             .build();
 
     public final static Table TABLE_2 = Table.builder()
@@ -357,7 +357,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .nullElement(TABLE_2_NULL_ELEMENT)
             .trueElement(TABLE_2_TRUE_ELEMENT)
             .falseElement(TABLE_2_FALSE_ELEMENT)
-            .skipHeaders(TABLE_2_SKIP_HEADERS)
+            .skipLines(TABLE_2_SKIP_HEADERS)
             .build();
 
     public final static Table TABLE_3 = Table.builder()
@@ -373,7 +373,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
             .nullElement(TABLE_3_NULL_ELEMENT)
             .trueElement(TABLE_3_TRUE_ELEMENT)
             .falseElement(TABLE_3_FALSE_ELEMENT)
-            .skipHeaders(TABLE_3_SKIP_HEADERS)
+            .skipLines(TABLE_3_SKIP_HEADERS)
             .build();
 
     public final static Database DATABASE_1 = Database.builder()

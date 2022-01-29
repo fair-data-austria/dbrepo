@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS mdb_tables
     NumRows       INTEGER,
     separator     CHAR(1),
     element_null  VARCHAR(50),
-    skip_headers  BOOLEAN,
+    skip_lines    BIGINT,
     element_true  VARCHAR(50),
     element_false VARCHAR(50),
     Version       TEXT,

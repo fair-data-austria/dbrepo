@@ -33,7 +33,7 @@
             name="engine"
             label="Database Engine"
             :items="engines"
-            item-text="label"
+            item-text="repository"
             :rules="[v => !!v || $t('Required')]"
             return-object
             required />

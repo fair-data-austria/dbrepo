@@ -20,6 +20,7 @@ import org.mapstruct.Named;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface TableMapper {
@@ -181,8 +182,10 @@ public interface TableMapper {
                     .nullAllowed(false)
                     .unique(true)
                     .build();
+            log.debug("attempt to create id column {}", idColumn);
             if (Arrays.stream(data.getColumns()).anyMatch(c -> c.getName().equals("id"))) {
-                throw new TableMalformedException("Cannot create id column: it already exists");
+                log.error("Cannot create id column, it already exists");
+                throw new TableMalformedException("Cannot create id column");
             }
             final ColumnCreateDto[] tmp = Arrays.copyOf(data.getColumns(), data.getColumns().length + 1);
             tmp[data.getColumns().length] = idColumn;
@@ -211,13 +214,16 @@ public interface TableMapper {
                         .toArray(String[]::new)))
                 .append(")");
         /* create unique indices */
+        log.trace("columns {}", Arrays.stream(data.getColumns()).collect(Collectors.toList()));
         Arrays.stream(data.getColumns())
                 .filter(ColumnCreateDto::getUnique)
-                .filter(c -> !c.getPrimaryKey())
-                .forEach(c -> query.append(", ")
+                .filter(c -> c.getPrimaryKey() != null && !c.getPrimaryKey())
+                .forEach(c -> {
+                    query.append(", ")
                         .append("UNIQUE KEY (`")
                         .append(nameToInternalName(c.getName()))
-                        .append("`)"));
+                        .append("`)");
+                });
         /* create foreign key indices */
         Arrays.stream(data.getColumns())
                 .filter(c -> Objects.nonNull(c.getForeignKey()))

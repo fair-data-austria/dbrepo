@@ -56,10 +56,14 @@ app.post('/table_from_csv', upload.single('file'), async (req, res) => {
     return {
       name: k,
       type: v,
-      nullAllowed: true,
-      primaryKey: false,
+      date_format: null,
+      check_expression: null,
+      foreign_key: null,
+      references: null,
+      null_allowed: true,
+      primary_key: false,
       unique: null,
-      enumValues: []
+      enum_values: []
     }
   })
 

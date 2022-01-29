@@ -10,7 +10,6 @@ import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
-import at.tuwien.repository.jpa.TableColumnRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
@@ -63,19 +62,10 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     private QueryService queryService;
 
     @Autowired
-    private StoreService storeService;
-
-    @Autowired
     private ImageRepository imageRepository;
 
     @Autowired
     private DatabaseRepository databaseRepository;
-
-    @Autowired
-    private CommaValueService commaValueService;
-
-    @Autowired
-    private TableColumnRepository tableColumnRepository;
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(60);

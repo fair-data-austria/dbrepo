@@ -85,7 +85,7 @@
       </v-stepper-content>
 
       <v-stepper-step :complete="step > 3" step="3">
-        Choose data type of columns
+        Data Types
       </v-stepper-step>
       <v-stepper-content step="3">
         <div v-for="(c, idx) in tableCreate.columns" :key="idx">
@@ -103,21 +103,33 @@
             </v-col>
             <v-col cols="2">
               <v-select
-                v-model="c.enumValues"
+                v-model="c.enum_values"
                 :disabled="c.type !== 'ENUM'"
                 :items="c.suggestions"
                 :menu-props="{ maxHeight: '400' }"
                 label="Enumeration"
                 multiple />
             </v-col>
+            <v-col cols="2" class="pl-10">
+              <v-text-field v-model="c.date_format" label="Date Format" />
+            </v-col>
+            <v-col cols="auto" class="pl-10">
+              <v-text-field v-model="c.check_expression" disabled label="Check Expression" />
+            </v-col>
             <v-col cols="auto" class="pl-2">
-              <v-checkbox v-model="c.primaryKey" label="Primary Key" @click="setOthers(c)" />
+              <v-checkbox v-model="c.primary_key" label="Primary Key" @click="setOthers(c)" />
             </v-col>
             <v-col cols="auto" class="pl-10">
-              <v-checkbox v-model="c.nullAllowed" :disabled="c.primaryKey" label="Null Allowed" />
+              <v-checkbox v-model="c.null_allowed" :disabled="c.primary_key" label="Null Allowed" />
             </v-col>
             <v-col cols="auto" class="pl-10">
-              <v-checkbox v-model="c.unique" :disabled="c.primaryKey" label="Unique" />
+              <v-checkbox v-model="c.unique" :disabled="c.primary_key" label="Unique" />
+            </v-col>
+            <v-col cols="auto" class="pl-10">
+              <v-text-field v-model="c.foreign_key" disabled required label="Foreign Key" />
+            </v-col>
+            <v-col cols="auto" class="pl-10">
+              <v-text-field v-model="c.references" disabled required label="References" />
             </v-col>
           </v-row>
         </div>
@@ -227,25 +239,25 @@ export default {
       this.loading = false
     },
     setOthers (column) {
-      column.nullAllowed = false
+      column.null_allowed = false
       column.unique = true
     },
     async createTable () {
       /* make enum values to array */
       this.tableCreate.columns.forEach((column) => {
         // validate `id` column: must be a PK
-        if (column.name === 'id' && (!column.primaryKey)) {
+        if (column.name === 'id' && (!column.primary_key)) {
           this.$toast.error('Column `id` has to be a Primary Key')
           return
         }
-        if (column.enumValues == null) {
+        if (column.enum_values == null) {
           return
         }
-        if (column.enumValues.length > 0) {
-          column.enumValues = column.enumValues.split(',')
+        if (column.enum_values.length > 0) {
+          column.enum_values = column.enum_values.split(',')
         }
       })
-      const createUrl = `/api/container/${this.route.params.container_id}/database/${this.$route.params.database_id}/table`
+      const createUrl = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table`
       let createResult
       try {
         createResult = await this.$axios.post(createUrl, this.tableCreate)
