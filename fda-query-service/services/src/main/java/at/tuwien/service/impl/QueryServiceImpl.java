@@ -102,6 +102,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     }
 
     @Override
+    @Transactional
     public void insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
             TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
         /* find */
@@ -116,7 +117,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final InsertTableRawQuery raw = queryMapper.tableTableCsvDtoToRawInsertQuery(table, data);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
         final int[] idx = {1} /* this needs to be >0 */;
-        raw.getValues() /* set values */
+        raw.getData() /* set values */
                 .forEach(row -> query.setParameterList(idx[0]++, row));
         try {
             log.info("Inserted {} tuples", query.executeUpdate());

@@ -17,6 +17,10 @@ public class TableCsvDto {
 
     @NotBlank
     @ApiModelProperty(name = "data")
-    private List<Map<String, Object>> data;
+    private List<List<Object>> data;
+
+    @NotBlank
+    @ApiModelProperty(name = "header")
+    private List<String> header;
 
 }

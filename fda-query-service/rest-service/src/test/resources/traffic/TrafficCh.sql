@@ -2,7 +2,7 @@
 CREATE SEQUENCE seq_traffic
     START 1;
 
-CREATE TABLE traffic
+CREATE TABLE traffic_zurich
 (
     linie                bigint                                   null,
     richtung             bigint                                   null,

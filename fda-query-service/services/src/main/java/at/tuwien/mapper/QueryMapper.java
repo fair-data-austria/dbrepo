@@ -6,6 +6,7 @@ import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.exception.TableMalformedException;
 import at.tuwien.querystore.Query;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
@@ -17,6 +18,7 @@ import org.mapstruct.Named;
 import org.mariadb.jdbc.MariaDbBlob;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -73,9 +75,13 @@ public interface QueryMapper {
                 .build();
     }
 
-    default InsertTableRawQuery tableTableCsvDtoToRawInsertQuery(Table table, TableCsvDto data) {
-        log.debug("build insert query for {} rows", data.getData().size());
+    default InsertTableRawQuery tableTableCsvDtoToRawInsertQuery(Table table, TableCsvDto data)
+            throws TableMalformedException {
         final int[] idx = {1} /* this needs to be >0 */;
+        if (table.getColumns().size() == 0) {
+            log.error("Column size is zero");
+            throw new TableMalformedException("Columns are not known");
+        }
         /* parameterized query for prepared statement */
         final StringBuilder query = new StringBuilder("INSERT INTO `")
                 .append(table.getInternalName())
@@ -93,16 +99,13 @@ public interface QueryMapper {
                     .append(")");
         }
         query.append(";");
-        /* values for prepared statement */
-        final List<Collection<Object>> values = data.getData()
-                .stream()
-                .map(Map::values)
-                .collect(Collectors.toList());
         /* debug */
-        log.trace("raw create table query: [" + query + "]");
+        log.debug("insert query size {} kB for {} rows", query.toString().getBytes(StandardCharsets.UTF_8).length / 1000, data.getData().size());
+        log.trace("raw insert query: [" + query + "]");
         return InsertTableRawQuery.builder()
                 .query(query.toString())
-                .values(values)
+                .data(data.getData())
+                .header(data.getHeader())
                 .build();
     }
 

@@ -42,10 +42,6 @@ public class TableColumn implements Comparable<TableColumn> {
     @EqualsAndHashCode.Include
     private Long cdbid;
 
-    /**
-     * ManyToOne means {@link JoinColumn#name()} is remote attribute,
-     * {@link JoinColumn#referencedColumnName()} is local attribute
-     */
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumns({

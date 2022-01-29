@@ -63,20 +63,16 @@ public interface DataMapper {
         }
     }
 
-    default Object tableKeyObjectToObject(List<String> booleanColumns, String nullElement, String trueElement,
-                                          String falseElement, String key, Object data) {
+    default Object tableColumnToObject(Object data, String nullElement, String trueElement, String falseElement) {
         /* null mapping */
         if (data == null || nullElement == null || nullElement.isEmpty() || nullElement.isBlank()
                 || data.equals(nullElement)) {
             return null;
         }
         /* boolean mapping */
-        if (booleanColumns.size() == 0) {
-            return data;
-        }
-        if (booleanColumns.contains(key) && data.equals(trueElement)) {
+        if (data.equals(trueElement)) {
             return true;
-        } else if (booleanColumns.contains(key) && data.equals(falseElement)) {
+        } else if (data.equals(falseElement)) {
             return false;
         }
         return data;

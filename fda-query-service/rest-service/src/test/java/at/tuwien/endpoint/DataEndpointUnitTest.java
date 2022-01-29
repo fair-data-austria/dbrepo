@@ -20,7 +20,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,7 +58,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     public void insert_locationNull_succeeds() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
             ImageNotSupportedException, FileStorageException {
         final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of(Map.of("key", "value")))
+                .header(List.of("key"))
+                .data(List.of(List.of("value")))
                 .build();
 
         /* test */
@@ -81,7 +81,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     public void insert_locationAndDataNotNull_fails() {
         final String location = "";
         final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of(Map.of("key", "value")))
+                .header(List.of("key"))
+                .data(List.of(List.of("value")))
                 .build();
 
         /* test */

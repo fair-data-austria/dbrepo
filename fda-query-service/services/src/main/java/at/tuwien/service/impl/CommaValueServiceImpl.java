@@ -12,6 +12,9 @@ import at.tuwien.service.QueryService;
 import at.tuwien.service.TableService;
 import at.tuwien.utils.FileUtils;
 import at.tuwien.utils.TableUtils;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
@@ -34,6 +38,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -133,14 +138,25 @@ public class CommaValueServiceImpl implements CommaValueService {
         final CSVReader reader = new CSVReaderBuilder(fileReader)
                 .withCSVParser(csvParser)
                 .build();
-        final List<List<String>> rows = new LinkedList<>();
+        List<List<Object>> rows = new LinkedList<>();
+        String[] line;
+        long idx = 0L;
         try {
-            reader.readAll()
-                    .forEach(x -> rows.add(new ArrayList<>(List.of(x))));
+            while ((line = reader.readNext()) != null && idx++ >= 0) {
+                if (skipHeader && idx == 0) {
+                    continue;
+                }
+                rows.add(Stream.of(line)
+                        .collect(Collectors.toList()));
+            }
         } catch (IOException | CsvException e) {
             log.error("Failed to read rows");
             throw new FileStorageException("Failed to read rows", e);
         }
+        rows = rows.stream()
+                .peek(row -> row.replaceAll(column -> dataMapper.tableColumnToObject(column, nullElement,
+                        trueElement, falseElement)))
+                .collect(Collectors.toList());
         log.debug("ended csv parsing, {}", System.currentTimeMillis());
         log.info("Parsed csv in {} ms", System.currentTimeMillis() - readStart);
         log.debug("csv rows {}", rows.size());
@@ -150,35 +166,16 @@ public class CommaValueServiceImpl implements CommaValueService {
             headers = TableUtils.genericHeaders(rows.get(0).size());
         } else {
             /* get header */
-            headers = rows.get(0);
+            headers = rows.get(0)
+                    .stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
             log.trace("csv headers {}", headers);
         }
-        /* start building the data structure */
-        final List<Map<String, Object>> records = new LinkedList<>();
-        final List<String> booleanColumns = table.getColumns()
-                .stream()
-                .filter(c -> c.getColumnType().equals(TableColumnType.BOOLEAN))
-                .map(TableColumn::getInternalName)
-                .collect(Collectors.toList());
-        log.debug("parsed {} boolean columns", booleanColumns.size());
-        /* map to the map-list structure */
-        // TODO this is highly inefficient
-        for (int k = (skipHeader ? 1 : 0); k < rows.size(); k++) {
-            final Map<String, Object> record = new LinkedHashMap<>();
-            final List<String> row = rows.get(k);
-            for (int i = 0; i < table.getColumns().size(); i++) {
-                record.put(table.getColumns().get(i).getInternalName(), row.get(i));
-            }
-            record.replaceAll((key, value) -> dataMapper.tableKeyObjectToObject(booleanColumns, nullElement,
-                    trueElement, falseElement, key, value));
-            records.add(record);
-            if (k > 0 && k % 10000 == 0) {
-                log.debug("add {}", k);
-            }
-        }
-        log.debug("parsed {} records", records.size());
+        log.debug("parsed {} records", rows.size());
         return TableCsvDto.builder()
-                .data(records)
+                .header(headers)
+                .data(rows)
                 .build();
     }
 

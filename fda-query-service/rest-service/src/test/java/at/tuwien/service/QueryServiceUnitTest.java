@@ -28,7 +28,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -168,7 +167,8 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     @Test
     public void insert_columns_fails() {
         final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of(Map.of("not_existing", "some value")))
+                .header(List.of("not_existing"))
+                .data(List.of(List.of("some_value")))
                 .build();
 
         /* mock */
@@ -180,6 +180,25 @@ public class QueryServiceUnitTest extends BaseUnitTest {
         /* test */
         assertThrows(TableMalformedException.class, () -> {
             queryService.insert(DATABASE_1_ID, TABLE_1_ID, request);
+        });
+    }
+
+    @Test
+    public void insert_columnsZero_fails() {
+        final TableCsvDto request = TableCsvDto.builder()
+                .header(List.of("not_existing"))
+                .data(List.of(List.of("some_value")))
+                .build();
+
+        /* mock */
+        when(databaseRepository.findById(DATABASE_3_ID))
+                .thenReturn(Optional.of(DATABASE_3));
+        when(tableRepository.findByDatabaseAndId(DATABASE_3, TABLE_3_ID))
+                .thenReturn(Optional.of(TABLE_3));
+
+        /* test */
+        assertThrows(TableMalformedException.class, () -> {
+            queryService.insert(DATABASE_3_ID, TABLE_3_ID, request);
         });
     }
 
