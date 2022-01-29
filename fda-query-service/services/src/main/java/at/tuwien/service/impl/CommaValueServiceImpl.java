@@ -59,18 +59,18 @@ public class CommaValueServiceImpl implements CommaValueService {
     @Transactional
     public TableCsvDto read(Long databaseId, Long tableId, String location) throws TableNotFoundException,
             DatabaseNotFoundException, FileStorageException {
-        return read(databaseId, tableId, location, ',', false, null, "0", "1");
+        return read(databaseId, tableId, location, ',', 0L, null, "0", "1");
     }
 
     @Override
     @Transactional
-    public TableCsvDto read(Long databaseId, Long tableId, String location, Character separator, Boolean skipHeader, String nullElement,
+    public TableCsvDto read(Long databaseId, Long tableId, String location, Character separator, Long skipLines, String nullElement,
                             String falseElement, String trueElement) throws TableNotFoundException,
             DatabaseNotFoundException, FileStorageException {
         /* find */
         final Table table = tableService.find(databaseId, tableId);
         /* set default parameters */
-        log.trace("insert into table {} with separator {} and csv location {} and skip header {}", table, separator, location, skipHeader);
+        log.trace("insert into table {} with separator {} and csv location {} and skip lines {}", table, separator, location, skipLines);
         /* correct the file path */
         boolean isClassPathFile = false;
         if (FileUtils.isTestFile(location)) {
@@ -143,7 +143,7 @@ public class CommaValueServiceImpl implements CommaValueService {
         long idx = 0L;
         try {
             while ((line = reader.readNext()) != null && idx++ >= 0) {
-                if (skipHeader && idx == 0) {
+                if (skipLines != null && idx <= skipLines) {
                     continue;
                 }
                 rows.add(Stream.of(line)
@@ -161,7 +161,7 @@ public class CommaValueServiceImpl implements CommaValueService {
         log.info("Parsed csv in {} ms", System.currentTimeMillis() - readStart);
         log.debug("csv rows {}", rows.size());
         List<String> headers;
-        if (!skipHeader) {
+        if (skipLines == 0) {
             /* generic header, ref issue #95 */
             headers = TableUtils.genericHeaders(rows.get(0).size());
         } else {

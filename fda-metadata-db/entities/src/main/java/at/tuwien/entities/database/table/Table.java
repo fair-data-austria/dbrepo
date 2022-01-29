@@ -69,8 +69,8 @@ public class Table {
     @Column(name = "element_null")
     private String nullElement = null;
 
-    @Column(name = "skip_headers")
-    private Boolean skipHeaders = true;
+    @Column(name = "skip_lines")
+    private Long skipLines = null;
 
     @Column(name = "element_true")
     private String trueElement = "1";

@@ -152,8 +152,17 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void read_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
+    public void read_classpath_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
         final String location = "test:csv/csv_12.csv";
+
+        /* test */
+        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location);
+        assertEquals(10000, response.getData().size());
+    }
+
+    @Test
+    public void read_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
+        final String location = "/csv_12.csv";
 
         /* test */
         final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location);

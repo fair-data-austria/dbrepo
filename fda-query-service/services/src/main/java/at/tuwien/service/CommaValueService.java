@@ -32,7 +32,7 @@ public interface CommaValueService {
      * @param tableId      The table id.
      * @param location     The location.
      * @param separator    Data separator.
-     * @param skipHeader   Indication if the first line contains a header.
+     * @param skipLines    Skip first n lines.
      * @param nullElement  The element representing {@link null}.
      * @param falseElement The element representing {@link false}.
      * @param trueElement  The element representing {@link true}.
@@ -41,7 +41,7 @@ public interface CommaValueService {
      * @throws DatabaseNotFoundException Database with id not found.
      * @throws FileStorageException      File could not be processed.
      */
-    TableCsvDto read(Long databaseId, Long tableId, String location, Character separator, Boolean skipHeader, String nullElement,
+    TableCsvDto read(Long databaseId, Long tableId, String location, Character separator, Long skipLines, String nullElement,
                      String falseElement, String trueElement) throws TableNotFoundException, DatabaseNotFoundException, FileStorageException;
 
     /**

@@ -54,8 +54,10 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
+        final Long startSession = System.currentTimeMillis();
         final Session session = getSessionFactory(table.getDatabase())
                 .openSession();
+        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         /* prepare the statement */
         final NativeQuery<?> query = session.createSQLQuery(statement.getStatement());
@@ -82,8 +84,10 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
+        final Long startSession = System.currentTimeMillis();
         final Session session = getSessionFactory(database, true)
                 .openSession();
+        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         final NativeQuery<?> query = session.createSQLQuery(queryMapper.tableToRawFindAllQuery(table, timestamp, size,
                 page));
@@ -103,24 +107,28 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
 
     @Override
     @Transactional
-    public void insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
+    public Integer insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
             TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
         /* find */
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
-        if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return;
+        if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return null;
+        final Long startSession = System.currentTimeMillis();
         final Session session = getSessionFactory(database, true)
                 .openSession();
+        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         /* prepare the statement */
-        final InsertTableRawQuery raw = queryMapper.tableTableCsvDtoToRawInsertQuery(table, data);
+        final InsertTableRawQuery raw = queryMapper.tableCsvDtoToRawInsertQuery(table, data);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
         final int[] idx = {1} /* this needs to be >0 */;
         raw.getData() /* set values */
                 .forEach(row -> query.setParameterList(idx[0]++, row));
+        final Integer affectedTuples;
         try {
-            log.info("Inserted {} tuples", query.executeUpdate());
+            affectedTuples = query.executeUpdate();
+            log.info("Inserted {} tuples", affectedTuples);
         } catch (PersistenceException e) {
             log.error("Could not insert data");
             session.getTransaction()
@@ -130,6 +138,39 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         session.getTransaction()
                 .commit();
         session.close();
+        return affectedTuples;
+    }
+
+    @Override
+    @Transactional
+    public Integer insert(Long databaseId, Long tableId, String path) throws ImageNotSupportedException,
+            TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
+        /* find */
+        final Database database = databaseService.find(databaseId);
+        final Table table = tableService.find(databaseId, tableId);
+        /* run query */
+        final Long startSession = System.currentTimeMillis();
+        final Session session = getSessionFactory(database, true)
+                .openSession();
+        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        session.beginTransaction();
+        /* prepare the statement */
+        final InsertTableRawQuery raw = queryMapper.pathToRawInsertQuery(table, path);
+        final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
+        final Integer affectedTuples;
+        try {
+            affectedTuples = query.executeUpdate();
+            log.info("Inserted {} tuples", affectedTuples);
+        } catch (PersistenceException e) {
+            log.error("Could not insert data");
+            session.getTransaction()
+                    .rollback();
+            throw new TableMalformedException("Could not insert data", e);
+        }
+        session.getTransaction()
+                .commit();
+        session.close();
+        return affectedTuples;
     }
 
 }

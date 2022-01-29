@@ -2,7 +2,6 @@ package at.tuwien;
 
 import lombok.*;
 
-import java.util.Collection;
 import java.util.List;
 
 @Getter

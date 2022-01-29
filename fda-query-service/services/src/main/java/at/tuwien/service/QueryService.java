@@ -56,9 +56,28 @@ public interface QueryService {
      * @param databaseId The database id.
      * @param tableId    The table id.
      * @param data       The data.
+     * @return The number of tuples affected.
      * @throws ImageNotSupportedException The image is not supported.
      * @throws TableMalformedException    The table does not exist in the metadata database.
+     * @throws DatabaseNotFoundException  The database is not found in the metadata database.
+     * @throws TableNotFoundException     The table is not found in the metadata database.
      */
-    void insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
+    Integer insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
+            TableMalformedException, DatabaseNotFoundException, TableNotFoundException;
+
+    /**
+     * Insert data from a csv into a table of a table-database id tuple, we need the "root" role for this as the
+     * default "mariadb" user is configured to only be allowed to execute "SELECT statements.
+     *
+     * @param databaseId The database id.
+     * @param tableId    The table id.
+     * @param path       The data path.
+     * @return The number of tuples affected.
+     * @throws ImageNotSupportedException The image is not supported.
+     * @throws TableMalformedException    The table does not exist in the metadata database.
+     * @throws DatabaseNotFoundException  The database is not found in the metadata database.
+     * @throws TableNotFoundException     The table is not found in the metadata database.
+     */
+    Integer insert(Long databaseId, Long tableId, String path) throws ImageNotSupportedException,
             TableMalformedException, DatabaseNotFoundException, TableNotFoundException;
 }

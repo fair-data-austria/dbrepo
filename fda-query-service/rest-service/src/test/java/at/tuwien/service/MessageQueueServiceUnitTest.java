@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import com.rabbitmq.client.Channel;
@@ -49,7 +50,7 @@ public class MessageQueueServiceUnitTest extends BaseUnitTest {
         /* mock */
         doThrow(ImageNotSupportedException.class)
                 .when(queryService)
-                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any());
+                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any(TableCsvDto.class));
 
         /* test */
         messageQueueService.createUserConsumer(TABLE_1);
@@ -62,7 +63,7 @@ public class MessageQueueServiceUnitTest extends BaseUnitTest {
         /* mock */
         doThrow(TableMalformedException.class)
                 .when(queryService)
-                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any());
+                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any(TableCsvDto.class));
 
         /* test */
         messageQueueService.createUserConsumer(TABLE_1);
@@ -75,7 +76,7 @@ public class MessageQueueServiceUnitTest extends BaseUnitTest {
         /* mock */
         doThrow(DatabaseNotFoundException.class)
                 .when(queryService)
-                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any());
+                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any(TableCsvDto.class));
 
         /* test */
         messageQueueService.createUserConsumer(TABLE_1);
@@ -88,7 +89,7 @@ public class MessageQueueServiceUnitTest extends BaseUnitTest {
         /* mock */
         doThrow(TableNotFoundException.class)
                 .when(queryService)
-                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any());
+                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any(TableCsvDto.class));
 
         /* test */
         messageQueueService.createUserConsumer(TABLE_1);

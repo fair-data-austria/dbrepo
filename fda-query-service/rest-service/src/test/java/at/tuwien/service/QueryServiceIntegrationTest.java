@@ -5,8 +5,8 @@ import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
+import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.ImageRepository;
@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.PersistenceException;
 import java.io.File;
 import java.math.BigInteger;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -101,7 +102,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(bind))
+                .withBinds(Bind.parse(bind), Bind.parse("/tmp:/tmp"))
                 .exec();
         CONTAINER_1.setHash(response.getId());
         /* create container */
@@ -113,7 +114,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
                 .withIpv4Address(CONTAINER_3_IP)
                 .withHostName(CONTAINER_3_INTERNALNAME)
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=traffic")
-                .withBinds(Bind.parse(bind3))
+                .withBinds(Bind.parse(bind3), Bind.parse("/tmp:/tmp"))
                 .exec();
         CONTAINER_3.setHash(response3.getId());
     }
@@ -153,7 +154,6 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         imageRepository.save(IMAGE_1);
         databaseRepository.save(DATABASE_1);
         databaseRepository.save(DATABASE_2);
-        final List<TableColumn> columns = tableColumnRepository.findAll();
         databaseRepository.save(DATABASE_3);
     }
 
@@ -309,26 +309,151 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insert_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
-            FileStorageException, TableMalformedException, ImageNotSupportedException {
-        final TableCsvDto request = commaValueService.read(DATABASE_3_ID, TABLE_3_ID, "test:csv/csv_12.csv");
+            TableMalformedException, ImageNotSupportedException, SQLException {
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_3);
 
         /* test */
-        queryService.insert(DATABASE_3_ID, TABLE_3_ID, request);
+        final Integer rows = queryService.insert(DATABASE_3_ID, TABLE_3_ID, "/tmp/csv_12.csv");
+        assertEquals(9999, rows);
+        final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
+        assertEquals("1", response.get(0).get(0));
+        assertEquals("2", response.get(0).get(1));
+        assertEquals("1", response.get(0).get(2));
+        assertEquals("2017-01-15", response.get(0).get(3));
+        assertEquals("2076", response.get(0).get(4));
+        assertEquals("6", response.get(0).get(5));
+        assertEquals("1", response.get(0).get(6));
+        assertEquals("6030", response.get(0).get(7));
+        assertEquals("0", response.get(0).get(8));
+        assertEquals("DEP4", response.get(0).get(9));
+        assertEquals("2017-01-15", response.get(0).get(10));
+        assertEquals("17580", response.get(0).get(11));
+        assertEquals("17562", response.get(0).get(12));
+        assertEquals("17580", response.get(0).get(13));
+        assertEquals("17562", response.get(0).get(14));
+        assertEquals("2", response.get(0).get(15));
+        assertEquals("1357", response.get(0).get(16));
+        assertEquals("1", response.get(0).get(17));
+        assertEquals("KALK", response.get(0).get(18));
+        assertEquals("2017-01-15", response.get(0).get(19));
+        assertEquals("17622", response.get(0).get(20));
+        assertEquals("17647", response.get(0).get(21));
+        assertEquals("17622", response.get(0).get(22));
+        assertEquals("17664", response.get(0).get(23));
+        assertEquals("8538", response.get(0).get(24));
+        assertEquals("41253", response.get(0).get(25));
+        assertEquals("15", response.get(0).get(26));
+        assertEquals("2", response.get(0).get(27));
+        assertEquals("15", response.get(0).get(28));
+        assertEquals("DEP4 - KALK", response.get(0).get(29));
+        assertEquals("135780", response.get(0).get(30));
+        assertEquals("2251", response.get(0).get(31));
+        assertEquals("1906", response.get(0).get(32));
+        assertEquals("12462", response.get(0).get(33));
+        assertEquals("10563", response.get(0).get(34));
+
     }
 
     @Test
     public void insert_large_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
-            FileStorageException, TableMalformedException, ImageNotSupportedException {
-        final TableCsvDto request = commaValueService.read(DATABASE_3_ID, TABLE_3_ID, "test:csv/csv_13.csv");
+            TableMalformedException, ImageNotSupportedException, SQLException {
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_3);
 
         /* test */
-        queryService.insert(DATABASE_3_ID, TABLE_3_ID, request);
+        final Integer rows = queryService.insert(DATABASE_3_ID, TABLE_3_ID, "/tmp/csv_13.csv");
+        assertEquals(1397856, rows);
+        final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
+        assertEquals("1", response.get(0).get(0));
+        assertEquals("2", response.get(0).get(1));
+        assertEquals("1", response.get(0).get(2));
+        assertEquals("2017-01-15", response.get(0).get(3));
+        assertEquals("2076", response.get(0).get(4));
+        assertEquals("6", response.get(0).get(5));
+        assertEquals("1", response.get(0).get(6));
+        assertEquals("6030", response.get(0).get(7));
+        assertEquals("0", response.get(0).get(8));
+        assertEquals("DEP4", response.get(0).get(9));
+        assertEquals("2017-01-15", response.get(0).get(10));
+        assertEquals("17580", response.get(0).get(11));
+        assertEquals("17562", response.get(0).get(12));
+        assertEquals("17580", response.get(0).get(13));
+        assertEquals("17562", response.get(0).get(14));
+        assertEquals("2", response.get(0).get(15));
+        assertEquals("1357", response.get(0).get(16));
+        assertEquals("1", response.get(0).get(17));
+        assertEquals("KALK", response.get(0).get(18));
+        assertEquals("2017-01-15", response.get(0).get(19));
+        assertEquals("17622", response.get(0).get(20));
+        assertEquals("17647", response.get(0).get(21));
+        assertEquals("17622", response.get(0).get(22));
+        assertEquals("17664", response.get(0).get(23));
+        assertEquals("8538", response.get(0).get(24));
+        assertEquals("41253", response.get(0).get(25));
+        assertEquals("15", response.get(0).get(26));
+        assertEquals("2", response.get(0).get(27));
+        assertEquals("15", response.get(0).get(28));
+        assertEquals("DEP4 - KALK", response.get(0).get(29));
+        assertEquals("135780", response.get(0).get(30));
+        assertEquals("2251", response.get(0).get(31));
+        assertEquals("1906", response.get(0).get(32));
+        assertEquals("12462", response.get(0).get(33));
+        assertEquals("10563", response.get(0).get(34));
+    }
+
+    @Test
+    public void insert_sensor_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
+            TableMalformedException, ImageNotSupportedException, SQLException {
+        final TableCsvDto request = TableCsvDto.builder()
+                .header(List.of("linie","richtung","betriebsdatum","fahrzeug","kurs","seq_von","halt_diva_von","halt_punkt_diva_von","halt_kurz_von1","datum_von","soll_an_von","ist_an_von","soll_ab_von","seq_nach","halt_diva_nach","halt_punkt_diva_nach","halt_kurz_nach1","datum_nach","soll_an_nach","ist_an_nach1","soll_ab_nach","ist_ab_nach","fahrt_id","fahrweg_id","fw_no","fw_typ","fw_kurz","fw_lang","umlauf_von","halt_id_von","halt_id_nach","halt_punkt_id_von","halt_punkt_id_nach"))
+                .data(List.of(List.of("2","1","15.01.17","2076","6","1","6030","0","DEP4","15.01.17","17580","17562","17580","17562","2","1357","1","KALK","15.01.17","17622","17647","17622","17664","8538","41253","15","2","15","DEP4 - KALK","135780","2251","1906","12462","10563")))
+                .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_3);
+
+        /* test */
+        final Integer rows = queryService.insert(DATABASE_3_ID, TABLE_3_ID, request);
+        assertEquals(1, rows);
+        final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
+        assertEquals("1", response.get(0).get(0));
+        assertEquals("2", response.get(0).get(1));
+        assertEquals("1", response.get(0).get(2));
+        assertEquals("2017-01-15", response.get(0).get(3));
+        assertEquals("2076", response.get(0).get(4));
+        assertEquals("6", response.get(0).get(5));
+        assertEquals("1", response.get(0).get(6));
+        assertEquals("6030", response.get(0).get(7));
+        assertEquals("0", response.get(0).get(8));
+        assertEquals("DEP4", response.get(0).get(9));
+        assertEquals("2017-01-15", response.get(0).get(10));
+        assertEquals("17580", response.get(0).get(11));
+        assertEquals("17562", response.get(0).get(12));
+        assertEquals("17580", response.get(0).get(13));
+        assertEquals("17562", response.get(0).get(14));
+        assertEquals("2", response.get(0).get(15));
+        assertEquals("1357", response.get(0).get(16));
+        assertEquals("1", response.get(0).get(17));
+        assertEquals("KALK", response.get(0).get(18));
+        assertEquals("2017-01-15", response.get(0).get(19));
+        assertEquals("17622", response.get(0).get(20));
+        assertEquals("17647", response.get(0).get(21));
+        assertEquals("17622", response.get(0).get(22));
+        assertEquals("17664", response.get(0).get(23));
+        assertEquals("8538", response.get(0).get(24));
+        assertEquals("41253", response.get(0).get(25));
+        assertEquals("15", response.get(0).get(26));
+        assertEquals("2", response.get(0).get(27));
+        assertEquals("15", response.get(0).get(28));
+        assertEquals("DEP4 - KALK", response.get(0).get(29));
+        assertEquals("135780", response.get(0).get(30));
+        assertEquals("2251", response.get(0).get(31));
+        assertEquals("1906", response.get(0).get(32));
+        assertEquals("12462", response.get(0).get(33));
+        assertEquals("10563", response.get(0).get(34));
     }
 
     @SneakyThrows

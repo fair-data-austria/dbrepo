@@ -77,9 +77,21 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(bind))
                 .exec();
+        final String bind3 = new File("./src/test/resources/traffic").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
+        log.trace("container bind {}", bind3);
+        final CreateContainerResponse response3 = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(CONTAINER_3_INTERNALNAME)
+                .withIpv4Address(CONTAINER_3_IP)
+                .withHostName(CONTAINER_3_INTERNALNAME)
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=traffic")
+                .withBinds(Bind.parse(bind3))
+                .exec();
         /* start */
         CONTAINER_1.setHash(response.getId());
+        CONTAINER_3.setHash(response3.getId());
         DockerConfig.startContainer(CONTAINER_1);
+        DockerConfig.startContainer(CONTAINER_3);
     }
 
     @AfterAll
@@ -112,6 +124,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     public void beforeEach() {
         TABLE_1.setDatabase(DATABASE_1);
         TABLE_2.setDatabase(DATABASE_2);
+        TABLE_3.setDatabase(DATABASE_3);
     }
 
     @Test
