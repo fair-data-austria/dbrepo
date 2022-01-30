@@ -14,6 +14,7 @@
           label="Name" />
         <v-text-field
           v-model="tableCreate.description"
+          required
           autocomplete="off"
           label="Description" />
         <v-btn :disabled="!step1Valid" color="primary" @click="step = 2">
@@ -22,49 +23,58 @@
       </v-stepper-content>
 
       <v-stepper-step :complete="step > 2" step="2">
-        .csv Metadata
+        Dataset Metadata (.csv)
       </v-stepper-step>
 
       <v-stepper-content step="2">
         <v-row dense>
           <v-col cols="8">
-            <v-checkbox
-              v-model="tableInsert.skip_header"
-              label="Skip first row" />
-          </v-col>
-        </v-row>
-        <v-row dense>
-          <v-col cols="8">
             <v-text-field
-              v-model="tableInsert.delimiter"
+              v-model="tableCreate.separator"
               :rules="[rules.required]"
+              counter="1"
               required
-              label="Delimiter"
+              hint="Character separating the values"
+              label="Separator"
               placeholder="e.g. ;" />
           </v-col>
         </v-row>
         <v-row dense>
           <v-col cols="8">
             <v-text-field
-              v-model="tableInsert.null_element"
-              placeholder="e.g. NA or leave empty"
+              v-model="tableCreate.skip_lines"
+              :rules="[rules.required]"
+              required
+              hint="Skip n lines from the top"
+              label="Skip Lines"
+              placeholder="e.g. 0" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="tableCreate.null_element"
+              hint="Representation of 'no value present'"
+              placeholder="e.g. NA"
               label="NULL Element" />
           </v-col>
         </v-row>
         <v-row dense>
           <v-col cols="8">
             <v-text-field
-              v-model="tableInsert.true_element"
-              label="Element for 'true'"
-              placeholder="e.g. 1, true or YES" />
+              v-model="tableCreate.true_element"
+              label="True Element"
+              hint="Representation of boolean 'true'"
+              placeholder="e.g. 1, true, YES" />
           </v-col>
         </v-row>
         <v-row dense>
           <v-col cols="8">
             <v-text-field
-              v-model="tableInsert.false_element"
-              label="Element for 'false'"
-              placeholder="e.g. 0, false or NO" />
+              v-model="tableCreate.false_element"
+              label="False Element"
+              hint="Representation of boolean 'false'"
+              placeholder="e.g. 0, false, NO" />
           </v-col>
         </v-row>
         <v-row dense>
@@ -101,7 +111,7 @@
                 required
                 label="Data Type" />
             </v-col>
-            <v-col cols="2">
+            <v-col cols="2" :hidden="c.type !== 'ENUM'">
               <v-select
                 v-model="c.enum_values"
                 :disabled="c.type !== 'ENUM'"
@@ -110,11 +120,16 @@
                 label="Enumeration"
                 multiple />
             </v-col>
-            <v-col cols="2" class="pl-10">
-              <v-text-field v-model="c.date_format" label="Date Format" />
+            <v-col cols="2" class="pl-10" :hidden="c.type !== 'DATE'">
+              <v-select
+                v-model="c.dfid"
+                :disabled="c.type !== 'DATE'"
+                :items="dateFormats"
+                item-text="unix_format"
+                item-value="id" />
             </v-col>
-            <v-col cols="auto" class="pl-10">
-              <v-text-field v-model="c.check_expression" disabled label="Check Expression" />
+            <v-col cols="auto" class="pl-10" :hidden="c.type !== 'STRING' || c.type !== 'VARCHAR'">
+              <v-text-field v-model="c.check_expression" label="Check Expression" />
             </v-col>
             <v-col cols="auto" class="pl-2">
               <v-checkbox v-model="c.primary_key" label="Primary Key" @click="setOthers(c)" />
@@ -123,18 +138,18 @@
               <v-checkbox v-model="c.null_allowed" :disabled="c.primary_key" label="Null Allowed" />
             </v-col>
             <v-col cols="auto" class="pl-10">
-              <v-checkbox v-model="c.unique" :disabled="c.primary_key" label="Unique" />
+              <v-checkbox v-model="c.unique" :hidden="c.primary_key" label="Unique" />
             </v-col>
             <v-col cols="auto" class="pl-10">
-              <v-text-field v-model="c.foreign_key" disabled required label="Foreign Key" />
+              <v-text-field v-model="c.foreign_key" hidden required label="Foreign Key" />
             </v-col>
             <v-col cols="auto" class="pl-10">
-              <v-text-field v-model="c.references" disabled required label="References" />
+              <v-text-field v-model="c.references" hidden required label="References" />
             </v-col>
           </v-row>
         </div>
 
-        <v-btn class="mt-2" color="primary" @click="createTable">
+        <v-btn class="mt-2" color="primary" :loading="loading" @click="createTable">
           Continue
         </v-btn>
       </v-stepper-content>
@@ -173,18 +188,16 @@ export default {
       rules: {
         required: value => !!value || 'Required'
       },
-      tableInsert: {
-        skip_header: true,
-        false_element: null,
-        true_element: null,
-        null_element: null,
-        delimiter: null,
-        csv_location: null
-      },
+      dateFormats: [],
       tableCreate: {
         name: null,
         description: null,
-        columns: []
+        columns: [],
+        false_element: null,
+        true_element: null,
+        null_element: null,
+        separator: ',',
+        skip_lines: 0
       },
       loading: false,
       file: null,
@@ -204,8 +217,11 @@ export default {
   },
   computed: {
     step1Valid () {
-      return this.tableCreate.name !== null && this.tableCreate.name.length > 0
+      return this.tableCreate.name !== null && this.tableCreate.name.length > 0 && this.tableCreate.description !== null && this.tableCreate.description.length > 0
     }
+  },
+  mounted () {
+    this.loadDateFormats()
   },
   methods: {
     async upload () {
@@ -222,12 +238,11 @@ export default {
         if (res.data.success) {
           this.tableCreate.columns = res.data.columns
           this.fileLocation = res.data.file.filename
-          this.tableInsert.csvLocation = this.fileLocation
           this.step = 3
           this.loading = false
           console.debug('upload csv', res.data)
         } else {
-          console.error('Upload failed. Try from docker container, not with yarn dev', res)
+          console.error('Upload failed. Try removing the last / from the API url', res)
           this.$toast.error('Could not upload CSV data')
           this.loading = false
           return
@@ -241,6 +256,20 @@ export default {
     setOthers (column) {
       column.null_allowed = false
       column.unique = true
+    },
+    async loadDateFormats () {
+      const getUrl = `/api/container/${this.$route.params.container_id}`
+      let getResult
+      try {
+        this.loading = true
+        getResult = await this.$axios.get(getUrl)
+        this.dateFormats = getResult.data.image.date_formats
+        console.debug('retrieve image date formats', this.dateFormats)
+        this.loading = false
+      } catch (err) {
+        this.loading = false
+        console.error('retrieve image date formats failed', err)
+      }
     },
     async createTable () {
       /* make enum values to array */
@@ -260,23 +289,32 @@ export default {
       const createUrl = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table`
       let createResult
       try {
+        this.loading = true
         createResult = await this.$axios.post(createUrl, this.tableCreate)
         this.newTableId = createResult.data.id
         console.debug('created table', createResult.data)
       } catch (err) {
-        console.log(err)
+        this.loading = false
+        if (err.response.status === 409) {
+          this.$toast.error('Table name already exists.')
+        } else {
+          this.$toast.error('Could not create table.')
+        }
+        console.error('create table failed', err)
         return
       }
-      const insertUrl = `/api/container/${this.route.params.container_id}/database/${this.$route.params.database_id}/table/${createResult.data.id}/data/csv`
+      const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${createResult.data.id}/data?location=${encodeURI('/tmp/' + this.fileLocation)}`
       let insertResult
       try {
-        insertResult = await this.$axios.post(insertUrl, this.tableInsert)
+        insertResult = await this.$axios.post(insertUrl)
         console.debug('inserted table', insertResult.data)
       } catch (err) {
-        console.log(err)
+        this.loading = false
+        console.error('insert table failed', err)
         this.$toast.error('Could not insert csv into table.')
         return
       }
+      this.loading = false
       this.step = 4
     }
   }

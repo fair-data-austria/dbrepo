@@ -3,12 +3,19 @@ CREATE DATABASE root;
 
 BEGIN;
 
-CREATE TYPE gender AS ENUM ('F', 'M', 'T');
-CREATE TYPE visibility AS ENUM ('EVERYONE', 'TRUSTED', 'SELF');
-CREATE TYPE accesstype AS ENUM ('R', 'W');
-CREATE TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'PRIVILEGED_USERNAME', 'PRIVILEGED_PASSWORD');
+CREATE
+    TYPE gender AS ENUM ('F', 'M', 'T');
+CREATE
+    TYPE visibility AS ENUM ('EVERYONE', 'TRUSTED', 'SELF');
+CREATE
+    TYPE accesstype AS ENUM ('R', 'W');
+CREATE
+    TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'PRIVILEGED_USERNAME', 'PRIVILEGED_PASSWORD');
 
-CREATE CAST (character varying AS image_environment_type) WITH INOUT AS ASSIGNMENT;
+CREATE
+    CAST
+    (character varying AS image_environment_type)
+    WITH INOUT AS ASSIGNMENT;
 
 CREATE SEQUENCE public.mdb_images_environment_item_seq
     START WITH 1
@@ -18,6 +25,13 @@ CREATE SEQUENCE public.mdb_images_environment_item_seq
     CACHE 1;
 
 CREATE SEQUENCE public.mdb_images_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE SEQUENCE public.mdb_images_date_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -111,6 +125,19 @@ CREATE TABLE public.mdb_images
     last_modified timestamp without time zone,
     PRIMARY KEY (id),
     UNIQUE (repository, tag)
+);
+
+CREATE TABLE public.mdb_images_date
+(
+    id              bigint                      NOT NULL DEFAULT nextval('mdb_images_date_seq'),
+    iid             bigint                      NOT NULL,
+    database_format character varying(255)      NOT NULL,
+    unix_format     character varying(255)      NOT NULL,
+    example         character varying(255)      NOT NULL,
+    created_at      timestamp without time zone NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id, iid),
+    FOREIGN KEY (iid) REFERENCES mdb_images (id),
+    UNIQUE (database_format)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_containers
@@ -215,6 +242,7 @@ CREATE TABLE IF NOT EXISTS mdb_COLUMNS
     ID               bigint                               DEFAULT nextval('mdb_columns_seq'),
     cDBID            bigint,
     tID              bigint,
+    dfid             bigint,
     cName            VARCHAR(100),
     internal_name    VARCHAR(100)                NOT NULL,
     Datatype         VARCHAR(50),

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.PersistenceException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,17 +76,27 @@ public class TableServiceImpl extends HibernateConnector implements TableService
             DatabaseNotFoundException, TableMalformedException, TableNameExistsException {
         /* find */
         final Database database = databaseService.findDatabase(databaseId);
+        final Optional<Table> optional = tableRepository.findByInternalName(tableMapper.nameToInternalName(createDto.getName()));
+        if (optional.isPresent()) {
+            log.error("Table name exists in database with id {} as table id {}", database.getId(), optional.get().getId());
+            throw new TableNameExistsException("Table name exists");
+        }
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
         final Transaction transaction = session.beginTransaction();
         final CreateTableRawQuery query = tableMapper.tableToCreateTableRawQuery(database, createDto);
-        log.debug("Create Table Raw query is [{}]", query);
-
+        log.trace("create table raw query is [{}]", query);
         if (query.getGenerated()) {
             /* in case the id column needs to be generated, we need to generate the sequence too */
-            session.createSQLQuery(tableMapper.tableToCreateSequenceRawQuery(database, createDto))
-                    .executeUpdate();
+            try {
+                session.createSQLQuery(tableMapper.tableToCreateSequenceRawQuery(database, createDto))
+                        .executeUpdate();
+            } catch (PersistenceException e) {
+                log.error("Table sequence exists, but table does not. Create an issue for this.");
+                throw new TableNameExistsException("Sequence exists", e);
+            }
+            log.debug("created id sequence");
         }
         session.createSQLQuery(query.getQuery())
                 .executeUpdate();
@@ -103,8 +114,8 @@ public class TableServiceImpl extends HibernateConnector implements TableService
                 .forEach(column -> {
                     column.setOrdinalPosition(idx[0]++);
                 });
-        log.info("Created table with id {}", table.getId());
-        log.debug("Saving table {}",table);
+        log.info("Created table with id {} {}", table.getId(), query.getGenerated() ? "and auto-generated id column" : "");
+        log.debug("Saving table {}", table);
         return tableRepository.save(table);
     }
 }

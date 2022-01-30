@@ -1,5 +1,6 @@
 package at.tuwien.api.database.table.columns;
 
+import at.tuwien.api.container.image.ImageDateDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -15,6 +16,10 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class ColumnDto {
 
+    @NotNull
+    @ApiModelProperty(name = "id", example = "1", required = true)
+    private Long id;
+
     @NotBlank
     @ApiModelProperty(name = "name", example = "Date", required = true)
     private String name;
@@ -26,8 +31,8 @@ public class ColumnDto {
 
     @NotBlank
     @JsonProperty("date_format")
-    @ApiModelProperty(name = "date format", example = "YYYY-mm-dd")
-    private String dateFormat;
+    @ApiModelProperty(name = "date format", example = "1")
+    private ImageDateDto dateFormat;
 
     @NotNull
     @JsonProperty("auto_generated")

@@ -54,15 +54,17 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         /* run query */
-        final Long startSession = System.currentTimeMillis();
+        final long startSession = System.currentTimeMillis();
         final Session session = getSessionFactory(table.getDatabase())
                 .openSession();
         log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         /* prepare the statement */
         final NativeQuery<?> query = session.createSQLQuery(statement.getStatement());
+        final int affectedTuples;
         try {
-            log.info("Query affected {} rows", query.executeUpdate());
+            affectedTuples = query.executeUpdate();
+            log.info("Execution on table id {} affected {} rows", tableId, affectedTuples);
             session.getTransaction()
                     .commit();
         } catch (SQLGrammarException e) {
@@ -84,14 +86,23 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
-        final Long startSession = System.currentTimeMillis();
+        final long startSession = System.currentTimeMillis();
         final Session session = getSessionFactory(database, true)
                 .openSession();
         log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         final NativeQuery<?> query = session.createSQLQuery(queryMapper.tableToRawFindAllQuery(table, timestamp, size,
                 page));
-        query.executeUpdate();
+        final int affectedTuples;
+        try {
+            affectedTuples = query.executeUpdate();
+            log.info("Found {} tuples in table id {}", affectedTuples, tableId);
+        } catch (PersistenceException e) {
+            log.error("Could not find data");
+            session.getTransaction()
+                    .rollback();
+            throw new TableMalformedException("Could not find data", e);
+        }
         session.getTransaction()
                 .commit();
         final QueryResultDto result;
@@ -114,7 +125,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
         if (data.getData().size() == 0 || data.getData().get(0).size() == 0) return null;
-        final Long startSession = System.currentTimeMillis();
+        final long startSession = System.currentTimeMillis();
         final Session session = getSessionFactory(database, true)
                 .openSession();
         log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
@@ -125,10 +136,10 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final int[] idx = {1} /* this needs to be >0 */;
         raw.getData() /* set values */
                 .forEach(row -> query.setParameterList(idx[0]++, row));
-        final Integer affectedTuples;
+        final int affectedTuples;
         try {
             affectedTuples = query.executeUpdate();
-            log.info("Inserted {} tuples", affectedTuples);
+            log.info("Inserted {} tuples on table id {}", affectedTuples, tableId);
         } catch (PersistenceException e) {
             log.error("Could not insert data");
             session.getTransaction()
@@ -149,7 +160,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
-        final Long startSession = System.currentTimeMillis();
+        final long startSession = System.currentTimeMillis();
         final Session session = getSessionFactory(database, true)
                 .openSession();
         log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
@@ -157,10 +168,10 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         /* prepare the statement */
         final InsertTableRawQuery raw = queryMapper.pathToRawInsertQuery(table, path);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
-        final Integer affectedTuples;
+        final int affectedTuples;
         try {
             affectedTuples = query.executeUpdate();
-            log.info("Inserted {} tuples", affectedTuples);
+            log.info("Inserted {} tuples on table id {}", affectedTuples, tableId);
         } catch (PersistenceException e) {
             log.error("Could not insert data");
             session.getTransaction()

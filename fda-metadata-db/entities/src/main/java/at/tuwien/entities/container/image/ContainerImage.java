@@ -67,6 +67,10 @@ public class ContainerImage {
     @JoinColumn(name = "iid", insertable = false, updatable = false)
     private List<ContainerImageEnvironmentItem> environment;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "iid", insertable = false, updatable = false)
+    private List<ContainerImageDate> dateFormats;
+
     @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, mappedBy = "image")
     private List<Container> containers;

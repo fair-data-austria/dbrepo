@@ -8,7 +8,7 @@
       <v-card-text>
         <v-alert
           border="left"
-          color="amber lighten-4">
+          color="amber lighten-4 black--text">
           Choose an expressive database name and select a database engine.
         </v-alert>
         <v-form v-model="formValid" autocomplete="off">
@@ -33,7 +33,7 @@
             name="engine"
             label="Database Engine"
             :items="engines"
-            item-text="repository"
+            :item-text="item => `${item.repository}:${item.tag}`"
             :rules="[v => !!v || $t('Required')]"
             return-object
             required />

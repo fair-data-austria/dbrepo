@@ -80,7 +80,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String COLUMN_1_1_INTERNAL_NAME = "id";
     public final static TableColumnType COLUMN_1_1_TYPE = TableColumnType.NUMBER;
     public final static ColumnTypeDto COLUMN_1_1_TYPE_DTO = ColumnTypeDto.NUMBER;
-    public final static String COLUMN_1_1_DATE_FORMAT = null;
+    public final static Long COLUMN_1_1_DATE_FORMAT = null;
     public final static Boolean COLUMN_1_1_NULL = false;
     public final static Boolean COLUMN_1_1_UNIQUE = true;
     public final static Boolean COLUMN_1_1_AUTO_GENERATED = false;
@@ -95,7 +95,7 @@ public abstract class BaseUnitTest extends CsvUnitTest {
     public final static String COLUMN_1_2_INTERNAL_NAME = "date";
     public final static TableColumnType COLUMN_1_2_TYPE = TableColumnType.DATE;
     public final static ColumnTypeDto COLUMN_1_2_TYPE_DTO = ColumnTypeDto.DATE;
-    public final static String COLUMN_1_2_DATE_FORMAT = "yyyy-MM-dd";
+    public final static Long COLUMN_1_2_DATE_FORMAT = 1L;
     public final static Boolean COLUMN_1_2_NULL = true;
     public final static Boolean COLUMN_1_2_UNIQUE = false;
     public final static Boolean COLUMN_1_2_AUTO_GENERATED = false;

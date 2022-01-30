@@ -45,11 +45,11 @@ public class DataEndpoint {
             @ApiResponse(code = 415, message = "The file provided is not in csv format"),
             @ApiResponse(code = 422, message = "The csv was not processible."),
     })
-    public ResponseEntity<?> insert(@NotNull @PathVariable("id") Long id,
-                                    @NotNull @PathVariable("databaseId") Long databaseId,
-                                    @NotNull @PathVariable("tableId") Long tableId,
-                                    @RequestParam(required = false) String location,
-                                    @Valid @RequestBody(required = false) TableCsvDto data) throws TableNotFoundException,
+    public ResponseEntity<Integer> insert(@NotNull @PathVariable("id") Long id,
+                                          @NotNull @PathVariable("databaseId") Long databaseId,
+                                          @NotNull @PathVariable("tableId") Long tableId,
+                                          @RequestParam(required = false) String location,
+                                          @Valid @RequestBody(required = false) TableCsvDto data) throws TableNotFoundException,
             DatabaseNotFoundException, FileStorageException, TableMalformedException, ImageNotSupportedException {
         if ((location == null && data == null) || (location != null && data != null)) {
             log.error("Either location/data must be non-null (not both)");
@@ -57,11 +57,11 @@ public class DataEndpoint {
         }
         if (location != null && !location.isEmpty()) {
             log.info("Insert data from location {} into database id {}", location, databaseId);
-            data = commaValueService.read(databaseId, tableId, location);
+            return ResponseEntity.accepted()
+                    .body(queryService.insert(databaseId, tableId, location));
         }
-        queryService.insert(databaseId, tableId, data);
         return ResponseEntity.accepted()
-                .build();
+                .body(queryService.insert(databaseId, tableId, data));
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package at.tuwien.entities.database.table.columns;
 
+import at.tuwien.entities.container.image.ContainerImageDate;
 import at.tuwien.entities.database.table.Table;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -41,6 +42,9 @@ public class TableColumn implements Comparable<TableColumn> {
     @Id
     @EqualsAndHashCode.Include
     private Long cdbid;
+
+    @ApiModelProperty(name = "date format id")
+    private Long dfid;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
@@ -92,8 +96,9 @@ public class TableColumn implements Comparable<TableColumn> {
     @Column(name = "reference_table")
     private String references;
 
-    @Column(name = "date_format")
-    private String dateFormat;
+    @JoinColumn(name = "id", referencedColumnName = "dfid")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    private ContainerImageDate dateFormat;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

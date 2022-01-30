@@ -68,8 +68,8 @@ public interface QueryMapper {
                     .forEach(column -> map.put(column.getName(), dataColumnToObject(data[idx[0]++], column)));
             resultList.add(map);
         }
-        log.info("Selected {} records from table id {}", resultList.size(), table.getId());
-        log.debug("table {} contains {} records", table, resultList.size());
+        log.info("Display data for table id {}", table.getId());
+        log.trace("table {} contains {} records", table, resultList.size());
         return QueryResultDto.builder()
                 .result(resultList)
                 .build();
@@ -169,23 +169,23 @@ public interface QueryMapper {
         if (timestamp == null) {
             timestamp = Instant.now();
         }
+        /* note: we cannot select specific attributes when using system versioning */
         final StringBuilder query = new StringBuilder("SELECT * FROM `")
                 .append(nameToInternalName(table.getName()))
                 .append("` FOR SYSTEM_TIME AS OF TIMESTAMP'")
                 .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
                 .append("'");
         if (size != null && page != null) {
-            log.debug("pagination size/limit of {}", size);
+            log.trace("pagination size/limit of {}", size);
             query.append(" LIMIT ")
                     .append(size);
-            log.debug("pagination page/offset of {}", page);
+            log.trace("pagination page/offset of {}", page);
             query.append(" OFFSET ")
                     .append(page * size)
                     .append(";");
 
         }
-        log.debug("create table query built with {} columns and system versioning", table.getColumns().size());
-        log.trace("raw create table query: [{}]", query);
+        log.trace("raw select table query: [{}]", query);
         return query.toString();
     }
 
@@ -202,13 +202,16 @@ public interface QueryMapper {
             queryResult.add(map);
         }
         log.info("Selected {} records from table id {}", queryResult.size(), table.getId());
-        log.debug("table {} contains {} records", table, queryResult.size());
+        log.trace("table {} contains {} records", table, queryResult.size());
         return QueryResultDto.builder()
                 .result(queryResult)
                 .build();
     }
 
     default Object dataColumnToObject(Object data, TableColumn column) throws DateTimeException {
+        if (data == null) {
+            return null;
+        }
         switch (column.getColumnType()) {
             case BLOB:
                 log.trace("mapping {} to blob", data);

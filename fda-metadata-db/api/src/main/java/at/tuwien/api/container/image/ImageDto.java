@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,12 +18,16 @@ import java.time.Instant;
 @NoArgsConstructor
 public class ImageDto {
 
+    @NotNull
+    @ApiModelProperty(required = true, example = "1")
+    private Long id;
+
     @NotBlank
-    @ApiModelProperty(required = true, example = "postgres")
+    @ApiModelProperty(required = true, example = "mariadb")
     private String repository;
 
     @NotBlank
-    @ApiModelProperty(required = true, example = "latest")
+    @ApiModelProperty(required = true, example = "10.5")
     private String tag;
 
     @NotBlank
@@ -33,6 +38,9 @@ public class ImageDto {
     @ToString.Exclude
     @ApiModelProperty(required = true)
     private String logo;
+
+    @JsonProperty("date_formats")
+    private List<ImageDateDto> dateFormats;
 
     @NotBlank
     @ApiModelProperty(required = true, example = "Postgres")

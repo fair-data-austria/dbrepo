@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-@Mapper(componentModel = "spring", uses = {ImageMapper.class, ContainerMapper.class})
+@Mapper(componentModel = "spring", uses = {ImageMapper.class, DatabaseMapper.class})
 public interface ContainerMapper {
 
     default String containerCreateRequestDtoToDockerImage(ContainerCreateRequestDto data) {
@@ -23,9 +23,6 @@ public interface ContainerMapper {
 
     ContainerImage containerCreateRequestDtoToContainerImage(ContainerCreateRequestDto data);
 
-    @Mappings({
-            @Mapping(target = "image", source = "image"),
-    })
     ContainerDto containerToContainerDto(Container data);
 
     @Mappings({

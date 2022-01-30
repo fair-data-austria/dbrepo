@@ -72,6 +72,7 @@ public interface TableMapper {
             @Mapping(source = "data.name", target = "name"),
             @Mapping(source = "data.internalName", target = "internalName"),
             @Mapping(source = "data.created", target = "created"),
+            @Mapping(source = "data.dfid", target = "dfid"),
             @Mapping(source = "data.lastModified", target = "lastModified"),
     })
     TableColumn tableColumnToTableColumn(Table table, TableColumn data, CreateTableRawQuery query);
@@ -216,14 +217,14 @@ public interface TableMapper {
         /* create unique indices */
         log.trace("columns {}", Arrays.stream(data.getColumns()).collect(Collectors.toList()));
         Arrays.stream(data.getColumns())
+                .filter(c -> Objects.nonNull(c.getUnique()))
                 .filter(ColumnCreateDto::getUnique)
-                .filter(c -> c.getPrimaryKey() != null && !c.getPrimaryKey())
-                .forEach(c -> {
-                    query.append(", ")
+                .filter(c -> Objects.nonNull(c.getPrimaryKey()))
+                .filter(c -> !c.getPrimaryKey())
+                .forEach(c -> query.append(", ")
                         .append("UNIQUE KEY (`")
                         .append(nameToInternalName(c.getName()))
-                        .append("`)");
-                });
+                        .append("`)"));
         /* create foreign key indices */
         Arrays.stream(data.getColumns())
                 .filter(c -> Objects.nonNull(c.getForeignKey()))
