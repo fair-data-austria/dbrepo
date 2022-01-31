@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.time.Instant;
 
+@Deprecated
 public interface CommaValueService {
 
     /**

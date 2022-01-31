@@ -81,6 +81,30 @@ public abstract class BaseUnitTest {
     public final static String TABLE_3_TRUE_ELEMENT = null;
     public final static String TABLE_3_FALSE_ELEMENT = null;
 
+    public final static Long IMAGE_1_ID = 1L;
+    public final static String IMAGE_1_REPOSITORY = "mariadb";
+    public final static String IMAGE_1_TAG = "10.5";
+    public final static String IMAGE_1_HASH = "d6a5e003eae42397f7ee4589e9f21e231d3721ac131970d2286bd616e7f55bb4\n";
+    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.MariaDBDialect";
+    public final static String IMAGE_1_DRIVER = "org.mariadb.jdbc.Driver";
+    public final static String IMAGE_1_JDBC = "mariadb";
+    public final static String IMAGE_1_LOGO = "AAAA";
+    public final static Integer IMAGE_1_PORT = 3306;
+    public final static Long IMAGE_1_SIZE = 12000L;
+    public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
+
+    public final static Long IMAGE_DATE_1_ID = 1L;
+    public final static Long IMAGE_DATE_1_IMAGE_ID = IMAGE_1_ID;
+    public final static String IMAGE_DATE_1_UNIX_FORMAT = "yyyy-MM-dd";
+    public final static String IMAGE_DATE_1_DATABASE_FORMAT = "%Y-%c-%d";
+    public final static String IMAGE_DATE_1_EXAMPLE = "2022-01-30";
+
+    public final static Long IMAGE_DATE_2_ID = 2L;
+    public final static Long IMAGE_DATE_2_IMAGE_ID = IMAGE_1_ID;
+    public final static String IMAGE_DATE_2_UNIX_FORMAT = "dd.MM.yy";
+    public final static String IMAGE_DATE_2_DATABASE_FORMAT = "%d.%c.%y";
+    public final static String IMAGE_DATE_2_EXAMPLE = "30.01.2022";
+
     public final static Long COLUMN_1_1_ID = 1L;
     public final static Integer COLUMN_1_1_ORDINALPOS = 0;
     public final static Boolean COLUMN_1_1_PRIMARY = true;
@@ -88,7 +112,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_1_1_INTERNAL_NAME = "id";
     public final static TableColumnType COLUMN_1_1_TYPE = TableColumnType.NUMBER;
     public final static ColumnTypeDto COLUMN_1_1_TYPE_DTO = ColumnTypeDto.NUMBER;
-    public final static String COLUMN_1_1_DATE_FORMAT = null;
+    public final static Long COLUMN_1_1_DATE_FORMAT = null;
     public final static Boolean COLUMN_1_1_NULL = false;
     public final static Boolean COLUMN_1_1_UNIQUE = true;
     public final static Boolean COLUMN_1_1_AUTO_GENERATED = false;
@@ -103,7 +127,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_1_2_INTERNAL_NAME = "date";
     public final static TableColumnType COLUMN_1_2_TYPE = TableColumnType.DATE;
     public final static ColumnTypeDto COLUMN_1_2_TYPE_DTO = ColumnTypeDto.DATE;
-    public final static String COLUMN_1_2_DATE_FORMAT = "yyyy-MM-dd";
+    public final static Long COLUMN_1_2_DATE_FORMAT = IMAGE_DATE_1_ID;
     public final static Boolean COLUMN_1_2_NULL = true;
     public final static Boolean COLUMN_1_2_UNIQUE = false;
     public final static Boolean COLUMN_1_2_AUTO_GENERATED = false;
@@ -118,7 +142,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_1_3_INTERNAL_NAME = "location";
     public final static TableColumnType COLUMN_1_3_TYPE = TableColumnType.STRING;
     public final static ColumnTypeDto COLUMN_1_3_TYPE_DTO = ColumnTypeDto.STRING;
-    public final static String COLUMN_1_3_DATE_FORMAT = null;
+    public final static Long COLUMN_1_3_DATE_FORMAT = null;
     public final static Boolean COLUMN_1_3_NULL = true;
     public final static Boolean COLUMN_1_3_UNIQUE = false;
     public final static Boolean COLUMN_1_3_AUTO_GENERATED = false;
@@ -133,7 +157,7 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_1_4_INTERNAL_NAME = "mintemp";
     public final static TableColumnType COLUMN_1_4_TYPE = TableColumnType.DECIMAL;
     public final static ColumnTypeDto COLUMN_1_4_TYPE_DTO = ColumnTypeDto.DECIMAL;
-    public final static String COLUMN_1_4_DATE_FORMAT = null;
+    public final static Long COLUMN_1_4_DATE_FORMAT = null;
     public final static Boolean COLUMN_1_4_NULL = true;
     public final static Boolean COLUMN_1_4_UNIQUE = false;
     public final static Boolean COLUMN_1_4_AUTO_GENERATED = false;
@@ -148,25 +172,13 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_1_5_INTERNAL_NAME = "rainfall";
     public final static TableColumnType COLUMN_1_5_TYPE = TableColumnType.DECIMAL;
     public final static ColumnTypeDto COLUMN_1_5_TYPE_DTO = ColumnTypeDto.DECIMAL;
-    public final static String COLUMN_1_5_DATE_FORMAT = null;
+    public final static Long COLUMN_1_5_DATE_FORMAT = null;
     public final static Boolean COLUMN_1_5_NULL = true;
     public final static Boolean COLUMN_1_5_UNIQUE = false;
     public final static Boolean COLUMN_1_5_AUTO_GENERATED = false;
     public final static String COLUMN_1_5_FOREIGN_KEY = null;
     public final static String COLUMN_1_5_CHECK = null;
     public final static List<String> COLUMN_1_5_ENUM_VALUES = null;
-
-    public final static Long IMAGE_1_ID = 1L;
-    public final static String IMAGE_1_REPOSITORY = "mariadb";
-    public final static String IMAGE_1_TAG = "10.5";
-    public final static String IMAGE_1_HASH = "d6a5e003eae42397f7ee4589e9f21e231d3721ac131970d2286bd616e7f55bb4\n";
-    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.MariaDBDialect";
-    public final static String IMAGE_1_DRIVER = "org.mariadb.jdbc.Driver";
-    public final static String IMAGE_1_JDBC = "mariadb";
-    public final static String IMAGE_1_LOGO = "AAAA";
-    public final static Integer IMAGE_1_PORT = 3306;
-    public final static Long IMAGE_1_SIZE = 12000L;
-    public final static Instant IMAGE_1_BUILT = Instant.now().minus(40, HOURS);
 
     public final static Long QUERY_1_ID = 1L;
     public final static String QUERY_1_TITLE = "AAAA";
@@ -319,7 +331,7 @@ public abstract class BaseUnitTest {
                     .name(COLUMN_1_1_NAME)
                     .internalName(COLUMN_1_1_INTERNAL_NAME)
                     .columnType(COLUMN_1_1_TYPE)
-                    .dateFormat(COLUMN_1_1_DATE_FORMAT)
+                    .dfid(COLUMN_1_1_DATE_FORMAT)
                     .isNullAllowed(COLUMN_1_1_NULL)
                     .isUnique(COLUMN_1_1_UNIQUE)
                     .autoGenerated(COLUMN_1_1_AUTO_GENERATED)
@@ -334,7 +346,7 @@ public abstract class BaseUnitTest {
                     .name(COLUMN_1_2_NAME)
                     .internalName(COLUMN_1_2_INTERNAL_NAME)
                     .columnType(COLUMN_1_2_TYPE)
-                    .dateFormat(COLUMN_1_2_DATE_FORMAT)
+                    .dfid(COLUMN_1_2_DATE_FORMAT)
                     .isNullAllowed(COLUMN_1_2_NULL)
                     .isUnique(COLUMN_1_2_UNIQUE)
                     .autoGenerated(COLUMN_1_2_AUTO_GENERATED)
@@ -349,7 +361,7 @@ public abstract class BaseUnitTest {
                     .name(COLUMN_1_3_NAME)
                     .internalName(COLUMN_1_3_INTERNAL_NAME)
                     .columnType(COLUMN_1_3_TYPE)
-                    .dateFormat(COLUMN_1_3_DATE_FORMAT)
+                    .dfid(COLUMN_1_3_DATE_FORMAT)
                     .isNullAllowed(COLUMN_1_3_NULL)
                     .isUnique(COLUMN_1_3_UNIQUE)
                     .autoGenerated(COLUMN_1_3_AUTO_GENERATED)
@@ -364,7 +376,7 @@ public abstract class BaseUnitTest {
                     .name(COLUMN_1_4_NAME)
                     .internalName(COLUMN_1_4_INTERNAL_NAME)
                     .columnType(COLUMN_1_4_TYPE)
-                    .dateFormat(COLUMN_1_4_DATE_FORMAT)
+                    .dfid(COLUMN_1_4_DATE_FORMAT)
                     .isNullAllowed(COLUMN_1_4_NULL)
                     .isUnique(COLUMN_1_4_UNIQUE)
                     .autoGenerated(COLUMN_1_4_AUTO_GENERATED)
@@ -379,16 +391,15 @@ public abstract class BaseUnitTest {
                     .name(COLUMN_1_5_NAME)
                     .internalName(COLUMN_1_5_INTERNAL_NAME)
                     .columnType(COLUMN_1_5_TYPE)
-                    .dateFormat(COLUMN_1_5_DATE_FORMAT)
+                    .dfid(COLUMN_1_5_DATE_FORMAT)
                     .isNullAllowed(COLUMN_1_5_NULL)
                     .isUnique(COLUMN_1_5_UNIQUE)
                     .autoGenerated(COLUMN_1_5_AUTO_GENERATED)
                     .isPrimaryKey(COLUMN_1_5_PRIMARY)
                     .enumValues(COLUMN_1_5_ENUM_VALUES)
                     .build());
-    
+
     public final static List<TableColumn> TABLE_3_COLUMNS = List.of(TableColumn.builder()
-//                    .id(1L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(0)
@@ -404,7 +415,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(1L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(1)
@@ -420,7 +430,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(2L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(2)
@@ -436,7 +445,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(3L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(3)
@@ -447,12 +455,11 @@ public abstract class BaseUnitTest {
                     .isNullAllowed(true)
                     .isPrimaryKey(false)
                     .isUnique(false)
-                    .dateFormat("%d.%c.%y")
+                    .dfid(IMAGE_DATE_2_ID)
                     .checkExpression(null)
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(4L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(4)
@@ -468,7 +475,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(5L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(5)
@@ -484,7 +490,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(6L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(6)
@@ -500,7 +505,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(7L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(7)
@@ -516,7 +520,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(8L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(8)
@@ -532,7 +535,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(9L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(9)
@@ -548,7 +550,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(10L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(10)
@@ -559,12 +560,11 @@ public abstract class BaseUnitTest {
                     .isNullAllowed(true)
                     .isPrimaryKey(false)
                     .isUnique(false)
-                    .dateFormat("%d.%c.%y")
+                    .dfid(IMAGE_DATE_2_ID)
                     .checkExpression(null)
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(11L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(11)
@@ -580,7 +580,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(12L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(12)
@@ -596,7 +595,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(13L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(13)
@@ -612,7 +610,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(13L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(14)
@@ -628,7 +625,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(14L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(15)
@@ -644,7 +640,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(15L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(16)
@@ -660,7 +655,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(16L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(17)
@@ -676,7 +670,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(17L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(18)
@@ -692,7 +685,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(18L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(19)
@@ -703,12 +695,11 @@ public abstract class BaseUnitTest {
                     .isNullAllowed(true)
                     .isPrimaryKey(false)
                     .isUnique(false)
-                    .dateFormat("%d.%c.%y")
+                    .dfid(IMAGE_DATE_2_ID)
                     .checkExpression(null)
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(19L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(20)
@@ -724,7 +715,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(20L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(21)
@@ -740,7 +730,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(21L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(22)
@@ -756,7 +745,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(22L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(23)
@@ -772,7 +760,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(23L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(24)
@@ -788,7 +775,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(24L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(25)
@@ -804,7 +790,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(25L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(26)
@@ -820,7 +805,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(26L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(27)
@@ -836,7 +820,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(27L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(28)
@@ -852,7 +835,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(28L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(29)
@@ -868,7 +850,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(29L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(30)
@@ -884,7 +865,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(30L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(31)
@@ -900,7 +880,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(31L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(32)
@@ -916,7 +895,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(32L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(33)
@@ -932,7 +910,6 @@ public abstract class BaseUnitTest {
                     .enumValues(null)
                     .build(),
             TableColumn.builder()
-//                    .id(33L)
                     .tid(TABLE_3_ID)
                     .cdbid(DATABASE_3_ID)
                     .ordinalPosition(34)

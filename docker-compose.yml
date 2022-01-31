@@ -99,7 +99,7 @@ services:
       fda-public:
         ipv4_address: 172.29.0.9
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
     ports:
       - "9092:9092"
@@ -152,7 +152,7 @@ services:
         ipv4_address: 172.29.0.12
       fda-userdb:
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
     ports:
       - "9093:9093"
@@ -181,7 +181,7 @@ services:
         ipv4_address: 172.29.0.11
       fda-userdb:
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       multipart.location: /tmp
       TZ: Europe/Vienna
     ports:

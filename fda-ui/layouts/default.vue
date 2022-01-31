@@ -82,7 +82,8 @@ import {
   mdiTable,
   mdiFileDelimited,
   mdiDatabaseSearch,
-  mdiHome
+  mdiHome,
+  mdiNewspaperVariantOutline
 } from '@mdi/js'
 
 export default {
@@ -101,6 +102,11 @@ export default {
           icon: mdiDatabase,
           title: 'Databases',
           to: '/container'
+        },
+        {
+          icon: mdiNewspaperVariantOutline,
+          title: 'Publications',
+          to: '/publications'
         },
         {
           icon: mdiTable,

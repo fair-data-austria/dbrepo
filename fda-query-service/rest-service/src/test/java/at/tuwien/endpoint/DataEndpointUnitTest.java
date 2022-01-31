@@ -58,8 +58,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     public void insert_locationNull_succeeds() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
             ImageNotSupportedException, FileStorageException {
         final TableCsvDto request = TableCsvDto.builder()
-                .header(List.of("key"))
-                .data(List.of(List.of("value")))
+                .data(List.of("value"))
                 .build();
 
         /* test */
@@ -81,8 +80,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     public void insert_locationAndDataNotNull_fails() {
         final String location = "";
         final TableCsvDto request = TableCsvDto.builder()
-                .header(List.of("key"))
-                .data(List.of(List.of("value")))
+                .data(List.of("value"))
                 .build();
 
         /* test */

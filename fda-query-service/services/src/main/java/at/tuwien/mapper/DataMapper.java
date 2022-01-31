@@ -27,42 +27,6 @@ public interface DataMapper {
 
     org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DataMapper.class);
 
-    default Object dataColumnToObject(Object data, TableColumn column) throws DateTimeException {
-        switch (column.getColumnType()) {
-            case BLOB:
-                log.trace("mapping {} to blob", data);
-                return new MariaDbBlob((byte[]) data);
-            case DATE:
-                if (column.getDateFormat() == null) {
-                    throw new IllegalArgumentException("Missing date format");
-                }
-                final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-                        .parseCaseInsensitive() /* case insensitive to parse JAN and FEB */
-                        .appendPattern(column.getDateFormat())
-                        .toFormatter(Locale.ENGLISH);
-                final LocalDate date = LocalDate.parse(String.valueOf(data), formatter);
-                final Instant val = date.atStartOfDay(ZoneId.of("UTC"))
-                        .toInstant();
-                log.trace("mapping {} to date with format '{}' to value {}", data, column.getDateFormat(), val);
-                return val;
-            case ENUM:
-            case TEXT:
-            case STRING:
-                log.trace("mapping {} to character array", data);
-                return String.valueOf(data);
-            case NUMBER:
-                log.trace("mapping {} to non-decimal number", data);
-                return new BigInteger(String.valueOf(data));
-            case DECIMAL:
-                log.trace("mapping {} to decimal number", data);
-                return Double.valueOf(String.valueOf(data));
-            case BOOLEAN:
-                return Boolean.valueOf(String.valueOf(data));
-            default:
-                throw new IllegalArgumentException("Column type not known");
-        }
-    }
-
     default Object tableColumnToObject(Object data, String nullElement, String trueElement, String falseElement) {
         /* null mapping */
         if (data == null || nullElement == null || nullElement.isEmpty() || nullElement.isBlank()

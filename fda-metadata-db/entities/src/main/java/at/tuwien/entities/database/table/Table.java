@@ -60,6 +60,7 @@ public class Table {
     private Database database;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
+    @OrderBy("ordinalPosition")
     @Field(type = FieldType.Nested)
     private List<TableColumn> columns;
 

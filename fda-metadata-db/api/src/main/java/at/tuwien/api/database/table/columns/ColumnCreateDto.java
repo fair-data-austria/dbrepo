@@ -33,9 +33,8 @@ public class ColumnCreateDto {
     @ApiModelProperty(name = "null value", example = "false")
     private Boolean nullAllowed = true;
 
-    @JsonProperty("date_format")
-    @ApiModelProperty(name = "date format", example = "YYYY-mm-dd")
-    private String dateFormat;
+    @ApiModelProperty(name = "date format id", example = "1")
+    private Long dfid;
 
     @NotNull
     @ApiModelProperty(name = "unique", example = "true")

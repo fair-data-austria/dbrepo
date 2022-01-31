@@ -174,8 +174,7 @@ public class CommaValueServiceImpl implements CommaValueService {
         }
         log.debug("parsed {} records", rows.size());
         return TableCsvDto.builder()
-                .header(headers)
-                .data(rows)
+//                .data(rows)
                 .build();
     }
 

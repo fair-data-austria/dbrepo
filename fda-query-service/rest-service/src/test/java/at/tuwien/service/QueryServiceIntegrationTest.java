@@ -398,8 +398,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     public void insert_sensor_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
             TableMalformedException, ImageNotSupportedException, SQLException {
         final TableCsvDto request = TableCsvDto.builder()
-                .header(List.of("linie","richtung","betriebsdatum","fahrzeug","kurs","seq_von","halt_diva_von","halt_punkt_diva_von","halt_kurz_von1","datum_von","soll_an_von","ist_an_von","soll_ab_von","seq_nach","halt_diva_nach","halt_punkt_diva_nach","halt_kurz_nach1","datum_nach","soll_an_nach","ist_an_nach1","soll_ab_nach","ist_ab_nach","fahrt_id","fahrweg_id","fw_no","fw_typ","fw_kurz","fw_lang","umlauf_von","halt_id_von","halt_id_nach","halt_punkt_id_von","halt_punkt_id_nach"))
-                .data(List.of(List.of("2","1","15.01.17","2076","6","1","6030","0","DEP4","15.01.17","17580","17562","17580","17562","2","1357","1","KALK","15.01.17","17622","17647","17622","17664","8538","41253","15","2","15","DEP4 - KALK","135780","2251","1906","12462","10563")))
+                .data(List.of("2","1","15.01.17","2076","6","1","6030","0","DEP4","15.01.17","17580","17562","17580","17562","2","1357","1","KALK","15.01.17","17622","17647","17622","17664","8538","41253","15","2","15","DEP4 - KALK","135780","2251","1906","12462","10563"))
                 .build();
 
         /* mock */

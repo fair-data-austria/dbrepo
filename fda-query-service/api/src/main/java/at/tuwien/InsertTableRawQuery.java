@@ -14,8 +14,6 @@ public class InsertTableRawQuery {
 
     private String query;
 
-    private List<List<Object>> data;
-
-    private List<String> header;
+    private List<Object> data;
 
 }
