@@ -45,14 +45,14 @@ public class Table {
     @Column(nullable = false, name = "tname")
     private String name;
 
-    @Column(name = "tdescription")
-    private String description;
-
     @Column(nullable = false)
     private String internalName;
 
     @Column(nullable = false, updatable = false)
     private String topic;
+
+    @Column(name = "tdescription")
+    private String description;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)

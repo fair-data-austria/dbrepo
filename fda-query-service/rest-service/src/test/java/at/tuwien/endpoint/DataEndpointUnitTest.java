@@ -45,7 +45,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void insert_succeeds() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
-            ImageNotSupportedException, FileStorageException {
+            ImageNotSupportedException, FileStorageException, ContainerNotFoundException {
         final String request = "test:csv/csv_01.csv";
 
         /* test */
@@ -55,8 +55,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void insert_locationNull_succeeds() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
-            ImageNotSupportedException, FileStorageException {
+    public void insert_locationNull_succeeds() throws TableNotFoundException, TableMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, ContainerNotFoundException {
         final TableCsvDto request = TableCsvDto.builder()
                 .data(List.of("value"))
                 .build();
@@ -91,7 +91,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void getAll_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+            DatabaseNotFoundException, ImageNotSupportedException, PaginationException, ContainerNotFoundException {
 
         /* test */
         dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null, null);
@@ -99,7 +99,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void findAll_noPagination_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException,
+            ContainerNotFoundException {
         final Long page = null;
         final Long size = null;
 
@@ -185,8 +186,9 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void export_timestampNull_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException {
+    public void export_timestampNull_succeeds() throws TableNotFoundException, DatabaseConnectionException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
+            PaginationException, ContainerNotFoundException {
 
         /* test */
         final ResponseEntity<InputStreamResource> respone = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null);
@@ -196,7 +198,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void export_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException {
+            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException,
+            ContainerNotFoundException {
         final Instant request = Instant.now()
                 .minusMillis(1000 * 1000);
 
@@ -208,8 +211,9 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void export_inFuture_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException {
+    public void export_inFuture_succeeds() throws TableNotFoundException, DatabaseConnectionException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
+            PaginationException, ContainerNotFoundException {
         final Instant request = Instant.now()
                 .plusMillis(1000 * 1000);
 

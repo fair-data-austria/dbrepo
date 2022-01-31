@@ -1,29 +1,76 @@
 <template>
   <div>
+    <v-toolbar flat>
+      <v-toolbar-title>Import Data</v-toolbar-title>
+    </v-toolbar>
     <v-card>
       <v-card-title v-if="!loading">
-        Import Data
+        {{ table.name }}
       </v-card-title>
-      <v-card-subtitle>{{ table.name }} ({{ table.internal_name }})</v-card-subtitle>
+      <v-card-subtitle>{{ table.internal_name }}</v-card-subtitle>
       <v-card-text>
-        <v-checkbox
-          v-model="tableInsert.skip_header"
-          label="First row contains headers" />
-        <v-text-field
-          v-model="tableInsert.null_element"
-          placeholder="e.g. NA or leave empty"
-          label="NULL Element" />
-        <v-text-field
-          v-model="tableInsert.delimiter"
-          label="Delimiter"
-          hint="Only 1 character"
-          maxlength="1"
-          placeholder="e.g. ;" />
-        <v-file-input
-          v-model="file"
-          accept="text/csv"
-          show-size
-          label="CSV File" />
+        <v-row dense>
+          <v-col cols="8">
+            <v-select
+              v-model="table.separator"
+              :items="separators"
+              disabled
+              required
+              hint="Character separating the values"
+              label="Separator" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="table.skip_lines"
+              type="number"
+              disabled
+              required
+              hint="Skip n lines from the top"
+              label="Skip Lines"
+              placeholder="e.g. 0" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="table.null_element"
+              hint="Representation of 'no value present'"
+              placeholder="e.g. NA"
+              disabled
+              label="NULL Element" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="table.true_element"
+              label="True Element"
+              hint="Representation of boolean 'true'"
+              disabled
+              placeholder="e.g. 1, true, YES" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-text-field
+              v-model="table.false_element"
+              label="False Element"
+              hint="Representation of boolean 'false'"
+              disabled
+              placeholder="e.g. 0, false, NO" />
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="8">
+            <v-file-input
+              v-model="file"
+              accept="text/csv"
+              show-size
+              label="CSV File" />
+          </v-col>
+        </v-row>
       </v-card-text>
       <v-card-actions>
         <v-col>
@@ -41,17 +88,26 @@ export default {
   data () {
     return {
       loading: false,
+      separators: [
+        ',',
+        ';',
+        '-',
+        '|',
+        '$',
+        '%',
+        '#'
+      ],
       table: {
         name: null,
-        internalName: null
+        internal_name: null,
+        separator: null,
+        skip_lines: null,
+        null_element: null,
+        true_element: null,
+        false_element: null
       },
-      tableInsert: {
-        skipHeader: false,
-        nullElement: null,
-        delimiter: ',',
-        csvLocation: null
-      },
-      file: null
+      file: null,
+      fileLocation: null
     }
   },
   computed: {
@@ -88,7 +144,7 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         if (res.data.success) {
-          this.tableInsert.csvLocation = res.data.file.filename
+          this.fileLocation = res.data.file.filename
           console.debug('upload csv', res.data)
         } else {
           console.error('Could not upload CSV data', res.data)
@@ -98,10 +154,10 @@ export default {
         console.error('Could not upload data.', err)
         return
       }
-      const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/data/csv`
+      const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/data?location=${encodeURI('/tmp/' + this.fileLocation)}`
       let insertResult
       try {
-        insertResult = await this.$axios.post(insertUrl, this.tableInsert)
+        insertResult = await this.$axios.post(insertUrl)
         console.debug('inserted table', insertResult.data)
       } catch (err) {
         console.error('Could not insert data.', err)

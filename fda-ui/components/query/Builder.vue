@@ -18,8 +18,9 @@
         </v-toolbar-title>
       </v-toolbar>
       <v-card flat>
+        <v-card-title>{{ title }}</v-card-title>
         <v-card-text>
-          <v-row class="mt-2">
+          <v-row>
             <v-col cols="6">
               <v-text-field
                 v-model="title"
@@ -29,7 +30,7 @@
                 required />
             </v-col>
           </v-row>
-          <v-row class="mt-2">
+          <v-row>
             <v-col cols="6">
               <v-textarea
                 v-model="description"
@@ -40,7 +41,7 @@
                 required />
             </v-col>
           </v-row>
-          <v-row class="mt-2">
+          <v-row>
             <v-col cols="6">
               <v-select
                 v-model="table"

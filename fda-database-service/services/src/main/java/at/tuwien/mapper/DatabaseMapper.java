@@ -3,6 +3,7 @@ package at.tuwien.mapper;
 import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseDto;
 import at.tuwien.api.database.DatabaseModifyDto;
+import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.database.Database;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -45,6 +46,10 @@ public interface DatabaseMapper {
 
     default String databaseToRawCreateDatabaseQuery(Database database) {
         return "CREATE DATABASE " + database.getInternalName() + ";";
+    }
+
+    default String imageToRawGrantReadonlyAccessQuery() {
+        return "GRANT SELECT ON *.* TO `mariadb`@`%`;";
     }
 
     default String databaseToRawDeleteDatabaseQuery(Database database) {

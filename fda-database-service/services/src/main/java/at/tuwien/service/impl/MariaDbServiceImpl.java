@@ -129,6 +129,13 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
             log.error("Failed to delete database.");
             throw new DatabaseMalformedException("Failed to delete database", e);
         }
+        final NativeQuery<?> grant = session.createSQLQuery(databaseMapper.imageToRawGrantReadonlyAccessQuery());
+        try {
+            log.debug("grant affected {} rows", grant.executeUpdate());
+        } catch (PersistenceException e) {
+            log.error("Failed to grant privileges.");
+            throw new DatabaseMalformedException("Failed to grant privileges", e);
+        }
         transaction.commit();
         session.close();
         /* save in metadata database */

@@ -4,6 +4,7 @@ import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
+import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.exception.DatabaseNotFoundException;
 import at.tuwien.exception.FileStorageException;
 import at.tuwien.exception.TableNotFoundException;
@@ -114,7 +115,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void read_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
+    public void read_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException, ContainerNotFoundException {
         final String location = "test:csv/csv_01.csv";
         final Character separator = ',';
         final Long skipLines = 1L;
@@ -129,13 +130,14 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipLines,
-                nullElement, trueElement, falseElement);
+        final TableCsvDto response = dataService.read(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location, separator,
+                skipLines, nullElement, trueElement, falseElement);
         assertEquals(1000, response.getData().size());
     }
 
     @Test
-    public void read2_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException {
+    public void read2_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException,
+            ContainerNotFoundException {
         final String location = "test:csv/csv_01.csv";
 
         /* mock */
@@ -145,13 +147,13 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location);
+        final TableCsvDto response = dataService.read(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location);
         assertEquals(1001, response.getData().size());
     }
 
     @Test
-    public void read_nullElement_succeeds() throws TableNotFoundException,
-            DatabaseNotFoundException, FileStorageException {
+    public void read_nullElement_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
+            FileStorageException, ContainerNotFoundException {
         final String location = "test:csv/csv_01.csv";
         final Character separator = ',';
         final Long skipLines = 1L;
@@ -166,14 +168,14 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipLines,
-                nullElement, trueElement, falseElement);
+        final TableCsvDto response = dataService.read(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location, separator,
+                skipLines, nullElement, trueElement, falseElement);
         assertEquals(1000, response.getData().size());
     }
 
     @Test
-    public void read_skipHeader_succeeds() throws TableNotFoundException,
-            DatabaseNotFoundException, FileStorageException {
+    public void read_skipHeader_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
+            FileStorageException, ContainerNotFoundException {
         final String location = "test:csv/csv_01.csv";
         final Character separator = ',';
         final Long skipLines = 0L;
@@ -188,14 +190,14 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipLines,
+        final TableCsvDto response = dataService.read(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location, separator, skipLines,
                 nullElement, trueElement, falseElement);
         assertEquals(1001, response.getData().size());
     }
 
     @Test
-    public void read_skipHeaderYes_succeeds() throws TableNotFoundException,
-            DatabaseNotFoundException, FileStorageException {
+    public void read_skipHeaderYes_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
+            FileStorageException, ContainerNotFoundException {
         final String location = "test:csv/csv_01.csv";
         final Character separator = ',';
         final Long skipLines = 0L;
@@ -210,7 +212,7 @@ public class DataServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final TableCsvDto response = dataService.read(DATABASE_1_ID, TABLE_1_ID, location, separator, skipLines,
+        final TableCsvDto response = dataService.read(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location, separator, skipLines,
                 nullElement, trueElement, falseElement);
         assertEquals(1001, response.getData().size());
     }

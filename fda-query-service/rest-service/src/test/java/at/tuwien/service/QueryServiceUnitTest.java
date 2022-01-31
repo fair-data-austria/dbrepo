@@ -129,7 +129,8 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void selectAll_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, PaginationException {
+            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, PaginationException,
+            ContainerNotFoundException {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -140,7 +141,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+        queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
     }
 
     @Test
@@ -156,7 +157,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -173,7 +174,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -191,13 +192,14 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            queryService.insert(DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
     @Test
     public void findAll_timestampMissing_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException,
+            ContainerNotFoundException {
 
         /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))
@@ -206,12 +208,13 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, null, null, null);
+        queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null, null);
     }
 
     @Test
     public void findAll_timestampBeforeCreation_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException,
+            ContainerNotFoundException {
         final Instant timestamp = DATABASE_1_CREATED.minus(1, ChronoUnit.SECONDS);
 
         /* mock */
@@ -221,7 +224,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, timestamp, null, null);
+        queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, timestamp, null, null);
     }
 
 }

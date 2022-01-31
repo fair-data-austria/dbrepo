@@ -2,19 +2,16 @@ package at.tuwien.service.impl;
 
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.entities.database.table.columns.TableColumn;
-import at.tuwien.entities.database.table.columns.TableColumnType;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DataMapper;
 import at.tuwien.service.CommaValueService;
+import at.tuwien.service.ContainerService;
 import at.tuwien.service.QueryService;
 import at.tuwien.service.TableService;
 import at.tuwien.utils.FileUtils;
 import at.tuwien.utils.TableUtils;
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -30,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
@@ -47,27 +43,33 @@ public class CommaValueServiceImpl implements CommaValueService {
     private final DataMapper dataMapper;
     private final QueryService queryService;
     private final TableService tableService;
+    private final ContainerService containerService;
 
     @Autowired
-    public CommaValueServiceImpl(DataMapper dataMapper, QueryService queryService, TableService tableService) {
+    public CommaValueServiceImpl(DataMapper dataMapper, QueryService queryService, TableService tableService,
+                                 ContainerService containerService) {
         this.dataMapper = dataMapper;
         this.queryService = queryService;
         this.tableService = tableService;
+        this.containerService = containerService;
     }
 
     @Override
+    @Deprecated
     @Transactional
-    public TableCsvDto read(Long databaseId, Long tableId, String location) throws TableNotFoundException,
-            DatabaseNotFoundException, FileStorageException {
-        return read(databaseId, tableId, location, ',', 0L, null, "0", "1");
+    public TableCsvDto read(Long containerId, Long databaseId, Long tableId, String location) throws TableNotFoundException,
+            DatabaseNotFoundException, FileStorageException, ContainerNotFoundException {
+        return read(containerId, databaseId, tableId, location, ',', 0L, null, "0", "1");
     }
 
     @Override
+    @Deprecated
     @Transactional
-    public TableCsvDto read(Long databaseId, Long tableId, String location, Character separator, Long skipLines, String nullElement,
-                            String falseElement, String trueElement) throws TableNotFoundException,
-            DatabaseNotFoundException, FileStorageException {
+    public TableCsvDto read(Long containerId, Long databaseId, Long tableId, String location, Character separator,
+                            Long skipLines, String nullElement, String falseElement, String trueElement)
+            throws TableNotFoundException, DatabaseNotFoundException, FileStorageException, ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Table table = tableService.find(databaseId, tableId);
         /* set default parameters */
         log.trace("insert into table {} with separator {} and csv location {} and skip lines {}", table, separator, location, skipLines);
@@ -180,12 +182,14 @@ public class CommaValueServiceImpl implements CommaValueService {
 
     @Override
     @Transactional
-    public InputStreamResource export(Long databaseId, Long tableId, Instant timestamp) throws TableNotFoundException,
-            DatabaseNotFoundException, DatabaseConnectionException, TableMalformedException, ImageNotSupportedException,
-            PaginationException, FileStorageException {
+    public InputStreamResource export(Long containerId, Long databaseId, Long tableId, Instant timestamp)
+            throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
+            TableMalformedException, ImageNotSupportedException, PaginationException, FileStorageException,
+            ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Table table = tableService.find(databaseId, tableId);
-        final QueryResultDto result = queryService.findAll(databaseId, tableId, timestamp, null, null);
+        final QueryResultDto result = queryService.findAll(containerId, databaseId, tableId, timestamp, null, null);
         /* write */
         final Resource csv = dataMapper.resultTableToResource(result, table);
         final InputStreamResource resource;
@@ -201,10 +205,10 @@ public class CommaValueServiceImpl implements CommaValueService {
 
     @Override
     @Transactional
-    public InputStreamResource export(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
-            PaginationException {
-        return export(databaseId, tableId, Instant.now());
+    public InputStreamResource export(Long containerId, Long databaseId, Long tableId) throws TableNotFoundException,
+            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
+            FileStorageException, PaginationException, ContainerNotFoundException {
+        return export(containerId, databaseId, tableId, Instant.now());
     }
 
 }

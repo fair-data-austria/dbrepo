@@ -60,12 +60,8 @@
           </v-row>
           <v-row dense>
             <v-col>
-              <v-btn :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}`" outlined>
-                <v-icon>mdi-table</v-icon>
-                View
-              </v-btn>
-              <v-btn :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}/import`" outlined>
-                Import CSV
+              <v-btn color="blue-grey" class="white--text" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}`">
+                More
               </v-btn>
             </v-col>
             <v-col class="align-right">
@@ -74,7 +70,7 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-row v-if="tableDetails.columns" dense>
+          <v-row v-if="tableDetails.columns">
             <v-col>
               <v-simple-table class="colTable">
                 <thead>

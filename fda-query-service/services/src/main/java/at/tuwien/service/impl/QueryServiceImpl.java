@@ -4,14 +4,15 @@ import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
+import at.tuwien.service.ContainerService;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.QueryService;
 import at.tuwien.service.TableService;
-import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.exception.SQLGrammarException;
@@ -31,24 +32,24 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     private final QueryMapper queryMapper;
     private final TableService tableService;
     private final DatabaseService databaseService;
+    private final ContainerService containerService;
 
     @Autowired
-    public QueryServiceImpl(QueryMapper queryMapper, TableService tableService, DatabaseService databaseService) {
+    public QueryServiceImpl(QueryMapper queryMapper, TableService tableService, DatabaseService databaseService,
+                            ContainerService containerService) {
         this.queryMapper = queryMapper;
         this.tableService = tableService;
         this.databaseService = databaseService;
+        this.containerService = containerService;
     }
 
     @Override
     @Transactional
-    public QueryResultDto execute(Long databaseId, Long tableId, ExecuteStatementDto statement)
+    public QueryResultDto execute(Long containerId, Long databaseId, Long tableId, ExecuteStatementDto statement)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryMalformedException,
-            TableNotFoundException {
-        /* validation */
-        if (statement.getStatement() == null || statement.getStatement().isBlank()) {
-            throw new QueryMalformedException("Query cannot be blank");
-        }
+            TableNotFoundException, ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Table table = tableService.find(databaseId, tableId);
         if (!table.getDatabase().getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
@@ -79,10 +80,12 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
 
     @Override
     @Transactional
-    public QueryResultDto findAll(@NonNull Long databaseId, @NonNull Long tableId, Instant timestamp, Long page,
+    public QueryResultDto findAll(Long containerId, Long databaseId, Long tableId, Instant timestamp, Long page,
                                   Long size) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException {
+            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException,
+            ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
@@ -118,9 +121,11 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
 
     @Override
     @Transactional
-    public Integer insert(Long databaseId, Long tableId, TableCsvDto data) throws ImageNotSupportedException,
-            TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
+    public Integer insert(Long containerId, Long databaseId, Long tableId, TableCsvDto data)
+            throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
+            TableNotFoundException, ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
@@ -139,9 +144,11 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
 
     @Override
     @Transactional
-    public Integer insert(Long databaseId, Long tableId, String path) throws ImageNotSupportedException,
-            TableMalformedException, DatabaseNotFoundException, TableNotFoundException {
+    public Integer insert(Long containerId, Long databaseId, Long tableId, String path)
+            throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
+            TableNotFoundException, ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
         /* run query */

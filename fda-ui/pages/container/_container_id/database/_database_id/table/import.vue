@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h3 class="mb-2 mt-1">Create Table Schema (and Import Data) from .csv</h3>
+    <v-toolbar flat>
+      <v-toolbar-title>Create Table Schema (and Import Data) from .csv</v-toolbar-title>
+    </v-toolbar>
     <v-stepper v-model="step" vertical>
       <v-stepper-step :complete="step > 1" step="1">
         Table Metadata

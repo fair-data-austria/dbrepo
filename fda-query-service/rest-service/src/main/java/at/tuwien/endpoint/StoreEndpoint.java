@@ -37,8 +37,8 @@ public class StoreEndpoint {
     })
     public ResponseEntity<List<QueryDto>> findAll(@NotNull @PathVariable("id") Long id,
                                                   @NotNull @PathVariable("databaseId") Long databaseId) throws QueryStoreException,
-            DatabaseNotFoundException, ImageNotSupportedException {
-        final List<Query> queries = storeService.findAll(databaseId);
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
+        final List<Query> queries = storeService.findAll(id, databaseId);
         return ResponseEntity.ok(queryMapper.queryListToQueryDtoList(queries));
     }
 
@@ -53,8 +53,8 @@ public class StoreEndpoint {
                                          @NotNull @PathVariable("databaseId") Long databaseId,
                                          @NotNull @PathVariable Long queryId)
             throws DatabaseNotFoundException, ImageNotSupportedException,
-            QueryStoreException, QueryNotFoundException {
-        final Query query = storeService.findOne(databaseId, queryId);
+            QueryStoreException, QueryNotFoundException, ContainerNotFoundException {
+        final Query query = storeService.findOne(id, databaseId, queryId);
         return ResponseEntity.ok(queryMapper.queryToQueryDto(query));
     }
 }

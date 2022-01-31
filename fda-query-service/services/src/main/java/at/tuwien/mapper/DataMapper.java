@@ -53,7 +53,8 @@ public interface DataMapper {
                             .toString()
                             .getBytes()));
         } catch (NoSuchAlgorithmException e) {
-            throw new FileStorageException("Algorithm md5 not available", e);
+            log.error("Algorithm md5 not available");
+            throw new FileStorageException("Failed to obtain algorithm md5", e);
         }
         /* create writers and temporary files */
         final File file;
@@ -62,7 +63,8 @@ public interface DataMapper {
             file = File.createTempFile(filename, ".tmp", new File(System.getProperty("java.io.tmpdir")));
             outputfile = new FileWriter(file, true);
         } catch (IOException e) {
-            throw new FileStorageException("Temporary file not instantiable", e);
+            log.error("Temporary file not instantiable");
+            throw new FileStorageException("Failed to instantiate temporary file", e);
         }
         final CSVWriter writer = new CSVWriter(outputfile, table.getSeparator(),
                 CSVWriter.NO_QUOTE_CHARACTER,
@@ -75,25 +77,27 @@ public interface DataMapper {
             writer.close();
             resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
         } catch (IOException e) {
-            throw new FileStorageException("Could not save the temporary file", e);
+            log.error("Could not save the temporary file");
+            throw new FileStorageException("Failed to save temporary file", e);
         }
         return resource;
     }
 
+    // todo map null and boolean back
     default List<String[]> tableQueryResultDtoToStringArrayList(Table table, QueryResultDto data) {
         final List<String[]> rows = new LinkedList<>();
         final String[] headers = table.getColumns()
                 .stream()
                 .map(TableColumn::getName)
                 .toArray(String[]::new);
-        log.debug("mapped csv headers {}", Arrays.toString(headers));
+        log.trace("mapped csv headers {}", Arrays.toString(headers));
         rows.add(headers);
         data.getResult()
                 .forEach(row -> rows.add(Arrays.stream(row.values()
                                 .toArray())
                         .map(String::valueOf)
                         .toArray(String[]::new)));
-        log.debug("mapped csv rows {}", rows.size() - 1);
+        log.trace("mapped csv rows {}", rows.size() - 1);
         /* map null */
         /* map boolean */
         return rows;

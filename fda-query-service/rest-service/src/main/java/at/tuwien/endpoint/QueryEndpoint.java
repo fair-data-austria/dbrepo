@@ -47,9 +47,13 @@ public class QueryEndpoint {
                                                   @NotNull @PathVariable("tableId") Long tableId,
                                                   @NotNull @RequestBody @Valid ExecuteStatementDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException, QueryMalformedException,
-            TableNotFoundException {
-        final QueryResultDto result = queryService.execute(databaseId, tableId, data);
-        final QueryDto query = queryMapper.queryToQueryDto(storeService.insert(databaseId, result, data));
+            TableNotFoundException, ContainerNotFoundException {
+        /* validation */
+        if (data.getStatement() == null || data.getStatement().isBlank()) {
+            throw new QueryMalformedException("Query cannot be blank");
+        }
+        final QueryResultDto result = queryService.execute(id, databaseId, tableId, data);
+        final QueryDto query = queryMapper.queryToQueryDto(storeService.insert(id, databaseId, result, data));
         result.setId(query.getId());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
@@ -66,8 +70,9 @@ public class QueryEndpoint {
                                          @NotNull @PathVariable("databaseId") Long databaseId,
                                          @NotNull @PathVariable("tableId") Long tableId,
                                          @NotNull @RequestBody SaveStatementDto data)
-            throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException {
-        final Query query = storeService.insert(databaseId, null, data);
+            throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
+            ContainerNotFoundException {
+        final Query query = storeService.insert(id, databaseId, null, data);
         final QueryDto queryDto = queryMapper.queryToQueryDto(query);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(queryDto);
@@ -85,11 +90,11 @@ public class QueryEndpoint {
                                                     @NotNull @PathVariable("tableId") Long tableId,
                                                     @NotNull @PathVariable("queryId") Long queryId)
             throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, QueryMalformedException {
-        final Query query = storeService.findOne(id, queryId);
+            TableNotFoundException, QueryMalformedException, ContainerNotFoundException {
+        final Query query = storeService.findOne(id, databaseId, queryId);
         final QueryDto queryDto = queryMapper.queryToQueryDto(query);
         final ExecuteStatementDto statement = queryMapper.queryDtoToExecuteStatementDto(queryDto);
-        final QueryResultDto result = queryService.execute(id, tableId, statement);
+        final QueryResultDto result = queryService.execute(id, databaseId, tableId, statement);
         result.setId(queryId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);

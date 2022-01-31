@@ -7,8 +7,11 @@
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
-        <v-btn color="primary" @click.stop="createDbDialog = true">
-          <v-icon left>mdi-download</v-icon> Export .csv
+        <v-btn class="mr-2" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/import`">
+          <v-icon left>mdi-cloud-upload</v-icon> Import csv
+        </v-btn>
+        <v-btn color="primary" :href="`/api/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/data/export`" target="_blank">
+          <v-icon left>mdi-download</v-icon> Download
         </v-btn>
       </v-toolbar-title>
     </v-toolbar>
@@ -92,7 +95,6 @@
         dense
         :headers="headers"
         :items="rows"
-        :loading="loading"
         :options.sync="options"
         :server-items-length="total"
         :footer-props="footerProps"
@@ -155,6 +157,11 @@ export default {
       ],
       headers: [],
       rows: []
+    }
+  },
+  computed: {
+    loadingColor () {
+      return this.error ? 'red lighten-2' : 'primary'
     }
   },
   watch: {

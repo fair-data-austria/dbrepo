@@ -11,6 +11,8 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,8 +51,9 @@ public class DataEndpoint {
                                           @NotNull @PathVariable("databaseId") Long databaseId,
                                           @NotNull @PathVariable("tableId") Long tableId,
                                           @RequestParam(required = false) String location,
-                                          @Valid @RequestBody(required = false) TableCsvDto data) throws TableNotFoundException,
-            DatabaseNotFoundException, FileStorageException, TableMalformedException, ImageNotSupportedException {
+                                          @Valid @RequestBody(required = false) TableCsvDto data)
+            throws TableNotFoundException, DatabaseNotFoundException, FileStorageException, TableMalformedException,
+            ImageNotSupportedException, ContainerNotFoundException {
         if ((location == null && data == null) || (location != null && data != null)) {
             log.error("Either location/data must be non-null (not both)");
             throw new TableMalformedException("Either location/data must be non-null");
@@ -58,10 +61,10 @@ public class DataEndpoint {
         if (location != null && !location.isEmpty()) {
             log.info("Insert data from location {} into database id {}", location, databaseId);
             return ResponseEntity.accepted()
-                    .body(queryService.insert(databaseId, tableId, location));
+                    .body(queryService.insert(id, databaseId, tableId, location));
         }
         return ResponseEntity.accepted()
-                .body(queryService.insert(databaseId, tableId, data));
+                .body(queryService.insert(id, databaseId, tableId, data));
     }
 
     @Transactional
@@ -80,7 +83,7 @@ public class DataEndpoint {
                                                  @RequestParam(required = false) Long page,
                                                  @RequestParam(required = false) Long size)
             throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
-            ImageNotSupportedException, TableMalformedException, PaginationException {
+            ImageNotSupportedException, TableMalformedException, PaginationException, ContainerNotFoundException {
         if ((page == null && size != null) || (page != null && size == null)) {
             log.error("Cannot perform pagination with only one of page/size set.");
             log.debug("invalid pagination specification, one of page/size is null, either both should be null or none.");
@@ -92,7 +95,7 @@ public class DataEndpoint {
         if (size != null && size <= 0) {
             throw new PaginationException("Page number cannot be lower or equal to 0");
         }
-        final QueryResultDto response = queryService.findAll(databaseId, tableId, timestamp, page, size);
+        final QueryResultDto response = queryService.findAll(id, databaseId, tableId, timestamp, page, size);
         return ResponseEntity.ok(response);
     }
 
@@ -110,12 +113,15 @@ public class DataEndpoint {
                                                       @NotNull @PathVariable("tableId") Long tableId,
                                                       @RequestParam(required = false) Instant timestamp)
             throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
-            ImageNotSupportedException, TableMalformedException, FileStorageException, PaginationException {
+            ImageNotSupportedException, TableMalformedException, FileStorageException, PaginationException,
+            ContainerNotFoundException {
         if (timestamp == null) {
             timestamp = Instant.now();
         }
-        final InputStreamResource data = commaValueService.export(databaseId, tableId, timestamp);
-        return ResponseEntity.ok(data);
+        final InputStreamResource data = commaValueService.export(id, databaseId, tableId, timestamp);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=\"export.csv\"");
+        return new ResponseEntity<>(data, headers, HttpStatus.OK);
     }
 
 
