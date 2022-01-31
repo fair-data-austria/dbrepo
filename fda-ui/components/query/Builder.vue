@@ -18,8 +18,9 @@
         </v-toolbar-title>
       </v-toolbar>
       <v-card flat>
+        <v-card-title>{{ title }}</v-card-title>
         <v-card-text>
-          <v-row class="mt-2">
+          <v-row>
             <v-col cols="6">
               <v-text-field
                 v-model="title"
@@ -29,7 +30,7 @@
                 required />
             </v-col>
           </v-row>
-          <v-row class="mt-2">
+          <v-row>
             <v-col cols="6">
               <v-textarea
                 v-model="description"
@@ -40,7 +41,7 @@
                 required />
             </v-col>
           </v-row>
-          <v-row class="mt-2">
+          <v-row>
             <v-col cols="6">
               <v-select
                 v-model="table"
@@ -86,7 +87,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <v-btn v-if="queryId" color="primary" :to="`/databases/${databaseId}/queries/${queryId}`">
+              <v-btn v-if="queryId" color="primary" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/${queryId}`">
                 <v-icon left>mdi-fingerprint</v-icon>
                 Obtain Query DOI
               </v-btn>
@@ -152,7 +153,7 @@ export default {
     // XXX same as in TableList
     try {
       const res = await this.$axios.get(
-        `/api/database/${this.databaseId}/table`)
+        `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table`)
       this.tables = res.data
       console.debug('tables', this.tables)
     } catch (err) {
@@ -165,9 +166,8 @@ export default {
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
-        const res = await this.$axios.put(`/api/database/${this.databaseId}/store/table/${this.tableId}/execute`, {
-          title: this.title,
-          query
+        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/query/execute`, {
+          statement: query
         })
         console.debug('query result', res)
         this.$toast.success('Successfully executed query')
@@ -188,8 +188,8 @@ export default {
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
-        const res = await this.$axios.put(`/api/database/${this.databaseId}/store/table/${this.tableId}/save`, {
-          Query: query
+        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/query/save`, {
+          statement: query
         })
         console.debug('query result', res)
         this.$toast.success('Successfully saved query')
@@ -223,7 +223,7 @@ export default {
     async loadColumns () {
       const tableId = this.table.id
       try {
-        const res = await this.$axios.get(`/api/database/${this.databaseId}/table/${tableId}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${tableId}`)
         this.tableDetails = res.data
         this.buildQuery()
       } catch (err) {

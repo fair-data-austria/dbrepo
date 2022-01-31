@@ -1,9 +1,10 @@
 package at.tuwien.service.impl;
 
+import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
-import at.tuwien.entities.Query;
+import at.tuwien.querystore.Query;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -25,25 +26,26 @@ public abstract class HibernateConnector {
 
     @Transactional
     protected SessionFactory getSessionFactory(Database database) {
-        final String username = database.getContainer().getImage().getEnvironment()
-                .stream()
-                .filter(e -> e.getType().equals(ContainerImageEnvironmentItemType.USERNAME))
-                .map(ContainerImageEnvironmentItem::getValue)
-                .collect(Collectors.toList())
-                .get(0);
-        return getSessionFactory(database, username);
+        return getSessionFactory(database, false);
     }
 
     @Transactional
-    protected SessionFactory getSessionFactory(Database database, String username) {
+    protected SessionFactory getSessionFactory(Database database, Boolean privileged) {
         final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
-        log.trace("hibernate jdbc url '{}'", url);
-        final String password = database.getContainer().getImage().getEnvironment()
+        log.trace("hibernate jdbc url '{}', privileged: {}", url, privileged ? 'y' : 'n');
+        final String username = database.getContainer().getImage().getEnvironment()
                 .stream()
-                .filter(e -> e.getType().equals(ContainerImageEnvironmentItemType.PASSWORD))
+                .filter(e -> e.getType().equals(privileged ? ContainerImageEnvironmentItemType.PRIVILEGED_USERNAME : ContainerImageEnvironmentItemType.USERNAME))
                 .map(ContainerImageEnvironmentItem::getValue)
                 .collect(Collectors.toList())
                 .get(0);
+        final String password = database.getContainer().getImage().getEnvironment()
+                .stream()
+                .filter(e -> e.getType().equals(privileged ? ContainerImageEnvironmentItemType.PRIVILEGED_PASSWORD : ContainerImageEnvironmentItemType.PASSWORD))
+                .map(ContainerImageEnvironmentItem::getValue)
+                .collect(Collectors.toList())
+                .get(0);
+        log.trace("container image {}", database.getContainer().getImage());
         final Configuration configuration = new Configuration()
                 .setProperty("hibernate.connection.url", url)
                 .setProperty("hibernate.connection.username", username)

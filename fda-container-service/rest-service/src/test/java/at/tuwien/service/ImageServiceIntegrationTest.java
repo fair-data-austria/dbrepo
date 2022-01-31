@@ -6,6 +6,7 @@ import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.ImageRepository;
+import at.tuwien.service.impl.ImageServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private ImageService imageService;
+    private ImageServiceImpl imageService;
 
     @Autowired
     private ImageRepository imageRepository;
@@ -40,7 +41,34 @@ public class ImageServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     @BeforeEach
     public void beforeEach() {
+        log.debug("save container {}", CONTAINER_1);
         containerRepository.save(CONTAINER_1);
+    }
+
+    @Test
+    public void create_succeeds() throws ImageAlreadyExistsException, DockerClientException, ImageNotFoundException {
+        final ImageCreateDto request = ImageCreateDto.builder()
+                .repository(IMAGE_2_REPOSITORY)
+                .tag(IMAGE_2_TAG)
+                .dialect(IMAGE_2_DIALECT)
+                .driverClass(IMAGE_2_DRIVER)
+                .jdbcMethod(IMAGE_2_JDBC)
+                .defaultPort(IMAGE_2_PORT)
+                .environment(IMAGE_1_ENV_DTO)
+                .logo(IMAGE_2_LOGO)
+                .build();
+
+        /* test */
+        imageService.create(request);
+    }
+
+    @Test
+    public void inspect_notFound_fails() {
+
+        /* test */
+        assertThrows(ImageNotFoundException.class, () -> {
+            imageService.inspect("abcdefu", "999.999");
+        });
     }
 
     @Test

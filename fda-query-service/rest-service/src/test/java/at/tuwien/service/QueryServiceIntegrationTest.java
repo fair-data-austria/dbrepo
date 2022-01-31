@@ -3,6 +3,7 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
@@ -16,6 +17,8 @@ import com.github.dockerjava.api.model.Network;
 import com.rabbitmq.client.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -58,13 +62,13 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     private QueryService queryService;
 
     @Autowired
-    private StoreService storeService;
-
-    @Autowired
     private ImageRepository imageRepository;
 
     @Autowired
     private DatabaseRepository databaseRepository;
+
+    @Rule
+    public Timeout globalTimeout = Timeout.seconds(60);
 
     @BeforeAll
     public static void beforeAll() {
@@ -88,9 +92,21 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
                 .withIpv4Address(CONTAINER_1_IP)
                 .withHostName(CONTAINER_1_INTERNALNAME)
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
-                .withBinds(Bind.parse(bind))
+                .withBinds(Bind.parse(bind), Bind.parse("/tmp:/tmp"))
                 .exec();
         CONTAINER_1.setHash(response.getId());
+        /* create container */
+        final String bind3 = new File("./src/test/resources/traffic").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
+        log.trace("container bind {}", bind3);
+        final CreateContainerResponse response3 = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(CONTAINER_3_INTERNALNAME)
+                .withIpv4Address(CONTAINER_3_IP)
+                .withHostName(CONTAINER_3_INTERNALNAME)
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=traffic")
+                .withBinds(Bind.parse(bind3), Bind.parse("/tmp:/tmp"))
+                .exec();
+        CONTAINER_3.setHash(response3.getId());
     }
 
     @AfterAll
@@ -123,21 +139,25 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     public void beforeEach() {
         TABLE_1.setDatabase(DATABASE_1);
-        TABLE_2.setDatabase(DATABASE_1);
+        TABLE_2.setDatabase(DATABASE_2);
+        TABLE_3.setDatabase(DATABASE_3);
         imageRepository.save(IMAGE_1);
         databaseRepository.save(DATABASE_1);
+        databaseRepository.save(DATABASE_2);
+        databaseRepository.save(DATABASE_3);
     }
 
     @Test
     public void findAll_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             TableMalformedException, InterruptedException, TableNotFoundException, DatabaseConnectionException,
-            PaginationException {
+            PaginationException, ContainerNotFoundException {
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto result = queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), null, null);
+        final QueryResultDto result = queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, Instant.now(),
+                null, null);
         assertEquals(3, result.getResult().size());
         assertEquals(BigInteger.valueOf(1L), result.getResult().get(0).get(COLUMN_1_1_NAME));
         assertEquals(toInstant("2008-12-01"), result.getResult().get(0).get(COLUMN_1_2_NAME));
@@ -157,7 +177,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void execute_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException, QueryMalformedException, TableNotFoundException, QueryStoreException {
+    public void execute_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException,
+            QueryMalformedException, TableNotFoundException, QueryStoreException, ContainerNotFoundException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -166,7 +187,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto response = queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
+        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         assertEquals(3, response.getResult().size());
         assertEquals(BigInteger.valueOf(1L), response.getResult().get(0).get(COLUMN_1_1_NAME));
         assertEquals(toInstant("2008-12-01"), response.getResult().get(0).get(COLUMN_1_2_NAME));
@@ -188,7 +209,9 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     // TODO use own user that has only read-only permissions
     @Test
     @Disabled
-    public void execute_modifyData_fails() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException, QueryMalformedException, TableNotFoundException, QueryStoreException {
+    public void execute_modifyData_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
+            InterruptedException, QueryMalformedException, TableNotFoundException, QueryStoreException,
+            ContainerNotFoundException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement("DELETE FROM `weather_aus`;")
                 .build();
@@ -197,7 +220,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto response = queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
+        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         assertNotNull(response.getResult());
         assertEquals(3, response.getResult().size());
     }
@@ -213,7 +236,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            queryService.execute(DATABASE_1_ID, 9999L, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, 9999L, request);
         });
     }
 
@@ -228,7 +251,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            queryService.execute(9999L, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, 9999L, TABLE_1_ID, request);
         });
     }
 
@@ -244,7 +267,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PersistenceException.class, () -> {
-            queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
@@ -259,7 +282,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PersistenceException.class, () -> {
-            queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
@@ -274,8 +297,156 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryMalformedException.class, () -> {
-            queryService.execute(DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         });
+    }
+
+    @Test
+    public void insert_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
+            TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_3);
+
+        /* test */
+        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, "/tmp/csv_12.csv");
+        assertEquals(9999, rows);
+        final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
+        assertEquals("1", response.get(0).get(0));
+        assertEquals("2", response.get(0).get(1));
+        assertEquals("1", response.get(0).get(2));
+        assertEquals("2017-01-15", response.get(0).get(3));
+        assertEquals("2076", response.get(0).get(4));
+        assertEquals("6", response.get(0).get(5));
+        assertEquals("1", response.get(0).get(6));
+        assertEquals("6030", response.get(0).get(7));
+        assertEquals("0", response.get(0).get(8));
+        assertEquals("DEP4", response.get(0).get(9));
+        assertEquals("2017-01-15", response.get(0).get(10));
+        assertEquals("17580", response.get(0).get(11));
+        assertEquals("17562", response.get(0).get(12));
+        assertEquals("17580", response.get(0).get(13));
+        assertEquals("17562", response.get(0).get(14));
+        assertEquals("2", response.get(0).get(15));
+        assertEquals("1357", response.get(0).get(16));
+        assertEquals("1", response.get(0).get(17));
+        assertEquals("KALK", response.get(0).get(18));
+        assertEquals("2017-01-15", response.get(0).get(19));
+        assertEquals("17622", response.get(0).get(20));
+        assertEquals("17647", response.get(0).get(21));
+        assertEquals("17622", response.get(0).get(22));
+        assertEquals("17664", response.get(0).get(23));
+        assertEquals("8538", response.get(0).get(24));
+        assertEquals("41253", response.get(0).get(25));
+        assertEquals("15", response.get(0).get(26));
+        assertEquals("2", response.get(0).get(27));
+        assertEquals("15", response.get(0).get(28));
+        assertEquals("DEP4 - KALK", response.get(0).get(29));
+        assertEquals("135780", response.get(0).get(30));
+        assertEquals("2251", response.get(0).get(31));
+        assertEquals("1906", response.get(0).get(32));
+        assertEquals("12462", response.get(0).get(33));
+        assertEquals("10563", response.get(0).get(34));
+
+    }
+
+    @Test
+    public void insert_large_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
+            TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_3);
+
+        /* test */
+        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, "/tmp/csv_13.csv");
+        assertEquals(1397856, rows);
+        final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
+        assertEquals("1", response.get(0).get(0));
+        assertEquals("2", response.get(0).get(1));
+        assertEquals("1", response.get(0).get(2));
+        assertEquals("2017-01-15", response.get(0).get(3));
+        assertEquals("2076", response.get(0).get(4));
+        assertEquals("6", response.get(0).get(5));
+        assertEquals("1", response.get(0).get(6));
+        assertEquals("6030", response.get(0).get(7));
+        assertEquals("0", response.get(0).get(8));
+        assertEquals("DEP4", response.get(0).get(9));
+        assertEquals("2017-01-15", response.get(0).get(10));
+        assertEquals("17580", response.get(0).get(11));
+        assertEquals("17562", response.get(0).get(12));
+        assertEquals("17580", response.get(0).get(13));
+        assertEquals("17562", response.get(0).get(14));
+        assertEquals("2", response.get(0).get(15));
+        assertEquals("1357", response.get(0).get(16));
+        assertEquals("1", response.get(0).get(17));
+        assertEquals("KALK", response.get(0).get(18));
+        assertEquals("2017-01-15", response.get(0).get(19));
+        assertEquals("17622", response.get(0).get(20));
+        assertEquals("17647", response.get(0).get(21));
+        assertEquals("17622", response.get(0).get(22));
+        assertEquals("17664", response.get(0).get(23));
+        assertEquals("8538", response.get(0).get(24));
+        assertEquals("41253", response.get(0).get(25));
+        assertEquals("15", response.get(0).get(26));
+        assertEquals("2", response.get(0).get(27));
+        assertEquals("15", response.get(0).get(28));
+        assertEquals("DEP4 - KALK", response.get(0).get(29));
+        assertEquals("135780", response.get(0).get(30));
+        assertEquals("2251", response.get(0).get(31));
+        assertEquals("1906", response.get(0).get(32));
+        assertEquals("12462", response.get(0).get(33));
+        assertEquals("10563", response.get(0).get(34));
+    }
+
+    @Test
+    public void insert_sensor_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
+            TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+        final TableCsvDto request = TableCsvDto.builder()
+                .data(List.of("2","1","15.01.17","2076","6","1","6030","0","DEP4","15.01.17","17580","17562","17580","17562","2","1357","1","KALK","15.01.17","17622","17647","17622","17664","8538","41253","15","2","15","DEP4 - KALK","135780","2251","1906","12462","10563"))
+                .build();
+
+        /* mock */
+        DockerConfig.startContainer(CONTAINER_3);
+
+        /* test */
+        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, request);
+        assertEquals(1, rows);
+        final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
+        assertEquals("1", response.get(0).get(0));
+        assertEquals("2", response.get(0).get(1));
+        assertEquals("1", response.get(0).get(2));
+        assertEquals("2017-01-15", response.get(0).get(3));
+        assertEquals("2076", response.get(0).get(4));
+        assertEquals("6", response.get(0).get(5));
+        assertEquals("1", response.get(0).get(6));
+        assertEquals("6030", response.get(0).get(7));
+        assertEquals("0", response.get(0).get(8));
+        assertEquals("DEP4", response.get(0).get(9));
+        assertEquals("2017-01-15", response.get(0).get(10));
+        assertEquals("17580", response.get(0).get(11));
+        assertEquals("17562", response.get(0).get(12));
+        assertEquals("17580", response.get(0).get(13));
+        assertEquals("17562", response.get(0).get(14));
+        assertEquals("2", response.get(0).get(15));
+        assertEquals("1357", response.get(0).get(16));
+        assertEquals("1", response.get(0).get(17));
+        assertEquals("KALK", response.get(0).get(18));
+        assertEquals("2017-01-15", response.get(0).get(19));
+        assertEquals("17622", response.get(0).get(20));
+        assertEquals("17647", response.get(0).get(21));
+        assertEquals("17622", response.get(0).get(22));
+        assertEquals("17664", response.get(0).get(23));
+        assertEquals("8538", response.get(0).get(24));
+        assertEquals("41253", response.get(0).get(25));
+        assertEquals("15", response.get(0).get(26));
+        assertEquals("2", response.get(0).get(27));
+        assertEquals("15", response.get(0).get(28));
+        assertEquals("DEP4 - KALK", response.get(0).get(29));
+        assertEquals("135780", response.get(0).get(30));
+        assertEquals("2251", response.get(0).get(31));
+        assertEquals("1906", response.get(0).get(32));
+        assertEquals("12462", response.get(0).get(33));
+        assertEquals("10563", response.get(0).get(34));
     }
 
     @SneakyThrows

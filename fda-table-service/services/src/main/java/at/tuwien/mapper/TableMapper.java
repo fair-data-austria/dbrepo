@@ -20,6 +20,7 @@ import org.mapstruct.Named;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface TableMapper {
@@ -51,14 +52,7 @@ public interface TableMapper {
     })
     ColumnDto tableColumnToColumnDto(TableColumn data);
 
-    @Mappings({
-            @Mapping(source = "data.name", target = "name"),
-            @Mapping(source = "data.name", target = "internalName", qualifiedByName = "internalMapping"),
-            @Mapping(source = "data.description", target = "description"),
-            @Mapping(source = "database.id", target = "tdbid"),
-            @Mapping(source = "database", target = "database"),
-    })
-    Table tableCreateDtoToTable(Database database, TableCreateDto data);
+    Table tableCreateDtoToTable(TableCreateDto data);
 
     @Mappings({
             @Mapping(source = "table.id", target = "tid"),
@@ -69,6 +63,7 @@ public interface TableMapper {
             @Mapping(source = "data.name", target = "name"),
             @Mapping(source = "data.internalName", target = "internalName"),
             @Mapping(source = "data.created", target = "created"),
+            @Mapping(source = "data.dfid", target = "dfid"),
             @Mapping(source = "data.lastModified", target = "lastModified"),
     })
     TableColumn tableColumnToTableColumn(Table table, TableColumn data, CreateTableRawQuery query);
@@ -179,8 +174,10 @@ public interface TableMapper {
                     .nullAllowed(false)
                     .unique(true)
                     .build();
+            log.debug("attempt to create id column {}", idColumn);
             if (Arrays.stream(data.getColumns()).anyMatch(c -> c.getName().equals("id"))) {
-                throw new TableMalformedException("Cannot create id column: it already exists");
+                log.error("Cannot create id column, it already exists");
+                throw new TableMalformedException("Cannot create id column");
             }
             final ColumnCreateDto[] tmp = Arrays.copyOf(data.getColumns(), data.getColumns().length + 1);
             tmp[data.getColumns().length] = idColumn;
@@ -197,7 +194,7 @@ public interface TableMapper {
                         /* null expressions */
                         .append(c.getNullAllowed() ? " NULL" : " NOT NULL")
                         /* default expressions */
-                        .append(!primaryColumnExists && c.getName().equals("id") ? " DEFAULT NEXTVAL(`seq_id`)" : "")
+                        .append(!primaryColumnExists && c.getName().equals("id") ? " DEFAULT NEXTVAL(" + tableCreateDtoToSequenceName(data) + ")" : "")
                         /* check expressions */
                         .append(c.getCheckExpression() != null &&
                                 !c.getCheckExpression().isEmpty() ? " CHECK (" + c.getCheckExpression() + ")" : ""));
@@ -209,8 +206,11 @@ public interface TableMapper {
                         .toArray(String[]::new)))
                 .append(")");
         /* create unique indices */
+        log.trace("columns {}", Arrays.stream(data.getColumns()).collect(Collectors.toList()));
         Arrays.stream(data.getColumns())
+                .filter(c -> Objects.nonNull(c.getUnique()))
                 .filter(ColumnCreateDto::getUnique)
+                .filter(c -> Objects.nonNull(c.getPrimaryKey()))
                 .filter(c -> !c.getPrimaryKey())
                 .forEach(c -> query.append(", ")
                         .append("UNIQUE KEY (`")
@@ -228,11 +228,15 @@ public interface TableMapper {
                         .append("`) ON DELETE CASCADE ON UPDATE RESTRICT"));
         query.append(") WITH SYSTEM VERSIONING;");
         log.debug("create table query built with {} columns and system versioning", data.getColumns().length);
-        log.trace("raw create table query: [{}]", query);
+        log.debug("raw create table query: [{}]", query);
         return CreateTableRawQuery.builder()
                 .query(query.toString())
                 .generated(!primaryColumnExists)
                 .build();
+    }
+
+    default String tableCreateDtoToSequenceName(TableCreateDto data) {
+        return "`seq_" + nameToInternalName(data.getName()) + "_id`";
     }
 
     default String tableToCreateSequenceRawQuery(Database database, TableCreateDto data)
@@ -240,7 +244,7 @@ public interface TableMapper {
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
-        return "CREATE SEQUENCE `seq_id` START WITH 1 INCREMENT BY 1;";
+        return "CREATE SEQUENCE " + tableCreateDtoToSequenceName(data) + " START WITH 1 INCREMENT BY 1;";
     }
 
 }

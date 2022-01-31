@@ -3,11 +3,8 @@ package at.tuwien.service;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
-import at.tuwien.entities.Query;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.QueryNotFoundException;
-import at.tuwien.exception.QueryStoreException;
+import at.tuwien.exception.*;
+import at.tuwien.querystore.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,8 +21,8 @@ public interface StoreService {
      * @throws DatabaseNotFoundException  The database was not found in the metadata database
      * @throws QueryStoreException        The query store produced an invalid result
      */
-    List<Query> findAll(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            QueryStoreException;
+    List<Query> findAll(Long containerId, Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
+            QueryStoreException, ContainerNotFoundException;
 
     /**
      * Finds a query in the query store of the given database id and query id.
@@ -38,8 +35,8 @@ public interface StoreService {
      * @throws QueryStoreException        The query store produced an invalid result
      * @throws QueryNotFoundException     The query store did not return a query
      */
-    Query findOne(Long databaseId, Long queryId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            QueryStoreException, QueryNotFoundException;
+    Query findOne(Long containerId, Long databaseId, Long queryId) throws DatabaseNotFoundException, ImageNotSupportedException,
+            QueryStoreException, QueryNotFoundException, ContainerNotFoundException;
 
     /**
      * Inserts a query and metadata to the query store of a given database id
@@ -52,8 +49,8 @@ public interface StoreService {
      * @throws DatabaseNotFoundException  The database id was not found in the metadata database
      * @throws ImageNotSupportedException The image is not supported
      */
-    Query insert(Long databaseId, QueryResultDto result, SaveStatementDto metadata)
-            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException;
+    Query insert(Long containerId, Long databaseId, QueryResultDto result, SaveStatementDto metadata)
+            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException;
 
     /**
      * Inserts a query and metadata to the query store of a given database id
@@ -66,6 +63,6 @@ public interface StoreService {
      * @throws DatabaseNotFoundException  The database id was not found in the metadata database
      * @throws ImageNotSupportedException The image is not supported
      */
-    Query insert(Long databaseId, QueryResultDto result, ExecuteStatementDto metadata) throws QueryStoreException,
-            DatabaseNotFoundException, ImageNotSupportedException;
+    Query insert(Long containerId, Long databaseId, QueryResultDto result, ExecuteStatementDto metadata) throws QueryStoreException,
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException;
 }

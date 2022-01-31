@@ -8,7 +8,7 @@
       <v-card-text>
         <v-alert
           border="left"
-          color="amber lighten-4">
+          color="amber lighten-4 black--text">
           Choose an expressive database name and select a database engine.
         </v-alert>
         <v-form v-model="formValid" autocomplete="off">
@@ -33,7 +33,7 @@
             name="engine"
             label="Database Engine"
             :items="engines"
-            item-text="label"
+            :item-text="item => `${item.repository}:${item.tag}`"
             :rules="[v => !!v || $t('Required')]"
             return-object
             required />
@@ -98,10 +98,7 @@ export default {
         this.loading = true
         this.error = false
         res = await this.$axios.get('/api/image/')
-        this.engines = res.data.map((e) => {
-          e.disabled = (e.id !== 3)
-          return e
-        })
+        this.engines = res.data
         console.debug('engines', this.engines)
         this.loading = false
       } catch (err) {
@@ -159,21 +156,22 @@ export default {
       // wait for it to finish
       this.loading = true
       this.error = false
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 5; i++) {
         try {
-          res = await this.$axios.post('/api/database/', {
+          res = await this.$axios.post(`/api/container/${containerId}/database/`, {
             name: this.database,
-            containerId,
             description: this.description,
-            isPublic: this.isPublic
-          }, { progress: false })
-          i = 31
+            is_public: this.isPublic
+          })
+          console.debug('created database', res)
+          break
         } catch (err) {
           console.debug('wait', res)
           await this.sleep(3000)
         }
       }
       if (res.status !== 201) {
+        this.loading = false
         this.error = true
         this.$toast.error('Could not create database.')
         return
@@ -181,7 +179,7 @@ export default {
       this.loading = false
       this.$toast.success(`Database "${res.data.name}" created.`)
       this.$emit('close')
-      await this.$router.push(`/databases/${containerId}/info`)
+      await this.$router.push(`/container/${containerId}/database/${res.data.id}/info`)
     }
   }
 }

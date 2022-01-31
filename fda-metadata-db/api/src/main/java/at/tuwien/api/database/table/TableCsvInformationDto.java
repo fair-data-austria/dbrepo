@@ -1,6 +1,7 @@
 package at.tuwien.api.database.table;
 
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -27,6 +28,7 @@ public class TableCsvInformationDto {
     private List<ColumnTypeDto> columns;
 
     @NotBlank
+    @JsonProperty("file_location")
     private String fileLocation;
 
 }

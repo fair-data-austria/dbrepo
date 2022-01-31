@@ -1,5 +1,6 @@
 package at.tuwien.api.database;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
 
@@ -14,15 +15,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class DatabaseModifyDto {
 
-    @NotNull
-    @Parameter(name = "database id", example = "1")
-    private Long databaseId;
-
     @NotBlank
-    @Parameter(name = "database name", example = "Weather Australia")
-    private String name;
-
-    @NotBlank
+    @JsonProperty("is_public")
     @Parameter(name = "database publicity", example = "true")
     private Boolean isPublic;
 

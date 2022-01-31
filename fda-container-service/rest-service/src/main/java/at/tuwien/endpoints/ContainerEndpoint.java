@@ -4,7 +4,7 @@ import at.tuwien.api.container.*;
 import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.ContainerMapper;
-import at.tuwien.service.ContainerService;
+import at.tuwien.service.impl.ContainerServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/container")
 public class ContainerEndpoint {
 
-    private final ContainerService containerService;
+    private final ContainerServiceImpl containerService;
     private final ContainerMapper containerMapper;
 
     @Autowired
-    public ContainerEndpoint(ContainerService containerService, ContainerMapper containerMapper) {
+    public ContainerEndpoint(ContainerServiceImpl containerService, ContainerMapper containerMapper) {
         this.containerMapper = containerMapper;
         this.containerService = containerService;
     }
@@ -77,11 +77,11 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws DockerClientException, ContainerNotFoundException {
-        final Container container = containerService.getById(id);
-        final ContainerDto containerDto = containerMapper.containerToContainerDto(container);
+    public ResponseEntity<ContainerDto> findById(@NotNull @PathVariable Long id) throws DockerClientException,
+            ContainerNotFoundException, ContainerNotRunningException {
+        final Container container = containerService.inspect(id);
         return ResponseEntity.ok()
-                .body(containerService.packInspectResponse(container, containerDto));
+                .body(containerMapper.containerToContainerDto(container));
     }
 
     @Transactional
@@ -95,15 +95,14 @@ public class ContainerEndpoint {
     })
     public ResponseEntity<ContainerBriefDto> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
             throws ContainerNotFoundException, DockerClientException {
+        final Container container;
         if (changeDto.getAction().equals(ContainerActionTypeDto.START)) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .body(containerMapper.containerToDatabaseContainerBriefDto(containerService.start(id)));
-        } else if (changeDto.getAction().equals(ContainerActionTypeDto.STOP)) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .body(containerMapper.containerToDatabaseContainerBriefDto(containerService.stop(id)));
+            container = containerService.start(id);
+        } else {
+            container = containerService.stop(id);
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .build();
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(containerMapper.containerToDatabaseContainerBriefDto(container));
     }
 
     @DeleteMapping("/{id}")

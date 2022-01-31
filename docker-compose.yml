@@ -31,7 +31,8 @@ services:
     build: ./fda-metadata-db
     image: fda-metadata-db
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.5
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
     ports:
@@ -51,7 +52,8 @@ services:
     build: ./fda-discovery-service
     image: fda-discovery-service
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.4
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -68,8 +70,7 @@ services:
     image: fda-gateway-service
     networks:
       fda-public:
-        aliases:
-          - fda-gateway-service
+        ipv4_address: 172.29.0.2
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -94,10 +95,11 @@ services:
     build: ./fda-database-service
     image: fda-database-service
     networks:
-      - fda-userdb
-      - fda-public
+      fda-userdb:
+      fda-public:
+        ipv4_address: 172.29.0.9
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
     ports:
       - "9092:9092"
@@ -122,7 +124,8 @@ services:
     build: ./fda-container-service
     image: fda-container-service
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.8
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder
       TZ: Europe/Vienna
@@ -138,30 +141,6 @@ services:
     logging:
       driver: json-file
 
-  fda-authentication-service:
-    restart: on-failure
-    container_name: fda-authentication-service
-    hostname: fda-authentication-service
-    build: ./fda-authentication-service
-    image: fda-authentication-service
-    networks:
-      - fda-public
-    volumes:
-      - /tmp:/tmp
-    environment:
-      SERVER_NAME: dbrepo.local
-      SPRING_PROFILES_ACTIVE: docker
-      KEY_STORE_PASSWORD: "${KEY_STORE_PASSWORD:-dbrepo}"
-      SAML_SIGN_PASSWORD: "${SAML_SIGN_PASSWORD}"
-      TZ: Europe/Vienna
-    ports:
-      - "9097:9097"
-    depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-    logging:
-      driver: json-file
-
   fda-query-service:
     restart: on-failure
     container_name: fda-query-service
@@ -169,10 +148,11 @@ services:
     build: ./fda-query-service
     image: fda-query-service
     networks:
-      - fda-public
-      - fda-userdb
+      fda-public:
+        ipv4_address: 172.29.0.12
+      fda-userdb:
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
     ports:
       - "9093:9093"
@@ -197,10 +177,11 @@ services:
     build: ./fda-table-service
     image: fda-table-service
     networks:
-      - fda-public
-      - fda-userdb
+      fda-public:
+        ipv4_address: 172.29.0.11
+      fda-userdb:
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       multipart.location: /tmp
       TZ: Europe/Vienna
     ports:
@@ -250,8 +231,9 @@ services:
     build: ./fda-analyse-service
     image: fda-analyse-service
     networks:
-      - fda-public
-      - fda-userdb
+      fda-public:
+        ipv4_address: 172.29.0.10
+      fda-userdb:
     command: sh -c "/wait && flask run" # docker-compose should not test the implementation
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
@@ -275,7 +257,8 @@ services:
     build: ./fda-units-service
     image: fda-units-service
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.7
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
       TZ: Europe/Vienna
@@ -299,7 +282,8 @@ services:
     environment:
       TZ: Europe/Vienna
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.3
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -315,7 +299,8 @@ services:
     image: elasticsearch:7.13.4
     command: ["elasticsearch"]
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.6
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"

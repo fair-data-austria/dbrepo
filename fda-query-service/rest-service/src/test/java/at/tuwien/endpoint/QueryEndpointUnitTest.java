@@ -48,7 +48,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void execute_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -58,20 +58,20 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, request))
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request))
                 .thenReturn(result);
-        when(storeService.insert(DATABASE_1_ID, result, request))
+        when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request))
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(result, response.getBody());
     }
 
     @Test
-    public void execute_emptyResult_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
+    public void execute_emptyResult_succeeds() throws TableNotFoundException, QueryStoreException,
+            QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -81,63 +81,65 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, request))
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request))
                 .thenReturn(result);
-        when(storeService.insert(DATABASE_1_ID, result, request))
+        when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request))
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(result, response.getBody());
     }
 
     @Test
-    public void execute_tableNotFound_fails() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
+    public void execute_tableNotFound_fails() throws TableNotFoundException, QueryMalformedException,
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
-        when(queryService.execute(DATABASE_1_ID, TABLE_1_ID, request))
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request))
                 .thenThrow(TableNotFoundException.class);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            queryEndpoint.execute(DATABASE_1_ID, TABLE_1_ID, request);
+            queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
     @Test
-    public void save_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void save_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
+            ContainerNotFoundException {
         final SaveStatementDto request = SaveStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
-        when(storeService.insert(DATABASE_1_ID, null, request))
+        when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, null, request))
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryDto> response = queryEndpoint.save(DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<QueryDto> response = queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(QUERY_1_DTO, response.getBody());
     }
 
     @Test
-    public void save_dbNotFound_fails() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
+    public void save_dbNotFound_fails() throws QueryStoreException, DatabaseNotFoundException,
+            ImageNotSupportedException, ContainerNotFoundException {
         final SaveStatementDto request = SaveStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
 
         /* mock */
-        when(storeService.insert(DATABASE_1_ID, null, request))
+        when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, null, request))
                 .thenThrow(DatabaseNotFoundException.class);
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            queryEndpoint.save(DATABASE_1_ID, TABLE_1_ID, request);
+            queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 

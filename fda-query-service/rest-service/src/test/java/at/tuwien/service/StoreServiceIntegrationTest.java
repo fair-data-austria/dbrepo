@@ -6,11 +6,8 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.MariaDbConfig;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.entities.Query;
-import at.tuwien.exception.DatabaseNotFoundException;
-import at.tuwien.exception.ImageNotSupportedException;
-import at.tuwien.exception.QueryNotFoundException;
-import at.tuwien.exception.QueryStoreException;
+import at.tuwien.exception.*;
+import at.tuwien.querystore.Query;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -118,7 +115,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void findAll_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
-            InterruptedException, SQLException {
+            InterruptedException, SQLException, ContainerNotFoundException {
         final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();
@@ -132,17 +129,17 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
         MariaDbConfig.clearQueryStore(TABLE_1);
-        storeService.insert(DATABASE_1_ID, result, statement1);
-        storeService.insert(DATABASE_1_ID, result, statement2);
+        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement1);
+        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement2);
 
         /* test */
-        final List<Query> response = storeService.findAll(DATABASE_1_ID);
+        final List<Query> response = storeService.findAll(CONTAINER_1_ID, DATABASE_1_ID);
         assertEquals(2, response.size());
     }
 
     @Test
     public void findOne_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
-            QueryNotFoundException, InterruptedException, SQLException {
+            QueryNotFoundException, InterruptedException, SQLException, ContainerNotFoundException {
         final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();
@@ -153,18 +150,17 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
         MariaDbConfig.clearQueryStore(TABLE_1);
-        storeService.insert(DATABASE_1_ID, result, statement);
+        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement);
 
         /* test */
-        final Query response = storeService.findOne(DATABASE_1_ID, QUERY_1_ID);
+        final Query response = storeService.findOne(CONTAINER_1_ID, DATABASE_1_ID, QUERY_1_ID);
         assertEquals(QUERY_1_ID, response.getId());
         assertEquals(QUERY_1_STATEMENT, response.getQuery());
         assertNotNull(response.getQueryHash());
     }
 
     @Test
-    public void findOne_notFound_fails() throws InterruptedException, QueryStoreException, DatabaseNotFoundException,
-            ImageNotSupportedException, SQLException {
+    public void findOne_notFound_fails() throws InterruptedException, SQLException {
         final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();
@@ -178,12 +174,13 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryNotFoundException.class, () -> {
-            storeService.findOne(DATABASE_1_ID, QUERY_1_ID);
+            storeService.findOne(CONTAINER_1_ID, DATABASE_1_ID, QUERY_1_ID);
         });
     }
 
     @Test
-    public void insert_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException, InterruptedException, SQLException {
+    public void insert_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
+            InterruptedException, SQLException, ContainerNotFoundException {
         final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();
@@ -196,7 +193,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearQueryStore(TABLE_1);
 
         /* test */
-        final Query response = storeService.insert(DATABASE_1_ID, result, statement);
+        final Query response = storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement);
         assertEquals(QUERY_1_ID, response.getId());
         assertEquals(QUERY_1_STATEMENT, response.getQuery());
     }
@@ -215,7 +212,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryStoreException.class, () -> {
-            storeService.insert(DATABASE_1_ID, result, statement);
+            storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement);
         });
     }
 
@@ -234,7 +231,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            storeService.insert(9999L, result, statement);
+            storeService.insert(CONTAINER_1_ID, 9999L, result, statement);
         });
     }
 

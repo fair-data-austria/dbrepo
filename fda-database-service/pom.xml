@@ -30,7 +30,7 @@
         <swagger.version>2.1.7</swagger.version>
         <springfox.version>3.0.0</springfox.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <jooq.version>3.14.11</jooq.version>
+        <hibernate-c3po.version>5.6.3.Final</hibernate-c3po.version>
     </properties>
 
     <dependencies>
@@ -93,16 +93,10 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- DSL -->
         <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq</artifactId>
-            <version>${jooq.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq-meta</artifactId>
-            <version>${jooq.version}</version>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${hibernate-c3po.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>
@@ -211,7 +205,9 @@
                         <exclude>at/tuwien/config/**/*</exclude>
                         <exclude>at/tuwien/mapper/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
-                        <exclude>**/JdbcConnector.class</exclude>
+                        <exclude>at/tuwien/handlers/**/*</exclude>
+                        <exclude>at/tuwien/seeder/**/*</exclude>
+                        <exclude>**/HibernateConnector.class</exclude>
                         <exclude>**/FdaDatabaseManagingApplication.class</exclude>
                     </excludes>
                 </configuration>

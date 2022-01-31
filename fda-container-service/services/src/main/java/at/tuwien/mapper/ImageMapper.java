@@ -1,9 +1,11 @@
 package at.tuwien.mapper;
 
 import at.tuwien.api.container.image.ImageBriefDto;
+import at.tuwien.api.container.image.ImageDateDto;
 import at.tuwien.api.container.image.ImageDto;
 import at.tuwien.api.container.image.ImageEnvItemDto;
 import at.tuwien.entities.container.image.ContainerImage;
+import at.tuwien.entities.container.image.ContainerImageDate;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import com.github.dockerjava.api.command.InspectImageResponse;
 import org.mapstruct.Mapper;
@@ -18,9 +20,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface ImageMapper {
 
-    @Mappings({
-            @Mapping(target = "label", expression = "java(data.getRepository() + \":\" + data.getTag())")
-    })
+    @Mappings({})
     ImageBriefDto containerImageToImageBriefDto(ContainerImage data);
 
     @Mappings({

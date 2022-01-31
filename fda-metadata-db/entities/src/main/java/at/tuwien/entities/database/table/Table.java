@@ -45,14 +45,14 @@ public class Table {
     @Column(nullable = false, name = "tname")
     private String name;
 
-    @Column(name = "tdescription")
-    private String description;
-
     @Column(nullable = false)
     private String internalName;
 
     @Column(nullable = false, updatable = false)
     private String topic;
+
+    @Column(name = "tdescription")
+    private String description;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
@@ -60,6 +60,7 @@ public class Table {
     private Database database;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
+    @OrderBy("ordinalPosition")
     @Field(type = FieldType.Nested)
     private List<TableColumn> columns;
 
@@ -69,8 +70,8 @@ public class Table {
     @Column(name = "element_null")
     private String nullElement = null;
 
-    @Column(name = "skip_headers")
-    private Boolean skipHeaders = true;
+    @Column(name = "skip_lines")
+    private Long skipLines = null;
 
     @Column(name = "element_true")
     private String trueElement = "1";

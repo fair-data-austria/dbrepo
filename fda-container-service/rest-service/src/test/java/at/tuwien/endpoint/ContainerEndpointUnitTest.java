@@ -6,7 +6,7 @@ import at.tuwien.config.ReadyConfig;
 import at.tuwien.endpoints.ContainerEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ImageRepository;
-import at.tuwien.service.ContainerService;
+import at.tuwien.service.impl.ContainerServiceImpl;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -34,7 +33,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @MockBean
-    private ContainerService containerService;
+    private ContainerServiceImpl containerService;
 
     @MockBean
     private ImageRepository imageRepository;
@@ -55,11 +54,11 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws ImageNotFoundException, DockerClientException, ContainerNotFoundException {
+    public void create_succeeds() throws ImageNotFoundException, DockerClientException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
-                .repository(CONTAINER_1_IMAGE.getRepository())
-                .tag(CONTAINER_1_IMAGE.getTag())
+                .repository(IMAGE_1.getRepository())
+                .tag(IMAGE_1.getTag())
                 .build();
         when(containerService.create(request))
                 .thenReturn(CONTAINER_1);
@@ -93,8 +92,8 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     public void create_docker_fails() throws DockerClientException, ImageNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
-                .repository(CONTAINER_1_IMAGE.getRepository())
-                .tag(CONTAINER_1_IMAGE.getTag())
+                .repository(IMAGE_1.getRepository())
+                .tag(IMAGE_1.getTag())
                 .build();
         when(imageRepository.findByRepositoryAndTag(request.getRepository(), request.getTag()))
                 .thenReturn(Optional.of(IMAGE_1));
@@ -106,11 +105,9 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws ContainerNotFoundException, DockerClientException {
-        when(containerService.getById(CONTAINER_1_ID))
+    public void findById_succeeds() throws ContainerNotFoundException, DockerClientException, ContainerNotRunningException {
+        when(containerService.find(CONTAINER_1_ID))
                 .thenReturn(CONTAINER_1);
-        when(containerService.getContainerState(CONTAINER_1_HASH))
-                .thenReturn(ContainerStateDto.RUNNING);
 
         /* test */
         final ResponseEntity<ContainerDto> response = containerEndpoint.findById(CONTAINER_1_ID);
@@ -118,11 +115,10 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_notFound_fails() throws ContainerNotFoundException {
-        given(containerService.getById(CONTAINER_1_ID))
-                .willAnswer(invocation -> {
-                    throw new ContainerNotFoundException("no container");
-                });
+    public void findById_notFound_fails() throws ContainerNotFoundException, DockerClientException, ContainerNotRunningException {
+        doThrow(ContainerNotFoundException.class)
+                .when(containerService)
+                .inspect(CONTAINER_1_ID);
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
@@ -131,13 +127,10 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_docker_fails() throws ContainerNotFoundException, DockerClientException {
-        given(containerService.getById(CONTAINER_1_ID))
-                .willAnswer(invocation -> {
-                    throw new DockerClientException("no state");
-                });
-        when(containerService.getContainerState(CONTAINER_1_HASH))
-                .thenReturn(null);
+    public void findById_docker_fails() throws ContainerNotFoundException, DockerClientException, ContainerNotRunningException {
+        doThrow(DockerClientException.class)
+                .when(containerService)
+                .inspect(CONTAINER_1_ID);
 
         /* test */
         assertThrows(DockerClientException.class, () -> {
@@ -146,7 +139,19 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_start_succeeds() throws DockerClientException, ContainerNotFoundException, ContainerStillRunningException {
+    public void findById_notRunning_fails() throws ContainerNotFoundException, DockerClientException, ContainerNotRunningException {
+        doThrow(ContainerNotRunningException.class)
+                .when(containerService)
+                .inspect(CONTAINER_1_ID);
+
+        /* test */
+        assertThrows(ContainerNotRunningException.class, () -> {
+            containerEndpoint.findById(CONTAINER_1_ID);
+        });
+    }
+
+    @Test
+    public void modify_start_succeeds() throws DockerClientException, ContainerNotFoundException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.START)
                 .build();
@@ -160,7 +165,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_stop_succeeds() throws DockerClientException, ContainerNotFoundException, ContainerStillRunningException {
+    public void modify_stop_succeeds() throws DockerClientException, ContainerNotFoundException, ContainerStillRunningException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.STOP)
                 .build();
@@ -174,7 +179,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_start_docker_fails() throws DockerClientException, ContainerNotFoundException {
+    public void modify_startDocker_fails() throws DockerClientException, ContainerNotFoundException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.START)
                 .build();
@@ -188,7 +193,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_stop_docker_fails() throws DockerClientException, ContainerNotFoundException {
+    public void modify_stopDocker_fails() throws DockerClientException, ContainerNotFoundException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.STOP)
                 .build();
@@ -202,7 +207,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void change_stop_noContainer_fails() throws DockerClientException, ContainerNotFoundException {
+    public void modify_stopNoContainer_fails() throws DockerClientException, ContainerNotFoundException {
         final ContainerChangeDto request = ContainerChangeDto.builder()
                 .action(ContainerActionTypeDto.STOP)
                 .build();
@@ -228,7 +233,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void delete_success() throws DockerClientException {
+    public void delete_success() throws DockerClientException, ContainerStillRunningException, ContainerNotFoundException {
         doNothing()
                 .when(containerService)
                 .remove(CONTAINER_1_ID);

@@ -1,10 +1,11 @@
 const test = require('ava')
 const { pageMacro, before, after } = require('./_utils')
+const axios = require("axios");
 
 test.before(before)
 test.after(after)
 
-test('create database', pageMacro, async (t, page) => {
+test('create database and see the tabs', pageMacro, async (t, page) => {
   const database = 'Test Database ' + Math.random().toString(36).substring(7)
   const description = 'Test Description'
 
@@ -22,34 +23,41 @@ test('create database', pageMacro, async (t, page) => {
   // Press Tab
   await page.press('textarea[name="description"]', 'Tab')
 
-  // Select postgres:latest
+  // Select mariadb:10.5
   await page.press('#engine', 'ArrowDown')
 
   // Click submit button
-  await page.click('#createDB')
+  await page.click('button:has-text("Create")')
 
   // See page load
-  const success = await page.waitForSelector('.v-toolbar__title')
+  let success = await page.waitForSelector('text=' + database)
   t.true(!!success, `Database ${database} seems not to be created, notification not found`)
 
-  // // make sure row exists
-  // const newRow = await page.waitForSelector(`tr >> text=${database}`)
-  // t.true(!!newRow, `DB ${database} row does not exist in DB list`)
-  //
-  // // Go to gffff info page
-  // await page.click(`text=${database} >> a`)
-  //
-  // // click on admin tab
-  // await page.click('text=admin')
-  //
-  // // click delete
-  // await page.click('.v-btn >> text=delete')
-  //
-  // // confirm deletion in dialog
-  // await page.click('.v-dialog .v-btn >> text=delete')
-  // // await page.go('/gffff')
-  //
-  // // assert table row does not exist
-  // const oldRow = await page.$(`tr >> text=${database}`)
-  // t.false(!!oldRow, `Database ${database} not deleted`)
+  const id = await axios.get('http://localhost:9092/api/database/').then(function (response) {
+    return response.filter(function (item) {
+      return item.name === database
+    }).id
+  })
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  await page.go('/databases/' + id + '/info')
+
+  // find 'mariadb' anywhere on the page:
+  success = await page.waitForSelector('text=mariadb:10.5')
+  t.true(!!success, 'Could not find the mariadb image on the site')
+
+  await page.go('/databases/' + id + '/tables')
+
+  // find 'mariadb' anywhere on the page:
+  success = await page.waitForSelector('text=(no tables)')
+  t.true(!!success, 'Could not find the tables on the site')
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  await page.go('/databases/' + id + '/queries')
+
+  // find 'mariadb' anywhere on the page:
+  success = await page.waitForSelector('text=(no queries)')
+  t.true(!!success, 'Could not find the queries on the site')
 })

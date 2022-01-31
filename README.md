@@ -57,6 +57,24 @@ Other:
 - [Discovery Endpoint](http://localhost:9090/) (Eureka)
 - [Gateway Endpoint](http://localhost:9095/swagger-ui/) (Webflux)
 
+Hosts:
+
+```bash
+# FDA PUBLIC
+172.29.0.2      fda-gateway-service
+172.29.0.3      fda-broker-service
+172.29.0.4      fda-discovery-service
+172.29.0.5      fda-metadata-db
+172.29.0.6      fda-search-service
+172.29.0.7      fda-units-service
+172.29.0.8      fda-container-service
+172.29.0.9      fda-database-service
+172.29.0.10     fda-analyse-service
+172.29.0.11     fda-table-service
+172.29.0.12     fda-query-service
+
+```
+
 ## Contribute
 
 Contributions are always welcome and encouraged, simply fork the repository and

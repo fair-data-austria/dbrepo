@@ -1,5 +1,6 @@
 package at.tuwien.api.database.table;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -23,6 +24,7 @@ public class TableBriefDto {
     private String name;
 
     @NotBlank
+    @JsonProperty("internal_name")
     @ApiModelProperty(name = "table internal name", example = "weather_australia")
     private String internalName;
 

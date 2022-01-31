@@ -3,11 +3,13 @@ package at.tuwien.service.impl;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
-import at.tuwien.entities.Query;
+import at.tuwien.entities.container.Container;
+import at.tuwien.querystore.Query;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.StoreMapper;
+import at.tuwien.service.ContainerService;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.StoreService;
 import lombok.extern.log4j.Log4j2;
@@ -27,25 +29,30 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
     private final QueryMapper queryMapper;
     private final StoreMapper storeMapper;
     private final DatabaseService databaseService;
+    private final ContainerService containerService;
 
     @Autowired
-    public StoreServiceImpl(QueryMapper queryMapper, StoreMapper storeMapper, DatabaseService databaseService) {
+    public StoreServiceImpl(QueryMapper queryMapper, StoreMapper storeMapper, DatabaseService databaseService,
+                            ContainerService containerService) {
         this.queryMapper = queryMapper;
         this.storeMapper = storeMapper;
         this.databaseService = databaseService;
+        this.containerService = containerService;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Query> findAll(Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            QueryStoreException {
+    public List<Query> findAll(Long containerId, Long databaseId) throws DatabaseNotFoundException,
+            ImageNotSupportedException, QueryStoreException, ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.find(databaseId);
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
+        log.debug("find all queries in database id {}", databaseId);
         /* run query */
-        final SessionFactory sessionFactory = getSessionFactory(database);
+        final SessionFactory sessionFactory = getSessionFactory(database, true);
         final Session session = sessionFactory.openSession();
         final Transaction transaction = session.beginTransaction();
         /* use jpq to select all */
@@ -59,14 +66,17 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
 
     @Override
     @Transactional(readOnly = true)
-    public Query findOne(Long databaseId, Long queryId) throws DatabaseNotFoundException, ImageNotSupportedException, QueryNotFoundException {
+    public Query findOne(Long containerId, Long databaseId, Long queryId) throws DatabaseNotFoundException,
+            ImageNotSupportedException, QueryNotFoundException, ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.find(databaseId);
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
+        log.debug("find one query in database id {} with id {}", databaseId, queryId);
         /* run query */
-        final SessionFactory sessionFactory = getSessionFactory(database);
+        final SessionFactory sessionFactory = getSessionFactory(database, true);
         final Session session = sessionFactory.openSession();
         final Transaction transaction = session.beginTransaction();
         /* use jpa to select one */
@@ -81,30 +91,35 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             throw new QueryNotFoundException("Query was not found");
         }
         log.info("Found query with id {}", queryId);
+        log.debug("Found query {}", query);
         session.close();
         return result;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Query insert(Long databaseId, QueryResultDto result, SaveStatementDto metadata)
-            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
-        return insert(databaseId, result, queryMapper.saveStatementDtoToExecuteStatementDto(metadata));
+    public Query insert(Long containerId, Long databaseId, QueryResultDto result, SaveStatementDto metadata)
+            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
+            ContainerNotFoundException {
+        return insert(containerId, databaseId, result, queryMapper.saveStatementDtoToExecuteStatementDto(metadata));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Query insert(Long databaseId, QueryResultDto result, ExecuteStatementDto metadata)
-            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException {
+    public Query insert(Long containerId, Long databaseId, QueryResultDto result, ExecuteStatementDto metadata)
+            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
+            ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.find(databaseId);
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
+        log.debug("Insert into database id {}, record {}, metadata {}", databaseId, result, metadata);
         /* save */
         final SessionFactory sessionFactory;
         try {
-            sessionFactory = getSessionFactory(database);
+            sessionFactory = getSessionFactory(database, true);
         } catch (HibernateException e) {
             log.error("Failed to open session");
             throw new QueryStoreException("Failed to open session", e);

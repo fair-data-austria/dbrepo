@@ -2,19 +2,17 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.DatabaseCreateDto;
-import at.tuwien.api.database.DatabaseModifyDto;
-import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
-import com.github.dockerjava.api.DockerClient;
+import at.tuwien.service.impl.MariaDbServiceImpl;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Network;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.Session;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,7 +23,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.channels.Channel;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +43,7 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
     private Channel channel;
 
     @Autowired
-    private DatabaseService databaseService;
+    private MariaDbServiceImpl databaseService;
 
     @MockBean
     private DatabaseRepository databaseRepository;
@@ -114,22 +111,25 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void findAll_succeeds() {
-        when(databaseRepository.findAll())
+
+        /* mock */
+        when(databaseRepository.findAllByContainerId(CONTAINER_1_ID))
                 .thenReturn(List.of(DATABASE_1));
 
-        final List<Database> response = databaseService.findAll();
-
         /* test */
+        final List<Database> response = databaseService.findAll(CONTAINER_1_ID);
         assertEquals(1, response.size());
         assertEquals(DATABASE_1, response.get(0));
     }
 
     @Test
     public void findById_succeeds() throws DatabaseNotFoundException {
+
+        /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
 
-        final Database response = databaseService.findById(DATABASE_1_ID);
+        final Database response = databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID);
 
         /* test */
         assertEquals(DATABASE_1, response);
@@ -137,23 +137,27 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void findById_notFound_fails() {
+
+        /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.empty());
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseService.findById(DATABASE_1_ID);
+            databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 
     @Test
     public void delete_notFound_fails() {
+
+        /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.empty());
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseService.delete(DATABASE_1_ID);
+            databaseService.delete(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 
@@ -161,30 +165,25 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
     public void create_notFound_fails() {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .name(DATABASE_1_NAME)
-                .containerId(CONTAINER_1_ID)
                 .build();
+
+        /* mock */
         when(containerRepository.findById(CONTAINER_1_ID))
                 .thenReturn(Optional.empty());
 
         /* test */
         assertThrows(ContainerNotFoundException.class, () -> {
-            databaseService.create(request);
+            databaseService.create(CONTAINER_1_ID, request);
         });
     }
 
     @Test
-    public void modify_notFound_fails() {
-        final DatabaseModifyDto request = DatabaseModifyDto.builder()
-                .databaseId(DATABASE_1_ID)
-                .name("NAME")
-                .isPublic(true)
-                .build();
-        when(databaseRepository.findById(CONTAINER_1_ID))
-                .thenReturn(Optional.empty());
+    public void getSession_fails() {
+        /* no mock needed since unit test */
 
         /* test */
-        assertThrows(DatabaseNotFoundException.class, () -> {
-            databaseService.modify(request);
+        assertThrows(ContainerConnectionException.class, () -> {
+            databaseService.getSession(DATABASE_1);
         });
     }
 

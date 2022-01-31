@@ -3,11 +3,11 @@ package at.tuwien.service;
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.container.image.ImageChangeDto;
 import at.tuwien.api.container.image.ImageCreateDto;
-import at.tuwien.api.container.image.ImageEnvItemDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.ImageRepository;
+import at.tuwien.service.impl.ImageServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private ImageService imageService;
+    private ImageServiceImpl imageService;
 
     @MockBean
     private ImageRepository imageRepository;
@@ -56,7 +56,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(IMAGE_1));
 
         /* test */
-        final ContainerImage response = imageService.getById(IMAGE_1_ID);
+        final ContainerImage response = imageService.find(IMAGE_1_ID);
         assertEquals(IMAGE_1_REPOSITORY, response.getRepository());
         assertEquals(IMAGE_1_TAG, response.getTag());
     }
@@ -68,7 +68,7 @@ public class ImageServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(ImageNotFoundException.class, () -> {
-            imageService.getById(IMAGE_1_ID);
+            imageService.find(IMAGE_1_ID);
         });
     }
 
@@ -108,8 +108,6 @@ public class ImageServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void update_port_succeeds() throws ImageNotFoundException, DockerClientException {
-        final ImageEnvItemDto[] env = IMAGE_1_ENV_DTO;
-        env[0].setValue("postgres2");
         final ImageChangeDto request = ImageChangeDto.builder()
                 .environment(IMAGE_1_ENV_DTO)
                 .defaultPort(9999)
@@ -123,7 +121,6 @@ public class ImageServiceUnitTest extends BaseUnitTest {
         final ContainerImage response = imageService.update(IMAGE_1_ID, request);
         assertEquals(IMAGE_1_REPOSITORY, response.getRepository());
         assertEquals(IMAGE_1_TAG, response.getTag());
-        assertEquals("postgres2", response.getEnvironment().get(0).getValue());
     }
 
     @Test

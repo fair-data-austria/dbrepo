@@ -3,9 +3,8 @@ package at.tuwien.api.database.table;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -15,8 +14,8 @@ import java.util.Map;
 @NoArgsConstructor
 public class TableCsvDto {
 
-    @NotBlank
+    @NotNull
     @ApiModelProperty(name = "data")
-    private List<Map<String, Object>> data;
+    private List<Object> data;
 
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
-TMP_CERT_LOCATION="/root/keys/"
-TMP_SAML_LOCATION="/root/keys/"
+TMP_CERT_LOCATION="/root/keys"
+TMP_SAML_LOCATION="/root/keys"
 KEY_STORE_LOCATION="/tmp/dbrepo.jks"
 KEY_STORE_PASS="dbrepo"
 CERT_LOCATION="/etc/letsencrypt/live/dbrepo.ossdip.at"
@@ -41,6 +41,11 @@ sudo keytool -noprompt -importkeystore -deststorepass "${KEY_STORE_PASS}" -destk
 # IMPORT METADATA VERIFICATION PUBKEY
 sudo keytool -noprompt -importcert -file "${TU_SAML_CERT}" -storepass "${KEY_STORE_PASS}" \
   -keystore "${KEY_STORE_LOCATION}" -alias tu
+
+# OWNERSHIP
+sudo chown centos:docker "${TMP_CERT_LOCATION}"
+sudo chown centos:docker "${TMP_SAML_LOCATION}"
+sudo chown centos:docker "${KEY_STORE_LOCATION}"
 
 # TRUST LET'S ENCRYPT
 sudo keytool -noprompt -import -alias letsencrypt -keystore "${KEY_STORE_LOCATION}" -storepass "${KEY_STORE_PASS}" \

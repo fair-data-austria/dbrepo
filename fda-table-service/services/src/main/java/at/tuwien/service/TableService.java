@@ -13,7 +13,7 @@ public interface TableService {
      *
      * @return The list of tables.
      */
-    List<Table> findAll(Long databaseId) throws DatabaseNotFoundException;
+    List<Table> findAll(Long containerId, Long databaseId) throws DatabaseNotFoundException;
 
     /**
      * Deletes a table for a fiven database-table id pair.
@@ -25,8 +25,8 @@ public interface TableService {
      * @throws ImageNotSupportedException The image is not supported.
      * @throws DataProcessingException    The deletion did not work.
      */
-    void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException;
+    void deleteTable(Long containerId, Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
+            ImageNotSupportedException, DataProcessingException, ContainerNotFoundException;
 
     /**
      * Find a table by database-table id pair
@@ -37,7 +37,7 @@ public interface TableService {
      * @throws TableNotFoundException    The table was not found in the metadata database.
      * @throws DatabaseNotFoundException The database was not found in the metadata database.
      */
-    Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException;
+    Table findById(Long containerId, Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException, ContainerNotFoundException;
 
     /**
      * Creates a table for a database id with given schema as data
@@ -51,7 +51,7 @@ public interface TableService {
      * @throws ArbitraryPrimaryKeysException The primary keys are configured wrong.
      * @throws TableMalformedException       The table seems malformed by the mapper.
      */
-    Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException;
+    Table createTable(Long containerId, Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
+            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException, TableNameExistsException, ContainerNotFoundException;
 
 }

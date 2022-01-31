@@ -8,28 +8,28 @@
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
-        <v-btn :to="`/databases/${databaseId}/tables/import`" class="mr-2">
+        <v-btn :to="`/container/${$route.params.container_id}/database/${databaseId}/table/import`" class="mr-2">
           <v-icon left>mdi-cloud-upload</v-icon> Import CSV
         </v-btn>
-        <v-btn color="blue-grey" :to="`/databases/${databaseId}/queries/create`" class="mr-2 white--text">
+        <v-btn color="blue-grey" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/create`" class="mr-2 white--text">
           <v-icon left>mdi-wrench</v-icon> Query Builder
         </v-btn>
-        <v-btn color="primary" :to="`/databases/${databaseId}/tables/create`">
+        <v-btn color="primary" :to="`/container/${$route.params.container_id}/database/${databaseId}/table/create`">
           <v-icon left>mdi-table-large-plus</v-icon> Create Table
         </v-btn>
       </v-toolbar-title>
       <template v-slot:extension>
         <v-tabs v-model="tab" color="primary">
-          <v-tab :to="`/databases/${databaseId}/info`">
+          <v-tab :to="`/container/${$route.params.container_id}/database/${databaseId}/info`">
             Info
           </v-tab>
-          <v-tab :to="`/databases/${databaseId}/tables`">
+          <v-tab :to="`/container/${$route.params.container_id}/database/${databaseId}/table`">
             Tables
           </v-tab>
-          <v-tab :to="`/databases/${databaseId}/queries`">
+          <v-tab :to="`/container/${$route.params.container_id}/database/${databaseId}/query`">
             Queries
           </v-tab>
-          <v-tab :to="`/databases/${databaseId}/admin`">
+          <v-tab :to="`/container/${$route.params.container_id}/database/${databaseId}/admin`">
             Admin
           </v-tab>
         </v-tabs>
@@ -43,7 +43,8 @@ export default {
   data () {
     return {
       tab: null,
-      loading: false
+      loading: false,
+      error: false
     }
   },
   computed: {
@@ -67,7 +68,7 @@ export default {
       }
       try {
         this.loading = true
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}`)
         console.debug('database', res.data)
         this.$store.commit('SET_DATABASE', res.data)
         this.loading = false

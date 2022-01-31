@@ -28,7 +28,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -56,12 +55,6 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     @MockBean
     private TableRepository tableRepository;
 
-    /**
-     * We need a container to test the CRUD operations as of now it is unfeasible to determine the correctness of the
-     * operations without a live container
-     *
-     * @throws InterruptedException Sleep interrupted.
-     */
     @BeforeAll
     public static void beforeAll() throws InterruptedException {
         afterAll();
@@ -84,9 +77,21 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=weather")
                 .withBinds(Bind.parse(bind))
                 .exec();
+        final String bind3 = new File("./src/test/resources/traffic").toPath().toAbsolutePath() + ":/docker-entrypoint-initdb.d";
+        log.trace("container bind {}", bind3);
+        final CreateContainerResponse response3 = dockerClient.createContainerCmd(IMAGE_1_REPOSITORY + ":" + IMAGE_1_TAG)
+                .withHostConfig(hostConfig.withNetworkMode("fda-userdb"))
+                .withName(CONTAINER_3_INTERNALNAME)
+                .withIpv4Address(CONTAINER_3_IP)
+                .withHostName(CONTAINER_3_INTERNALNAME)
+                .withEnv("MARIADB_USER=mariadb", "MARIADB_PASSWORD=mariadb", "MARIADB_ROOT_PASSWORD=mariadb", "MARIADB_DATABASE=traffic")
+                .withBinds(Bind.parse(bind3))
+                .exec();
         /* start */
         CONTAINER_1.setHash(response.getId());
+        CONTAINER_3.setHash(response3.getId());
         DockerConfig.startContainer(CONTAINER_1);
+        DockerConfig.startContainer(CONTAINER_3);
     }
 
     @AfterAll
@@ -119,11 +124,13 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     public void beforeEach() {
         TABLE_1.setDatabase(DATABASE_1);
         TABLE_2.setDatabase(DATABASE_2);
+        TABLE_3.setDatabase(DATABASE_3);
     }
 
     @Test
     public void selectAll_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, PaginationException {
+            DatabaseNotFoundException, ImageNotSupportedException, TableMalformedException, PaginationException,
+            ContainerNotFoundException {
         final Long page = 0L;
         final Long size = 10L;
 
@@ -134,7 +141,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+        queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
     }
 
     @Test
@@ -150,7 +157,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
@@ -167,48 +174,14 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
-        });
-    }
-
-    @Test
-    public void selectAll_parameter_fails() {
-        final Long page = -1L;
-        final Long size = 10L;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
-        });
-    }
-
-    @Test
-    public void selectAll_parameter2_fails() {
-        final Long page = 1L;
-        final Long size = 0L;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
+            queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, Instant.now(), page, size);
         });
     }
 
     @Test
     public void insert_columns_fails() {
         final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of(Map.of("not_existing", "some value")))
+                .data(List.of("some_value"))
                 .build();
 
         /* mock */
@@ -219,114 +192,14 @@ public class QueryServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            queryService.insert(DATABASE_1_ID, TABLE_1_ID, request);
-        });
-    }
-
-    @Test
-    public void findAll_noPagination_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
-        final Long page = null;
-        final Long size = null;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
-    }
-
-    @Test
-    public void findAll_pageNull_fails() {
-        final Long page = null;
-        final Long size = 1L;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
-        });
-    }
-
-    @Test
-    public void findAll_sizeNull_fails() {
-        final Long page = 1L;
-        final Long size = null;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
-        });
-    }
-
-    @Test
-    public void findAll_negativePage_fails() {
-        final Long page = -1L;
-        final Long size = 1L /* arbitrary */;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
-        });
-    }
-
-    @Test
-    public void findAll_sizeZero_fails() {
-        final Long page = 1L /* arbitrary */;
-        final Long size = 0L;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
-        });
-    }
-
-    @Test
-    public void findAll_sizeNegative_fails() {
-        final Long page = 1L /* arbitrary */;
-        final Long size = -1L;
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(PaginationException.class, () -> {
-            queryService.findAll(DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            queryService.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         });
     }
 
     @Test
     public void findAll_timestampMissing_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException,
+            ContainerNotFoundException {
 
         /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))
@@ -335,12 +208,13 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, null, null, null);
+        queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null, null);
     }
 
     @Test
     public void findAll_timestampBeforeCreation_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException {
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException,
+            ContainerNotFoundException {
         final Instant timestamp = DATABASE_1_CREATED.minus(1, ChronoUnit.SECONDS);
 
         /* mock */
@@ -350,7 +224,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        queryService.findAll(DATABASE_1_ID, TABLE_1_ID, timestamp, null, null);
+        queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, timestamp, null, null);
     }
 
 }

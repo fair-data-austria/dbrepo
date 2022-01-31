@@ -13,6 +13,10 @@ spring:
     open-in-view: false
   application:
     name: fda-query-service
+  rabbitmq:
+    host: fda-broker-service
+    username: guest
+    password: guest
   cloud:
     loadbalancer.ribbon.enabled: false
 server.port: 9093
@@ -21,9 +25,11 @@ logging:
   level:
     root: warn
     at.tuwien.: debug
-    at.tuwien.mapper.: trace
+    at.tuwien.mapper.: debug
+    at.tuwien.config.: debug
 eureka:
   instance.hostname: fda-query-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
+  gateway.endpoint: http://fda-gateway-service:9095
   ready.path: /ready

@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import com.rabbitmq.client.Channel;
@@ -44,12 +45,12 @@ public class MessageQueueServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void createUserConsumer_imageNotSupported_succeeds() throws IOException, TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
 
         /* mock */
         doThrow(ImageNotSupportedException.class)
                 .when(queryService)
-                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any());
+                .insert(eq(CONTAINER_1_ID), eq(DATABASE_1_ID), eq(TABLE_1_ID), any(TableCsvDto.class));
 
         /* test */
         messageQueueService.createUserConsumer(TABLE_1);
@@ -57,12 +58,12 @@ public class MessageQueueServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void createUserConsumer_tableFailed_succeeds() throws IOException, TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
 
         /* mock */
         doThrow(TableMalformedException.class)
                 .when(queryService)
-                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any());
+                .insert(eq(CONTAINER_1_ID), eq(DATABASE_1_ID), eq(TABLE_1_ID), any(TableCsvDto.class));
 
         /* test */
         messageQueueService.createUserConsumer(TABLE_1);
@@ -70,12 +71,12 @@ public class MessageQueueServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void createUserConsumer_dbNotFound_succeeds() throws IOException, TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
 
         /* mock */
         doThrow(DatabaseNotFoundException.class)
                 .when(queryService)
-                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any());
+                .insert(eq(CONTAINER_1_ID), eq(DATABASE_1_ID), eq(TABLE_1_ID), any(TableCsvDto.class));
 
         /* test */
         messageQueueService.createUserConsumer(TABLE_1);
@@ -83,12 +84,12 @@ public class MessageQueueServiceUnitTest extends BaseUnitTest {
 
     @Test
     public void createUserConsumer_tableNotFound_succeeds() throws IOException, TableNotFoundException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
 
         /* mock */
         doThrow(TableNotFoundException.class)
                 .when(queryService)
-                .insert(eq(DATABASE_1_ID), eq(TABLE_1_ID), any());
+                .insert(eq(CONTAINER_1_ID), eq(DATABASE_1_ID), eq(TABLE_1_ID), any(TableCsvDto.class));
 
         /* test */
         messageQueueService.createUserConsumer(TABLE_1);

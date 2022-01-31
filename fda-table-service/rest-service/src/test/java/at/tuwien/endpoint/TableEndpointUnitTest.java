@@ -61,11 +61,11 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         /* mock */
         when(tableRepository.findByDatabase(DATABASE_1))
                 .thenReturn(List.of(TABLE_1));
-        when(tableService.findAll(DATABASE_1_ID))
+        when(tableService.findAll(CONTAINER_1_ID, DATABASE_1_ID))
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
-        final ResponseEntity<List<TableBriefDto>> response = tableEndpoint.findAll(DATABASE_1_ID);
+        final ResponseEntity<List<TableBriefDto>> response = tableEndpoint.findAll(CONTAINER_1_ID, DATABASE_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, Objects.requireNonNull(response.getBody()).size());
     }
@@ -73,7 +73,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
-            AmqpException, IOException {
+            AmqpException, IOException, TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -83,87 +83,88 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         /* mock */
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
-        when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
+        when(tableService.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID))
                 .thenReturn(TABLE_1);
         doNothing()
                 .when(messageQueueService)
                 .create(TABLE_1);
 
         /* test */
-        final ResponseEntity<TableBriefDto> response = tableEndpoint.create(DATABASE_1_ID, request);
+        final ResponseEntity<TableBriefDto> response = tableEndpoint.create(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     @Test
     public void create_databaseNotFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableMalformedException {
+            TableMalformedException, TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
                 .columns(COLUMNS_CSV01)
                 .build();
-        when(tableService.createTable(DATABASE_1_ID, request))
+        when(tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request))
                 .thenAnswer(invocation -> {
                     throw new DatabaseNotFoundException("no db");
                 });
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableEndpoint.create(DATABASE_1_ID, request);
+            tableEndpoint.create(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
     @Test
     public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
-        when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
+            ContainerNotFoundException {
+        when(tableService.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID))
                 .thenReturn(TABLE_1);
 
         /* test */
-        final ResponseEntity<TableDto> response = tableEndpoint.findById(DATABASE_1_ID, TABLE_1_ID);
+        final ResponseEntity<TableDto> response = tableEndpoint.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(TABLE_1_ID, Objects.requireNonNull(response.getBody()).getId());
         assertEquals(TABLE_1_NAME, Objects.requireNonNull(response.getBody()).getName());
     }
 
     @Test
-    public void findById_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException {
+    public void findById_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
+            ContainerNotFoundException {
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.empty());
         doThrow(TableNotFoundException.class)
                 .when(tableService)
-                .findById(DATABASE_1_ID, TABLE_1_ID);
+                .findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            tableEndpoint.findById(DATABASE_1_ID, TABLE_1_ID);
+            tableEndpoint.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
     @Test
     public void delete_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
+            ImageNotSupportedException, ContainerNotFoundException {
         doThrow(TableNotFoundException.class)
                 .when(tableService)
-                .deleteTable(DATABASE_1_ID, TABLE_1_ID);
+                .deleteTable(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            tableEndpoint.delete(DATABASE_1_ID, TABLE_1_ID);
+            tableEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
     @Test
     public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException {
+            DataProcessingException, ContainerNotFoundException {
         /* test */
-        tableEndpoint.delete(DATABASE_1_ID, TABLE_1_ID);
+        tableEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
     }
 
     @Test
     public void update_fails() {
         /* test */
-        final ResponseEntity<TableBriefDto> response = tableEndpoint.update(DATABASE_1_ID, TABLE_1_ID);
+        final ResponseEntity<TableBriefDto> response = tableEndpoint.update(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
     }
 

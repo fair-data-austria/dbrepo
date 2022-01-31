@@ -33,13 +33,13 @@ public abstract class HibernateConnector {
         log.trace("hibernate jdbc url '{}'", url);
         final String username = database.getContainer().getImage().getEnvironment()
                 .stream()
-                .filter(e -> e.getType().equals(ContainerImageEnvironmentItemType.USERNAME))
+                .filter(e -> e.getType().equals(ContainerImageEnvironmentItemType.PRIVILEGED_USERNAME))
                 .map(ContainerImageEnvironmentItem::getValue)
                 .collect(Collectors.toList())
                 .get(0);
         final String password = database.getContainer().getImage().getEnvironment()
                 .stream()
-                .filter(e -> e.getType().equals(ContainerImageEnvironmentItemType.PASSWORD))
+                .filter(e -> e.getType().equals(ContainerImageEnvironmentItemType.PRIVILEGED_PASSWORD))
                 .map(ContainerImageEnvironmentItem::getValue)
                 .collect(Collectors.toList())
                 .get(0);

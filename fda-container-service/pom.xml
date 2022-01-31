@@ -187,6 +187,7 @@
                 <configuration>
                     <excludes>
                         <exclude>at/tuwien/utils/**/*</exclude>
+                        <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>at/tuwien/seeder/**/*</exclude>
                         <exclude>at/tuwien/mapper/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>

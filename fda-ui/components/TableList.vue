@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-progress-linear v-if="loading" :indeterminate="!error" />
     <v-card v-if="!loading && tables.length === 0" flat>
       <v-card-title>
         (no tables)
@@ -30,7 +31,7 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
-                      Internal Name: <code>{{ tableDetails.internalName }}</code>
+                      Internal Name: <code>{{ tableDetails.internal_name }}</code>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -59,12 +60,8 @@
           </v-row>
           <v-row dense>
             <v-col>
-              <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}`" outlined>
-                <v-icon>mdi-table</v-icon>
-                View
-              </v-btn>
-              <v-btn :to="`/databases/${$route.params.database_id}/tables/${item.id}/import`" outlined>
-                Import CSV
+              <v-btn color="blue-grey" class="white--text" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}`">
+                More
               </v-btn>
             </v-col>
             <v-col class="align-right">
@@ -73,13 +70,12 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-row v-if="tableDetails.columns" dense>
+          <v-row v-if="tableDetails.columns">
             <v-col>
               <v-simple-table class="colTable">
                 <thead>
                   <th>Column Name</th>
                   <th>Type</th>
-                  <th>Unit</th>
                   <th>Primary Key</th>
                   <th>Unique</th>
                   <th>NULL Allowed</th>
@@ -90,19 +86,16 @@
                       {{ col.name }}
                     </td>
                     <td>
-                      {{ col.columnType }}
+                      {{ col.column_type }}
                     </td>
                     <td>
-                      <DialogsColumnUnit :column="col" />
-                    </td>
-                    <td>
-                      <v-simple-checkbox v-model="col.isPrimaryKey" disabled aria-readonly="true" />
+                      <v-simple-checkbox v-model="col.is_primary_key" disabled aria-readonly="true" />
                     </td>
                     <td>
                       <v-simple-checkbox v-model="col.unique" disabled aria-readonly="true" />
                     </td>
                     <td>
-                      <v-simple-checkbox v-model="col.isNullAllowed" disabled aria-readonly="true" />
+                      <v-simple-checkbox v-model="col.is_null_allowed" disabled aria-readonly="true" />
                     </td>
                   </tr>
                 </tbody>
@@ -155,7 +148,7 @@ export default {
         return
       }
       try {
-        const res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table/${table.id}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${table.id}`)
         console.debug('table', res.data)
         this.tableDetails = res.data
       } catch (err) {
@@ -168,7 +161,7 @@ export default {
       let res
       try {
         this.loading = true
-        res = await this.$axios.get(`/api/database/${this.$route.params.database_id}/table`)
+        res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
         this.loading = false
       } catch (err) {
@@ -178,7 +171,7 @@ export default {
     async deleteTable () {
       try {
         this.loading = true
-        await this.$axios.delete(`/api/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
+        await this.$axios.delete(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.deleteTableId}`)
         this.loading = false
         this.refresh()
       } catch (err) {

@@ -21,7 +21,6 @@ FROM postgres:latest as runtime
 # Scripts are copied to /docker-entrypoint-initdb.d/ in docker-compose from analyze service
 HEALTHCHECK --interval=10s --timeout=5s --retries=12 CMD pg_isready
 
-COPY ./initi.sh /docker-entrypoint-initdb.d/
-RUN chmod +x /docker-entrypoint-initdb.d/initi.sh
+COPY ./setup-schema.sql /docker-entrypoint-initdb.d/
 
 COPY --from=build /root/.m2/repository/at/tuwien /root/.m2/repository/at/tuwien

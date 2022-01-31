@@ -18,11 +18,11 @@ import java.util.List;
 @Data
 @Entity
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(indexName = "databaseindex", createIndex = false)
 @Where(clause = "deleted is null")
-@ToString(onlyExplicitlyIncluded = true)
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "update mdb_databases set deleted = NOW() where id = ?")
 @javax.persistence.Table(name = "mdb_databases")
@@ -30,7 +30,6 @@ public class Database {
 
     @Id
     @EqualsAndHashCode.Include
-    @ToString.Include
     @GeneratedValue(generator = "database-sequence")
     @GenericGenerator(
             name = "database-sequence",
@@ -46,19 +45,15 @@ public class Database {
     })
     private Container container;
 
-    @ToString.Include
     @Column(nullable = false)
     private String name;
 
-    @ToString.Include
     @Column(nullable = false)
     private String internalName;
 
-    @ToString.Include
     @Column(nullable = false, updatable = false)
     private String exchange;
 
-    @ToString.Include
     @Column
     private String description;
 
@@ -69,7 +64,6 @@ public class Database {
     })
     private List<Table> tables;
 
-    @ToString.Include
     @Column(nullable = false)
     private Boolean isPublic;
 
