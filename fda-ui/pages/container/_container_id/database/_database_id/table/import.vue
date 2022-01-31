@@ -29,14 +29,13 @@
       <v-stepper-content step="2">
         <v-row dense>
           <v-col cols="8">
-            <v-text-field
+            <v-select
               v-model="tableCreate.separator"
               :rules="[rules.required]"
-              counter="1"
+              :items="separators"
               required
               hint="Character separating the values"
-              label="Separator"
-              placeholder="e.g. ;" />
+              label="Separator" />
           </v-col>
         </v-row>
         <v-row dense>
@@ -44,6 +43,7 @@
             <v-text-field
               v-model="tableCreate.skip_lines"
               :rules="[rules.required]"
+              type="number"
               required
               hint="Skip n lines from the top"
               label="Skip Lines"
@@ -181,6 +181,15 @@ export default {
   data () {
     return {
       step: 1,
+      separators: [
+        ',',
+        ';',
+        '-',
+        '|',
+        '$',
+        '%',
+        '#'
+      ],
       items: [
         { text: 'Databases', href: '/container' },
         { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` }

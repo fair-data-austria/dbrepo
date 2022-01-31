@@ -55,7 +55,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
-        final List<Table> response = tableService.findAll(DATABASE_1_ID);
+        final List<Table> response = tableService.findAll(CONTAINER_1_ID, DATABASE_1_ID);
         assertEquals(1, response.size());
         assertEquals(TABLE_1_ID, response.get(0).getId());
     }
@@ -67,7 +67,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.findAll(DATABASE_1_ID);
+            tableService.findAll(CONTAINER_1_ID, DATABASE_1_ID);
         });
     }
 
@@ -78,7 +78,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+            tableService.deleteTable(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
@@ -91,19 +91,20 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+            tableService.deleteTable(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
     @Test
-    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
+    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
+            ContainerNotFoundException {
         when(databaseRepository.findById(DATABASE_1_ID))
                 .thenReturn(Optional.of(DATABASE_1));
         when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
 
         /* test */
-        final Table response = tableService.findById(DATABASE_1_ID, TABLE_1_ID);
+        final Table response = tableService.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         assertEquals(TABLE_1_ID, response.getId());
         assertEquals(TABLE_1_NAME, response.getName());
     }
@@ -117,7 +118,7 @@ public class TableServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            tableService.findById(DATABASE_1_ID, 9999L);
+            tableService.findById(CONTAINER_1_ID, DATABASE_1_ID, 9999L);
         });
     }
 

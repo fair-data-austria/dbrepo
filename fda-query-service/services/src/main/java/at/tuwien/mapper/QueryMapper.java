@@ -19,7 +19,6 @@ import org.mariadb.jdbc.MariaDbBlob;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -85,7 +84,8 @@ public interface QueryMapper {
                 .append(table.getInternalName())
                 .append("` CHARACTER SET utf8 FIELDS TERMINATED BY '")
                 .append(table.getSeparator())
-                .append("' LINES TERMINATED BY '\\r\\n'")
+                .append("'")
+//                .append("' LINES TERMINATED BY '\\r\\n'")
                 .append(table.getSkipLines() != null ? (" IGNORE " + table.getSkipLines() + " LINES") : "")
                 .append(" (");
         final StringBuilder dateSet = new StringBuilder();
@@ -118,10 +118,11 @@ public interface QueryMapper {
                     }
                     idx[0]++;
                 });
-        query.append(") ")
-                .append(dateSet.length() != 0 ? ("SET " + dateSet) : "")
+        query.append(")")
+                .append(dateSet.length() != 0 ? (" SET " + dateSet) : "")
                 .append(";");
-        log.trace("raw import query: [" + query + "]");
+        log.debug("import csv {} for table {}", path, table);
+        log.trace("raw import query: [{}]", query);
         return InsertTableRawQuery.builder()
                 .query(query.toString())
                 .build();
@@ -161,8 +162,14 @@ public interface QueryMapper {
         if (timestamp == null) {
             timestamp = Instant.now();
         }
-        /* note: we cannot select specific attributes when using system versioning */
-        final StringBuilder query = new StringBuilder("SELECT * FROM `")
+        final int[] idx = new int[]{0};
+        final StringBuilder query = new StringBuilder("SELECT ");
+        table.getColumns()
+                .forEach(column -> query.append(idx[0]++ > 0 ? "," : "")
+                        .append("`")
+                        .append(column.getInternalName())
+                        .append("`"));
+        query.append(" FROM `")
                 .append(nameToInternalName(table.getName()))
                 .append("` FOR SYSTEM_TIME AS OF TIMESTAMP'")
                 .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))

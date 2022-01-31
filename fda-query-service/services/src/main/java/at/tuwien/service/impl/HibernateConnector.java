@@ -32,7 +32,7 @@ public abstract class HibernateConnector {
     @Transactional
     protected SessionFactory getSessionFactory(Database database, Boolean privileged) {
         final String url = "jdbc:" + database.getContainer().getImage().getJdbcMethod() + "://" + database.getContainer().getInternalName() + "/" + database.getInternalName();
-        log.debug("hibernate jdbc url '{}', privileged: {}", url, privileged ? 'y' : 'n');
+        log.trace("hibernate jdbc url '{}', privileged: {}", url, privileged ? 'y' : 'n');
         final String username = database.getContainer().getImage().getEnvironment()
                 .stream()
                 .filter(e -> e.getType().equals(privileged ? ContainerImageEnvironmentItemType.PRIVILEGED_USERNAME : ContainerImageEnvironmentItemType.USERNAME))
@@ -45,7 +45,7 @@ public abstract class HibernateConnector {
                 .map(ContainerImageEnvironmentItem::getValue)
                 .collect(Collectors.toList())
                 .get(0);
-        log.debug("container image {}", database.getContainer().getImage());
+        log.trace("container image {}", database.getContainer().getImage());
         final Configuration configuration = new Configuration()
                 .setProperty("hibernate.connection.url", url)
                 .setProperty("hibernate.connection.username", username)

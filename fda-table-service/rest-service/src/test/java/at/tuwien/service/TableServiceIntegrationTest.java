@@ -127,7 +127,8 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void createTable_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, TableNameExistsException {
+            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
+            TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_2_NAME)
                 .description(TABLE_2_DESCRIPTION)
@@ -138,7 +139,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
+        final Table response = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(TABLE_2_NAME, response.getName());
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
@@ -148,8 +149,9 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void createTable_noPrimaryKeyAutoGenerate_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, TableNameExistsException {
+    public void createTable_noPrimaryKeyAutoGenerate_succeeds() throws ArbitraryPrimaryKeysException,
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, TableMalformedException,
+            InterruptedException, TableNameExistsException, ContainerNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_2_NAME)
@@ -172,7 +174,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
+        final Table response = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(TABLE_2_NAME, response.getName());
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
@@ -182,8 +184,9 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void createTable_noPrimaryKeyAutoGenerateEmpty_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, TableNameExistsException {
+    public void createTable_noPrimaryKeyAutoGenerateEmpty_succeeds() throws ArbitraryPrimaryKeysException,
+            DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, TableMalformedException,
+            InterruptedException, TableNameExistsException, ContainerNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[0];
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_2_NAME)
@@ -195,7 +198,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
+        final Table response = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(TABLE_2_NAME, response.getName());
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
@@ -239,13 +242,14 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            tableService.createTable(DATABASE_1_ID, request);
+            tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
     @Test
     public void createTable_groupPrimaryKey_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, TableNameExistsException {
+            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
+            TableNameExistsException, ContainerNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_1_NAME)
@@ -279,7 +283,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
+        final Table response = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(TABLE_2_NAME, response.getName());
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
@@ -288,7 +292,8 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void createTable_checkExpression_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, TableNameExistsException {
+            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
+            TableNameExistsException, ContainerNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_1_NAME)
@@ -312,7 +317,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
+        final Table response = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(TABLE_2_NAME, response.getName());
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
@@ -321,7 +326,8 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void createTable_withEnum_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, TableNameExistsException {
+            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
+            TableNameExistsException, ContainerNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_1_NAME)
@@ -354,7 +360,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
+        final Table response = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(TABLE_2_NAME, response.getName());
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
@@ -365,7 +371,8 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void createTable_withUniqueColumn_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
-            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException, TableNameExistsException {
+            ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
+            TableNameExistsException, ContainerNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_1_NAME)
@@ -398,7 +405,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final Table response = tableService.createTable(DATABASE_1_ID, request);
+        final Table response = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(TABLE_2_NAME, response.getName());
         assertEquals(TABLE_2_INTERNALNAME, response.getInternalName());
         assertEquals(TABLE_2_DESCRIPTION, response.getDescription());
@@ -407,14 +414,14 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void deleteTable_succeeds() throws DatabaseNotFoundException,
-            ImageNotSupportedException, InterruptedException, TableNotFoundException, DataProcessingException {
+    public void deleteTable_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
+            InterruptedException, TableNotFoundException, DataProcessingException, ContainerNotFoundException {
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+        tableService.deleteTable(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
     }
 
     /**
@@ -428,7 +435,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_textPrimaryKey_succeeds() throws InterruptedException, SQLException, TableMalformedException,
             ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException, TableNameExistsException {
+            DataProcessingException, TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name("Issue 99")
                 .description("Related to issue 99")
@@ -455,13 +462,13 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        tableService.createTable(DATABASE_1_ID, request);
+        tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
     }
 
     @Test
     public void createTable_blobPrimaryKey_succeeds() throws InterruptedException, SQLException, TableMalformedException,
             ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException, TableNameExistsException {
+            DataProcessingException, TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name("Issue 99")
                 .description("Related to issue 99")
@@ -488,7 +495,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        tableService.createTable(DATABASE_1_ID, request);
+        tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
     }
 
     @Test
@@ -499,14 +506,14 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(HibernateException.class, () -> {
-            tableService.deleteTable(DATABASE_1_ID, TABLE_1_ID);
+            tableService.deleteTable(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
         });
     }
 
     @Test
     public void createTable_issue106_succeeds() throws InterruptedException, SQLException, TableMalformedException,
             ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException, TableNameExistsException {
+            DataProcessingException, TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name("Table")
                 .description(TABLE_2_DESCRIPTION)
@@ -518,7 +525,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
         MariaDbConfig.clearDatabase(TABLE_1);
 
         /* test */
-        tableService.createTable(DATABASE_1_ID, request);
+        tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
     }
 
     @Test
@@ -534,7 +541,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            tableService.createTable(DATABASE_1_ID, request);
+            tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 

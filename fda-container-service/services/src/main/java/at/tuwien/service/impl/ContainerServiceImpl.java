@@ -167,9 +167,11 @@ public class ContainerServiceImpl implements ContainerService {
         response.getNetworkSettings()
                 .getNetworks()
                 .forEach((key, network) -> {
-                    log.debug("key {} network {}", key, network);
+                    log.trace("key {} network {}", key, network);
                     container.setIpAddress(network.getIpAddress());
                 });
+        log.info("Inspect container with id {}", id);
+        log.debug("inspect container {}", container);
         return container;
     }
 
@@ -178,6 +180,7 @@ public class ContainerServiceImpl implements ContainerService {
     public List<Container> getAll() {
         final List<Container> containers = containerRepository.findAll();
         log.info("Found {} containers", containers.size());
+        log.debug("found containers {}", containers);
         return containers;
     }
 

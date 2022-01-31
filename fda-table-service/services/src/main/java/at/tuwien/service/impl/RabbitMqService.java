@@ -52,7 +52,8 @@ public class RabbitMqService implements MessageQueueService {
     public void createQueue(Table table) throws AmqpException {
         try {
             create(table);
-            log.info("Created queue {} and consumer", table.getTopic());
+            log.info("Created queue for table with id {}", table.getId());
+            log.debug("created queue and consumer for table {}", table);
         } catch (IOException e) {
             log.error("Could not create exchange and consumer: {}", e.getMessage());
             throw new AmqpException("Could not create exchange and consumer", e);
@@ -63,20 +64,20 @@ public class RabbitMqService implements MessageQueueService {
     @Transactional
     public void create(Database database) throws IOException {
         channel.exchangeDeclare(database.getExchange(), BuiltinExchangeType.FANOUT, true);
-        log.debug("declare fanout exchange {}", database.getExchange());
         channel.exchangeBind(database.getExchange(), AMQP_EXCHANGE, database.getExchange());
+        log.info("Created exchange for database with id {}", database.getId());
+        log.debug("declare fanout exchange {}", database.getExchange());
         log.debug("bind exchange {} to {}", database.getExchange(), AMQP_EXCHANGE);
-        log.info("Declared database exchange {} and bound to root exchange {}", database.getExchange(), AMQP_EXCHANGE);
     }
 
     @Override
     @Transactional
     public void create(Table table) throws IOException {
         channel.queueDeclare(table.getTopic(), true, false, false, null);
-        log.debug("declare queue {}", table.getTopic());
         channel.queueBind(table.getTopic(), table.getDatabase().getExchange(), table.getTopic());
-        log.debug("bind queue {} to {}", table.getTopic(), table.getDatabase().getExchange());
-        log.info("Declared queue {} and bound to database exchange {}", table.getTopic(), table.getDatabase().getExchange());
+        log.info("Created queue for database with id {}", table.getId());
+        log.debug("declare queue for table {}", table);
+        log.debug("bind queue to {}", table.getDatabase().getExchange());
     }
 
 }

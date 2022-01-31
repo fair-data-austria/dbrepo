@@ -1,11 +1,20 @@
 <template>
   <div>
+    <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
+    <v-toolbar flat>
+      <v-toolbar-title>
+        <span>{{ table.name }}</span>
+      </v-toolbar-title>
+      <v-spacer />
+      <v-toolbar-title>
+        <v-btn color="primary" @click.stop="createDbDialog = true">
+          <v-icon left>mdi-download</v-icon> Export .csv
+        </v-btn>
+      </v-toolbar-title>
+    </v-toolbar>
     <v-card>
       <v-row dense>
         <v-col cols="6">
-          <v-card-title v-if="table.name">
-            {{ table.name }}
-          </v-card-title>
           <v-card-subtitle v-if="table.name">
             {{ table.description }}
           </v-card-subtitle>

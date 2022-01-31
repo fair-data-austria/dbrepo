@@ -26,6 +26,24 @@
         </v-btn>
       </v-card-text>
     </v-card>
+    <v-card class="mt-4" flat>
+      <v-card-title>Better support for research: current cooperation projects</v-card-title>
+      <v-card-subtitle>
+        Newspaper article
+      </v-card-subtitle>
+      <v-card-text>
+        <h3>Abstract</h3>
+        <p>
+          Currently 35 cooperation projects on digital and social transformation are being carried out at Austrian public universities, which are funded by the Federal Ministry of Education, Science and Research with 50 million euros. Among other things, the University of Vienna is involved in 2 projects of the Research Data Cluster in cooperation with the TU Vienna.
+        </p>
+        <v-btn
+          color="primary"
+          href="https://zid.univie.ac.at/it-news/artikel/news/cluster-forschungsdaten/"
+          target="_blank">
+          Read More
+        </v-btn>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 

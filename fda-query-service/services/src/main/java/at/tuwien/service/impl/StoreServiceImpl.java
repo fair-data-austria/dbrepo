@@ -54,7 +54,6 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         transaction.commit();
         final List<Query> out = queries.list();
         log.info("Found {} queries", out.size());
-        log.debug("found queries {}", out);
         session.close();
         return out;
     }
@@ -84,7 +83,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             throw new QueryNotFoundException("Query was not found");
         }
         log.info("Found query with id {}", queryId);
-        log.debug("saved query {}", query);
+        log.debug("Found query {}", query);
         session.close();
         return result;
     }

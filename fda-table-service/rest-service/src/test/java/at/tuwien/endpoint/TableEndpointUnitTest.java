@@ -61,7 +61,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         /* mock */
         when(tableRepository.findByDatabase(DATABASE_1))
                 .thenReturn(List.of(TABLE_1));
-        when(tableService.findAll(DATABASE_1_ID))
+        when(tableService.findAll(CONTAINER_1_ID, DATABASE_1_ID))
                 .thenReturn(List.of(TABLE_1));
 
         /* test */
@@ -73,7 +73,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
-            AmqpException, IOException, TableNameExistsException {
+            AmqpException, IOException, TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -83,7 +83,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
         /* mock */
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.of(TABLE_1));
-        when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
+        when(tableService.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID))
                 .thenReturn(TABLE_1);
         doNothing()
                 .when(messageQueueService)
@@ -96,13 +96,13 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void create_databaseNotFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            TableMalformedException, TableNameExistsException {
+            TableMalformedException, TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
                 .columns(COLUMNS_CSV01)
                 .build();
-        when(tableService.createTable(DATABASE_1_ID, request))
+        when(tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, request))
                 .thenAnswer(invocation -> {
                     throw new DatabaseNotFoundException("no db");
                 });
@@ -114,8 +114,9 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException {
-        when(tableService.findById(DATABASE_1_ID, TABLE_1_ID))
+    public void findById_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
+            ContainerNotFoundException {
+        when(tableService.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID))
                 .thenReturn(TABLE_1);
 
         /* test */
@@ -126,12 +127,13 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException {
+    public void findById_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
+            ContainerNotFoundException {
         when(tableRepository.findById(TABLE_1_ID))
                 .thenReturn(Optional.empty());
         doThrow(TableNotFoundException.class)
                 .when(tableService)
-                .findById(DATABASE_1_ID, TABLE_1_ID);
+                .findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
@@ -141,10 +143,10 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
+            ImageNotSupportedException, ContainerNotFoundException {
         doThrow(TableNotFoundException.class)
                 .when(tableService)
-                .deleteTable(DATABASE_1_ID, TABLE_1_ID);
+                .deleteTable(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
@@ -154,7 +156,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException {
+            DataProcessingException, ContainerNotFoundException {
         /* test */
         tableEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
     }

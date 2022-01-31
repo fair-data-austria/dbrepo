@@ -50,7 +50,7 @@ public class TableEndpoint {
     public ResponseEntity<List<TableBriefDto>> findAll(@NotNull @PathVariable("id") Long id,
                                                        @NotNull @PathVariable("databaseId") Long databaseId)
             throws DatabaseNotFoundException {
-        return ResponseEntity.ok(tableService.findAll(databaseId)
+        return ResponseEntity.ok(tableService.findAll(id, databaseId)
                 .stream()
                 .map(tableMapper::tableToTableBriefDto)
                 .collect(Collectors.toList()));
@@ -71,8 +71,9 @@ public class TableEndpoint {
                                                 @NotNull @PathVariable("databaseId") Long databaseId,
                                                 @NotNull @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException,
-            ArbitraryPrimaryKeysException, TableMalformedException, AmqpException, TableNameExistsException {
-        final Table table = tableService.createTable(databaseId, createDto);
+            ArbitraryPrimaryKeysException, TableMalformedException, AmqpException, TableNameExistsException,
+            ContainerNotFoundException {
+        final Table table = tableService.createTable(id, databaseId, createDto);
         amqpService.createQueue(table);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
@@ -90,8 +91,8 @@ public class TableEndpoint {
     public ResponseEntity<TableDto> findById(@NotNull @PathVariable("id") Long id,
                                              @NotNull @PathVariable("databaseId") Long databaseId,
                                              @NotNull @PathVariable("tableId") Long tableId)
-            throws TableNotFoundException, DatabaseNotFoundException {
-        final Table table = tableService.findById(databaseId, tableId);
+            throws TableNotFoundException, DatabaseNotFoundException, ContainerNotFoundException {
+        final Table table = tableService.findById(id, databaseId, tableId);
         return ResponseEntity.ok(tableMapper.tableToTableDto(table));
     }
 
@@ -122,8 +123,8 @@ public class TableEndpoint {
                        @NotNull @PathVariable("databaseId") Long databaseId,
                        @NotNull @PathVariable("tableId") Long tableId)
             throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException {
-        tableService.deleteTable(databaseId, tableId);
+            DataProcessingException, ContainerNotFoundException {
+        tableService.deleteTable(id, databaseId, tableId);
     }
 
 }

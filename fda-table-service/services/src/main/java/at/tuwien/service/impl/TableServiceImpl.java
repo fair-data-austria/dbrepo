@@ -2,11 +2,13 @@ package at.tuwien.service.impl;
 
 import at.tuwien.CreateTableRawQuery;
 import at.tuwien.api.database.table.TableCreateDto;
+import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.jpa.TableRepository;
+import at.tuwien.service.ContainerService;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.TableService;
 import lombok.extern.log4j.Log4j2;
@@ -27,28 +29,31 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     private final TableMapper tableMapper;
     private final TableRepository tableRepository;
     private final DatabaseService databaseService;
+    private final ContainerService containerService;
 
     @Autowired
     public TableServiceImpl(TableMapper tableMapper, TableRepository tableRepository,
-                            DatabaseService databaseService) {
+                            DatabaseService databaseService, ContainerService containerService) {
         this.tableMapper = tableMapper;
         this.tableRepository = tableRepository;
         this.databaseService = databaseService;
+        this.containerService = containerService;
     }
 
     @Override
-    public List<Table> findAll(Long databaseId) throws DatabaseNotFoundException {
+    public List<Table> findAll(Long containerId, Long databaseId) throws DatabaseNotFoundException {
         final Database database = databaseService.findDatabase(databaseId);
         return tableRepository.findByDatabase(database);
     }
 
     @Override
     @Transactional
-    public void deleteTable(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException {
+    public void deleteTable(Long containerId, Long databaseId, Long tableId) throws TableNotFoundException,
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.findDatabase(databaseId);
-        final Table table = findById(databaseId, tableId);
+        final Table table = findById(containerId, databaseId, tableId);
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
@@ -57,10 +62,13 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         transaction.commit();
         session.close();
         log.info("Deleted table with id {}", table.getId());
+        log.debug("deleted table {}", table);
     }
 
     @Override
-    public Table findById(Long databaseId, Long tableId) throws TableNotFoundException, DatabaseNotFoundException {
+    public Table findById(Long containerId, Long databaseId, Long tableId) throws TableNotFoundException,
+            DatabaseNotFoundException, ContainerNotFoundException {
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.findDatabase(databaseId);
         final Optional<Table> optional = tableRepository.findByDatabaseAndId(database, tableId);
         if (optional.isEmpty()) {
@@ -72,9 +80,11 @@ public class TableServiceImpl extends HibernateConnector implements TableService
 
     @Override
     @Transactional
-    public Table createTable(Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, TableMalformedException, TableNameExistsException {
+    public Table createTable(Long containerId, Long databaseId, TableCreateDto createDto)
+            throws ImageNotSupportedException, DatabaseNotFoundException, TableMalformedException,
+            TableNameExistsException, ContainerNotFoundException {
         /* find */
+        final Container container = containerService.find(containerId);
         final Database database = databaseService.findDatabase(databaseId);
         final Optional<Table> optional = tableRepository.findByInternalName(tableMapper.nameToInternalName(createDto.getName()));
         if (optional.isPresent()) {
@@ -103,8 +113,16 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         transaction.commit();
         session.close();
         int[] idx = {0};
+        /* map table */
+        final Table tmp = tableMapper.tableCreateDtoToTable(createDto);
+        tmp.setInternalName(tableMapper.nameToInternalName(tmp.getName()));
+        tmp.setTdbid(databaseId);
+        tmp.setDatabase(database);
+        tmp.setTopic(database.getExchange() + "." + tmp.getInternalName());
+        tmp.setColumns(List.of());
+        log.debug("mapped new table {}", tmp);
         /* save in metadata database */
-        final Table table = tableRepository.save(tableMapper.tableCreateDtoToTable(database, createDto));
+        final Table table = tableRepository.save(tmp);
         table.setColumns(Arrays.stream(createDto.getColumns())
                 .map(tableMapper::columnCreateDtoToTableColumn)
                 .map(column -> tableMapper.tableColumnToTableColumn(table, column, query))
@@ -115,7 +133,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
                     column.setOrdinalPosition(idx[0]++);
                 });
         log.info("Created table with id {} {}", table.getId(), query.getGenerated() ? "and auto-generated id column" : "");
-        log.debug("Saving table {}", table);
+        log.debug("created table {}", table);
         return tableRepository.save(table);
     }
 }
