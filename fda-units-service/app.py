@@ -8,6 +8,7 @@ from flasgger.utils import swag_from
 from flasgger import LazyString, LazyJSONEncoder
 from list import list_units, get_uri
 from validate import validator, stringmapper
+from save import insert_mdb_concepts, insert_mdb_columns_concepts
 
 app = Flask(__name__)
 app.config["SWAGGER"] = {"title": "FDA-Units-Service", "uiversion": 3}
@@ -67,6 +68,36 @@ def geturi():
     try:
         name = str(input_json['uname'])
         res = get_uri(name)
+        return jsonify(res), 200
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": str(e)}
+        return jsonify(res), 500
+
+@app.route('/api/units/saveconcept', methods=["POST"], endpoint='saveconcept')
+@swag_from('saveconcept.yml')
+def saveconcept():
+    input_json = request.get_json()
+    try:
+        uri = str(input_json['uri'])
+        c_name = str(input_json['name'])
+        res = insert_mdb_concepts(uri, c_name)
+        return jsonify(res), 200
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": str(e)}
+        return jsonify(res), 500
+
+@app.route('/api/units/savecolumnsconcept', methods=["POST"], endpoint='savecolumnsconcept')
+@swag_from('savecolumnsconcept.yml')
+def saveconcept():
+    input_json = request.get_json()
+    try:
+        uri = str(input_json['uri'])
+        cid = int(input_json['cid'])
+        tid = int(input_json['tid'])
+        cdbid = int(input_json['cdbid'])
+        res = insert_mdb_columns_concepts(cdbid, tid, cid, uri)
         return jsonify(res), 200
     except Exception as e:
         print(e)
