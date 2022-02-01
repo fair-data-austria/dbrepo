@@ -29,11 +29,6 @@ public class CreatorDto {
     private String lastname;
 
     @NotNull
-    @ToString.Exclude
-    @ApiModelProperty(name = "identifier")
-    private IdentifierDto identifier;
-
-    @NotNull
     private Instant created;
 
     @NotNull

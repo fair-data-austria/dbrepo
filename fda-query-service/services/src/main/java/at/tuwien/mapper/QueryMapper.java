@@ -1,10 +1,7 @@
 package at.tuwien.mapper;
 
 import at.tuwien.InsertTableRawQuery;
-import at.tuwien.api.database.query.ExecuteStatementDto;
-import at.tuwien.api.database.query.QueryDto;
-import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.query.SaveStatementDto;
+import at.tuwien.api.database.query.*;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.querystore.Query;
@@ -56,7 +53,7 @@ public interface QueryMapper {
         return slug.toLowerCase(Locale.ENGLISH);
     }
 
-    default QueryResultDto resultListToQueryResultDto(Table table, List<?> result) {
+    default QueryResultDto resultListToQueryResultDto(Table table, List<?> result, ExecuteStatementDto metadata) {
         final Iterator<?> iterator = result.iterator();
         final List<Map<String, Object>> resultList = new LinkedList<>();
         while (iterator.hasNext()) {
@@ -64,8 +61,13 @@ public interface QueryMapper {
             int[] idx = new int[]{0};
             final Object[] data = (Object[]) iterator.next();
             final Map<String, Object> map = new HashMap<>();
-            table.getColumns()
-                    .forEach(column -> map.put(column.getName(), dataColumnToObject(data[idx[0]++], column)));
+            final List<TableColumn> cols = table.getColumns() /* todo extend for more than 1 table */;
+            metadata.getColumns()
+                    .forEach(columns -> columns.forEach(column -> map.put(column.getName(),
+                            dataColumnToObject(data[idx[0]++], cols.stream().filter(c -> c.getId()
+                                            .equals(column.getId()))
+                                    .findFirst()
+                                    .get()))));
             resultList.add(map);
         }
         log.info("Display data for table id {}", table.getId());

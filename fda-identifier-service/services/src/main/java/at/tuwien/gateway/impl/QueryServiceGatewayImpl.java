@@ -7,6 +7,7 @@ import at.tuwien.exception.RemoteUnavailableException;
 import at.tuwien.gateway.QueryServiceGateway;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,11 @@ public class QueryServiceGatewayImpl implements QueryServiceGateway {
 
     @Override
     public QueryDto find(IdentifierDto identifier) throws QueryNotFoundException, RemoteUnavailableException {
-        final String url = "/api/database/" + identifier.getDbid() + "/query/" + identifier.getQid();
+        final String url = "/api/container/" + identifier.getCid() + "/database/" + identifier.getDbid() + "/query/" + identifier.getQid();
         final ResponseEntity<QueryDto> response;
         try {
-            response = restTemplate.getForEntity(url, QueryDto.class);
+            log.debug("call gateway path {}", url);
+            response = restTemplate.exchange(url, HttpMethod.GET, null, QueryDto.class);
         } catch (ResourceAccessException | HttpServerErrorException.ServiceUnavailable e) {
             log.error("Query service not available");
             log.debug("service not available for identifier {}", identifier);

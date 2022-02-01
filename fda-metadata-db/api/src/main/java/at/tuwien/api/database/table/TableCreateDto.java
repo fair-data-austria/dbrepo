@@ -3,12 +3,11 @@ package at.tuwien.api.database.table;
 import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 @Getter
 @Setter
@@ -26,6 +25,7 @@ public class TableCreateDto {
     @ApiModelProperty(name = "table description", required = true, example = "Predict next-day rain in Australia", notes = "https://www.kaggle.com/jsphyg/weather-dataset-rattle-package")
     private String description;
 
+    @Min(value = 0L)
     @JsonProperty("skip_lines")
     @ApiModelProperty(name = "number of lines to skip when importing", example = "0")
     private String skipLines;

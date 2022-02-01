@@ -22,7 +22,7 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "update mdb_identifiers set deleted = NOW() where id = ?")
 @javax.persistence.Table(name = "mdb_identifiers", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"qid", "dbid"})
+        @UniqueConstraint(columnNames = {"qid", "cid", "dbid"})
 })
 public class Identifier {
 
@@ -38,10 +38,13 @@ public class Identifier {
     private Long id;
 
     @Column(nullable = false)
-    private Long qid;
+    private Long cid;
 
     @Column(nullable = false)
     private Long dbid;
+
+    @Column(nullable = false)
+    private Long qid;
 
     @Column(nullable = false)
     private String title;
