@@ -5,6 +5,7 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -43,7 +44,7 @@ public interface QueryService {
      * @throws ImageNotSupportedException  The image is not supported.
      * @throws DatabaseConnectionException The connection to the remote database was unsuccessful.
      */
-    QueryResultDto findAll(Long containerId,  Long databaseId, Long tableId, Instant timestamp,
+    QueryResultDto findAll(Long containerId, Long databaseId, Long tableId, Instant timestamp,
                            Long page, Long size) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException, ContainerNotFoundException;
 

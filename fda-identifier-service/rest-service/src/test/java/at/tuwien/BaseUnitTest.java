@@ -52,9 +52,15 @@ public abstract class BaseUnitTest {
 
     public final static Long DATABASE_1_ID = 1L;
     public final static String DATABASE_1_NAME = "Test Database";
-    public final static String DATABASE_1_INTERNAL_NAME = "test_dataase";
+    public final static String DATABASE_1_INTERNAL_NAME = "test_database";
     public final static String DATABASE_1_EXCHANGE = "fda." + DATABASE_1_INTERNAL_NAME;
     public final static Boolean DATABASE_1_PUBLIC = true;
+
+    public final static Long DATABASE_2_ID = 2L;
+    public final static String DATABASE_2_NAME = "Test Database 2";
+    public final static String DATABASE_2_INTERNAL_NAME = "test_database_2";
+    public final static String DATABASE_2_EXCHANGE = "fda." + DATABASE_2_INTERNAL_NAME;
+    public final static Boolean DATABASE_2_PUBLIC = true;
 
     public final static Long TABLE_1_ID = 1L;
     public final static String TABLE_1_NAME = "Rainfall";
@@ -129,7 +135,120 @@ public abstract class BaseUnitTest {
             .lastModified(CREATOR_2_MODIFIED)
             .build();
 
+    public final static String CREATOR_1_NAME = "First1 Last1";
+    public final static String CREATOR_1_AFFIL = "TU Wien";
+    public final static String CREATOR_1_ORCID = "0000-0002-5713-0725";
+
+    public final static String CREATOR_2_NAME = "First2 Last2";
+    public final static String CREATOR_2_AFFIL = "TU Graz";
+    public final static String CREATOR_2_ORCID = "0000-0002-2606-4059";
+
+    public final static String METADATA_1_TITLE = "My super dataset";
+    public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
+    public final static String[] METADATA_1_CREATORS = new String[]{CREATOR_1_NAME, CREATOR_2_NAME};
+
+    public final static Long IMAGE_1_ID = 1L;
+    public final static String IMAGE_1_REPOSITORY = "postgres";
+    public final static String IMAGE_1_TAG = "13-alpine";
+    public final static String IMAGE_1_HASH = "83b40f2726e5";
+    public final static Integer IMAGE_1_PORT = 5432;
+    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.PostgreSQLDialect";
+    public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
+    public final static String IMAGE_1_JDBC = "postgresql";
+    public final static Long IMAGE_1_SIZE = 12000L;
+    public final static String IMAGE_1_LOGO = "AAAA";
+    public final static Instant IMAGE_1_BUILT = Instant.ofEpochSecond(1441588352);
+    public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
+                    .key("POSTGRES_USER")
+                    .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.USERNAME)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
+                    .key("POSTGRES_PASSWORD")
+                    .value("postgres")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .build());
+
+    public final static ContainerImage IMAGE_1 = ContainerImage.builder()
+            .id(IMAGE_1_ID)
+            .repository(IMAGE_1_REPOSITORY)
+            .tag(IMAGE_1_TAG)
+            .hash(IMAGE_1_HASH)
+            .jdbcMethod(IMAGE_1_JDBC)
+            .dialect(IMAGE_1_DIALECT)
+            .driverClass(IMAGE_1_DRIVER)
+            .containers(List.of())
+            .compiled(IMAGE_1_BUILT)
+            .size(IMAGE_1_SIZE)
+            .environment(IMAGE_1_ENV)
+            .defaultPort(IMAGE_1_PORT)
+            .logo(IMAGE_1_LOGO)
+            .build();
+
+    public final static Long CONTAINER_1_ID = 1L;
+    public final static String CONTAINER_1_HASH = "deadbeef";
+    public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
+    public final static String CONTAINER_1_NAME = "fda-userdb-u01";
+    public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
+    public final static String CONTAINER_1_DATABASE = "univie";
+    public final static String CONTAINER_1_IP = "172.28.0.5";
+    public final static Instant CONTAINER_1_CREATED = Instant.ofEpochSecond(1641588352);
+
+    public final static Long CONTAINER_2_ID = 2L;
+    public final static String CONTAINER_2_HASH = "deadbeef";
+    public final static ContainerImage CONTAINER_2_IMAGE = IMAGE_1;
+    public final static String CONTAINER_2_NAME = "fda-userdb-u02";
+    public final static String CONTAINER_2_INTERNALNAME = "fda-userdb-u02";
+    public final static String CONTAINER_2_DATABASE = "univie";
+    public final static String CONTAINER_2_IP = "172.28.0.6";
+    public final static Instant CONTAINER_2_CREATED = Instant.ofEpochSecond(1641588352);
+
+    public final static Container CONTAINER_1 = Container.builder()
+            .id(CONTAINER_1_ID)
+            .name(CONTAINER_1_NAME)
+            .internalName(CONTAINER_1_INTERNALNAME)
+            .image(CONTAINER_1_IMAGE)
+            .hash(CONTAINER_1_HASH)
+            .build();
+
+    public final static Container CONTAINER_2 = Container.builder()
+            .id(CONTAINER_2_ID)
+            .name(CONTAINER_2_NAME)
+            .internalName(CONTAINER_2_INTERNALNAME)
+            .image(CONTAINER_2_IMAGE)
+            .hash(CONTAINER_2_HASH)
+            .build();
+
+    public final static Database DATABASE_1 = Database.builder()
+            .id(DATABASE_1_ID)
+            .name(DATABASE_1_NAME)
+            .isPublic(DATABASE_1_PUBLIC)
+            .internalName(DATABASE_1_INTERNAL_NAME)
+            .exchange(DATABASE_1_EXCHANGE)
+            .tables(List.of())
+            .build();
+
+    public final static Database DATABASE_2 = Database.builder()
+            .id(DATABASE_2_ID)
+            .name(DATABASE_2_NAME)
+            .isPublic(DATABASE_2_PUBLIC)
+            .internalName(DATABASE_2_INTERNAL_NAME)
+            .exchange(DATABASE_2_EXCHANGE)
+            .tables(List.of())
+            .build();
+
+    public final static Table TABLE_1 = Table.builder()
+            .id(TABLE_1_ID)
+            .name(TABLE_1_NAME)
+            .internalName(TABLE_1_INTERNAL_NAME)
+            .topic(TABLE_1_TOPIC)
+            .tdbid(DATABASE_1_ID)
+            .build();
+
     public final static Long QUERY_1_ID = 1L;
+    public final static Long QUERY_1_CONTAINER_ID = CONTAINER_1_ID;
     public final static Long QUERY_1_DATABASE_ID = DATABASE_1_ID;
     public final static String QUERY_1_STATEMENT = "SELECT * FROM `weather`;";
     public final static String QUERY_1_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
@@ -139,17 +258,19 @@ public abstract class BaseUnitTest {
 
     public final static QueryDto QUERY_1_DTO = QueryDto.builder()
             .id(QUERY_1_ID)
+            .cid(QUERY_1_CONTAINER_ID)
+            .dbid(QUERY_1_DATABASE_ID)
             .query(QUERY_1_STATEMENT)
             .queryNormalized(QUERY_1_STATEMENT)
             .resultNumber(QUERY_1_RESULT_NUMBER)
             .resultHash(QUERY_1_RESULT_HASH)
-            .databaseId(QUERY_1_DATABASE_ID)
             .lastModified(QUERY_1_LAST_MODIFIED)
             .created(QUERY_1_CREATED)
             .build();
 
     public final static Long QUERY_2_ID = 2L;
-    public final static Long QUERY_2_DATABASE_ID = DATABASE_1_ID;
+    public final static Long QUERY_2_CONTAINER_ID = CONTAINER_2_ID;
+    public final static Long QUERY_2_DATABASE_ID = DATABASE_2_ID;
     public final static String QUERY_2_STATEMENT = "SELECT * FROM `weather`;";
     public final static String QUERY_2_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
     public final static Long QUERY_2_RESULT_NUMBER = 5L;
@@ -158,11 +279,12 @@ public abstract class BaseUnitTest {
 
     public final static QueryDto QUERY_2_DTO = QueryDto.builder()
             .id(QUERY_2_ID)
+            .cid(QUERY_2_CONTAINER_ID)
+            .dbid(QUERY_2_DATABASE_ID)
             .query(QUERY_2_STATEMENT)
             .queryNormalized(QUERY_2_STATEMENT)
             .resultNumber(QUERY_2_RESULT_NUMBER)
             .resultHash(QUERY_2_RESULT_HASH)
-            .databaseId(QUERY_2_DATABASE_ID)
             .lastModified(QUERY_2_LAST_MODIFIED)
             .created(QUERY_2_CREATED)
             .build();
@@ -260,92 +382,6 @@ public abstract class BaseUnitTest {
             .created(IDENTIFIER_2_CREATED)
             .lastModified(IDENTIFIER_2_MODIFIED)
             .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
-            .build();
-
-    public final static String CREATOR_1_NAME = "First1 Last1";
-    public final static String CREATOR_1_AFFIL = "TU Wien";
-    public final static String CREATOR_1_ORCID = "0000-0002-5713-0725";
-
-    public final static String CREATOR_2_NAME = "First2 Last2";
-    public final static String CREATOR_2_AFFIL = "TU Graz";
-    public final static String CREATOR_2_ORCID = "0000-0002-2606-4059";
-
-    public final static String METADATA_1_TITLE = "My super dataset";
-    public final static String METADATA_1_DESCRIPTION = "The dataset contains 1000 records of ...";
-    public final static String[] METADATA_1_CREATORS = new String[]{CREATOR_1_NAME, CREATOR_2_NAME};
-
-    public final static Long IMAGE_1_ID = 1L;
-    public final static String IMAGE_1_REPOSITORY = "postgres";
-    public final static String IMAGE_1_TAG = "13-alpine";
-    public final static String IMAGE_1_HASH = "83b40f2726e5";
-    public final static Integer IMAGE_1_PORT = 5432;
-    public final static String IMAGE_1_DIALECT = "org.hibernate.dialect.PostgreSQLDialect";
-    public final static String IMAGE_1_DRIVER = "org.postgresql.Driver";
-    public final static String IMAGE_1_JDBC = "postgresql";
-    public final static Long IMAGE_1_SIZE = 12000L;
-    public final static String IMAGE_1_LOGO = "AAAA";
-    public final static Instant IMAGE_1_BUILT = Instant.ofEpochSecond(1441588352);
-    public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
-                    .iid(IMAGE_1_ID)
-                    .key("POSTGRES_USER")
-                    .value("postgres")
-                    .type(ContainerImageEnvironmentItemType.USERNAME)
-                    .build(),
-            ContainerImageEnvironmentItem.builder()
-                    .iid(IMAGE_1_ID)
-                    .key("POSTGRES_PASSWORD")
-                    .value("postgres")
-                    .type(ContainerImageEnvironmentItemType.PASSWORD)
-                    .build());
-
-    public final static ContainerImage IMAGE_1 = ContainerImage.builder()
-            .id(IMAGE_1_ID)
-            .repository(IMAGE_1_REPOSITORY)
-            .tag(IMAGE_1_TAG)
-            .hash(IMAGE_1_HASH)
-            .jdbcMethod(IMAGE_1_JDBC)
-            .dialect(IMAGE_1_DIALECT)
-            .driverClass(IMAGE_1_DRIVER)
-            .containers(List.of())
-            .compiled(IMAGE_1_BUILT)
-            .size(IMAGE_1_SIZE)
-            .environment(IMAGE_1_ENV)
-            .defaultPort(IMAGE_1_PORT)
-            .logo(IMAGE_1_LOGO)
-            .build();
-
-    public final static Long CONTAINER_1_ID = 1L;
-    public final static String CONTAINER_1_HASH = "deadbeef";
-    public final static ContainerImage CONTAINER_1_IMAGE = IMAGE_1;
-    public final static String CONTAINER_1_NAME = "fda-userdb-u01";
-    public final static String CONTAINER_1_INTERNALNAME = "fda-userdb-u01";
-    public final static String CONTAINER_1_DATABASE = "univie";
-    public final static String CONTAINER_1_IP = "172.28.0.5";
-    public final static Instant CONTAINER_1_CREATED = Instant.ofEpochSecond(1641588352);
-
-    public final static Container CONTAINER_1 = Container.builder()
-            .id(CONTAINER_1_ID)
-            .name(CONTAINER_1_NAME)
-            .internalName(CONTAINER_1_INTERNALNAME)
-            .image(CONTAINER_1_IMAGE)
-            .hash(CONTAINER_1_HASH)
-            .build();
-
-    public final static Database DATABASE_1 = Database.builder()
-            .id(DATABASE_1_ID)
-            .name(DATABASE_1_NAME)
-            .isPublic(DATABASE_1_PUBLIC)
-            .internalName(DATABASE_1_INTERNAL_NAME)
-            .exchange(DATABASE_1_EXCHANGE)
-            .tables(List.of())
-            .build();
-
-    public final static Table TABLE_1 = Table.builder()
-            .id(TABLE_1_ID)
-            .name(TABLE_1_NAME)
-            .internalName(TABLE_1_INTERNAL_NAME)
-            .topic(TABLE_1_TOPIC)
-            .tdbid(DATABASE_1_ID)
             .build();
 
     public final static String COLUMN_1_INTERNAL_NAME = "id";

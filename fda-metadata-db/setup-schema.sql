@@ -6,8 +6,6 @@ BEGIN;
 CREATE
     TYPE gender AS ENUM ('F', 'M', 'T');
 CREATE
-    TYPE visibility AS ENUM ('EVERYONE', 'TRUSTED', 'SELF');
-CREATE
     TYPE accesstype AS ENUM ('R', 'W');
 CREATE
     TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'PRIVILEGED_USERNAME', 'PRIVILEGED_PASSWORD');
@@ -352,18 +350,20 @@ CREATE TABLE IF NOT EXISTS mdb_VIEW
 CREATE TABLE IF NOT EXISTS mdb_identifiers
 (
     id            bigint                               DEFAULT nextval('mdb_identifiers_seq'),
-    qid           bigint                      NOT NULL,
+    cid           bigint                      NOT NULL,
     dbid          bigint                      NOT NULL,
+    qid           bigint                      NOT NULL,
     title         VARCHAR(255)                NOT NULL,
     description   TEXT                        NOT NULL,
-    visibility    visibility                  NOT NULL DEFAULT 'SELF',
+    visibility    VARCHAR(10)                 NOT NULL DEFAULT 'SELF',
     doi           VARCHAR(255),
-    query         TEXT                        NOT NULL,
     created       timestamp without time zone NOT NULL DEFAULT NOW(),
-    last_modified timestamp without time zone NOT NULL,
+    last_modified timestamp without time zone,
     deleted       timestamp without time zone,
     PRIMARY KEY (id), /* must be a single id from persistent identifier concept */
-    UNIQUE (qid, dbid)
+    FOREIGN KEY (cid) REFERENCES mdb_containers (id),
+    FOREIGN KEY (dbid) REFERENCES mdb_databases (id),
+    UNIQUE (cid, dbid, qid)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_creators

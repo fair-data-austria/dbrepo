@@ -44,7 +44,7 @@
           <v-col cols="8">
             <v-text-field
               v-model="tableCreate.skip_lines"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.positive]"
               type="number"
               required
               hint="Skip n lines from the top"
@@ -197,7 +197,8 @@ export default {
         { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` }
       ],
       rules: {
-        required: value => !!value || 'Required'
+        required: value => !!value || 'Required',
+        positive: value => value >= 0 || 'Positive number'
       },
       dateFormats: [],
       tableCreate: {
