@@ -147,7 +147,7 @@ services:
     restart: on-failure
     container_name: fda-authentication-service
     hostname: fda-authentication-service
-    image: docker.ossdip.at/fda-authentication-service:latest
+    image: fda-authentication-service:latest
     networks:
       - fda-public
     volumes:
