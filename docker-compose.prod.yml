@@ -79,8 +79,6 @@ services:
     depends_on:
       fda-container-service:
         condition: service_healthy
-      fda-authentication-service:
-        condition: service_healthy
       fda-database-service:
         condition: service_healthy
       fda-table-service:
