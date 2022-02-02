@@ -149,7 +149,8 @@ services:
     hostname: fda-authentication-service
     image: fda-authentication-service:latest
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.14
     volumes:
       - /tmp:/tmp
     environment:
@@ -347,7 +348,8 @@ services:
     build: ./fda-ui
     image: fda-ui
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.15
     ports:
       - "3000:3000"
     volumes:
