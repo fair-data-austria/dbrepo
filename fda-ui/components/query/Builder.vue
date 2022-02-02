@@ -8,7 +8,7 @@
         <v-toolbar-title>Create Query</v-toolbar-title>
         <v-spacer />
         <v-toolbar-title>
-          <v-btn :disabled="!valid" @click="save">
+          <v-btn :disabled="!valid" color="blue-grey white--text" @click="save">
             Save without execution
           </v-btn>
           <v-btn :disabled="!valid" color="primary" @click="execute">
@@ -18,29 +18,7 @@
         </v-toolbar-title>
       </v-toolbar>
       <v-card flat>
-        <v-card-title>{{ title }}</v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-model="title"
-                :rules="[rules.required, rules.titleMin]"
-                class="pa-0"
-                label="Query Title"
-                required />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-textarea
-                v-model="description"
-                :rules="[rules.required]"
-                rows="3"
-                class="pa-0"
-                label="Query Description"
-                required />
-            </v-col>
-          </v-row>
           <v-row>
             <v-col cols="6">
               <v-select
@@ -87,9 +65,8 @@
           </v-row>
           <v-row>
             <v-col>
-              <v-btn v-if="queryId" color="primary" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/${queryId}`">
-                <v-icon left>mdi-fingerprint</v-icon>
-                Obtain Query DOI
+              <v-btn v-if="queryId" color="blue-grey white--text" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/${queryId}`">
+                More
               </v-btn>
             </v-col>
           </v-row>
@@ -100,14 +77,14 @@
 </template>
 
 <script>
+import _ from 'lodash'
+
 export default {
   data () {
     return {
       valid: false,
       table: null,
       tables: [],
-      title: null,
-      description: null,
       tableDetails: null,
       queryId: null,
       query: {
@@ -120,8 +97,7 @@ export default {
         rows: []
       },
       rules: {
-        required: value => !!value || 'Required',
-        titleMin: value => (value || '').length >= 10 || 'Minimum 10 characters'
+        required: value => !!value || 'Required'
       },
       loading: false
     }
@@ -163,12 +139,17 @@ export default {
   methods: {
     async execute () {
       this.$refs.form.validate()
-      const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
-        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/query/execute`, {
-          statement: query
-        })
+        const data = {
+          statement: this.query.sql,
+          tables: [_.pick(this.table, ['id', 'name', 'internal_name'])],
+          columns: [this.select.map(function (column) {
+            return _.pick(column, ['id', 'name', 'internal_name'])
+          })]
+        }
+        console.debug('send data', data)
+        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/query/execute`, data)
         console.debug('query result', res)
         this.$toast.success('Successfully executed query')
         this.loading = false
@@ -207,7 +188,7 @@ export default {
       }
       const url = '/server-middleware/query/build'
       const data = {
-        table: this.table.internalName,
+        table: this.table.internal_name,
         select: this.select.map(s => s.name),
         clauses: this.clauses
       }

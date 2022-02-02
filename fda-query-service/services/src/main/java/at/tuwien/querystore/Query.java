@@ -1,5 +1,6 @@
 package at.tuwien.querystore;
 
+import at.tuwien.entities.identifier.Identifier;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -30,8 +31,11 @@ public class Query implements Serializable {
     )
     private Long id;
 
-    @Column(name = "database_id", nullable = false)
-    private Long databaseId;
+    @Column(nullable = false)
+    private Long cid;
+
+    @Column(nullable = false)
+    private Long dbid;
 
     @Column
     private Instant execution;

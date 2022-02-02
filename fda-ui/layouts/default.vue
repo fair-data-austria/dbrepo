@@ -196,7 +196,7 @@ export default {
           const res = await this.$axios.get(`/api/database/${this.$route.params.db_id}`)
           this.$store.commit('SET_DATABASE', res.data)
         } catch (err) {
-          this.$toast.error('Could not load gffff.')
+          console.error('Failed to load database', err)
         }
       }
     }

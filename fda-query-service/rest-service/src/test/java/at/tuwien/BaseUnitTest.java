@@ -1,7 +1,6 @@
 package at.tuwien;
 
 import at.tuwien.api.database.query.QueryDto;
-import at.tuwien.api.database.table.columns.ColumnCreateDto;
 import at.tuwien.api.database.table.columns.ColumnTypeDto;
 import at.tuwien.querystore.Query;
 import at.tuwien.entities.container.Container;
@@ -180,48 +179,6 @@ public abstract class BaseUnitTest {
     public final static String COLUMN_1_5_CHECK = null;
     public final static List<String> COLUMN_1_5_ENUM_VALUES = null;
 
-    public final static Long QUERY_1_ID = 1L;
-    public final static String QUERY_1_TITLE = "AAAA";
-    public final static String QUERY_1_DESCRIPTION = "BBBBBBBB";
-    public final static String QUERY_1_STATEMENT = "SELECT * FROM `weather_aus`;";
-    public final static String QUERY_1_DOI = "1111/1";
-    public final static String QUERY_1_RESULT_HASH = "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03";
-    public final static Instant QUERY_1_CREATED = Instant.now();
-    public final static Instant QUERY_1_EXECUTION = Instant.now();
-
-    public final static Long QUERY_2_ID = 2L;
-    public final static String QUERY_2_TITLE = "CCCCCCC";
-    public final static String QUERY_2_DESCRIPTION = "DDDDDD";
-    public final static String QUERY_2_STATEMENT = "SELECT * FROM `weather`;";
-    public final static String QUERY_2_DOI = "2222/2";
-    public final static String QUERY_2_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
-    public final static Instant QUERY_2_CREATED = Instant.now().minus(2, MINUTES);
-    public final static Instant QUERY_2_EXECUTION = Instant.now().minus(1, MINUTES);
-
-    public final static Query QUERY_1 = Query.builder()
-            .id(QUERY_1_ID)
-            .query(QUERY_1_STATEMENT)
-            .resultHash(QUERY_1_RESULT_HASH)
-            .created(QUERY_1_CREATED)
-            .execution(QUERY_1_EXECUTION)
-            .build();
-
-    public final static Query QUERY_2 = Query.builder()
-            .id(QUERY_2_ID)
-            .query(QUERY_2_STATEMENT)
-            .resultHash(QUERY_2_RESULT_HASH)
-            .created(QUERY_2_CREATED)
-            .execution(QUERY_2_EXECUTION)
-            .build();
-
-    public final static QueryDto QUERY_1_DTO = QueryDto.builder()
-            .id(QUERY_1_ID)
-            .query(QUERY_1_STATEMENT)
-            .resultHash(QUERY_1_RESULT_HASH)
-            .created(QUERY_1_CREATED)
-            .execution(QUERY_1_EXECUTION)
-            .build();
-
     public final static List<ContainerImageEnvironmentItem> IMAGE_1_ENV = List.of(ContainerImageEnvironmentItem.builder()
                     .iid(IMAGE_1_ID)
                     .key("UZERNAME")
@@ -321,6 +278,48 @@ public abstract class BaseUnitTest {
             .image(CONTAINER_3_IMAGE)
             .hash(CONTAINER_3_HASH)
             .created(CONTAINER_3_CREATED)
+            .build();
+
+    public final static Long QUERY_1_ID = 1L;
+    public final static String QUERY_1_TITLE = "AAAA";
+    public final static String QUERY_1_DESCRIPTION = "BBBBBBBB";
+    public final static String QUERY_1_STATEMENT = "SELECT * FROM `weather_aus`;";
+    public final static String QUERY_1_DOI = "1111/1";
+    public final static Long QUERY_1_CONTAINER_ID = CONTAINER_1_ID;
+    public final static Long QUERY_1_DATABASE_ID = DATABASE_1_ID;
+    public final static String QUERY_1_RESULT_HASH = "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03";
+    public final static Instant QUERY_1_CREATED = Instant.now();
+    public final static Instant QUERY_1_EXECUTION = Instant.now();
+
+    public final static Long QUERY_2_ID = 2L;
+    public final static String QUERY_2_TITLE = "CCCCCCC";
+    public final static String QUERY_2_DESCRIPTION = "DDDDDD";
+    public final static String QUERY_2_STATEMENT = "SELECT * FROM `weather`;";
+    public final static String QUERY_2_DOI = null;
+    public final static Long QUERY_2_CONTAINER_ID = CONTAINER_2_ID;
+    public final static Long QUERY_2_DATABASE_ID = DATABASE_2_ID;
+    public final static String QUERY_2_RESULT_HASH = "ff3f7cbe1b96d296957f6e39e55b8b1b577fa3d205d4795af99594cfd20cb80d";
+    public final static Instant QUERY_2_CREATED = Instant.now().minus(2, MINUTES);
+    public final static Instant QUERY_2_EXECUTION = Instant.now().minus(1, MINUTES);
+
+    public final static Query QUERY_1 = Query.builder()
+            .id(QUERY_1_ID)
+            .cid(QUERY_1_CONTAINER_ID)
+            .dbid(QUERY_1_DATABASE_ID)
+            .query(QUERY_1_STATEMENT)
+            .resultHash(QUERY_1_RESULT_HASH)
+            .created(QUERY_1_CREATED)
+            .execution(QUERY_1_EXECUTION)
+            .build();
+
+    public final static QueryDto QUERY_1_DTO = QueryDto.builder()
+            .id(QUERY_1_ID)
+            .cid(QUERY_1_CONTAINER_ID)
+            .dbid(QUERY_1_DATABASE_ID)
+            .query(QUERY_1_STATEMENT)
+            .resultHash(QUERY_1_RESULT_HASH)
+            .created(QUERY_1_CREATED)
+            .execution(QUERY_1_EXECUTION)
             .build();
 
     public final static List<TableColumn> TABLE_1_COLUMNS = List.of(TableColumn.builder()

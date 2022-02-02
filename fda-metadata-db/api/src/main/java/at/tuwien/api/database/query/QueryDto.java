@@ -6,14 +6,16 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
 import java.time.Instant;
 
 
-@Data
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class QueryDto {
 
     @NotNull
@@ -21,9 +23,12 @@ public class QueryDto {
     private Long id;
 
     @NotNull
-    @JsonProperty("database_id")
+    @ApiModelProperty(name = "container id", example = "1")
+    private Long cid;
+
+    @NotNull
     @ApiModelProperty(name = "database id", example = "1")
-    private Long databaseId;
+    private Long dbid;
 
     @ApiModelProperty(name = "execution time", example = "2022-01-01 08:00:00.000")
     private Instant execution;

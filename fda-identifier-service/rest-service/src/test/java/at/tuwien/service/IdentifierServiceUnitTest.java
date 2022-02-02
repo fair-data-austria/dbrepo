@@ -42,7 +42,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
                 .thenReturn(List.of(IDENTIFIER_1));
 
         /* test */
-        final List<Identifier> response = identifierService.findAll();
+        final List<Identifier> response = identifierService.findAll(CONTAINER_1_ID, DATABASE_1_ID);
         assertEquals(1, response.size());
         assertEquals(IDENTIFIER_1, response.get(0));
     }
@@ -83,7 +83,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(IdentifierNotFoundException.class, () -> {
-            identifierService.update(IDENTIFIER_1_ID, IDENTIFIER_1_DTO);
+            identifierService.update(CONTAINER_1_ID, DATABASE_1_ID, IDENTIFIER_1_ID, IDENTIFIER_1_DTO);
         });
     }
 
@@ -103,7 +103,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(IdentifierPublishingNotAllowedException.class, () -> {
-            identifierService.create(request);
+            identifierService.create(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
@@ -117,7 +117,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
                 .thenReturn(IDENTIFIER_1);
 
         /* test */
-        identifierService.publish(IDENTIFIER_1_ID, VisibilityTypeDto.TRUSTED);
+        identifierService.publish(CONTAINER_1_ID, DATABASE_1_ID, IDENTIFIER_1_ID, VisibilityTypeDto.TRUSTED);
     }
 
     @Test
@@ -140,7 +140,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(IdentifierAlreadyPublishedException.class, () -> {
-            identifierService.publish(IDENTIFIER_1_ID, VisibilityTypeDto.SELF);
+            identifierService.publish(CONTAINER_1_ID, DATABASE_1_ID, IDENTIFIER_1_ID, VisibilityTypeDto.SELF);
         });
     }
 
@@ -155,7 +155,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
                 .delete(IDENTIFIER_1);
 
         /* test */
-        identifierService.delete(IDENTIFIER_1_ID);
+        identifierService.delete(CONTAINER_1_ID, DATABASE_1_ID, IDENTIFIER_1_ID);
     }
 
     @Test
@@ -170,7 +170,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(IdentifierNotFoundException.class, () -> {
-            identifierService.delete(IDENTIFIER_1_ID);
+            identifierService.delete(CONTAINER_1_ID, DATABASE_1_ID, IDENTIFIER_1_ID);
         });
     }
 

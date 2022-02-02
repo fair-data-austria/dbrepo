@@ -17,8 +17,11 @@ import java.time.Instant;
 @Builder
 public class IdentifierDto {
 
-    @NotNull
     private Long id;
+
+    @NotNull
+    @ApiModelProperty(name = "container id", example = "1")
+    private Long cid;
 
     @NotNull
     @ApiModelProperty(name = "database id", example = "1")
@@ -36,7 +39,7 @@ public class IdentifierDto {
     @ApiModelProperty(name = "query description", example = "Returns a list of measurements for the year 2012")
     private String description;
 
-    @NotBlank
+    @NotNull
     private VisibilityTypeDto visibility;
 
     @ApiModelProperty(name = "doi", example = "Digital Object Identifier")
@@ -46,10 +49,8 @@ public class IdentifierDto {
     @ApiModelProperty(name = "creators")
     private CreatorDto[] creators;
 
-    @NotNull
     private Instant created;
 
-    @NotNull
     @JsonProperty("last_modified")
     private Instant lastModified;
 

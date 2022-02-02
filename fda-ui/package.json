@@ -33,6 +33,7 @@
     "highlight.js": "^10.7.2",
     "is-docker": "^2.2.1",
     "knex": "^0.95.6",
+    "lodash": "^4.17.21",
     "multer": "^1.4.2",
     "node-fetch": "^2.6.1",
     "nuxt": "^2.15.8",

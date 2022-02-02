@@ -1,9 +1,6 @@
 package at.tuwien.endpoint;
 
-import at.tuwien.api.database.query.ExecuteStatementDto;
-import at.tuwien.api.database.query.QueryDto;
-import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.query.SaveStatementDto;
+import at.tuwien.api.database.query.*;
 import at.tuwien.querystore.Query;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
@@ -12,6 +9,7 @@ import at.tuwien.service.StoreService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+@Log4j2
 @RestController
 @RequestMapping("/api/container/{id}/database/{databaseId}/table/{tableId}/query")
 public class QueryEndpoint {
@@ -50,7 +49,12 @@ public class QueryEndpoint {
             TableNotFoundException, ContainerNotFoundException {
         /* validation */
         if (data.getStatement() == null || data.getStatement().isBlank()) {
-            throw new QueryMalformedException("Query cannot be blank");
+            log.error("Query is empty");
+            throw new QueryMalformedException("Invalid query");
+        }
+        if (data.getTables().size() == 0) {
+            log.error("Table list is empty");
+            throw new QueryMalformedException("Invalid table");
         }
         final QueryResultDto result = queryService.execute(id, databaseId, tableId, data);
         final QueryDto query = queryMapper.queryToQueryDto(storeService.insert(id, databaseId, result, data));

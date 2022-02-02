@@ -28,22 +28,11 @@
                   </v-list-item>
                   <v-list-item>
                     <v-list-item-icon>
-                      <v-icon>mdi-fingerprint</v-icon>
+                      <v-icon>mdi-table-of-contents</v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
-                        DOI: <code v-if="queryDetails.doi">{{ queryDetails.doi }}</code>
-                        <span v-if="!queryDetails.doi">(no identifier issued)</span>
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                  <v-list-item>
-                    <v-list-item-icon>
-                      <v-icon>mdi-api</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        Query Hash: <code>{{ queryDetails.query_hash }}</code>
+                        Result Number: <code>{{ queryDetails.result_number }}</code>
                       </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
@@ -53,7 +42,7 @@
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
-                        Execution Timestamp: {{ queryDetails.execution_timestamp }}
+                        Execution Timestamp: <code>{{ queryDetails.execution }}</code>
                       </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
@@ -72,11 +61,8 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <v-btn color="primary" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/${item.id}`">
-                  <v-icon left>mdi-run</v-icon> Execute Again
-                </v-btn>
-                <v-btn :disabled="queryDetails.doi" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/${item.id}`">
-                  <v-icon left>mdi-fingerprint</v-icon> Cite Dataset
+                <v-btn color="blue-grey white--text" :to="`/container/${$route.params.container_id}/database/${databaseId}/query/${item.id}`">
+                  More
                 </v-btn>
               </v-col>
             </v-row>

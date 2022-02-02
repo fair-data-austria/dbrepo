@@ -173,7 +173,8 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(QUERY_1_ID, response.getBody().getId());
-        assertEquals(DATABASE_1_ID, response.getBody().getDatabaseId());
+        assertEquals(CONTAINER_1_ID, response.getBody().getCid());
+        assertEquals(DATABASE_1_ID, response.getBody().getDbid());
         assertEquals(QUERY_1_STATEMENT, response.getBody().getQuery());
         assertEquals(QUERY_1_STATEMENT, response.getBody().getQueryNormalized());
         assertNull(response.getBody().getResultNumber());

@@ -1,6 +1,5 @@
 package at.tuwien.service.impl;
 
-import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 public abstract class HibernateConnector {
 
     private static final Integer MIN_SIZE = 5;
-    private static final Integer MAX_SIZE = 30;
+    private static final Integer MAX_SIZE = 500;
     private static final Integer INCREMENT_SIZE = 5;
     private static final Integer TIMEOUT = 1800;
     private static final String SESSION_CONTEXT = "thread";

@@ -203,26 +203,27 @@ services:
     logging:
       driver: json-file
 
-#  fda-citation-service:
-#    restart: on-failure
-#    container_name: fda-citation-service
-#    hostname: fda-citation-service
-#    build: ./fda-citation-service
-#    image: fda-citation-service
-#    networks:
-#      - fda-public
-#    environment:
-#      SPRING_PROFILES_ACTIVE: docker
-#      TZ: Europe/Vienna
-#    ports:
-#      - "9096:9096"
-#    depends_on:
-#      fda-metadata-db:
-#        condition: service_healthy
-#      fda-discovery-service:
-#        condition: service_healthy
-#      fda-table-service:
-#        condition: service_healthy
+  fda-identifier-service:
+    restart: on-failure
+    container_name: fda-identifier-service
+    hostname: fda-identifier-service
+    build: ./fda-identifier-service
+    image: fda-identifier-service
+    networks:
+      fda-public:
+        ipv4_address: 172.29.0.13
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
+    ports:
+      - "9096:9096"
+    depends_on:
+      fda-metadata-db:
+        condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
+      fda-query-service:
+        condition: service_healthy
 
   fda-analyse-service:
     restart: on-failure
@@ -336,5 +337,19 @@ services:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
       TZ: Europe/Vienna
+    logging:
+      driver: json-file
+
+  fda-producer-btc:
+    container_name: fda-producer-btc
+    hostname: fda-producer-btc
+    build: ./fda-producer-btc
+    image: fda-producer-btc
+    networks:
+      fda-public:
+        ipv4_address: 172.29.0.254
+    environment:
+      API_KEY: "${API_KEY}"
+      API_SECRET: "${API_SECRET}"
     logging:
       driver: json-file
