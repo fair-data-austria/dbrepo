@@ -3,7 +3,7 @@
     <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
     <v-toolbar flat>
       <v-toolbar-title>
-        <span>{{ table.name }}</span>
+        {{ table.name }}
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
@@ -15,84 +15,24 @@
         </v-btn>
       </v-toolbar-title>
     </v-toolbar>
+    <v-toolbar color="primary white--text" flat>
+      <v-toolbar-title>
+        <strong>Versioning</strong>
+      </v-toolbar-title>
+      <v-spacer />
+      <v-toolbar-title>
+        <v-btn @click="pickVersionDialog = true">
+          <v-icon left>mdi-update</v-icon> Pick
+        </v-btn>
+        <v-dialog
+          v-model="pickVersionDialog"
+          max-width="640">
+          <TimeTravel @close="pickVersionDialog = false" />
+        </v-dialog>
+      </v-toolbar-title>
+    </v-toolbar>
     <v-card>
-      <v-row dense>
-        <v-col cols="6">
-          <v-card-subtitle v-if="table.name">
-            {{ table.description }}
-          </v-card-subtitle>
-        </v-col>
-        <v-col class="text-right" cols="6">
-          <v-row dense>
-            <v-col>
-              <v-menu
-                ref="dateMenu"
-                v-model="dateMenu"
-                :close-on-content-click="false"
-                :return-value.sync="date"
-                transition="scale-transition"
-                offset-y>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="date"
-                    label="Date"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on" />
-                </template>
-                <v-date-picker
-                  v-model="date"
-                  no-title
-                  scrollable>
-                  <v-spacer />
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="dateMenu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="$refs.dateMenu.save(date)">
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </v-col>
-            <v-col>
-              <v-menu
-                ref="timeMenu"
-                v-model="timeMenu"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                :return-value.sync="time"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="290px">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="time"
-                    label="Time"
-                    prepend-icon="mdi-clock-time-four-outline"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on" />
-                </template>
-                <v-time-picker
-                  v-if="timeMenu"
-                  v-model="time"
-                  format="24hr"
-                  @click:minute="$refs.timeMenu.save(time)" />
-              </v-menu>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
       <v-data-table
-        dense
         :headers="headers"
         :items="rows"
         :options.sync="options"
@@ -116,16 +56,16 @@
   </div>
 </template>
 <script>
-import { format, parse } from 'date-fns'
+import TimeTravel from '@/components/dialogs/TimeTravel'
 
 export default {
-  name: 'TableListing',
   components: {
+    TimeTravel
   },
   data () {
     return {
       loading: true,
-      total: 150, // FIXME hardcoded until issue #119 is resolved
+      total: null,
       footerProps: {
         'items-per-page-options': [10, 20, 30, 40, 50]
       },
@@ -133,8 +73,8 @@ export default {
       // datetime: new Date().toISOString(),
       dateMenu: false,
       timeMenu: false,
-      date: format(new Date(), 'yyyy-MM-dd'),
-      time: format(new Date(), 'HH:mm'),
+      pickVersionDialog: null,
+      version: new Date(),
       options: {
         page: 1,
         itemsPerPage: 10
@@ -165,20 +105,6 @@ export default {
     }
   },
   watch: {
-    date (val) {
-      console.log('new date', val)
-      if (!val) {
-        this.date = format(new Date(), 'yyyy-MM-dd')
-      }
-      this.loadData()
-    },
-    time (val) {
-      console.log('new time', val)
-      if (!val) {
-        this.time = '00:00'
-      }
-      this.loadData()
-    },
     options: {
       handler () {
         this.loadData()
@@ -189,8 +115,25 @@ export default {
   mounted () {
     this.loadProperties()
     this.loadData()
+    this.loadDataCount()
   },
   methods: {
+    async loadTotalTuples () {
+      try {
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`)
+        this.table = res.data
+        console.debug('headers', res.data.columns)
+        this.headers = res.data.columns.map((c) => {
+          return {
+            value: c.internal_name,
+            text: this.columnAddition(c) + c.name
+          }
+        })
+      } catch (err) {
+        this.$toast.error('Could not get table details.')
+        this.loading = false
+      }
+    },
     async loadProperties () {
       try {
         const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`)
@@ -208,17 +151,29 @@ export default {
       }
     },
     async loadData () {
-      const datetime = parse(`${this.date} ${this.time}`, 'yyyy-MM-dd HH:mm', new Date()).toISOString()
-      console.log(datetime)
-      this.loading = true
       try {
+        this.loading = true
+        const datetime = this.version.toISOString()
         let url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
         url += `?page=${this.options.page - 1}&size=${this.options.itemsPerPage}&timestamp=${datetime}`
         const res = await this.$axios.get(url)
         this.rows = res.data.result
         console.debug('table data', res.data)
       } catch (err) {
+        console.error('failed to load data', err)
         this.$toast.error('Could not load table data.')
+      }
+      this.loading = false
+    },
+    async loadDataCount () {
+      try {
+        this.loading = true
+        const url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data?total=1`
+        const res = await this.$axios.get(url)
+        this.total = res.data.count
+        console.debug('data count', res.data)
+      } catch (err) {
+        console.error('failed to load total count', err)
       }
       this.loading = false
     },

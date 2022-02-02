@@ -155,6 +155,20 @@ public interface QueryMapper {
                 .build();
     }
 
+    default String tableToRawCountAllQuery(Table table, Instant timestamp) throws ImageNotSupportedException {
+        /* param check */
+        if (!table.getDatabase().getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        if (timestamp == null) {
+            timestamp = Instant.now();
+        }
+        return "SELECT COUNT(*) FROM `" + nameToInternalName(table.getName()) +
+                "` FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
+                "';";
+    }
+
     default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page)
             throws ImageNotSupportedException {
         /* param check */
@@ -206,6 +220,7 @@ public interface QueryMapper {
         log.trace("table {} contains {} records", table, queryResult.size());
         return QueryResultDto.builder()
                 .result(queryResult)
+                .count(BigInteger.valueOf(queryResult.size()))
                 .build();
     }
 

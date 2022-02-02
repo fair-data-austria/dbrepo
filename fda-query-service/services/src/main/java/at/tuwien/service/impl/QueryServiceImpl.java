@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceException;
+import java.math.BigInteger;
 import java.time.DateTimeException;
 import java.time.Instant;
 
@@ -120,6 +121,42 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
             log.error("Failed to parse date from the one stored in the metadata database");
             throw new TableMalformedException("Could not parse date from format", e);
         }
+        session.close();
+        factory.close();
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public QueryResultDto count(Long containerId, Long databaseId, Long tableId, Instant timestamp)
+            throws ContainerNotFoundException, DatabaseNotFoundException, TableNotFoundException,
+            TableMalformedException, ImageNotSupportedException {
+        /* find */
+        final Container container = containerService.find(containerId);
+        final Database database = databaseService.find(databaseId);
+        final Table table = tableService.find(databaseId, tableId);
+        /* run query */
+        final long startSession = System.currentTimeMillis();
+        final SessionFactory factory = getSessionFactory(table.getDatabase(), false);
+        final Session session = factory.openSession();
+        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        session.beginTransaction();
+        final NativeQuery<BigInteger> query = session.createSQLQuery(queryMapper.tableToRawCountAllQuery(table, timestamp));
+        final int affectedTuples;
+        try {
+            affectedTuples = query.executeUpdate();
+            log.info("Counted {} tuples in table id {}", affectedTuples, tableId);
+        } catch (PersistenceException e) {
+            log.error("Failed to count tuples");
+            session.close();
+            factory.close();
+            throw new TableMalformedException("Data not found", e);
+        }
+        session.getTransaction()
+                .commit();
+        final QueryResultDto result = QueryResultDto.builder()
+                .count(query.getSingleResult())
+                .build();
         session.close();
         factory.close();
         return result;

@@ -5,7 +5,7 @@
     </v-toolbar>
     <v-stepper v-model="step" vertical>
       <v-stepper-step :complete="step > 1" step="1">
-        Table Metadata
+        Table Information
       </v-stepper-step>
 
       <v-stepper-content class="pt-0 pb-1" step="1">
@@ -13,19 +13,19 @@
           v-model="tableCreate.name"
           required
           autocomplete="off"
-          label="Name" />
+          label="Name *" />
         <v-text-field
           v-model="tableCreate.description"
           required
           autocomplete="off"
-          label="Description" />
+          label="Description *" />
         <v-btn :disabled="!step1Valid" color="primary" @click="step = 2">
           Continue
         </v-btn>
       </v-stepper-content>
 
       <v-stepper-step :complete="step > 2" step="2">
-        Dataset Metadata (.csv)
+        Metadata
       </v-stepper-step>
 
       <v-stepper-content step="2">
@@ -37,7 +37,7 @@
               :items="separators"
               required
               hint="Character separating the values"
-              label="Separator" />
+              label="Separator *" />
           </v-col>
         </v-row>
         <v-row dense>
@@ -48,7 +48,7 @@
               type="number"
               required
               hint="Skip n lines from the top"
-              label="Skip Lines"
+              label="Skip Lines *"
               placeholder="e.g. 0" />
           </v-col>
         </v-row>
@@ -80,13 +80,32 @@
           </v-col>
         </v-row>
         <v-row dense>
-          <v-col cols="8">
+          <v-col cols="6">
+            <v-btn :disabled="!tableCreate.separator || !tableCreate.skip_lines" :loading="loading" color="primary" @click="step = 3">Next</v-btn>
+          </v-col>
+        </v-row>
+      </v-stepper-content>
+
+      <v-stepper-step :complete="step > 3" step="3">
+        Import Data
+      </v-stepper-step>
+      <v-stepper-content step="3">
+        <v-row dense>
+          <v-col cols="4">
             <v-file-input
               v-model="file"
               accept="text/csv"
-              :rules="[rules.required]"
               show-size
-              label="CSV File" />
+              label="File Upload (.csv)" />
+          </v-col>
+          <v-col cols="4">
+            <v-text-field
+              v-model="url"
+              disabled
+              accept="text/csv"
+              show-size
+              hint="e.g. http://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-ogd-verbindungen.csv"
+              label="File URL (.csv)" />
           </v-col>
         </v-row>
         <v-row dense>
@@ -96,10 +115,10 @@
         </v-row>
       </v-stepper-content>
 
-      <v-stepper-step :complete="step > 3" step="3">
-        Data Types
+      <v-stepper-step :complete="step > 4" step="4">
+        Table Schema
       </v-stepper-step>
-      <v-stepper-content step="3">
+      <v-stepper-content step="4">
         <div v-for="(c, idx) in tableCreate.columns" :key="idx">
           <v-row dense class="column pa-2 ml-1 mr-1 mb-2">
             <v-col cols="2">
@@ -157,12 +176,12 @@
       </v-stepper-content>
 
       <v-stepper-step
-        :complete="step > 4"
-        step="4">
+        :complete="step > 5"
+        step="5">
         Done
       </v-stepper-step>
 
-      <v-stepper-content step="4">
+      <v-stepper-content step="5">
         Proceed to table view.
         <div class="mt-2">
           <v-btn :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${newTableId}`" outlined>
@@ -213,6 +232,7 @@ export default {
       },
       loading: false,
       file: null,
+      url: null,
       fileLocation: null,
       columns: [],
       columnTypes: [
@@ -250,7 +270,7 @@ export default {
         if (res.data.success) {
           this.tableCreate.columns = res.data.columns
           this.fileLocation = res.data.file.filename
-          this.step = 3
+          this.step = 4
           this.loading = false
           console.debug('upload csv', res.data)
         } else {
@@ -327,7 +347,7 @@ export default {
         return
       }
       this.loading = false
-      this.step = 4
+      this.step = 5
     }
   }
 }

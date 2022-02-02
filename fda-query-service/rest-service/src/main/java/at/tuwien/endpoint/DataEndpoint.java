@@ -80,10 +80,16 @@ public class DataEndpoint {
                                                  @NotNull @PathVariable("databaseId") Long databaseId,
                                                  @NotNull @PathVariable("tableId") Long tableId,
                                                  @RequestParam(required = false) Instant timestamp,
+                                                 @RequestParam(required = false) String total,
                                                  @RequestParam(required = false) Long page,
                                                  @RequestParam(required = false) Long size)
             throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
             ImageNotSupportedException, TableMalformedException, PaginationException, ContainerNotFoundException {
+        if (total != null) {
+            /* we ignore the value */
+            final QueryResultDto response = queryService.count(id, databaseId, tableId, timestamp);
+            return ResponseEntity.ok(response);
+        }
         if ((page == null && size != null) || (page != null && size == null)) {
             log.error("Cannot perform pagination with only one of page/size set.");
             log.debug("invalid pagination specification, one of page/size is null, either both should be null or none.");

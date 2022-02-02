@@ -1,6 +1,7 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
@@ -49,7 +50,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
         final String request = "test:csv/csv_01.csv";
 
         /* test */
-        final ResponseEntity<?> response = dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request, null);
+        final ResponseEntity<?> response = dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request,
+                null);
         assertNotNull(response);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
@@ -62,7 +64,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        final ResponseEntity<?> response = dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, request);
+        final ResponseEntity<?> response = dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null,
+                request);
         assertNotNull(response);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
@@ -94,7 +97,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
             DatabaseNotFoundException, ImageNotSupportedException, PaginationException, ContainerNotFoundException {
 
         /* test */
-        dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null, null);
+        dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null, null, null);
     }
 
     @Test
@@ -105,7 +108,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
         final Long size = null;
 
         /* test */
-        dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, null, page, size);
     }
 
     @Test
@@ -115,7 +118,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, null, page, size);
         });
     }
 
@@ -126,7 +129,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, null, page, size);
         });
     }
 
@@ -137,7 +140,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, null, page, size);
         });
     }
 
@@ -148,7 +151,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, null, page, size);
         });
     }
 
@@ -159,7 +162,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, null, page, size);
         });
     }
 
@@ -170,7 +173,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, null, page, size);
         });
     }
 
@@ -181,7 +184,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, null, page, size);
         });
     }
 
@@ -191,7 +194,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
             PaginationException, ContainerNotFoundException {
 
         /* test */
-        final ResponseEntity<InputStreamResource> respone = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null);
+        final ResponseEntity<InputStreamResource> respone = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID,
+                TABLE_1_ID, null);
         assertNotNull(respone);
         assertEquals(HttpStatus.OK, respone.getStatusCode());
     }
@@ -204,7 +208,8 @@ public class DataEndpointUnitTest extends BaseUnitTest {
                 .minusMillis(1000 * 1000);
 
         /* test */
-        final ResponseEntity<InputStreamResource> respone = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<InputStreamResource> respone = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID,
+                TABLE_1_ID, request);
         assertNotNull(respone);
         assertEquals(HttpStatus.OK, respone.getStatusCode());
 
@@ -218,7 +223,22 @@ public class DataEndpointUnitTest extends BaseUnitTest {
                 .plusMillis(1000 * 1000);
 
         /* test */
-        final ResponseEntity<InputStreamResource> respone = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<InputStreamResource> respone = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID,
+                TABLE_1_ID, request);
+        assertNotNull(respone);
+        assertEquals(HttpStatus.OK, respone.getStatusCode());
+    }
+
+    @Test
+    public void getAllTotal_succeeds() throws TableNotFoundException, DatabaseConnectionException,
+            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
+            PaginationException, ContainerNotFoundException {
+        final Instant timestamp = Instant.now();
+        final String total = "1";
+
+        /* test */
+        final ResponseEntity<QueryResultDto> respone = dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID,
+                TABLE_1_ID, timestamp, total, null, null);
         assertNotNull(respone);
         assertEquals(HttpStatus.OK, respone.getStatusCode());
     }

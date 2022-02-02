@@ -33,20 +33,42 @@ public interface QueryService {
      * Select all data known in the database-table id tuple at a given time and return a page of specific size, using
      * Instant to better abstract time concept (JDK 8) from SQL. We use the "mariadb" user for this.
      *
-     * @param databaseId The database-table id tuple.
-     * @param tableId    The database-table id tuple.
-     * @param timestamp  The given time.
-     * @param page       The page.
-     * @param size       The page size.
+     * @param containerId The container-database id pair.
+     * @param databaseId  The container-database id pair.
+     * @param tableId     The table id.
+     * @param timestamp   The given time.
+     * @param page        The page.
+     * @param size        The page size.
      * @return The select all data result
+     * @throws ContainerNotFoundException  The container was not found in the metadata database.
      * @throws TableNotFoundException      The table was not found in the metadata database.
+     * @throws TableMalformedException     The table columns are messed up what we got from the metadata database.
      * @throws DatabaseNotFoundException   The database was not found in the remote database.
      * @throws ImageNotSupportedException  The image is not supported.
      * @throws DatabaseConnectionException The connection to the remote database was unsuccessful.
      */
     QueryResultDto findAll(Long containerId, Long databaseId, Long tableId, Instant timestamp,
                            Long page, Long size) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException, ContainerNotFoundException;
+            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException,
+            ContainerNotFoundException;
+
+    /**
+     * Count the total tuples for a given table id within a container-database id tuple at a given time.
+     *
+     * @param containerId The container-database id tuple.
+     * @param databaseId  The container-database id tuple.
+     * @param tableId     The table id.
+     * @param timestamp   The time.
+     * @return The number of records, if successful
+     * @throws ContainerNotFoundException The container was not found in the metadata database.
+     * @throws DatabaseNotFoundException  The database was not found in the remote database.
+     * @throws TableNotFoundException     The table was not found in the metadata database.
+     * @throws TableMalformedException    The table columns are messed up what we got from the metadata database.
+     * @throws ImageNotSupportedException The image is not supported.
+     */
+    QueryResultDto count(Long containerId, Long databaseId, Long tableId, Instant timestamp)
+            throws ContainerNotFoundException, DatabaseNotFoundException, TableNotFoundException,
+            TableMalformedException, ImageNotSupportedException;
 
     /**
      * Insert data from AMQP client into a table of a table-database id tuple, we need the "root" role for this as the
