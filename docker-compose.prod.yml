@@ -31,9 +31,12 @@ services:
     build: ./fda-metadata-db
     image: fda-metadata-db
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.5
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -46,9 +49,11 @@ services:
     restart: on-failure
     container_name: fda-discovery-service
     hostname: fda-discovery-service
-    image: docker.ossdip.at/fda-discovery-service:latest
+    build: ./fda-discovery-service
+    image: fda-discovery-service
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.4
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -61,14 +66,16 @@ services:
     restart: on-failure
     container_name: fda-gateway-service
     hostname: fda-gateway-service
-    image: docker.ossdip.at/fda-gateway-service:latest
+    build: ./fda-gateway-service
+    image: fda-gateway-service
     networks:
       fda-public:
-        aliases:
-          - fda-gateway-service
+        ipv4_address: 172.29.0.2
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
+    ports:
+      - "9095:9095"
     depends_on:
       fda-container-service:
         condition: service_healthy
@@ -87,13 +94,17 @@ services:
     restart: on-failure
     container_name: fda-database-service
     hostname: fda-database-service
-    image: docker.ossdip.at/fda-database-service:latest
+    build: ./fda-database-service
+    image: fda-database-service
     networks:
-      - fda-userdb
-      - fda-public
+      fda-userdb:
+      fda-public:
+        ipv4_address: 172.29.0.9
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
+    ports:
+      - "9092:9092"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -112,12 +123,16 @@ services:
     restart: on-failure
     container_name: fda-container-service
     hostname: fda-container-service
-    image: docker.ossdip.at/fda-container-service:latest
+    build: ./fda-container-service
+    image: fda-container-service
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.8
     environment:
       SPRING_PROFILES_ACTIVE: docker,seeder
       TZ: Europe/Vienna
+    ports:
+      - "9091:9091"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -155,13 +170,17 @@ services:
     restart: on-failure
     container_name: fda-query-service
     hostname: fda-query-service
-    image: docker.ossdip.at/fda-query-service:latest
+    build: ./fda-query-service
+    image: fda-query-service
     networks:
-      - fda-public
-      - fda-userdb
+      fda-public:
+        ipv4_address: 172.29.0.12
+      fda-userdb:
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
+    ports:
+      - "9093:9093"
     volumes:
       - /tmp:/tmp
     depends_on:
@@ -180,14 +199,18 @@ services:
     restart: on-failure
     container_name: fda-table-service
     hostname: fda-table-service
-    image: docker.ossdip.at/fda-table-service:latest
+    build: ./fda-table-service
+    image: fda-table-service
     networks:
-      - fda-public
-      - fda-userdb
+      fda-public:
+        ipv4_address: 172.29.0.11
+      fda-userdb:
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       multipart.location: /tmp
       TZ: Europe/Vienna
+    ports:
+      - "9094:9094"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
@@ -205,38 +228,43 @@ services:
     logging:
       driver: json-file
 
-#  fda-citation-service:
-#    restart: on-failure
-#    container_name: fda-citation-service
-#    hostname: fda-citation-service
-#    build: ./fda-citation-service
-#    image: fda-citation-service
-#    networks:
-#      - fda-public
-#    environment:
-#      SPRING_PROFILES_ACTIVE: docker
-#      TZ: Europe/Vienna
-#    ports:
-#      - "9096:9096"
-#    depends_on:
-#      fda-metadata-db:
-#        condition: service_healthy
-#      fda-discovery-service:
-#        condition: service_healthy
-#      fda-table-service:
-#        condition: service_healthy
+  fda-identifier-service:
+    restart: on-failure
+    container_name: fda-identifier-service
+    hostname: fda-identifier-service
+    build: ./fda-identifier-service
+    image: fda-identifier-service
+    networks:
+      fda-public:
+        ipv4_address: 172.29.0.13
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
+    ports:
+      - "9096:9096"
+    depends_on:
+      fda-metadata-db:
+        condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
+      fda-query-service:
+        condition: service_healthy
 
   fda-analyse-service:
     restart: on-failure
     container_name: fda-analyse-service
     hostname: fda-analyse-service
-    image: docker.ossdip.at/fda-analyse-service:latest
+    build: ./fda-analyse-service
+    image: fda-analyse-service
     networks:
-      - fda-public
-      - fda-userdb
+      fda-public:
+        ipv4_address: 172.29.0.10
+      fda-userdb:
     command: sh -c "/wait && flask run" # docker-compose should not test the implementation
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
+    ports:
+      - "5000:5000"
     volumes:
       - /tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
@@ -248,15 +276,43 @@ services:
     logging:
       driver: json-file
 
+  fda-units-service:
+    restart: on-failure
+    container_name: fda-units-service
+    hostname: fda-units-service
+    build: ./fda-units-service
+    image: fda-units-service
+    networks:
+      fda-public:
+        ipv4_address: 172.29.0.7
+    environment:
+      EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
+      TZ: Europe/Vienna
+    ports:
+      - "5010:5010"
+    volumes:
+      - /tmp:/tmp
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
   fda-broker-service:
     restart: on-failure
     container_name: fda-broker-service
     hostname: fda-broker-service
-    image: docker.ossdip.at/fda-broker-service:latest
+    build: ./fda-broker-service
+    image: fda-broker-service
     environment:
       TZ: Europe/Vienna
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.3
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     volumes:
       - fda-broker-service-data:/var/lib/rabbitmq/
     logging:
@@ -269,7 +325,8 @@ services:
     image: elasticsearch:7.13.4
     command: ["elasticsearch"]
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.6
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -277,6 +334,9 @@ services:
     depends_on:
       fda-discovery-service:
         condition: service_healthy
+    ports:
+      - 9200:9200
+      - 9600:9600
     logging:
       driver: json-file
 
@@ -284,20 +344,23 @@ services:
     restart: on-failure
     container_name: fda-ui
     hostname: fda-ui
-    image: docker.ossdip.at/fda-ui:latest
+    build: ./fda-ui
+    image: fda-ui
     networks:
       - fda-public
     ports:
-      - "443:3000"
+      - "3000:3000"
     volumes:
+      - /tmp:/tmp
       - "./fda-ui/.prod:/certs"
     depends_on:
       fda-gateway-service:
         condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
-      KEY: "${UI_KEY}"
-      CERT: "${UI_CERT}"
+      TZ: Europe/Vienna
     logging:
       driver: json-file
