@@ -15,9 +15,10 @@
         </v-btn>
       </v-toolbar-title>
     </v-toolbar>
-    <v-toolbar color="primary white--text" flat>
+    <v-toolbar :color="versionColor" flat>
       <v-toolbar-title>
         <strong>Versioning</strong>
+        <span v-if="version.id !== null">{{ version.created }}</span>
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
@@ -69,21 +70,16 @@ export default {
       footerProps: {
         'items-per-page-options': [10, 20, 30, 40, 50]
       },
-      // datetime: Date.now(),
-      // datetime: new Date().toISOString(),
       dateMenu: false,
       timeMenu: false,
       pickVersionDialog: null,
-      version: new Date(),
+      version: {
+        id: null,
+        created: null
+      },
       options: {
         page: 1,
         itemsPerPage: 10
-        // sortBy: string[],
-        // sortDesc: boolean[],
-        // groupBy: string[],
-        // groupDesc: boolean[],
-        // multiSort: boolean,
-        // mustSort: boolean
       },
       table: {
         name: null,
@@ -102,14 +98,19 @@ export default {
   computed: {
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
+    },
+    versionColor () {
+      console.debug('version', this.version)
+      if (this.version.created === null) {
+        return 'grey lighten-1'
+      }
+      return 'primary white--text'
     }
   },
   watch: {
-    options: {
-      handler () {
-        this.loadData()
-      },
-      deep: true
+    version (newVersion, oldVersion) {
+      console.info('selected new version', newVersion)
+      this.loadData()
     }
   },
   mounted () {
@@ -118,22 +119,6 @@ export default {
     this.loadDataCount()
   },
   methods: {
-    async loadTotalTuples () {
-      try {
-        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`)
-        this.table = res.data
-        console.debug('headers', res.data.columns)
-        this.headers = res.data.columns.map((c) => {
-          return {
-            value: c.internal_name,
-            text: this.columnAddition(c) + c.name
-          }
-        })
-      } catch (err) {
-        this.$toast.error('Could not get table details.')
-        this.loading = false
-      }
-    },
     async loadProperties () {
       try {
         const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`)
@@ -153,12 +138,14 @@ export default {
     async loadData () {
       try {
         this.loading = true
-        const datetime = this.version.toISOString()
-        let url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
-        url += `?page=${this.options.page - 1}&size=${this.options.itemsPerPage}&timestamp=${datetime}`
+        let url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data?page=${this.options.page - 1}&size=${this.options.itemsPerPage}`
+        if (this.version.created !== null) {
+          console.info('versioning active', this.version)
+          url += `&timestamp=${this.version.created}`
+        }
         const res = await this.$axios.get(url)
         this.rows = res.data.result
-        console.debug('table data', res.data)
+        console.debug('version', this.datetime, 'table data', res.data)
       } catch (err) {
         console.error('failed to load data', err)
         this.$toast.error('Could not load table data.')

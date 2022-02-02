@@ -53,6 +53,12 @@ public class Seeder {
                     .key("MARIADB_PASSWORD")
                     .value("mariadb")
                     .type(ContainerImageEnvironmentItemType.PASSWORD)
+                    .build(),
+            ContainerImageEnvironmentItem.builder()
+                    .iid(IMAGE_1_ID)
+                    .key("TZ")
+                    .value("Europe/Vienna")
+                    .type(ContainerImageEnvironmentItemType.PASSWORD)
                     .build());
 
     private final static Long IMAGE_DATE_1_ID = 1L;

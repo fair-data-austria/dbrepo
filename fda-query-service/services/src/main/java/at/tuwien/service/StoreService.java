@@ -5,7 +5,9 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.exception.*;
 import at.tuwien.querystore.Query;
+import at.tuwien.querystore.Version;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -65,4 +67,29 @@ public interface StoreService {
      */
     Query insert(Long containerId, Long databaseId, QueryResultDto result, ExecuteStatementDto metadata) throws QueryStoreException,
             DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException;
+
+    /**
+     * Creates a new version for a container-database pair.
+     *
+     * @param containerId The container id.
+     * @param databaseId  The database id.
+     * @throws ContainerNotFoundException
+     * @throws DatabaseNotFoundException
+     * @throws ImageNotSupportedException
+     */
+    void createVersion(Long containerId, Long databaseId) throws ContainerNotFoundException,
+            DatabaseNotFoundException, ImageNotSupportedException;
+
+    /**
+     * List all available versions for a data set in the store
+     *
+     * @param containerId The container id.
+     * @param databaseId  The database id.
+     * @return List of versions, if successful
+     * @throws ContainerNotFoundException
+     * @throws DatabaseNotFoundException
+     * @throws ImageNotSupportedException
+     */
+    List<Version> listVersions(Long containerId, Long databaseId) throws ContainerNotFoundException,
+            DatabaseNotFoundException, ImageNotSupportedException;
 }

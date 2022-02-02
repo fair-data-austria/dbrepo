@@ -177,6 +177,9 @@ public interface QueryMapper {
         }
         if (timestamp == null) {
             timestamp = Instant.now();
+            log.debug("no timestamp provided, default to {}", timestamp);
+        } else {
+            log.debug("timestamp provided {}", timestamp);
         }
         final int[] idx = new int[]{0};
         final StringBuilder query = new StringBuilder("SELECT ");

@@ -22,8 +22,9 @@ public class GatewayConfig {
                         .and()
                         .uri("lb://fda-identifier-service"))
                 .route("fda-query-service", r -> r.path("/api/container/**/database/**/query/**",
-                                "/api/container/**/database/**/table/**/data/**",
-                                "/api/container/**/database/**/table/**/query/**")
+                                "/api/container/**/database/**/table/**/data/**", // TODO
+                                "/api/container/**/database/**/table/**/query/**", // TODO
+                                "/api/container/**/database/**/version/**")
                         .and()
                         .method("POST", "GET", "PUT", "DELETE")
                         .and()

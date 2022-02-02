@@ -9,10 +9,7 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
-import at.tuwien.service.ContainerService;
-import at.tuwien.service.DatabaseService;
-import at.tuwien.service.QueryService;
-import at.tuwien.service.TableService;
+import at.tuwien.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -32,14 +29,16 @@ import java.time.Instant;
 public class QueryServiceImpl extends HibernateConnector implements QueryService {
 
     private final QueryMapper queryMapper;
+    private final StoreService storeService;
     private final TableService tableService;
     private final DatabaseService databaseService;
     private final ContainerService containerService;
 
     @Autowired
-    public QueryServiceImpl(QueryMapper queryMapper, TableService tableService, DatabaseService databaseService,
-                            ContainerService containerService) {
+    public QueryServiceImpl(QueryMapper queryMapper, StoreService storeService, TableService tableService,
+                            DatabaseService databaseService, ContainerService containerService) {
         this.queryMapper = queryMapper;
+        this.storeService = storeService;
         this.tableService = tableService;
         this.databaseService = databaseService;
         this.containerService = containerService;
@@ -182,7 +181,9 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final InsertTableRawQuery raw = queryMapper.tableCsvDtoToRawInsertQuery(table, data);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
         log.trace("query with parameters {}", query.setParameterList(1, raw.getData()));
-        return insert(query, session, factory, tableId);
+        final Integer affected = insert(query, session, factory, tableId);
+        storeService.createVersion(containerId, databaseId);
+        return affected;
     }
 
     @Override
@@ -203,7 +204,9 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         /* prepare the statement */
         final InsertTableRawQuery raw = queryMapper.pathToRawInsertQuery(table, path);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
-        return insert(query, session, factory, tableId);
+        final Integer affected = insert(query, session, factory, tableId);
+        storeService.createVersion(containerId, databaseId);
+        return affected;
     }
 
     /**

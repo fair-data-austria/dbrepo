@@ -121,10 +121,6 @@ public class DataEndpoint {
             throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
             ImageNotSupportedException, TableMalformedException, FileStorageException, PaginationException,
             ContainerNotFoundException {
-        /* validate */
-        if (timestamp == null) {
-            timestamp = Instant.now();
-        }
         final InputStreamResource data = commaValueService.export(id, databaseId, tableId, timestamp);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=\"export.csv\"");

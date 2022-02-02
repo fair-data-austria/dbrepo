@@ -14,10 +14,15 @@
             v-model="version"
             color="primary">
             <v-list-item
-              v-for="(item, i) in items"
+              v-for="(v, i) in versions"
               :key="i">
               <v-list-item-content>
-                <v-list-item-title v-text="item.text"></v-list-item-title>
+                <v-list-item-title>
+                  Version {{ v.id }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ v.created }}
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -31,10 +36,18 @@
           Cancel
         </v-btn>
         <v-btn
+          class="mb-2"
+          color="blue-grey white--text"
+          :disabled="$parent.$parent.$parent.$parent.version.id === null"
+          @click="reset">
+          Disable
+        </v-btn>
+        <v-btn
           id="version"
           class="mb-2"
-          :disabled="!version"
-          color="primary">
+          :disabled="version === null || version === undefined"
+          color="primary"
+          @click="pick">
           Pick
         </v-btn>
       </v-card-actions>
@@ -50,32 +63,16 @@ export default {
       loading: false,
       error: false,
       version: null,
-      items: [
-        { text: 'Real-Time', icon: 'mdi-clock' },
-        { text: 'Audience', icon: 'mdi-account' },
-        { text: 'Conversions', icon: 'mdi-flag' },
-        { text: 'Real-Time', icon: 'mdi-clock' },
-        { text: 'Audience', icon: 'mdi-account' },
-        { text: 'Conversions', icon: 'mdi-flag' },
-        { text: 'Real-Time', icon: 'mdi-clock' },
-        { text: 'Audience', icon: 'mdi-account' },
-        { text: 'Conversions', icon: 'mdi-flag' },
-        { text: 'Real-Time', icon: 'mdi-clock' },
-        { text: 'Audience', icon: 'mdi-account' },
-        { text: 'Conversions', icon: 'mdi-flag' },
-        { text: 'Real-Time', icon: 'mdi-clock' },
-        { text: 'Audience', icon: 'mdi-account' },
-        { text: 'Conversions', icon: 'mdi-flag' },
-        { text: 'Real-Time', icon: 'mdi-clock' },
-        { text: 'Audience', icon: 'mdi-account' },
-        { text: 'Conversions', icon: 'mdi-flag' }
-      ]
+      versions: []
     }
   },
   computed: {
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
     }
+  },
+  mounted () {
+    this.loadVersions()
   },
   methods: {
     cancel () {
@@ -85,6 +82,27 @@ export default {
       return new Promise((resolve) => {
         setTimeout(resolve, ms)
       })
+    },
+    reset () {
+      this.$parent.$parent.$parent.$parent.version = { id: null, created: null }
+      this.cancel()
+    },
+    pick () {
+      this.$parent.$parent.$parent.$parent.version = this.versions[this.version]
+      this.cancel()
+    },
+    async loadVersions () {
+      this.loading = true
+      try {
+        const url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/version`
+        const res = await this.$axios.get(url)
+        this.versions = res.data
+        console.debug('versions', this.versions)
+      } catch (err) {
+        console.error('Failed to get versions', err)
+        this.$toast.error('Failed to get versions')
+      }
+      this.loading = false
     }
   }
 }
