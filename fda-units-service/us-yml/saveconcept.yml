@@ -15,7 +15,7 @@ parameters:
       uri:
         type: "string"
         example: "http://www.ontology-of-units-of-measure.org/resource/om-2/metre"
-      conceptname:
+      name:
         type: "string"
         example: "metre"
 responses:
