@@ -145,21 +145,25 @@ services:
     restart: on-failure
     container_name: fda-authentication-service
     hostname: fda-authentication-service
-    image: fda-authentication-service:latest
+    image: fda-authentication-service
+    build: fda-authentication-service
     networks:
       fda-public:
         ipv4_address: 172.29.0.14
     volumes:
       - /tmp:/tmp
     environment:
-      SERVER_NAME: dbrepo.ossdip.at
       SPRING_PROFILES_ACTIVE: docker
-      KEY_STORE_PASSWORD: "${KEY_STORE_PASSWORD:-dbrepo}"
-      SAML_SIGN_PASSWORD: "${SAML_SIGN_PASSWORD}"
       TZ: Europe/Vienna
     ports:
       - "9097:9097"
     depends_on:
+      fda-metadata-db:
+        condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
+      fda-gateway-service:
+        condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
     logging:

@@ -5,11 +5,14 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -22,6 +25,7 @@ import java.time.Instant;
 @Table(name = "mdb_users")
 public class User {
 
+
     @Id
     @EqualsAndHashCode.Include
     @Column(name = "userid", columnDefinition = "numeric(19, 2)")
@@ -33,14 +37,13 @@ public class User {
     )
     private Long id;
 
-    @EqualsAndHashCode.Include
-    @Column(name = "oid", unique = true)
-    private Long oId;
+    @Column(unique = true, nullable = false)
+    private String username;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     private String firstname;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastname;
 
     @Column(name = "preceding_titles")
@@ -49,15 +52,24 @@ public class User {
     @Column(name = "postpositioned_title")
     private String titlesAfter;
 
-    @Column(name = "main_email")
+    @Column(name = "main_email", unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @ElementCollection(targetClass = RoleType.class)
+    @JoinTable(name = "mdb_user_roles", joinColumns = @JoinColumn(name = "uid"))
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private List<RoleType> roles;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private Instant created;
 
     @LastModifiedDate
-    @Column(nullable = false)
+    @Column(name = "last_modified")
     private Instant lastModified;
 
 }

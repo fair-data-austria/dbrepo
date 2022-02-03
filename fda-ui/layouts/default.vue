@@ -31,7 +31,7 @@
       <v-btn
         class="mr-2 white--text"
         color="blue-grey"
-        @click="authenticate">
+        @click="loginDialog = true">
         <v-icon left>mdi-login</v-icon> Login
       </v-btn>
       <v-menu bottom offset-y left>
@@ -44,16 +44,22 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item
-            v-for="locale in availableLocales"
-            :key="locale.code"
-            :to="switchLocalePath(locale.code)">
-            <v-list-item-title>{{ locale.name }}</v-list-item-title>
+          <v-list-item @click="registerDialog = true">
+            <v-list-item-icon>
+              <v-icon left>mdi-account-plus</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Create Account</v-list-item-title>
           </v-list-item>
-          <v-list-item
-            @click="switchTheme()">
-            {{ nextTheme }} Theme
-          </v-list-item>
+          <!--          <v-list-item-->
+          <!--            v-for="locale in availableLocales"-->
+          <!--            :key="locale.code"-->
+          <!--            :to="switchLocalePath(locale.code)">-->
+          <!--            <v-list-item-title>{{ locale.name }}</v-list-item-title>-->
+          <!--          </v-list-item>-->
+          <!--          <v-list-item-->
+          <!--            @click="switchTheme()">-->
+          <!--            {{ nextTheme }} Theme-->
+          <!--          </v-list-item>-->
         </v-list>
       </v-menu>
     </v-app-bar>
@@ -73,6 +79,18 @@
         </v-card-text>
       </v-card>
     </v-footer>
+    <v-dialog
+      v-model="loginDialog"
+      persistent
+      max-width="640">
+      <Login @close="loginDialog = false" />
+    </v-dialog>
+    <v-dialog
+      v-model="registerDialog"
+      persistent
+      max-width="640">
+      <Register @close="registerDialog = false" />
+    </v-dialog>
   </v-app>
 </template>
 
@@ -83,15 +101,23 @@ import {
   mdiFileDelimited,
   mdiDatabaseSearch,
   mdiHome,
-  mdiNewspaperVariantOutline
+  mdiNewspaperVariantOutline,
+  mdiCog
 } from '@mdi/js'
+import Login from '../components/dialogs/Login'
+import Register from '../components/dialogs/Register'
 
 export default {
   name: 'DefaultLayout',
+  components: {
+    Login,
+    Register
+  },
   data () {
     return {
       drawer: false,
-      countDown: 1,
+      loginDialog: null,
+      registerDialog: null,
       items: [
         {
           icon: mdiHome,
@@ -107,6 +133,11 @@ export default {
           icon: mdiNewspaperVariantOutline,
           title: 'Publications',
           to: '/publications'
+        },
+        {
+          icon: mdiCog,
+          title: 'Privacy',
+          to: '/privacy'
         },
         {
           icon: mdiTable,
@@ -151,12 +182,6 @@ export default {
     },
     db () {
       return this.$store.state.db
-    },
-    timer () {
-      const hours = Math.floor(this.countDown / 3600)
-      const minutes = Math.floor((this.countDown - hours * 3600) / 60)
-      const seconds = (this.countDown - hours * 3600 - minutes * 60)
-      return `${hours}h${minutes}m${seconds}s`
     }
   },
   watch: {
@@ -166,29 +191,10 @@ export default {
   },
   mounted () {
     this.loadDB()
-    this.countDownTimer()
-    this.initDownTimer()
   },
   methods: {
-    authenticate () {
-      window.location.href = 'https://dbrepo.ossdip.at:9097'
-    },
     switchTheme () {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark
-    },
-    initDownTimer () {
-      const two = new Date()
-      two.setDate(new Date().getDate() + 1)
-      two.setHours(2, 0, 0, 0)
-      this.countDown = Math.floor((two - new Date()) / 1000)
-    },
-    countDownTimer () {
-      if (this.countDown > 0) {
-        setTimeout(() => {
-          this.countDown -= 1
-          this.countDownTimer()
-        }, 1000)
-      }
     },
     async loadDB () {
       if (this.$route.params.db_id && !this.db) {
