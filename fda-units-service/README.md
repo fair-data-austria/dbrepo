@@ -74,9 +74,11 @@ Content-Type: application/json
 Host: localhost:5010
 Content-Length: 24
 
+```JSON
 {
   "ustring": "metre"
 }
+```
 
 Respose: true / false
 
@@ -89,10 +91,12 @@ Content-Type: application/json
 Host: localhost:5010
 Content-Length: 97
 
+```JSON
 {
   "name": "metre",
   "uri": "http://www.ontology-of-units-of-measure.org/resource/om-2/metre"
 }
+```
 
 The response is a postgres status message, e.g., 
 
@@ -107,12 +111,14 @@ Content-Type: application/json
 Host: localhost:5010
 Content-Length: 122
 
+```JSON
 {
   "cdbid": "1",
   "cid": "1",
   "tid": "1",
   "uri": "http://www.ontology-of-units-of-measure.org/resource/om-2/metre"
 }
+```
 
 The response is a postgres status message, e.g., 
 
