@@ -1,6 +1,6 @@
 package at.tuwien.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import at.tuwien.auth.AuthTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -21,8 +20,10 @@ import javax.servlet.http.HttpServletResponse;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Value("${fda.auth.url}")
-    private String authUrl;
+    @Bean
+    public AuthTokenFilter authTokenFilter() {
+        return new AuthTokenFilter()
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -45,11 +46,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 ).and();
         /* set permissions on endpoints */
         http.authorizeRequests()
+                /* our public endpoints */
+                .antMatchers(HttpMethod.GET, "/api/container/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/image/**").permitAll()
                 /* our private endpoints */
                 .anyRequest().authenticated();
-        /* set auth url */
-        http.formLogin()
-                .loginProcessingUrl(authUrl);
     }
 
     @Bean

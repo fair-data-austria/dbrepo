@@ -29,10 +29,18 @@
       <v-toolbar-title v-text="title" />
       <v-spacer />
       <v-btn
+        v-if="!token"
         class="mr-2 white--text"
         color="blue-grey"
         to="/login">
         <v-icon left>mdi-login</v-icon> Login
+      </v-btn>
+      <v-btn
+        v-if="!token"
+        class="mr-2 white--text"
+        color="primary"
+        to="/signup">
+        <v-icon left>mdi-account-plus</v-icon> Signup
       </v-btn>
       <v-menu bottom offset-y left>
         <template v-slot:activator="{ on, attrs }">
@@ -44,22 +52,16 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item to="/signup">
-            <v-list-item-icon>
-              <v-icon left>mdi-account-plus</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Create Account</v-list-item-title>
+          <v-list-item
+            v-for="locale in availableLocales"
+            :key="locale.code"
+            :to="switchLocalePath(locale.code)">
+            <v-list-item-title>{{ locale.name }}</v-list-item-title>
           </v-list-item>
-          <!--          <v-list-item-->
-          <!--            v-for="locale in availableLocales"-->
-          <!--            :key="locale.code"-->
-          <!--            :to="switchLocalePath(locale.code)">-->
-          <!--            <v-list-item-title>{{ locale.name }}</v-list-item-title>-->
-          <!--          </v-list-item>-->
-          <!--          <v-list-item-->
-          <!--            @click="switchTheme()">-->
-          <!--            {{ nextTheme }} Theme-->
-          <!--          </v-list-item>-->
+          <v-list-item
+            @click="switchTheme()">
+            {{ nextTheme }} Theme
+          </v-list-item>
         </v-list>
       </v-menu>
     </v-app-bar>
@@ -68,14 +70,14 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-footer v-if="sandbox" padless>
+    <v-footer padless>
       <v-card
         flat
         tile
         width="100%"
-        class="primary text-center">
-        <v-card-text class="white--text">
-          <strong>Sandbox Environment</strong> — <a href="//github.com/fair-data-austria/dbrepo/issues/new" class="white--text">Report a bug</a>
+        class="red lighten-1 text-center">
+        <v-card-text class="black--text">
+          This is a <strong>TEST</strong> environment, do not use production/confidential data! — <a href="//github.com/fair-data-austria/dbrepo/issues/new" class="black--text">Report a bug</a>
         </v-card-text>
       </v-card>
     </v-footer>
@@ -145,8 +147,8 @@ export default {
     availableLocales () {
       return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale)
     },
-    sandbox () {
-      return true
+    token () {
+      return this.$store.state.token
     },
     nextTheme () {
       return this.$vuetify.theme.dark ? 'Light' : 'Dark'

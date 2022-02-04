@@ -1,22 +1,22 @@
 <template>
   <div>
-    <v-card>
-      <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
-      <v-card-title>
-        Create Database
-      </v-card-title>
-      <v-card-text>
-        <v-alert
-          border="left"
-          color="amber lighten-4 black--text">
-          Choose an expressive database name and select a database engine.
-        </v-alert>
-        <v-form v-model="formValid" autocomplete="off">
+    <v-form ref="form" v-model="valid" @submit.prevent="submit">
+      <v-card>
+        <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
+        <v-card-title>
+          Create Database
+        </v-card-title>
+        <v-card-text>
+          <v-alert
+            border="left"
+            color="amber lighten-4 black--text">
+            Choose an expressive database name and select a database engine.
+          </v-alert>
           <v-text-field
             id="database"
             v-model="database"
             name="database"
-            label="Database Name"
+            label="Name *"
             :rules="[v => !!v || $t('Required')]"
             required />
           <v-textarea
@@ -24,14 +24,14 @@
             v-model="description"
             name="description"
             rows="2"
-            label="Database Description"
+            label="Description *"
             :rules="[v => !!v || $t('Required')]"
             required />
           <v-select
             id="engine"
             v-model="engine"
             name="engine"
-            label="Database Engine"
+            label="Engine *"
             :items="engines"
             :item-text="item => `${item.repository}:${item.tag}`"
             :rules="[v => !!v || $t('Required')]"
@@ -43,25 +43,26 @@
             name="public"
             disabled
             label="Public" />
-        </v-form>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn
-          class="mb-2"
-          @click="cancel">
-          Cancel
-        </v-btn>
-        <v-btn
-          id="createDB"
-          class="mb-2"
-          :disabled="!formValid || loading"
-          color="primary"
-          @click="createDB">
-          Create
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            class="mb-2"
+            @click="cancel">
+            Cancel
+          </v-btn>
+          <v-btn
+            id="createDB"
+            class="mb-2"
+            :disabled="!valid || loading"
+            color="primary"
+            type="submit"
+            @click="createDB">
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-form>
   </div>
 </template>
 
@@ -69,7 +70,7 @@
 export default {
   data () {
     return {
-      formValid: false,
+      valid: false,
       loading: false,
       error: false,
       database: null,
@@ -83,12 +84,18 @@ export default {
   computed: {
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
+    },
+    token () {
+      return this.$store.state.token
     }
   },
   beforeMount () {
     this.getImages()
   },
   methods: {
+    submit () {
+      this.$refs.form.validate()
+    },
     cancel () {
       this.$parent.$parent.$parent.$parent.createDbDialog = false
     },
@@ -97,7 +104,9 @@ export default {
       try {
         this.loading = true
         this.error = false
-        res = await this.$axios.get('/api/image/')
+        res = await this.$axios.get('/api/image/', {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
         this.engines = res.data
         console.debug('engines', this.engines)
         this.loading = false
@@ -125,13 +134,22 @@ export default {
           description: this.description,
           repository: this.engine.repository,
           tag: this.engine.tag
+        }, {
+          headers: { Authorization: `Bearer ${this.token}` }
         })
         containerId = res.data.id
         console.debug('created container', res.data)
         this.loading = false
       } catch (err) {
         this.error = true
-        this.$toast.error('Could not create container. Try another name.')
+        this.loading = false
+        if (err.status === 401) {
+          this.$toast.error('Authentication missing')
+          console.error('permission denied', err)
+          return
+        }
+        console.error('failed to create container', err)
+        this.$toast.error('Could not create container.')
         return
       }
 
@@ -139,8 +157,8 @@ export default {
       try {
         this.loading = true
         this.error = false
-        res = await this.$axios.put(`/api/container/${containerId}`, {
-          action: 'START'
+        res = await this.$axios.put(`/api/container/${containerId}`, { action: 'START' }, {
+          headers: { Authorization: `Bearer ${this.token}` }
         })
         console.debug('started container', res.data)
       } catch (err) {
@@ -162,6 +180,8 @@ export default {
             name: this.database,
             description: this.description,
             is_public: this.isPublic
+          }, {
+            headers: { Authorization: `Bearer ${this.token}` }
           })
           console.debug('created database', res)
           break

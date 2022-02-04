@@ -1,6 +1,5 @@
 package at.tuwien.config;
 
-import at.tuwien.auth.AuthEntrypoint;
 import at.tuwien.auth.AuthTokenFilter;
 import at.tuwien.auth.JwtUtils;
 import at.tuwien.service.impl.UserDetailsServiceImpl;

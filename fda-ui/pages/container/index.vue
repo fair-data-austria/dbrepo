@@ -7,7 +7,7 @@
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
-        <v-btn color="primary" @click.stop="createDbDialog = true">
+        <v-btn v-if="token" color="primary" @click.stop="createDbDialog = true">
           <v-icon left>mdi-plus</v-icon> Database
         </v-btn>
       </v-toolbar-title>
@@ -89,9 +89,7 @@ export default {
       this.createDbDialog = false
       try {
         this.loading = true
-        let res = await this.$axios.get('/api/container/', {
-          headers: { Authorization: `Bearer ${this.token}` }
-        })
+        let res = await this.$axios.get('/api/container/')
         this.containers = res.data
         console.debug('containers', this.containers)
         for (const container of this.containers) {
