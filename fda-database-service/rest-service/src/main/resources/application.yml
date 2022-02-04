@@ -31,3 +31,4 @@ eureka:
 fda:
   elastic.endpoint: localhost:9200
   ready.path: ./ready
+  auth.endpoint: http://localhost:9097

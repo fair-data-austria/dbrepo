@@ -31,3 +31,4 @@ eureka:
 fda:
   elastic.endpoint: fda-search-service:9200
   ready.path: /ready
+  auth.endpoint: http://fda-authentication-service:9097
