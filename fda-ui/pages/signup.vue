@@ -101,9 +101,6 @@ export default {
   beforeMount () {
   },
   methods: {
-    cancel () {
-      this.$parent.$parent.$parent.$parent.registerDialog = false
-    },
     async register () {
       const url = '/api/user'
       try {
@@ -111,7 +108,6 @@ export default {
         const res = await this.$axios.post(url, this.createAccount)
         console.debug('create user', res.data)
         this.$toast.success('Success. Check your inbox!')
-        this.cancel()
       } catch (err) {
         console.error('create user failed', err)
         this.$toast.error('Failed to create user')

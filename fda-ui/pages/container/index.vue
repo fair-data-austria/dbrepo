@@ -76,6 +76,9 @@ export default {
   computed: {
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
+    },
+    token () {
+      return this.$store.state.token
     }
   },
   mounted () {
@@ -86,7 +89,9 @@ export default {
       this.createDbDialog = false
       try {
         this.loading = true
-        let res = await this.$axios.get('/api/container/')
+        let res = await this.$axios.get('/api/container/', {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
         this.containers = res.data
         console.debug('containers', this.containers)
         for (const container of this.containers) {

@@ -31,11 +31,6 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
-          class="mb-2"
-          @click="cancel">
-          Cancel
-        </v-btn>
-        <v-btn
           id="login"
           class="mb-2"
           :disabled="!valid"
@@ -69,17 +64,14 @@ export default {
   beforeMount () {
   },
   methods: {
-    cancel () {
-      this.$parent.$parent.$parent.$parent.loginDialog = false
-    },
     async login () {
       const url = '/api/auth'
       try {
         this.loading = true
         const res = await this.$axios.post(url, this.loginAccount)
         console.debug('login user', res.data)
+        this.$store.commit('SET_TOKEN', res.data.token)
         this.$toast.success('Welcome back!')
-        this.cancel()
       } catch (err) {
         console.error('login user failed', err)
         this.$toast.error('Failed to login user')

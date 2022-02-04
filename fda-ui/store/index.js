@@ -1,12 +1,13 @@
 export const state = () => ({
-  db: null
+  db: null,
+  token: null
 })
 
 export const mutations = {
   SET_DATABASE (state, db) {
     state.db = db
   },
-  SET_THEME (state, theme) {
-    state.theme = theme
+  SET_TOKEN (state, token) {
+    state.token = token
   }
 }

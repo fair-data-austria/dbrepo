@@ -31,7 +31,7 @@
       <v-btn
         class="mr-2 white--text"
         color="blue-grey"
-        @click="loginDialog = true">
+        to="/login">
         <v-icon left>mdi-login</v-icon> Login
       </v-btn>
       <v-menu bottom offset-y left>
@@ -44,7 +44,7 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item @click="registerDialog = true">
+          <v-list-item to="/signup">
             <v-list-item-icon>
               <v-icon left>mdi-account-plus</v-icon>
             </v-list-item-icon>
@@ -79,18 +79,6 @@
         </v-card-text>
       </v-card>
     </v-footer>
-    <v-dialog
-      v-model="loginDialog"
-      persistent
-      max-width="640">
-      <Login @close="loginDialog = false" />
-    </v-dialog>
-    <v-dialog
-      v-model="registerDialog"
-      persistent
-      max-width="640">
-      <Register @close="registerDialog = false" />
-    </v-dialog>
   </v-app>
 </template>
 
@@ -104,20 +92,12 @@ import {
   mdiNewspaperVariantOutline,
   mdiCog
 } from '@mdi/js'
-import Login from '../components/dialogs/Login'
-import Register from '../components/dialogs/Register'
 
 export default {
   name: 'DefaultLayout',
-  components: {
-    Login,
-    Register
-  },
   data () {
     return {
       drawer: false,
-      loginDialog: null,
-      registerDialog: null,
       items: [
         {
           icon: mdiHome,
