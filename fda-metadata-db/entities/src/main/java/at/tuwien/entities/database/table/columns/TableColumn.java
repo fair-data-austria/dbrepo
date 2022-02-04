@@ -51,6 +51,7 @@ public class TableColumn implements Comparable<TableColumn> {
     private ContainerImageDate dateFormat;
 
     @ToString.Exclude
+    @org.springframework.data.annotation.Transient
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumns({
             @JoinColumn(name = "tid", referencedColumnName = "id", insertable = false, updatable = false),

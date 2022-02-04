@@ -7,6 +7,7 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
+import at.tuwien.repository.elastic.TableidxRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.ContainerService;
 import at.tuwien.service.DatabaseService;
@@ -30,14 +31,16 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     private final TableRepository tableRepository;
     private final DatabaseService databaseService;
     private final ContainerService containerService;
+    private final TableidxRepository tableidxRepository;
 
     @Autowired
-    public TableServiceImpl(TableMapper tableMapper, TableRepository tableRepository,
+    public TableServiceImpl(TableMapper tableMapper, TableRepository tableRepository, TableidxRepository tableidxRepository,
                             DatabaseService databaseService, ContainerService containerService) {
         this.tableMapper = tableMapper;
         this.tableRepository = tableRepository;
         this.databaseService = databaseService;
         this.containerService = containerService;
+        this.tableidxRepository = tableidxRepository;
     }
 
     @Override
@@ -134,6 +137,8 @@ public class TableServiceImpl extends HibernateConnector implements TableService
                 });
         log.info("Created table with id {} {}", table.getId(), query.getGenerated() ? "and auto-generated id column" : "");
         log.debug("created table {}", table);
+        /* save in table_index - elastic search */
+        tableidxRepository.save(table);
         return tableRepository.save(table);
     }
 }
