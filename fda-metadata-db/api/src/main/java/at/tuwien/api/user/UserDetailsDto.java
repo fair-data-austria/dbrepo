@@ -3,6 +3,8 @@ package at.tuwien.api.user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -13,13 +15,13 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class UserDetailsDto implements UserDetails {
 
     @ApiModelProperty(name = "id")
     private Long id;
 
     @ApiModelProperty(name = "user authorities")
-    private List<GrantedAuthorityDto> authorities;
+    private List<? extends GrantedAuthority> authorities;
 
     @NotNull
     @ApiModelProperty(name = "user name")
@@ -27,7 +29,6 @@ public class UserDto {
 
     @NotNull
     @ToString.Exclude
-    @JsonIgnore
     @ApiModelProperty(name = "password hash")
     private String password;
 
@@ -35,4 +36,23 @@ public class UserDto {
     @ApiModelProperty(name = "mail address")
     private String email;
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

@@ -1,6 +1,8 @@
 package at.tuwien.config;
 
 import at.tuwien.auth.AuthTokenFilter;
+import at.tuwien.gateway.AuthenticationServiceGateway;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -20,9 +23,16 @@ import javax.servlet.http.HttpServletResponse;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final AuthenticationServiceGateway authenticationServiceGateway;
+
+    @Autowired
+    public WebSecurityConfig(AuthenticationServiceGateway authenticationServiceGateway) {
+        this.authenticationServiceGateway = authenticationServiceGateway;
+    }
+
     @Bean
     public AuthTokenFilter authTokenFilter() {
-        return new AuthTokenFilter()
+        return new AuthTokenFilter(authenticationServiceGateway);
     }
 
     @Override
@@ -51,6 +61,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/image/**").permitAll()
                 /* our private endpoints */
                 .anyRequest().authenticated();
+        /* add JWT token filter */
+        http.addFilterBefore(authTokenFilter(),
+                UsernamePasswordAuthenticationFilter.class
+        );
     }
 
     @Bean

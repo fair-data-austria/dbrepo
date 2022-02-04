@@ -43,7 +43,7 @@ public class ImageEndpoint {
     }
 
     @Transactional
-    @GetMapping("/")
+    @GetMapping
     @ApiOperation(value = "List all images", notes = "Lists the images in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All images are listed."),
@@ -58,7 +58,7 @@ public class ImageEndpoint {
     }
 
     @Transactional
-    @PostMapping("/")
+    @PostMapping
     @ApiOperation(value = "Creates a new image", notes = "Creates a new image in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully created a new image."),

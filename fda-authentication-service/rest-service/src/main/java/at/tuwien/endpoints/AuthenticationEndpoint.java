@@ -1,7 +1,9 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.user.JwtResponseDto;
-import at.tuwien.api.user.LoginRequestDto;
+import at.tuwien.api.auth.JwtResponseDto;
+import at.tuwien.api.auth.LoginRequestDto;
+import at.tuwien.api.user.UserDto;
+import at.tuwien.mapper.UserMapper;
 import at.tuwien.service.AuthenticationService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @Log4j2
 @RestController
@@ -20,10 +23,12 @@ import javax.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthenticationEndpoint {
 
+    private final UserMapper userMapper;
     private final AuthenticationService authenticationService;
 
     @Autowired
-    public AuthenticationEndpoint(AuthenticationService authenticationService) {
+    public AuthenticationEndpoint(UserMapper userMapper, AuthenticationService authenticationService) {
+        this.userMapper = userMapper;
         this.authenticationService = authenticationService;
     }
 
@@ -36,6 +41,16 @@ public class AuthenticationEndpoint {
         final JwtResponseDto response = authenticationService.authenticate(data);
         return ResponseEntity.accepted()
                 .body(response);
+    }
+
+    @PutMapping
+    @ApiOperation(value = "Authenticates a token")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "Successfully authenticated a user.")
+    })
+    public ResponseEntity<UserDto> authenticateUser(Principal principal) {
+        return ResponseEntity.accepted()
+                .body(userMapper.principalToUserDto(principal));
     }
 
 }

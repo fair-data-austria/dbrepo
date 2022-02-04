@@ -38,7 +38,7 @@ public class ContainerEndpoint {
     }
 
     @Transactional
-    @GetMapping("/")
+    @GetMapping
     @ApiOperation(value = "List all containers", notes = "Lists the containers in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All containers are listed."),
@@ -53,7 +53,7 @@ public class ContainerEndpoint {
     }
 
     @Transactional
-    @PostMapping("/")
+    @PostMapping
     @ApiOperation(value = "Creates a new container", notes = "Creates a new container whose image is registered in the metadata database too.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully created a new container."),

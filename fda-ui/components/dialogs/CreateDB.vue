@@ -104,7 +104,7 @@ export default {
       try {
         this.loading = true
         this.error = false
-        res = await this.$axios.get('/api/image/', {
+        res = await this.$axios.get('/api/image', {
           headers: { Authorization: `Bearer ${this.token}` }
         })
         this.engines = res.data
@@ -129,7 +129,7 @@ export default {
       try {
         this.loading = true
         this.error = false
-        res = await this.$axios.post('/api/container/', {
+        res = await this.$axios.post('/api/container', {
           name: this.database,
           description: this.description,
           repository: this.engine.repository,
@@ -176,7 +176,7 @@ export default {
       this.error = false
       for (let i = 0; i < 5; i++) {
         try {
-          res = await this.$axios.post(`/api/container/${containerId}/database/`, {
+          res = await this.$axios.post(`/api/container/${containerId}/database`, {
             name: this.database,
             description: this.description,
             is_public: this.isPublic

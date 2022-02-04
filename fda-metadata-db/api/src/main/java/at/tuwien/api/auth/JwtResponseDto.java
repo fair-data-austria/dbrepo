@@ -1,4 +1,4 @@
-package at.tuwien.api.user;
+package at.tuwien.api.auth;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;

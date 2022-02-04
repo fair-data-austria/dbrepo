@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
+    public AuthTokenFilter authTokenFilter() {
         return new AuthTokenFilter(jwtUtils, userDetailsService);
     }
 
@@ -86,7 +86,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 /* our private endpoints */
                 .anyRequest().authenticated();
         /* add JWT token filter */
-        http.addFilterBefore(authenticationJwtTokenFilter(),
+        http.addFilterBefore(authTokenFilter(),
                 UsernamePasswordAuthenticationFilter.class
         );
     }

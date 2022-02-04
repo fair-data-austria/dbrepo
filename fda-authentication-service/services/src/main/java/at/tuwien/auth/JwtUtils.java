@@ -1,5 +1,6 @@
 package at.tuwien.auth;
 
+import at.tuwien.api.user.UserDetailsDto;
 import at.tuwien.api.user.UserDto;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -24,7 +25,7 @@ public class JwtUtils {
     private Integer expire;
 
     public String generateJwtToken(Authentication authentication) {
-        final UserDto userPrincipal = (UserDto) authentication.getPrincipal();
+        final UserDetailsDto userPrincipal = (UserDetailsDto) authentication.getPrincipal();
         final Algorithm algorithm = Algorithm.HMAC512(secret);
         return JWT.create()
                 .withSubject(userPrincipal.getUsername())

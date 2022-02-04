@@ -26,4 +26,4 @@ eureka:
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
   ready.path: /ready
-  auth.url: http://fda-authentication-service:9097/api/auth
+  auth.endpoint: http://fda-authentication-service:9097

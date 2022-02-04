@@ -1,6 +1,6 @@
 package at.tuwien.endpoints;
 
-import at.tuwien.api.user.SignupRequestDto;
+import at.tuwien.api.auth.SignupRequestDto;
 import at.tuwien.api.user.UserDto;
 import at.tuwien.entities.user.User;
 import at.tuwien.exception.RoleNotFoundException;

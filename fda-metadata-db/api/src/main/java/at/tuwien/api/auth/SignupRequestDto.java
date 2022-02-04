@@ -1,8 +1,9 @@
-package at.tuwien.api.user;
+package at.tuwien.api.auth;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -11,11 +12,16 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequestDto {
+public class SignupRequestDto {
 
     @NotNull
     @ApiModelProperty(name = "user name")
     private String username;
+
+    @NotNull
+    @Email
+    @ApiModelProperty(name = "user email")
+    private String email;
 
     @NotNull
     @ApiModelProperty(name = "password hash")

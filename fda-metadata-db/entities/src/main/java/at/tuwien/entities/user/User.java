@@ -55,6 +55,7 @@ public class User {
     @Column(name = "main_email", unique = true, nullable = false)
     private String email;
 
+    @ToString.Exclude
     @Column(nullable = false)
     private String password;
 

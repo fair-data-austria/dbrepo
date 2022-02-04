@@ -1,7 +1,7 @@
 package at.tuwien.service;
 
-import at.tuwien.api.user.JwtResponseDto;
-import at.tuwien.api.user.LoginRequestDto;
+import at.tuwien.api.auth.JwtResponseDto;
+import at.tuwien.api.auth.LoginRequestDto;
 
 public interface AuthenticationService {
 
