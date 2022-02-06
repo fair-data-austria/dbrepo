@@ -52,6 +52,7 @@ public class ContainerEndpoint {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Creates a new container", notes = "Creates a new container whose image is registered in the metadata database too.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully created a new container."),
@@ -82,6 +83,7 @@ public class ContainerEndpoint {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP.")
     @ApiResponses({
             @ApiResponse(code = 202, message = "Changed the state of a container."),

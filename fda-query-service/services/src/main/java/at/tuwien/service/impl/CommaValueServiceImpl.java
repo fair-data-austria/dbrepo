@@ -1,6 +1,5 @@
 package at.tuwien.service.impl;
 
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.table.Table;
@@ -8,7 +7,6 @@ import at.tuwien.exception.*;
 import at.tuwien.mapper.DataMapper;
 import at.tuwien.service.CommaValueService;
 import at.tuwien.service.ContainerService;
-import at.tuwien.service.QueryService;
 import at.tuwien.service.TableService;
 import at.tuwien.utils.FileUtils;
 import at.tuwien.utils.TableUtils;
@@ -20,8 +18,6 @@ import com.opencsv.exceptions.CsvException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +27,6 @@ import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,15 +36,12 @@ import java.util.stream.Stream;
 public class CommaValueServiceImpl implements CommaValueService {
 
     private final DataMapper dataMapper;
-    private final QueryService queryService;
     private final TableService tableService;
     private final ContainerService containerService;
 
     @Autowired
-    public CommaValueServiceImpl(DataMapper dataMapper, QueryService queryService, TableService tableService,
-                                 ContainerService containerService) {
+    public CommaValueServiceImpl(DataMapper dataMapper, TableService tableService, ContainerService containerService) {
         this.dataMapper = dataMapper;
-        this.queryService = queryService;
         this.tableService = tableService;
         this.containerService = containerService;
     }
@@ -180,35 +172,35 @@ public class CommaValueServiceImpl implements CommaValueService {
                 .build();
     }
 
-    @Override
-    @Transactional
-    public InputStreamResource export(Long containerId, Long databaseId, Long tableId, Instant timestamp)
-            throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
-            TableMalformedException, ImageNotSupportedException, PaginationException, FileStorageException,
-            ContainerNotFoundException {
-        /* find */
-        final Container container = containerService.find(containerId);
-        final Table table = tableService.find(databaseId, tableId);
-        final QueryResultDto result = queryService.findAll(containerId, databaseId, tableId, timestamp, null, null);
-        /* write */
-        final Resource csv = dataMapper.resultTableToResource(result, table);
-        final InputStreamResource resource;
-        try {
-            resource = new InputStreamResource(csv.getInputStream());
-        } catch (IOException e) {
-            log.error("Failed to map resource");
-            throw new FileStorageException("Failed to map resource", e);
-        }
-        log.trace("produced csv {}", csv);
-        return resource;
-    }
+//    @Override
+//    @Transactional
+//    public InputStreamResource export(Long containerId, Long databaseId, Long tableId, Instant timestamp)
+//            throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
+//            TableMalformedException, ImageNotSupportedException, PaginationException, FileStorageException,
+//            ContainerNotFoundException {
+//        /* find */
+//        final Container container = containerService.find(containerId);
+//        final Table table = tableService.find(databaseId, tableId);
+//        final QueryResultDto result = queryService.findAll(containerId, databaseId, tableId, timestamp, null, null);
+//        /* write */
+//        final Resource csv = dataMapper.resultTableToResource(result, table);
+//        final InputStreamResource resource;
+//        try {
+//            resource = new InputStreamResource(csv.getInputStream());
+//        } catch (IOException e) {
+//            log.error("Failed to map resource");
+//            throw new FileStorageException("Failed to map resource", e);
+//        }
+//        log.trace("produced csv {}", csv);
+//        return resource;
+//    }
 
-    @Override
-    @Transactional
-    public InputStreamResource export(Long containerId, Long databaseId, Long tableId) throws TableNotFoundException,
-            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
-            FileStorageException, PaginationException, ContainerNotFoundException {
-        return export(containerId, databaseId, tableId, Instant.now());
-    }
+//    @Override
+//    @Transactional
+//    public InputStreamResource export(Long containerId, Long databaseId, Long tableId) throws TableNotFoundException,
+//            DatabaseConnectionException, TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
+//            FileStorageException, PaginationException, ContainerNotFoundException {
+//        return export(containerId, databaseId, tableId, Instant.now());
+//    }
 
 }

@@ -53,7 +53,7 @@ public interface QueryMapper {
         return slug.toLowerCase(Locale.ENGLISH);
     }
 
-    default QueryResultDto resultListToQueryResultDto(Table table, List<?> result, ExecuteStatementDto metadata) {
+    default QueryResultDto resultListToQueryResultDto(List<TableColumn> columns, List<?> result) {
         final Iterator<?> iterator = result.iterator();
         final List<Map<String, Object>> resultList = new LinkedList<>();
         while (iterator.hasNext()) {
@@ -61,17 +61,11 @@ public interface QueryMapper {
             int[] idx = new int[]{0};
             final Object[] data = (Object[]) iterator.next();
             final Map<String, Object> map = new HashMap<>();
-            final List<TableColumn> cols = table.getColumns() /* todo extend for more than 1 table */;
-            metadata.getColumns()
-                    .forEach(columns -> columns.forEach(column -> map.put(column.getName(),
-                            dataColumnToObject(data[idx[0]++], cols.stream().filter(c -> c.getId()
-                                            .equals(column.getId()))
-                                    .findFirst()
-                                    .get()))));
+                    columns
+                    .forEach(column -> map.put(column.getName(),
+                            dataColumnToObject(data[idx[0]++], column)));
             resultList.add(map);
         }
-        log.info("Display data for table id {}", table.getId());
-        log.trace("table {} contains {} records", table, resultList.size());
         return QueryResultDto.builder()
                 .result(resultList)
                 .build();
@@ -223,7 +217,6 @@ public interface QueryMapper {
         log.trace("table {} contains {} records", table, queryResult.size());
         return QueryResultDto.builder()
                 .result(queryResult)
-                .count(BigInteger.valueOf(queryResult.size()))
                 .build();
     }
 

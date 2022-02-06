@@ -5,8 +5,8 @@ import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.time.Instant;
 
 @Service
@@ -17,7 +17,6 @@ public interface QueryService {
      * default "mariadb" user is allowed read-only access "SELECT".
      *
      * @param databaseId The database id.
-     * @param tableId    The table id.
      * @param query      The query.
      * @return The result.
      * @throws TableNotFoundException
@@ -26,7 +25,7 @@ public interface QueryService {
      * @throws DatabaseNotFoundException
      * @throws ImageNotSupportedException
      */
-    QueryResultDto execute(Long containerId, Long databaseId, Long tableId, ExecuteStatementDto query) throws TableNotFoundException,
+    QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto query) throws TableNotFoundException,
             QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException;
 
     /**
@@ -57,7 +56,7 @@ public interface QueryService {
      *
      * @param containerId The container-database id tuple.
      * @param databaseId  The container-database id tuple.
-     * @param tableId     The table id.
+     * @param tableId     The container-database id tuple.
      * @param timestamp   The time.
      * @return The number of records, if successful
      * @throws ContainerNotFoundException The container was not found in the metadata database.
@@ -66,7 +65,7 @@ public interface QueryService {
      * @throws TableMalformedException    The table columns are messed up what we got from the metadata database.
      * @throws ImageNotSupportedException The image is not supported.
      */
-    QueryResultDto count(Long containerId, Long databaseId, Long tableId, Instant timestamp)
+    BigInteger count(Long containerId, Long databaseId, Long tableId, Instant timestamp)
             throws ContainerNotFoundException, DatabaseNotFoundException, TableNotFoundException,
             TableMalformedException, ImageNotSupportedException;
 

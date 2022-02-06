@@ -57,7 +57,7 @@ public class ImageEndpoint {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('DEVELOPER')")
+    @PreAuthorize("hasRole('ROLE_DEVELOPER')")
     @ApiOperation(value = "Creates a new image", notes = "Creates a new image in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully created a new image."),

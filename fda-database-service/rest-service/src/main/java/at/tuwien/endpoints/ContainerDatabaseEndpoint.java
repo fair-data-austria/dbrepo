@@ -52,6 +52,7 @@ public class ContainerDatabaseEndpoint {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Creates a new database in a container", notes = "Creates a new database in a container. Note that the backend distincts between numerical (req: categories), nominal (req: max_length) and categorical (req: max_length, siUnit, min, max, mean, median, standard_deviation, histogram) column types.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "The database was successfully created."),

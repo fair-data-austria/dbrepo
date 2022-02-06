@@ -58,13 +58,13 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request))
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request))
                 .thenReturn(result);
         when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request))
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(result, response.getBody());
     }
@@ -81,13 +81,13 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request))
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request))
                 .thenReturn(result);
         when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request))
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(result, response.getBody());
     }
@@ -100,12 +100,12 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request))
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request))
                 .thenThrow(TableNotFoundException.class);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+            queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
@@ -121,7 +121,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryDto> response = queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final ResponseEntity<QueryDto> response = queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(QUERY_1_DTO, response.getBody());
     }
@@ -139,7 +139,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+            queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 

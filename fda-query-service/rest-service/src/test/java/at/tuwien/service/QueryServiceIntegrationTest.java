@@ -187,7 +187,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(3, response.getResult().size());
         assertEquals(BigInteger.valueOf(1L), response.getResult().get(0).get(COLUMN_1_1_NAME));
         assertEquals(toInstant("2008-12-01"), response.getResult().get(0).get(COLUMN_1_2_NAME));
@@ -220,24 +220,9 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertNotNull(response.getResult());
         assertEquals(3, response.getResult().size());
-    }
-
-    @Test
-    public void execute_tableNotExists_fails() throws InterruptedException {
-        final ExecuteStatementDto request = ExecuteStatementDto.builder()
-                .statement(QUERY_1_STATEMENT)
-                .build();
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, 9999L, request);
-        });
     }
 
     @Test
@@ -251,7 +236,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, 9999L, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, 9999L, request);
         });
     }
 
@@ -267,7 +252,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PersistenceException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
@@ -282,7 +267,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PersistenceException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
@@ -297,7 +282,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryMalformedException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
