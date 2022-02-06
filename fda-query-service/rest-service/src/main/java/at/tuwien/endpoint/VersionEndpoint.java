@@ -1,7 +1,6 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.api.database.VersionDto;
-import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.StoreMapper;
 import at.tuwien.querystore.Version;
@@ -12,9 +11,9 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,8 +33,8 @@ public class VersionEndpoint {
         this.storeMapper = storeMapper;
     }
 
-    @Transactional
     @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get values", notes = "Get Data from a Table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get data from the table."),

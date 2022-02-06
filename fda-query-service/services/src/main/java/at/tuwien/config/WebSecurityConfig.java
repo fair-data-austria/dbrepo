@@ -58,6 +58,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 /* our public endpoints */
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/data/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/container/**/database/**/table/**/data/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/container/**/database/**/table/**/export/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/query/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/**/query/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/**/version/**").permitAll()

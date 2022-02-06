@@ -17,6 +17,7 @@
             v-model="database"
             name="database"
             label="Name *"
+            autofocus
             :rules="[v => !!v || $t('Required')]"
             required />
           <v-textarea
@@ -104,9 +105,7 @@ export default {
       try {
         this.loading = true
         this.error = false
-        res = await this.$axios.get('/api/image', {
-          headers: { Authorization: `Bearer ${this.token}` }
-        })
+        res = await this.$axios.get('/api/image')
         this.engines = res.data
         console.debug('engines', this.engines)
         this.loading = false

@@ -13,6 +13,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -35,6 +37,8 @@ public class QueryEndpoint {
     }
 
     @PutMapping("/execute")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "executes a query and save the results")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
@@ -63,6 +67,8 @@ public class QueryEndpoint {
     }
 
     @PostMapping("/save")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "saves a query without execution")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
@@ -81,6 +87,8 @@ public class QueryEndpoint {
     }
 
     @PutMapping("/execute/{queryId}")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "re-executes a query by given id")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Re-Execute a saved query and return the results"),

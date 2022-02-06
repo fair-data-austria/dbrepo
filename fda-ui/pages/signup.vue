@@ -18,6 +18,7 @@
                 v-model="createAccount.email"
                 type="email"
                 autocomplete="off"
+                autofocus
                 required
                 :rules="[v => !!v || $t('Required')]"
                 hint="e.g. max.mustermann@work.com"

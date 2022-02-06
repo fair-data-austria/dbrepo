@@ -9,24 +9,13 @@
         View data for other version
       </v-card-subtitle>
       <v-card-text>
-        <v-list dense>
-          <v-list-item-group
-            v-model="version"
-            color="primary">
-            <v-list-item
-              v-for="(v, i) in versions"
-              :key="i">
-              <v-list-item-content>
-                <v-list-item-title>
-                  Version {{ v.id }}
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ v.created }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
+        <v-date-picker
+          v-model="picker"
+          no-title />
+        <v-time-picker
+          v-model="time"
+          format="24hr"
+          no-title />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -38,9 +27,8 @@
         <v-btn
           class="mb-2"
           color="blue-grey white--text"
-          :disabled="$parent.$parent.$parent.$parent.version.id === null"
           @click="reset">
-          Disable
+          Now
         </v-btn>
         <v-btn
           id="version"

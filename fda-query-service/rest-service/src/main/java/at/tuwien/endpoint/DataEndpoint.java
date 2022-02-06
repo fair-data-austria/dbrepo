@@ -13,6 +13,8 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,6 +36,8 @@ public class DataEndpoint {
     }
 
     @PostMapping("/api/container/{id}/database/{databaseId}/table/{tableId}/data")
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
+    @Transactional
     @ApiOperation(value = "Insert values", notes = "Insert Data into a Table in the database. When the location string is set, the data argument is ignored and the location is used as data input")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Updated the table."),
@@ -64,6 +68,7 @@ public class DataEndpoint {
     }
 
     @GetMapping("/api/container/{id}/database/{databaseId}/table/{tableId}/data")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get values", notes = "Get Data from a Table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get data from the table."),
@@ -100,6 +105,7 @@ public class DataEndpoint {
     }
 
     @RequestMapping(value = "/api/container/{id}/database/{databaseId}/table/{tableId}/data", method = RequestMethod.HEAD)
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get values", notes = "Get Data Count from a Table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get data from the table."),
@@ -125,6 +131,7 @@ public class DataEndpoint {
      * todo use dbs internal export functionality
      */
     @GetMapping(value = "/api/container/{id}/database/{databaseId}/table/{tableId}/export")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Download export", notes = "Get Data from a Table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get data from the table."),

@@ -3,7 +3,7 @@
     <v-toolbar flat>
       <v-toolbar-title>Create Table Schema (and Import Data) from .csv</v-toolbar-title>
     </v-toolbar>
-    <v-stepper v-model="step" vertical>
+    <v-stepper v-model="step" vertical flat>
       <v-stepper-step :complete="step > 1" step="1">
         Table Information
       </v-stepper-step>
@@ -250,6 +250,9 @@ export default {
   computed: {
     step1Valid () {
       return this.tableCreate.name !== null && this.tableCreate.name.length > 0 && this.tableCreate.description !== null && this.tableCreate.description.length > 0
+    },
+    token () {
+      return this.$store.state.token
     }
   },
   mounted () {
@@ -263,7 +266,10 @@ export default {
       data.append('file', this.file)
       try {
         const res = await this.$axios.post(url, data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${this.token}`
+          }
         })
         console.log(res.data)
 
@@ -322,7 +328,9 @@ export default {
       let createResult
       try {
         this.loading = true
-        createResult = await this.$axios.post(createUrl, this.tableCreate)
+        createResult = await this.$axios.post(createUrl, this.tableCreate, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
         this.newTableId = createResult.data.id
         console.debug('created table', createResult.data)
       } catch (err) {
@@ -338,7 +346,9 @@ export default {
       const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${createResult.data.id}/data?location=${encodeURI('/tmp/' + this.fileLocation)}`
       let insertResult
       try {
-        insertResult = await this.$axios.post(insertUrl)
+        insertResult = await this.$axios.post(insertUrl, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
         console.debug('inserted table', insertResult.data)
       } catch (err) {
         this.loading = false

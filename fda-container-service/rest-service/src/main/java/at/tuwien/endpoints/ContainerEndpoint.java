@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -38,6 +39,7 @@ public class ContainerEndpoint {
     }
 
     @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "List all containers", notes = "Lists the containers in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All containers are listed."),
@@ -52,6 +54,7 @@ public class ContainerEndpoint {
     }
 
     @PostMapping
+    @Transactional
     @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Creates a new container", notes = "Creates a new container whose image is registered in the metadata database too.")
     @ApiResponses({
@@ -69,6 +72,7 @@ public class ContainerEndpoint {
     }
 
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get all information about a container", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get information about container."),
@@ -83,6 +87,7 @@ public class ContainerEndpoint {
     }
 
     @PutMapping("/{id}")
+    @Transactional
     @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP.")
     @ApiResponses({
@@ -105,6 +110,7 @@ public class ContainerEndpoint {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     @ApiOperation(value = "Delete a container")
     @PreAuthorize("hasRole('ROLE_DATA_STEWARD')")
     @ApiResponses({

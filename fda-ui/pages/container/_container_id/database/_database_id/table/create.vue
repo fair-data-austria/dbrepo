@@ -100,6 +100,9 @@ export default {
     databaseId () {
       return this.$route.params.database_id
     },
+    token () {
+      return this.$store.state.token
+    },
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
     },
@@ -168,7 +171,9 @@ export default {
       }
       try {
         this.loading = true
-        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table`, data)
+        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table`, data, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
         if (res.status === 201) {
           this.error = false
           this.$toast.success('Table created.')

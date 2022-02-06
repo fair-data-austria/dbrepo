@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -38,6 +39,7 @@ public class ContainerDatabaseEndpoint {
     }
 
     @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "List all databases", notes = "Currently a container supports only databases of the same image, e.g. there is one PostgreSQL engine running with multiple databases inside a container.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All databases running in all containers are listed."),
@@ -52,6 +54,7 @@ public class ContainerDatabaseEndpoint {
     }
 
     @PostMapping
+    @Transactional
     @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Creates a new database in a container", notes = "Creates a new database in a container. Note that the backend distincts between numerical (req: categories), nominal (req: max_length) and categorical (req: max_length, siUnit, min, max, mean, median, standard_deviation, histogram) column types.")
     @ApiResponses({
@@ -71,6 +74,7 @@ public class ContainerDatabaseEndpoint {
     }
 
     @GetMapping("/{databaseId}")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get all information about a database")
     @ApiResponses({
             @ApiResponse(code = 200, message = "The database information is displayed."),
@@ -83,6 +87,7 @@ public class ContainerDatabaseEndpoint {
     }
 
     @DeleteMapping("/{databaseId}")
+    @Transactional
     @PreAuthorize("hasRole('ROLE_DEVELOPER') or hasRole('ROLE_DATA_STEWARD')")
     @ApiOperation(value = "Delete a database")
     @ApiResponses({

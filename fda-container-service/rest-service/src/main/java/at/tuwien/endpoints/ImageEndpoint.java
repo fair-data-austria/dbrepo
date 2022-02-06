@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -43,6 +44,7 @@ public class ImageEndpoint {
     }
 
     @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "List all images", notes = "Lists the images in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All images are listed."),
@@ -57,6 +59,7 @@ public class ImageEndpoint {
     }
 
     @PostMapping
+    @Transactional
     @PreAuthorize("hasRole('ROLE_DEVELOPER')")
     @ApiOperation(value = "Creates a new image", notes = "Creates a new image in the metadata database.")
     @ApiResponses({
@@ -73,6 +76,7 @@ public class ImageEndpoint {
     }
 
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get all informations about a image", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get information about container."),
@@ -86,6 +90,7 @@ public class ImageEndpoint {
     }
 
     @PutMapping("/{id}")
+    @Transactional
     @PreAuthorize("hasRole('DEVELOPER')")
     @ApiOperation(value = "Update image information", notes = "Polls new information about an image")
     @ApiResponses({
@@ -94,12 +99,13 @@ public class ImageEndpoint {
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
     public ResponseEntity<ImageDto> update(@NotNull @PathVariable Long id, @RequestBody @Valid ImageChangeDto changeDto)
-            throws ImageNotFoundException, DockerClientException {
+            throws ImageNotFoundException {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(imageMapper.containerImageToImageDto(imageService.update(id, changeDto)));
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     @PreAuthorize("hasRole('DEVELOPER')")
     @ApiOperation(value = "Delete a image")
     @ApiResponses({

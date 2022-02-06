@@ -42,6 +42,7 @@ public class TableEndpoint {
     }
 
     @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "List all tables", notes = "Lists the tables in the metadata database for this database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All tables are listed."),
@@ -57,6 +58,7 @@ public class TableEndpoint {
     }
 
     @PostMapping
+    @Transactional
     @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container.")
     @ApiResponses({
@@ -81,6 +83,7 @@ public class TableEndpoint {
 
 
     @GetMapping("/{tableId}")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get information about table", notes = "Lists the information of a table from the metadata database for this database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All tables are listed."),
@@ -96,6 +99,7 @@ public class TableEndpoint {
     }
 
     @PutMapping("/{tableId}")
+    @Transactional
     @ApiOperation(value = "Update a table", notes = "Update a table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Updated the table."),
@@ -111,6 +115,7 @@ public class TableEndpoint {
     }
 
     @DeleteMapping("/{tableId}")
+    @Transactional
     @PreAuthorize("hasRole('ROLE_DEVELOPER') or hasRole('ROLE_DATA_STEWARD')")
     @ApiOperation(value = "Delete a table", notes = "Delete a table in the database.")
     @ApiResponses({

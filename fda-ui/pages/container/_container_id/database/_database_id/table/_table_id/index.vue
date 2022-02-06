@@ -144,8 +144,8 @@ export default {
           url += `&timestamp=${this.version.created}`
         }
         const res = await this.$axios.get(url)
-        this.rows = res.data.result
         console.debug('version', this.datetime, 'table data', res.data)
+        this.rows = res.data.result
       } catch (err) {
         console.error('failed to load data', err)
         this.$toast.error('Could not load table data.')
@@ -155,10 +155,10 @@ export default {
     async loadDataCount () {
       try {
         this.loading = true
-        const url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data?total=1`
-        const res = await this.$axios.get(url)
-        this.total = res.data.count
+        const url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
+        const res = await this.$axios.head(url)
         console.debug('data count', res.data)
+        this.total = res.data.count
       } catch (err) {
         console.error('failed to load total count', err)
       }

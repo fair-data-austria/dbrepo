@@ -17,6 +17,7 @@
               <v-text-field
                 v-model="loginAccount.username"
                 autocomplete="off"
+                autofocus
                 required
                 :rules="[v => !!v || $t('Required')]"
                 label="Username *" />
