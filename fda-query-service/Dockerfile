@@ -15,6 +15,7 @@ COPY ./rest-service ./rest-service
 COPY ./services ./services
 COPY ./report ./report
 COPY ./api ./api
+COPY ./docs ./docs
 
 # Make sure it compiles
 RUN mvn -q clean package -DskipTests > /dev/null

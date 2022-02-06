@@ -4,6 +4,12 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Documentation
+docs/*.html
+docs/css/
+docs/images/
+
+# Docker
 ready
 
 ### STS ###

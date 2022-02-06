@@ -99,6 +99,8 @@ services:
     depends_on:
       fda-discovery-service:
         condition: service_healthy
+      fda-authentication-service:
+        condition: service_healthy
       fda-broker-service:
         condition: service_healthy
       fda-metadata-db:
@@ -126,6 +128,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       fda-discovery-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-metadata-db:
         condition: service_healthy
@@ -178,6 +182,8 @@ services:
         condition: service_healthy
       fda-container-service:
         condition: service_healthy
+      fda-authentication-service:
+        condition: service_healthy
       fda-table-service:
         condition: service_healthy
       fda-metadata-db:
@@ -209,6 +215,8 @@ services:
         condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
+      fda-authentication-service:
+        condition: service_healthy
       fda-broker-service:
         condition: service_healthy
       fda-database-service:
@@ -234,6 +242,8 @@ services:
       - "9096:9096"
     depends_on:
       fda-metadata-db:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
