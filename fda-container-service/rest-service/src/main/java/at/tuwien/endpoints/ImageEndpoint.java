@@ -18,7 +18,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -42,7 +42,6 @@ public class ImageEndpoint {
         this.imageMapper = imageMapper;
     }
 
-    @Transactional
     @GetMapping
     @ApiOperation(value = "List all images", notes = "Lists the images in the metadata database.")
     @ApiResponses({
@@ -57,8 +56,8 @@ public class ImageEndpoint {
                         .collect(Collectors.toList()));
     }
 
-    @Transactional
     @PostMapping
+    @PreAuthorize("hasRole('DEVELOPER')")
     @ApiOperation(value = "Creates a new image", notes = "Creates a new image in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully created a new image."),
@@ -73,7 +72,6 @@ public class ImageEndpoint {
                 .body(imageMapper.containerImageToImageDto(image));
     }
 
-    @Transactional
     @GetMapping("/{id}")
     @ApiOperation(value = "Get all informations about a image", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
     @ApiResponses({
@@ -87,8 +85,8 @@ public class ImageEndpoint {
                 .body(imageMapper.containerImageToImageDto(image));
     }
 
-    @Transactional
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('DEVELOPER')")
     @ApiOperation(value = "Update image information", notes = "Polls new information about an image")
     @ApiResponses({
             @ApiResponse(code = 202, message = "Updated the information of a image."),
@@ -102,6 +100,7 @@ public class ImageEndpoint {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('DEVELOPER')")
     @ApiOperation(value = "Delete a image")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Deleted the image."),

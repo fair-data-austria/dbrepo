@@ -14,7 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,7 +37,6 @@ public class ContainerDatabaseEndpoint {
         this.databaseService = databaseService;
     }
 
-    @Transactional
     @GetMapping
     @ApiOperation(value = "List all databases", notes = "Currently a container supports only databases of the same image, e.g. there is one PostgreSQL engine running with multiple databases inside a container.")
     @ApiResponses({
@@ -52,7 +51,6 @@ public class ContainerDatabaseEndpoint {
         return ResponseEntity.ok(databases);
     }
 
-    @Transactional
     @PostMapping
     @ApiOperation(value = "Creates a new database in a container", notes = "Creates a new database in a container. Note that the backend distincts between numerical (req: categories), nominal (req: max_length) and categorical (req: max_length, siUnit, min, max, mean, median, standard_deviation, histogram) column types.")
     @ApiResponses({
@@ -63,7 +61,7 @@ public class ContainerDatabaseEndpoint {
             @ApiResponse(code = 405, message = "Unable to connect to database within container."),
     })
     public ResponseEntity<DatabaseDto> create(@NotBlank @PathVariable("id") Long id,
-                                                   @Valid @RequestBody DatabaseCreateDto createDto)
+                                              @Valid @RequestBody DatabaseCreateDto createDto)
             throws ImageNotSupportedException, ContainerNotFoundException, DatabaseMalformedException,
             AmqpException, ContainerConnectionException {
         final Database database = databaseService.create(id, createDto);
@@ -71,9 +69,8 @@ public class ContainerDatabaseEndpoint {
                 .body(databaseMapper.databaseToDatabaseDto(database));
     }
 
-    @Transactional
     @GetMapping("/{databaseId}")
-    @ApiOperation(value = "Get all informations about a database")
+    @ApiOperation(value = "Get all information about a database")
     @ApiResponses({
             @ApiResponse(code = 200, message = "The database information is displayed."),
             @ApiResponse(code = 400, message = "The payload contains invalid data."),
@@ -84,7 +81,8 @@ public class ContainerDatabaseEndpoint {
         return ResponseEntity.ok(databaseMapper.databaseToDatabaseDto(databaseService.findById(id, databaseId)));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{databaseId}")
+    @PreAuthorize("hasRole('ROLE_DEVELOPER') or hasRole('ROLE_DATA_STEWARD')")
     @ApiOperation(value = "Delete a database")
     @ApiResponses({
             @ApiResponse(code = 202, message = "The database was successfully deleted."),
