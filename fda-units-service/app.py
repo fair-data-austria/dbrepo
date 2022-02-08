@@ -61,7 +61,7 @@ def valitate():
         res = {"success": False, "message": str(e)}
         return jsonify(res)
 
-@app.route('/api/units/geturi', methods=["POST"], endpoint='geturi')
+@app.route('/api/units/uri', methods=["GET"], endpoint='uri')
 @swag_from('geturi.yml')
 def geturi():
     input_json = request.get_json()
@@ -81,8 +81,10 @@ def saveconcept():
     try:
         uri = str(input_json['uri'])
         c_name = str(input_json['name'])
-        res = insert_mdb_concepts(uri, c_name)
-        return jsonify(res), 200
+        if insert_mdb_concepts(uri, c_name) > 0:
+            return jsonify({'uri': uri}), 201
+        else:
+            return jsonify({'status': 'error'}), 400
     except Exception as e:
         print(e)
         res = {"success": False, "message": str(e)}
@@ -97,8 +99,10 @@ def saveconcept():
         cid = int(input_json['cid'])
         tid = int(input_json['tid'])
         cdbid = int(input_json['cdbid'])
-        res = insert_mdb_columns_concepts(cdbid, tid, cid, uri)
-        return jsonify(res), 200
+        if insert_mdb_columns_concepts(cdbid, tid, cid, uri)>0:
+            return jsonify({'uri': uri}), 201
+        else:
+            return jsonify({'status': 'error'}), 400
     except Exception as e:
         print(e)
         res = {"success": False, "message": str(e)}

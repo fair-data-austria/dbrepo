@@ -16,12 +16,12 @@ def insert_mdb_concepts(uri, c_name):
 
         # Insert tblnames into table mdb_TABLES 
         cursor.execute("INSERT INTO mdb_concepts (URI,name,created) VALUES (%s,%s,current_timestamp) ON CONFLICT (URI) DO NOTHING", (uri,c_name))
-        r = cursor.statusmessage
+        r = cursor.rowcount
         conn.commit()
         conn.close()
     except Exception as e:
         print("Error while connecting to metadatabase.",e)
-    return json.dumps(r)
+    return r
 
 def insert_mdb_columns_concepts(cdbid,tid, cid, uri):
     try:
@@ -37,9 +37,9 @@ def insert_mdb_columns_concepts(cdbid,tid, cid, uri):
 
         # Insert tblnames into table mdb_TABLES
         cursor.execute("INSERT INTO mdb_columns_concepts (cDBID,tID, cID,URI,created) VALUES (%s,%s,%s,%s,current_timestamp) ON CONFLICT (cDBID, tID, cID, URI) DO NOTHING", (cdbid,tid,cid,uri))
-        r = cursor.statusmessage
+        r = cursor.rowcount
         conn.commit()
         conn.close()
     except Exception as e: 
         print("Error while connecting to metadatabase.",e)
-    return json.dumps(r)
+    return r
