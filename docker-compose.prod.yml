@@ -76,15 +76,6 @@ services:
       TZ: Europe/Vienna
     ports:
       - "9095:9095"
-    depends_on:
-      fda-container-service:
-        condition: service_healthy
-      fda-database-service:
-        condition: service_healthy
-      fda-table-service:
-        condition: service_healthy
-      fda-query-service:
-        condition: service_healthy
     logging:
       driver: json-file
 
@@ -107,6 +98,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       fda-discovery-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-broker-service:
         condition: service_healthy
@@ -136,6 +129,8 @@ services:
     depends_on:
       fda-discovery-service:
         condition: service_healthy
+      fda-authentication-service:
+        condition: service_healthy
       fda-metadata-db:
         condition: service_healthy
     logging:
@@ -150,8 +145,6 @@ services:
     networks:
       fda-public:
         ipv4_address: 172.29.0.14
-    volumes:
-      - /tmp:/tmp
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -161,8 +154,6 @@ services:
       fda-metadata-db:
         condition: service_healthy
       fda-discovery-service:
-        condition: service_healthy
-      fda-gateway-service:
         condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
@@ -190,6 +181,8 @@ services:
       fda-discovery-service:
         condition: service_healthy
       fda-container-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-table-service:
         condition: service_healthy
@@ -222,6 +215,8 @@ services:
         condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
+      fda-authentication-service:
+        condition: service_healthy
       fda-broker-service:
         condition: service_healthy
       fda-database-service:
@@ -247,6 +242,8 @@ services:
       - "9096:9096"
     depends_on:
       fda-metadata-db:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
@@ -326,7 +323,7 @@ services:
     container_name: fda-search-service
     hostname: fda-search-service
     image: elasticsearch:7.13.4
-    command: ["elasticsearch"]
+    command: [ "elasticsearch" ]
     networks:
       fda-public:
         ipv4_address: 172.29.0.6
@@ -358,9 +355,17 @@ services:
       - /tmp:/tmp
       - "./fda-ui/.prod:/certs"
     depends_on:
-      fda-gateway-service:
+      fda-container-service:
         condition: service_healthy
-      fda-discovery-service:
+      fda-database-service:
+        condition: service_healthy
+      fda-table-service:
+        condition: service_healthy
+      fda-query-service:
+        condition: service_healthy
+      fda-identifier-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
     environment:
       HOST: 0.0.0.0
