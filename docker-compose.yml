@@ -10,7 +10,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        subnet: 172.29.0.0/16
+        - subnet: 172.29.0.0/16
     driver_opts:
       com.docker.network.driver.mtu: 1450
   fda-userdb:
@@ -18,7 +18,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        subnet: 172.28.0.0/16
+        - subnet: 172.28.0.0/16
     driver_opts:
       com.docker.network.driver.mtu: 1450
 
