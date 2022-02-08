@@ -225,6 +225,7 @@ CREATE TABLE IF NOT EXISTS mdb_databases
     Engine        VARCHAR(20)                          DEFAULT 'Postgres',
     Publisher     VARCHAR(50),
     Year          DATE                                 DEFAULT CURRENT_DATE,
+    License       TEXT,
     is_public     BOOLEAN                     NOT NULL DEFAULT TRUE,
     Creator       INTEGER REFERENCES mdb_USERS (UserID),
     Contactperson INTEGER REFERENCES mdb_USERS (UserID),
