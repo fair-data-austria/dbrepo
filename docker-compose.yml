@@ -76,15 +76,6 @@ services:
       TZ: Europe/Vienna
     ports:
       - "9095:9095"
-    depends_on:
-      fda-container-service:
-        condition: service_healthy
-      fda-database-service:
-        condition: service_healthy
-      fda-table-service:
-        condition: service_healthy
-      fda-query-service:
-        condition: service_healthy
     logging:
       driver: json-file
 
@@ -107,6 +98,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       fda-discovery-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-broker-service:
         condition: service_healthy
@@ -136,7 +129,33 @@ services:
     depends_on:
       fda-discovery-service:
         condition: service_healthy
+      fda-authentication-service:
+        condition: service_healthy
       fda-metadata-db:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
+  fda-authentication-service:
+    restart: on-failure
+    container_name: fda-authentication-service
+    hostname: fda-authentication-service
+    image: fda-authentication-service
+    build: fda-authentication-service
+    networks:
+      fda-public:
+        ipv4_address: 172.29.0.14
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
+    ports:
+      - "9097:9097"
+    depends_on:
+      fda-metadata-db:
+        condition: service_healthy
+      fda-discovery-service:
+        condition: service_healthy
+      fda-discovery-service:
         condition: service_healthy
     logging:
       driver: json-file
@@ -162,6 +181,8 @@ services:
       fda-discovery-service:
         condition: service_healthy
       fda-container-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-table-service:
         condition: service_healthy
@@ -194,6 +215,8 @@ services:
         condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
+      fda-authentication-service:
+        condition: service_healthy
       fda-broker-service:
         condition: service_healthy
       fda-database-service:
@@ -219,6 +242,8 @@ services:
       - "9096:9096"
     depends_on:
       fda-metadata-db:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
@@ -250,7 +275,7 @@ services:
         condition: service_healthy
     logging:
       driver: json-file
-      
+
   fda-units-service:
     restart: on-failure
     container_name: fda-units-service
@@ -298,7 +323,7 @@ services:
     container_name: fda-search-service
     hostname: fda-search-service
     image: elasticsearch:7.13.4
-    command: ["elasticsearch"]
+    command: [ "elasticsearch" ]
     networks:
       fda-public:
         ipv4_address: 172.29.0.6
@@ -322,34 +347,29 @@ services:
     build: ./fda-ui
     image: fda-ui
     networks:
-      - fda-public
+      fda-public:
+        ipv4_address: 172.29.0.15
     ports:
       - "3000:3000"
     volumes:
       - /tmp:/tmp
       - "./fda-ui/.prod:/certs"
     depends_on:
-      fda-gateway-service:
+      fda-container-service:
         condition: service_healthy
-      fda-discovery-service:
+      fda-database-service:
+        condition: service_healthy
+      fda-table-service:
+        condition: service_healthy
+      fda-query-service:
+        condition: service_healthy
+      fda-identifier-service:
+        condition: service_healthy
+      fda-authentication-service:
         condition: service_healthy
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
       TZ: Europe/Vienna
-    logging:
-      driver: json-file
-
-  fda-producer-btc:
-    container_name: fda-producer-btc
-    hostname: fda-producer-btc
-    build: ./fda-producer-btc
-    image: fda-producer-btc
-    networks:
-      fda-public:
-        ipv4_address: 172.29.0.254
-    environment:
-      API_KEY: "${API_KEY}"
-      API_SECRET: "${API_SECRET}"
     logging:
       driver: json-file

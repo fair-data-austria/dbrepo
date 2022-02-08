@@ -11,6 +11,12 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
+                .route("fda-authentication-service", r -> r.path("/api/auth/**",
+                                "/api/user/**")
+                        .and()
+                        .method("POST", "GET", "PUT", "DELETE")
+                        .and()
+                        .uri("lb://fda-authentication-service"))
                 .route("fda-analyse-service", r -> r.path("/api/analyse/**")
                         .and()
                         .method("POST", "GET", "PUT", "DELETE")
@@ -22,8 +28,9 @@ public class GatewayConfig {
                         .and()
                         .uri("lb://fda-identifier-service"))
                 .route("fda-query-service", r -> r.path("/api/container/**/database/**/query/**",
-                                "/api/container/**/database/**/table/**/data/**",
-                                "/api/container/**/database/**/table/**/query/**")
+                                "/api/container/**/database/**/table/**/data/**", // TODO
+                                "/api/container/**/database/**/table/**/query/**", // TODO
+                                "/api/container/**/database/**/version/**")
                         .and()
                         .method("POST", "GET", "PUT", "DELETE")
                         .and()
@@ -44,12 +51,6 @@ public class GatewayConfig {
                         .method("POST", "GET", "PUT", "DELETE")
                         .and()
                         .uri("lb://fda-container-service"))
-                .route("fda-authentication-service", r -> r.path("/api/auth/**",
-                                "/api/user/**")
-                        .and()
-                        .method("POST", "GET", "PUT", "DELETE")
-                        .and()
-                        .uri("lb://fda-authentication-service"))
                 .route("fda-units-service", r -> r.path("/api/units/**")
                         .and()
                         .method("POST", "GET", "PUT", "DELETE")

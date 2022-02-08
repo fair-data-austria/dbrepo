@@ -26,5 +26,5 @@ public class ExecuteStatementDto {
 
     @NotNull
     @ApiModelProperty(name = "columns mentioned in the query")
-    private List<List<ColumnBriefDto>> columns;
+    private List<ColumnBriefDto> columns;
 }

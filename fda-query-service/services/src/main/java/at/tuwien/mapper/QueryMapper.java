@@ -53,7 +53,7 @@ public interface QueryMapper {
         return slug.toLowerCase(Locale.ENGLISH);
     }
 
-    default QueryResultDto resultListToQueryResultDto(Table table, List<?> result, ExecuteStatementDto metadata) {
+    default QueryResultDto resultListToQueryResultDto(List<TableColumn> columns, List<?> result) {
         final Iterator<?> iterator = result.iterator();
         final List<Map<String, Object>> resultList = new LinkedList<>();
         while (iterator.hasNext()) {
@@ -61,25 +61,19 @@ public interface QueryMapper {
             int[] idx = new int[]{0};
             final Object[] data = (Object[]) iterator.next();
             final Map<String, Object> map = new HashMap<>();
-            final List<TableColumn> cols = table.getColumns() /* todo extend for more than 1 table */;
-            metadata.getColumns()
-                    .forEach(columns -> columns.forEach(column -> map.put(column.getName(),
-                            dataColumnToObject(data[idx[0]++], cols.stream().filter(c -> c.getId()
-                                            .equals(column.getId()))
-                                    .findFirst()
-                                    .get()))));
+                    columns
+                    .forEach(column -> map.put(column.getName(),
+                            dataColumnToObject(data[idx[0]++], column)));
             resultList.add(map);
         }
-        log.info("Display data for table id {}", table.getId());
-        log.trace("table {} contains {} records", table, resultList.size());
         return QueryResultDto.builder()
                 .result(resultList)
                 .build();
     }
 
-    default InsertTableRawQuery pathToRawInsertQuery(Table table, String path) {
+    default InsertTableRawQuery pathToRawInsertQuery(Table table, ImportDto data) {
         final StringBuilder query = new StringBuilder("LOAD DATA LOCAL INFILE '")
-                .append(path)
+                .append(data.getLocation())
                 .append("' INTO TABLE `")
                 .append(table.getDatabase().getInternalName())
                 .append("`.`")
@@ -123,7 +117,7 @@ public interface QueryMapper {
         query.append(")")
                 .append(dateSet.length() != 0 ? (" SET " + dateSet) : "")
                 .append(";");
-        log.debug("import csv {} for table {}", path, table);
+        log.debug("import csv {} for table {}", data.getLocation(), table);
         log.trace("raw import query: [{}]", query);
         return InsertTableRawQuery.builder()
                 .query(query.toString())
@@ -155,6 +149,20 @@ public interface QueryMapper {
                 .build();
     }
 
+    default String tableToRawCountAllQuery(Table table, Instant timestamp) throws ImageNotSupportedException {
+        /* param check */
+        if (!table.getDatabase().getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        if (timestamp == null) {
+            timestamp = Instant.now();
+        }
+        return "SELECT COUNT(*) FROM `" + nameToInternalName(table.getName()) +
+                "` FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
+                "';";
+    }
+
     default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page)
             throws ImageNotSupportedException {
         /* param check */
@@ -163,6 +171,9 @@ public interface QueryMapper {
         }
         if (timestamp == null) {
             timestamp = Instant.now();
+            log.debug("no timestamp provided, default to {}", timestamp);
+        } else {
+            log.debug("timestamp provided {}", timestamp);
         }
         final int[] idx = new int[]{0};
         final StringBuilder query = new StringBuilder("SELECT ");
@@ -214,7 +225,7 @@ public interface QueryMapper {
         if (data == null) {
             return null;
         }
-        log.debug("map data {} to table column {}", data, column);
+        log.trace("map data {} to table column {}", data, column);
         switch (column.getColumnType()) {
             case BLOB:
                 log.trace("mapping {} to blob", data);

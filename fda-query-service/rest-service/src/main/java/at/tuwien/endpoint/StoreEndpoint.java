@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -29,6 +30,7 @@ public class StoreEndpoint {
     }
 
     @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "List all queries", notes = "Lists all already executed queries")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All queries are listed."),
@@ -43,6 +45,7 @@ public class StoreEndpoint {
     }
 
     @GetMapping("/{queryId}")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Find a query", notes = "Find a query")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All queries are listed."),

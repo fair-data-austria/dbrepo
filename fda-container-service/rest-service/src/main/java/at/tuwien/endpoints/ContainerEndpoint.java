@@ -12,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,8 +38,8 @@ public class ContainerEndpoint {
         this.containerService = containerService;
     }
 
-    @Transactional
-    @GetMapping("/")
+    @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "List all containers", notes = "Lists the containers in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All containers are listed."),
@@ -52,8 +53,9 @@ public class ContainerEndpoint {
                         .collect(Collectors.toList()));
     }
 
+    @PostMapping
     @Transactional
-    @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Creates a new container", notes = "Creates a new container whose image is registered in the metadata database too.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully created a new container."),
@@ -69,9 +71,9 @@ public class ContainerEndpoint {
                 .body(response);
     }
 
-    @Transactional
     @GetMapping("/{id}")
-    @ApiOperation(value = "Get all informations about a container", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
+    @Transactional(readOnly = true)
+    @ApiOperation(value = "Get all information about a container", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get information about container."),
             @ApiResponse(code = 401, message = "Not authorized to get information about a container."),
@@ -84,8 +86,9 @@ public class ContainerEndpoint {
                 .body(containerMapper.containerToContainerDto(container));
     }
 
-    @Transactional
     @PutMapping("/{id}")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Change the state of a container", notes = "The new state can only be one of START/STOP.")
     @ApiResponses({
             @ApiResponse(code = 202, message = "Changed the state of a container."),
@@ -93,7 +96,8 @@ public class ContainerEndpoint {
             @ApiResponse(code = 401, message = "Not authorized to modify a container."),
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
-    public ResponseEntity<ContainerBriefDto> modify(@NotNull @PathVariable Long id, @Valid @RequestBody ContainerChangeDto changeDto)
+    public ResponseEntity<ContainerBriefDto> modify(@NotNull @PathVariable Long id,
+                                                    @Valid @RequestBody ContainerChangeDto changeDto)
             throws ContainerNotFoundException, DockerClientException {
         final Container container;
         if (changeDto.getAction().equals(ContainerActionTypeDto.START)) {
@@ -106,7 +110,9 @@ public class ContainerEndpoint {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     @ApiOperation(value = "Delete a container")
+    @PreAuthorize("hasRole('ROLE_DATA_STEWARD')")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Deleted the container."),
             @ApiResponse(code = 401, message = "Not authorized to delete a container."),

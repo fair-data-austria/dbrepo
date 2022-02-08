@@ -1,0 +1,19 @@
+version: "3.6"
+
+services:
+
+  fda-sensor-computer:
+    restart: on-failure
+    container_name: fda-sensor-computer
+    hostname: fda-sensor-computer
+    build: ./fda-sensor-computer
+    image: fda-sensor-computer
+    networks:
+      fda-public:
+    environment:
+      TZ: Europe/Vienna
+    volumes:
+      - /sys/class/thermal:/thermal
+      - /sys/class/hwmon:/hwmon
+    logging:
+      driver: json-file

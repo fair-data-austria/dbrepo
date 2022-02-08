@@ -30,10 +30,6 @@ eureka:
   instance.hostname: fda-table-service
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
 fda:
-  mapping.path: rest-service/src/main/resources
-  table.path: rest-service/src/main/java/at/tuwien/userdb
-  ready.path: ./ready
+  ready.path: ./readyalhost:9090/eureka/
+  gateway.endpoint: http://localhost:9095
   elastic.endpoint: fda-search-service:9200
-unleash:
-  api.url: https://gitlab.phaidra.org/api/v4/feature_flags/unleash/450
-  instance.id: "${INSTANCE_ID}"

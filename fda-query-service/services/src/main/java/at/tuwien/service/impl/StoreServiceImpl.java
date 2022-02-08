@@ -60,6 +60,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         transaction.commit();
         final List<Query> out = queries.list();
         log.info("Found {} queries", out.size());
+        log.debug("found queries {}", out);
         session.close();
         factory.close();
         return out;

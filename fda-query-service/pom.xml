@@ -12,7 +12,24 @@
     <artifactId>fda-query-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fda-query-service</name>
-    <description>Demo project for Spring Boot</description>
+    <description>
+        The query service provides an interface to insert data into the tables created by the table service. It
+        also allows for view-only (possibly paginated and versioned) query execution to the raw data and consumes
+        messages in the message queue from the Broker Service.
+    </description>
+    <url>https://dbrepo.ossdip.at</url>
+    <developers>
+        <developer>
+            <name>Martin Weise</name>
+            <email>martin.weise@tuwien.ac.at</email>
+            <organization>TU Wien</organization>
+        </developer>
+        <developer>
+            <name>Moritz Staudinger</name>
+            <email>moritz.staudinger@tuwien.ac.at</email>
+            <organization>TU Wien</organization>
+        </developer>
+    </developers>
 
     <packaging>pom</packaging>
     <modules>
@@ -33,6 +50,7 @@
         <jacoco.version>0.8.7</jacoco.version>
         <opencsv.version>5.4</opencsv.version>
         <hibernate-c3po.version>5.6.3.Final</hibernate-c3po.version>
+        <maven-report.version>3.0.0</maven-report.version>
     </properties>
 
     <dependencies>
@@ -56,6 +74,15 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
             <version>${spring-cloud.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <!-- Data Source -->
         <dependency>
@@ -238,6 +265,30 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.7.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.0.0</version>
+<!--                <configuration>-->
+<!--                    <outputDirectory>docs</outputDirectory>-->
+<!--                </configuration>-->
+            </plugin>
+            <plugin>
+                <groupId>com.soebes.maven.plugins</groupId>
+                <artifactId>doxygen-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <configuration>
+                    <haveDot>false</haveDot>
+                    <quiet>false</quiet>
+                    <projectName>This is a Test Project (basicReportTest)</projectName>
+                    <outputDirectory>docs</outputDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>

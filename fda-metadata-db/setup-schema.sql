@@ -9,10 +9,16 @@ CREATE
     TYPE accesstype AS ENUM ('R', 'W');
 CREATE
     TYPE image_environment_type AS ENUM ('USERNAME', 'PASSWORD', 'PRIVILEGED_USERNAME', 'PRIVILEGED_PASSWORD');
+CREATE
+    TYPE role_type AS ENUM ('ROLE_RESEARCHER', 'ROLE_DEVELOPER', 'ROLE_DATA_STEWARD');
 
 CREATE
     CAST
     (character varying AS image_environment_type)
+    WITH INOUT AS ASSIGNMENT;
+CREATE
+    CAST
+    (character varying AS role_type)
     WITH INOUT AS ASSIGNMENT;
 
 CREATE SEQUENCE public.mdb_images_environment_item_seq
@@ -169,27 +175,43 @@ CREATE TABLE public.mdb_images_environment_item
 
 CREATE TABLE IF NOT EXISTS mdb_data
 (
-    ID           bigint PRIMARY KEY DEFAULT nextval('mdb_data_seq'),
+    ID           bigint DEFAULT nextval('mdb_data_seq'),
     PROVENANCE   TEXT,
     FileEncoding TEXT,
     FileType     VARCHAR(100),
     Version      TEXT,
-    Seperator    TEXT
+    Seperator    TEXT,
+    PRIMARY KEY (ID)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_users
 (
-    UserID               bigint PRIMARY KEY                   DEFAULT nextval('mdb_user_seq'),
-    external_id          VARCHAR(255) UNIQUE         NOT NULL,
-    OID                  bigint UNIQUE               NULL,
-    First_name           VARCHAR(50)                 NULL,
-    Last_name            VARCHAR(50)                 NULL,
+    UserID               bigint                      not null DEFAULT nextval('mdb_user_seq'),
+    external_id          VARCHAR(255) UNIQUE,
+    OID                  bigint,
+    username             VARCHAR(255)                not null,
+    First_name           VARCHAR(50),
+    Last_name            VARCHAR(50),
     Gender               gender,
     Preceding_titles     VARCHAR(50),
     Postpositioned_title VARCHAR(50),
-    Main_Email           TEXT,
+    Main_Email           VARCHAR(255)                not null,
+    password             VARCHAR(255)                not null,
     created              timestamp without time zone NOT NULL DEFAULT NOW(),
-    last_modified        timestamp without time zone
+    last_modified        timestamp without time zone,
+    PRIMARY KEY (UserID),
+    UNIQUE (username),
+    UNIQUE (Main_Email),
+    UNIQUE (OID)
+);
+
+CREATE TABLE IF NOT EXISTS mdb_user_roles
+(
+    uid           bigint                      not null,
+    role          varchar(255)                not null,
+    created       timestamp without time zone NOT NULL DEFAULT NOW(),
+    last_modified timestamp without time zone,
+    PRIMARY KEY (uid)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_databases

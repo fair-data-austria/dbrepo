@@ -31,3 +31,4 @@ eureka:
 fda:
   elastic.endpoint: localhost:9200
   ready.path: ./ready
+  gateway.endpoint: http://fda-gateway-service:9095

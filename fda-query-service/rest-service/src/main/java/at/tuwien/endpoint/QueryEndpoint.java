@@ -13,6 +13,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,7 +22,7 @@ import javax.validation.constraints.NotNull;
 
 @Log4j2
 @RestController
-@RequestMapping("/api/container/{id}/database/{databaseId}/table/{tableId}/query")
+@RequestMapping("/api/container/{id}/database/{databaseId}/query")
 public class QueryEndpoint {
 
     private final QueryMapper queryMapper;
@@ -35,6 +37,8 @@ public class QueryEndpoint {
     }
 
     @PutMapping("/execute")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "executes a query and save the results")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
@@ -43,7 +47,6 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<QueryResultDto> execute(@NotNull @PathVariable("id") Long id,
                                                   @NotNull @PathVariable("databaseId") Long databaseId,
-                                                  @NotNull @PathVariable("tableId") Long tableId,
                                                   @NotNull @RequestBody @Valid ExecuteStatementDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException, QueryMalformedException,
             TableNotFoundException, ContainerNotFoundException {
@@ -56,7 +59,7 @@ public class QueryEndpoint {
             log.error("Table list is empty");
             throw new QueryMalformedException("Invalid table");
         }
-        final QueryResultDto result = queryService.execute(id, databaseId, tableId, data);
+        final QueryResultDto result = queryService.execute(id, databaseId, data);
         final QueryDto query = queryMapper.queryToQueryDto(storeService.insert(id, databaseId, result, data));
         result.setId(query.getId());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
@@ -64,6 +67,8 @@ public class QueryEndpoint {
     }
 
     @PostMapping("/save")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "saves a query without execution")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
@@ -72,7 +77,6 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<QueryDto> save(@NotNull @PathVariable("id") Long id,
                                          @NotNull @PathVariable("databaseId") Long databaseId,
-                                         @NotNull @PathVariable("tableId") Long tableId,
                                          @NotNull @RequestBody SaveStatementDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
             ContainerNotFoundException {
@@ -83,6 +87,8 @@ public class QueryEndpoint {
     }
 
     @PutMapping("/execute/{queryId}")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "re-executes a query by given id")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Re-Execute a saved query and return the results"),
@@ -91,14 +97,13 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<QueryResultDto> reExecute(@NotNull @PathVariable("id") Long id,
                                                     @NotNull @PathVariable("databaseId") Long databaseId,
-                                                    @NotNull @PathVariable("tableId") Long tableId,
                                                     @NotNull @PathVariable("queryId") Long queryId)
             throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, QueryMalformedException, ContainerNotFoundException {
         final Query query = storeService.findOne(id, databaseId, queryId);
         final QueryDto queryDto = queryMapper.queryToQueryDto(query);
         final ExecuteStatementDto statement = queryMapper.queryDtoToExecuteStatementDto(queryDto);
-        final QueryResultDto result = queryService.execute(id, databaseId, tableId, statement);
+        final QueryResultDto result = queryService.execute(id, databaseId, statement);
         result.setId(queryId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);

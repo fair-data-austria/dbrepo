@@ -1,6 +1,5 @@
 package at.tuwien.querystore;
 
-import at.tuwien.entities.identifier.Identifier;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,11 +22,11 @@ public class Query implements Serializable {
 
     @Id
     @EqualsAndHashCode.Include
-    @GeneratedValue(generator = "database-sequence")
+    @GeneratedValue(generator = "query-sequence")
     @GenericGenerator(
-            name = "database-sequence",
+            name = "query-sequence",
             strategy = "enhanced-sequence",
-            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "qs_seq")
+            parameters = @org.hibernate.annotations.Parameter(name = "sequence_name", value = "qs_queries_seq")
     )
     private Long id;
 

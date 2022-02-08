@@ -2,6 +2,7 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.query.ExecuteStatementDto;
+import at.tuwien.api.database.query.ImportDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
@@ -187,7 +188,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertEquals(3, response.getResult().size());
         assertEquals(BigInteger.valueOf(1L), response.getResult().get(0).get(COLUMN_1_1_NAME));
         assertEquals(toInstant("2008-12-01"), response.getResult().get(0).get(COLUMN_1_2_NAME));
@@ -220,24 +221,9 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         assertNotNull(response.getResult());
         assertEquals(3, response.getResult().size());
-    }
-
-    @Test
-    public void execute_tableNotExists_fails() throws InterruptedException {
-        final ExecuteStatementDto request = ExecuteStatementDto.builder()
-                .statement(QUERY_1_STATEMENT)
-                .build();
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-
-        /* test */
-        assertThrows(TableNotFoundException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, 9999L, request);
-        });
     }
 
     @Test
@@ -251,7 +237,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, 9999L, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, 9999L, request);
         });
     }
 
@@ -267,7 +253,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PersistenceException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
@@ -282,7 +268,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PersistenceException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
@@ -297,19 +283,22 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryMalformedException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
         });
     }
 
     @Test
     public void insert_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
             TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+        final ImportDto request = ImportDto.builder()
+                .location("/tmp/csv_12.csv")
+                .build();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_3);
 
         /* test */
-        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, "/tmp/csv_12.csv");
+        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, request);
         assertEquals(9999, rows);
         final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
         assertEquals("1", response.get(0).get(0));
@@ -353,12 +342,15 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void insert_large_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
             TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+        final ImportDto request = ImportDto.builder()
+                .location("/tmp/csv_13.csv")
+                .build();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_3);
 
         /* test */
-        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, "/tmp/csv_13.csv");
+        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, request);
         assertEquals(1397856, rows);
         final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
         assertEquals("1", response.get(0).get(0));

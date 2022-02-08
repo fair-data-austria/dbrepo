@@ -116,6 +116,9 @@ export default {
     },
     databaseId () {
       return this.$route.params.database_id
+    },
+    token () {
+      return this.$store.state.token
     }
   },
   mounted () {
@@ -141,7 +144,10 @@ export default {
       data.append('file', this.file)
       try {
         const res = await this.$axios.post(url, data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${this.token}`
+          }
         })
         if (res.data.success) {
           this.fileLocation = res.data.file.filename
@@ -157,7 +163,9 @@ export default {
       const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/data?location=${encodeURI('/tmp/' + this.fileLocation)}`
       let insertResult
       try {
-        insertResult = await this.$axios.post(insertUrl)
+        insertResult = await this.$axios.post(insertUrl, new FormData(), {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
         console.debug('inserted table', insertResult.data)
       } catch (err) {
         console.error('Could not insert data.', err)

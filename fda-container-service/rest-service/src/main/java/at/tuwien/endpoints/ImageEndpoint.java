@@ -18,6 +18,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,8 +43,8 @@ public class ImageEndpoint {
         this.imageMapper = imageMapper;
     }
 
-    @Transactional
-    @GetMapping("/")
+    @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "List all images", notes = "Lists the images in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All images are listed."),
@@ -57,8 +58,9 @@ public class ImageEndpoint {
                         .collect(Collectors.toList()));
     }
 
+    @PostMapping
     @Transactional
-    @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_DEVELOPER')")
     @ApiOperation(value = "Creates a new image", notes = "Creates a new image in the metadata database.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Successfully created a new image."),
@@ -73,8 +75,8 @@ public class ImageEndpoint {
                 .body(imageMapper.containerImageToImageDto(image));
     }
 
-    @Transactional
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get all informations about a image", notes = "Since we follow the REST-principle, this method provides more information than the findAll method.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get information about container."),
@@ -87,8 +89,9 @@ public class ImageEndpoint {
                 .body(imageMapper.containerImageToImageDto(image));
     }
 
-    @Transactional
     @PutMapping("/{id}")
+    @Transactional
+    @PreAuthorize("hasRole('DEVELOPER')")
     @ApiOperation(value = "Update image information", notes = "Polls new information about an image")
     @ApiResponses({
             @ApiResponse(code = 202, message = "Updated the information of a image."),
@@ -96,12 +99,14 @@ public class ImageEndpoint {
             @ApiResponse(code = 404, message = "No container found with this id in metadata database."),
     })
     public ResponseEntity<ImageDto> update(@NotNull @PathVariable Long id, @RequestBody @Valid ImageChangeDto changeDto)
-            throws ImageNotFoundException, DockerClientException {
+            throws ImageNotFoundException {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(imageMapper.containerImageToImageDto(imageService.update(id, changeDto)));
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
+    @PreAuthorize("hasRole('DEVELOPER')")
     @ApiOperation(value = "Delete a image")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Deleted the image."),

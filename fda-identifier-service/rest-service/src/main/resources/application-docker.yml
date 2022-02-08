@@ -26,6 +26,4 @@ eureka:
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
   ready.path: /ready
-  mapping.path: /root
-  table.path: /root
   gateway.endpoint: http://fda-gateway-service:9095

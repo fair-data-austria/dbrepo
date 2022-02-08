@@ -70,7 +70,7 @@ public class ContainerServiceImpl implements ContainerService {
         container.setPort(availableTcpPort);
         container.setName(createDto.getName());
         container.setInternalName(containerMapper.containerToInternalContainerName(container));
-        log.debug("will create host config {} and container {}", hostConfig, container);
+        log.trace("will create host config {} and container {}", hostConfig, container);
         /* create the container */
         final CreateContainerResponse response;
         try {
@@ -81,8 +81,12 @@ public class ContainerServiceImpl implements ContainerService {
                     .withHostConfig(hostConfig)
                     .exec();
         } catch (ConflictException e) {
-            log.error("conflicting names for container {}, reason: {}", createDto, e.getMessage());
+            log.error("Conflicting names {}", createDto.getName());
             throw new DockerClientException("Unexpected behavior", e);
+        } catch (NotFoundException e) {
+            log.error("The image {}:{} not available on the container service", createDto.getRepository(), createDto.getTag());
+            log.debug("payload was {}", createDto);
+            throw new DockerClientException("Image not available", e);
         }
         container.setHash(response.getId());
         container = containerRepository.save(container);

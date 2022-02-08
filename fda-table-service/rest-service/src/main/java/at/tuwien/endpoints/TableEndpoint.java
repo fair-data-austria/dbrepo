@@ -15,6 +15,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,8 +41,8 @@ public class TableEndpoint {
         this.tableMapper = tableMapper;
     }
 
-    @Transactional
     @GetMapping
+    @Transactional(readOnly = true)
     @ApiOperation(value = "List all tables", notes = "Lists the tables in the metadata database for this database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All tables are listed."),
@@ -56,8 +57,9 @@ public class TableEndpoint {
                 .collect(Collectors.toList()));
     }
 
-    @Transactional
     @PostMapping
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @ApiOperation(value = "Create a table", notes = "Creates a new table for a database, requires a running container.")
     @ApiResponses({
             @ApiResponse(code = 201, message = "The table was created."),
@@ -80,8 +82,8 @@ public class TableEndpoint {
     }
 
 
-    @Transactional
     @GetMapping("/{tableId}")
+    @Transactional(readOnly = true)
     @ApiOperation(value = "Get information about table", notes = "Lists the information of a table from the metadata database for this database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "All tables are listed."),
@@ -97,6 +99,7 @@ public class TableEndpoint {
     }
 
     @PutMapping("/{tableId}")
+    @Transactional
     @ApiOperation(value = "Update a table", notes = "Update a table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Updated the table."),
@@ -112,6 +115,8 @@ public class TableEndpoint {
     }
 
     @DeleteMapping("/{tableId}")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_DEVELOPER') or hasRole('ROLE_DATA_STEWARD')")
     @ApiOperation(value = "Delete a table", notes = "Delete a table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Deleted the table."),

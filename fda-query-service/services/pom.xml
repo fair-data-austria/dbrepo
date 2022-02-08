@@ -10,13 +10,14 @@
     </parent>
 
     <artifactId>services</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>fda-query-service-services</name>
 
     <dependencies>
         <dependency>
             <groupId>at.tuwien</groupId>
             <artifactId>api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

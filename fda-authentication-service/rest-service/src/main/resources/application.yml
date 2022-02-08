@@ -1,15 +1,15 @@
 spring:
   main.banner-mode: off
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: sa
+    url: jdbc:postgresql://localhost:5432/fda
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
   jpa:
     show-sql: false
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     open-in-view: false
   application:
     name: fda-authentication-service
@@ -17,18 +17,17 @@ spring:
     loadbalancer.ribbon.enabled: false
 server:
   port: 9097
-  ssl:
-    enabled: true
-    key-alias: 1
-    key-store: classpath:saml/dbrepo.jks
-    key-store-password: ${KEY_STORE_PASSWORD}
-    key-store-type: jks
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
     root: warn
     at.tuwien.: debug
 eureka:
-  instance.hostname: fda-authentication-service
-  client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
-fda.ready.path: ./ready
+  instance.hostname: localhost
+  client.serviceUrl.defaultZone: http://localhost:9090/eureka/
+fda:
+  ready.path: ./ready
+jwt:
+  issuer: fda-dbrepo
+  secret: fda-secret
+  expiration.ms: 86400000

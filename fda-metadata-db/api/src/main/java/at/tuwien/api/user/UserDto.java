@@ -1,6 +1,11 @@
 package at.tuwien.api.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
@@ -10,14 +15,24 @@ import lombok.*;
 @NoArgsConstructor
 public class UserDto {
 
-    private String id;
+    @ApiModelProperty(name = "id")
+    private Long id;
 
-    private String oId;
+    @ApiModelProperty(name = "user authorities")
+    private List<GrantedAuthorityDto> authorities;
 
-    private String firstname;
+    @NotNull
+    @ApiModelProperty(name = "user name")
+    private String username;
 
-    private String surname;
+    @NotNull
+    @ToString.Exclude
+    @JsonIgnore
+    @ApiModelProperty(name = "password hash")
+    private String password;
 
-    private String mail;
+    @NotNull
+    @ApiModelProperty(name = "mail address")
+    private String email;
 
 }

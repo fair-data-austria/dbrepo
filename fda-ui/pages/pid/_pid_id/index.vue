@@ -1,11 +1,29 @@
 <template>
-  <div />
+  <div>
+    <v-card>
+      <v-card-title>PID Not Found</v-card-title>
+      <v-card-subtitle>{{ pid }}</v-card-subtitle>
+      <v-card-text>
+        <p>This PID cannot be found in the system. Possible reasons are:</p>
+        <ul>
+          <li>The PID is incorrect in your source.</li>
+          <li>The PID was copied incorrectly.</li>
+          <li>The PID has not been activated yet.</li>
+        </ul>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <script>
 export default {
   mounted () {
     this.findPid()
+  },
+  computed: {
+    pid () {
+      return this.$route.params.pid_id
+    }
   },
   methods: {
     async findPid () {

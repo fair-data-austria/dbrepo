@@ -8,10 +8,10 @@
         <v-toolbar-title>Create Query</v-toolbar-title>
         <v-spacer />
         <v-toolbar-title>
-          <v-btn :disabled="!valid" color="blue-grey white--text" @click="save">
+          <v-btn :disabled="!valid || !token" color="blue-grey white--text" @click="save">
             Save without execution
           </v-btn>
-          <v-btn :disabled="!valid" color="primary" @click="execute">
+          <v-btn :disabled="!valid || !token" color="primary" @click="execute">
             <v-icon left>mdi-run</v-icon>
             Execute
           </v-btn>
@@ -115,6 +115,15 @@ export default {
     },
     tableId () {
       return this.table.id
+    },
+    token () {
+      return this.$store.state.token
+    },
+    headers () {
+      if (this.token === null) {
+        return null
+      }
+      return { Authorization: `Bearer ${this.token}` }
     }
   },
   watch: {
@@ -125,18 +134,21 @@ export default {
       }
     }
   },
-  async mounted () {
-    // XXX same as in TableList
-    try {
-      const res = await this.$axios.get(
-        `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table`)
-      this.tables = res.data
-      console.debug('tables', this.tables)
-    } catch (err) {
-      this.$toast.error('Could not list table.')
-    }
+  beforeMount () {
+    this.loadTables()
   },
   methods: {
+    async loadTables () {
+      try {
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table`, {
+          headers: this.headers
+        })
+        this.tables = res.data
+        console.debug('tables', this.tables)
+      } catch (err) {
+        this.$toast.error('Could not list table.')
+      }
+    },
     async execute () {
       this.$refs.form.validate()
       this.loading = true
@@ -149,7 +161,9 @@ export default {
           })]
         }
         console.debug('send data', data)
-        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/query/execute`, data)
+        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query/execute`, data, {
+          headers: this.headers
+        })
         console.debug('query result', res)
         this.$toast.success('Successfully executed query')
         this.loading = false
@@ -169,13 +183,14 @@ export default {
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
-        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/query/save`, {
-          statement: query
+        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query/save`, { statement: query }, {
+          headers: this.headers
         })
         console.debug('query result', res)
         this.$toast.success('Successfully saved query')
         this.loading = false
         this.queryId = res.data.id
+        this.$router.push(`/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/query/${this.queryId}`)
       } catch (err) {
         console.error('query save', err)
         this.$toast.error('Could not save query')
@@ -204,7 +219,9 @@ export default {
     async loadColumns () {
       const tableId = this.table.id
       try {
-        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${tableId}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${tableId}`, {
+          headers: this.headers
+        })
         this.tableDetails = res.data
         this.buildQuery()
       } catch (err) {

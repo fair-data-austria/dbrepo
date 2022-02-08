@@ -12,10 +12,12 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +59,8 @@ public class IdentifierEndpoint {
     }
 
     @PostMapping
-    @ApiOperation(value = "Create ID", notes = "Get Data from a Table in the database.")
+    @PreAuthorize("hasRole('ROLE_RESEARCHER') or hasRole('ROLE_DATA_STEWARD')")
+    @ApiOperation(value = "Create ID", notes = "Create a new identifier")
     @ApiResponses({
             @ApiResponse(code = 201, message = "Created the ID."),
             @ApiResponse(code = 401, message = "Not authorized to update tables."),
@@ -104,6 +107,7 @@ public class IdentifierEndpoint {
     }
 
     @DeleteMapping("/{identiferId}")
+    @PreAuthorize("hasRole('ROLE_DATA_STEWARD') or hasRole('ROLE_DEVELOPER')")
     @ApiOperation(value = "Delete ID", notes = "Get Data from a Table in the database.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Get data from the table."),
