@@ -4,23 +4,21 @@
       <v-toolbar-title>{{ identifier.title }}</v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
-        <v-btn color="blue-grey white--text" class="mr-2" :disabled="!query.execution || identifier.id" @click.stop="persistQueryDialog = true">
+        <v-btn color="blue-grey white--text" class="mr-2" :disabled="!query.execution || identifier.id || !token" @click.stop="persistQueryDialog = true">
           <v-icon left>mdi-fingerprint</v-icon> Persist
         </v-btn>
-        <v-btn color="primary" disabled>
+        <v-btn color="primary" :disabled="!token">
           <v-icon left>mdi-run</v-icon> Re-Execute
         </v-btn>
       </v-toolbar-title>
     </v-toolbar>
-    <v-card flat>
-      <v-card-title v-if="!loading">
-        <span v-if="query.execution != null">
-          sha256:{{ query.query_hash }}
-        </span>
+    <v-card v-if="!loading" flat>
+      <v-card-title>
+        Query Information
       </v-card-title>
-      <v-card-subtitle v-if="!loading">
-        <span v-if="query.execution != null">
-          Executed {{ formatDate(query.execution) }}
+      <v-card-subtitle>
+        <span v-if="query.created != null">
+          Created {{ formatDate(query.created) }}
         </span>
         <span v-if="query.execution == null">
           Query was never executed
@@ -31,9 +29,8 @@
           <strong>Query</strong>
         </p>
         <div>
-          <p>Persistent Identifier</p>
-          <p v-if="identifier.id">
-            <code>https://dbrepo.ossdip.at/pid/{{ identifier.id }}</code>
+          <p>
+            Persistent Identifier: <code v-if="identifier.id">https://dbrepo.ossdip.at/pid/{{ identifier.id }}</code><span v-if="!identifier.id">(empty)</span>
           </p>
           <p>Statement</p>
           <v-alert
@@ -58,13 +55,23 @@
           <strong>Result</strong>
         </p>
         <p>
-          Hash: <code>{{ query.result_hash }}</code>
+          Hash: <code v-if="query.result_hash">{{ query.result_hash }}</code><span v-if="!query.result_hash">(empty)</span>
         </p>
         <p>
-          Rows: <code>{{ query.result_number }}</code>
+          Rows: <code v-if="query.result_number">{{ query.result_number }}</code><span v-if="!query.result_number">(empty)</span>
+        </p>
+        <p>
+          Executed: <code v-if="query.execution">{{ query.execution }}</code><span v-if="!query.execution">(empty)</span>
+        </p>
+        <p class="mt-2">
+          <strong>Creator</strong>
+        </p>
+        <p>
+          Username: <code v-if="query.username">{{ query.username }}</code><span v-if="!query.username">(empty)</span>
         </p>
       </v-card-text>
     </v-card>
+    <v-breadcrumbs :items="items" class="pa-0 mt-2" />
     <v-dialog
       v-model="persistQueryDialog"
       persistent
@@ -84,6 +91,12 @@ export default {
   },
   data () {
     return {
+      items: [
+        { text: 'Databases', href: '/container' },
+        { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}` },
+        { text: 'Queries', href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/query` },
+        { text: `${this.$route.params.query_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/query/${this.$route.params.query_id}` }
+      ],
       query: {
         id: this.$route.params.query_id,
         database_id: null,
@@ -107,6 +120,17 @@ export default {
       persistQueryExists: false,
       persistQueryDialog: false,
       loading: true
+    }
+  },
+  computed: {
+    token () {
+      return this.$store.state.token
+    },
+    headers () {
+      if (this.token === null) {
+        return null
+      }
+      return { Authorization: `Bearer ${this.token}` }
     }
   },
   mounted () {

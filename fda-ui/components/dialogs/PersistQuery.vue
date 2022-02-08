@@ -93,9 +93,19 @@ export default {
   computed: {
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
+    },
+    token () {
+      return this.$store.state.token
+    },
+    headers () {
+      if (this.token === null) {
+        return null
+      }
+      return { Authorization: `Bearer ${this.token}` }
     }
   },
   beforeMount () {
+    this.loadUser()
   },
   methods: {
     cancel () {
@@ -107,11 +117,12 @@ export default {
       })
     },
     async persist () {
-      console.debug('identifier data', this.identifier)
       this.loading = true
       let res
       try {
-        res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/identifier`, this.identifier)
+        res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/identifier`, this.identifier, {
+          headers: this.headers
+        })
         console.debug('persist', res.data)
       } catch (err) {
         this.$toast.error('Failed to persist query')
@@ -119,6 +130,19 @@ export default {
       }
       this.$toast.success('Query persisted.')
       this.$emit('close')
+    },
+    async loadUser () {
+      this.loading = true
+      let res
+      try {
+        res = await this.$axios.put('/api/auth', null, {
+          headers: this.headers
+        })
+        console.debug('user data', res.data)
+      } catch (err) {
+        this.$toast.error('Failed load user data')
+        console.error('load user data failed', err)
+      }
     }
   }
 }

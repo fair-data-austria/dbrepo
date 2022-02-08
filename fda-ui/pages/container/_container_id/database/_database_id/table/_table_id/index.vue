@@ -18,7 +18,7 @@
     <v-toolbar :color="versionColor" flat>
       <v-toolbar-title>
         <strong>Versioning</strong>
-        <span v-if="version.id !== null">{{ version.created }}</span>
+        <span v-if="version !== null">{{ versionFormatted }}</span>
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
@@ -58,6 +58,7 @@
 </template>
 <script>
 import TimeTravel from '@/components/dialogs/TimeTravel'
+import { format } from 'date-fns'
 
 export default {
   components: {
@@ -73,10 +74,7 @@ export default {
       dateMenu: false,
       timeMenu: false,
       pickVersionDialog: null,
-      version: {
-        id: null,
-        created: null
-      },
+      version: null,
       options: {
         page: 1,
         itemsPerPage: 10
@@ -101,10 +99,16 @@ export default {
     },
     versionColor () {
       console.debug('version', this.version)
-      if (this.version.created === null) {
+      if (this.version === null) {
         return 'grey lighten-1'
       }
       return 'primary white--text'
+    },
+    versionFormatted () {
+      if (this.version === null) {
+        return null
+      }
+      return this.formatDate(this.version)
     }
   },
   watch: {
@@ -139,9 +143,9 @@ export default {
       try {
         this.loading = true
         let url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data?page=${this.options.page - 1}&size=${this.options.itemsPerPage}`
-        if (this.version.created !== null) {
+        if (this.version !== null) {
           console.info('versioning active', this.version)
-          url += `&timestamp=${this.version.created}`
+          url += `&timestamp=${new Date(this.version).toISOString()}`
         }
         const res = await this.$axios.get(url)
         console.debug('version', this.datetime, 'table data', res.data)
@@ -152,16 +156,17 @@ export default {
       }
       this.loading = false
     },
-    async loadDataCount () {
-      try {
-        this.loading = true
-        const url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
-        const res = await this.$axios.head(url)
-        console.debug('data count', res.data)
-        this.total = res.data.count
-      } catch (err) {
-        console.error('failed to load total count', err)
-      }
+    loadDataCount () { // TODO
+      // try {
+      //   this.loading = true
+      //   const url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
+      //   const res = await this.$axios.head(url)
+      //   console.debug('data count', res.data)
+      //   this.total = res.data.count
+      // } catch (err) {
+      //   console.error('failed to load total count', err)
+      // }
+      this.total = 1000000
       this.loading = false
     },
     columnAddition (column) {
@@ -172,6 +177,9 @@ export default {
         return '† '
       }
       return ''
+    },
+    formatDate (d) {
+      return format(new Date(d), 'dd.MM.yyyy HH:mm')
     }
   }
 }

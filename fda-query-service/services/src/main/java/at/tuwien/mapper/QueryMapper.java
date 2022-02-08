@@ -225,7 +225,7 @@ public interface QueryMapper {
         if (data == null) {
             return null;
         }
-        log.debug("map data {} to table column {}", data, column);
+        log.trace("map data {} to table column {}", data, column);
         switch (column.getColumnType()) {
             case BLOB:
                 log.trace("mapping {} to blob", data);

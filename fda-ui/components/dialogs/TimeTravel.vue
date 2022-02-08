@@ -10,7 +10,7 @@
       </v-card-subtitle>
       <v-card-text>
         <v-date-picker
-          v-model="picker"
+          v-model="date"
           no-title />
         <v-time-picker
           v-model="time"
@@ -33,7 +33,7 @@
         <v-btn
           id="version"
           class="mb-2"
-          :disabled="version === null || version === undefined"
+          :disabled="date === null || time === null"
           color="primary"
           @click="pick">
           Pick
@@ -50,17 +50,14 @@ export default {
       formValid: false,
       loading: false,
       error: false,
-      version: null,
-      versions: []
+      date: null,
+      time: null
     }
   },
   computed: {
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
     }
-  },
-  mounted () {
-    this.loadVersions()
   },
   methods: {
     cancel () {
@@ -72,25 +69,19 @@ export default {
       })
     },
     reset () {
-      this.$parent.$parent.$parent.$parent.version = { id: null, created: null }
+      this.$parent.$parent.$parent.$parent.version = null
       this.cancel()
     },
     pick () {
-      this.$parent.$parent.$parent.$parent.version = this.versions[this.version]
+      this.$parent.$parent.$parent.$parent.version = this.formatDate()
       this.cancel()
     },
-    async loadVersions () {
-      this.loading = true
-      try {
-        const url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/version`
-        const res = await this.$axios.get(url)
-        this.versions = res.data
-        console.debug('versions', this.versions)
-      } catch (err) {
-        console.error('Failed to get versions', err)
-        this.$toast.error('Failed to get versions')
+    formatDate () {
+      if (this.date === null || this.time === null) {
+        return null
       }
-      this.loading = false
+      console.debug('selected date', this.date, 'time', this.time)
+      return Date.parse(this.date + ' ' + this.time)
     }
   }
 }

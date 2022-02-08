@@ -5,6 +5,7 @@ import at.tuwien.api.identifier.IdentifierDto;
 import at.tuwien.api.identifier.VisibilityTypeDto;
 import at.tuwien.entities.identifier.Identifier;
 import at.tuwien.entities.identifier.VisibilityType;
+import at.tuwien.entities.user.User;
 import at.tuwien.exception.*;
 import at.tuwien.gateway.QueryServiceGateway;
 import at.tuwien.mapper.IdentifierMapper;
@@ -17,6 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 

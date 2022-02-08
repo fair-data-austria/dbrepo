@@ -18,8 +18,8 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Description</th>
               <th>Engine</th>
+              <th>Tables</th>
               <th>Created</th>
             </tr>
           </thead>
@@ -31,15 +31,12 @@
             </tr>
             <tr
               v-for="item in databases"
-              :key="item.id">
-              <td>
-                <v-btn :to="`/container/${item.container_id}/database/${item.id}/info`" icon>
-                  <v-icon>{{ iconSelect }}</v-icon>
-                </v-btn>
-                {{ item.name }}
-              </td>
-              <td>{{ item.description }}</td>
+              :key="item.id"
+              class="database"
+              @click="loadDatabase(item)">
+              <td>{{ item.name }}</td>
               <td>{{ item.engine }}</td>
+              <td></td>
               <td>{{ formatDate(item.created) }}</td>
             </tr>
           </tbody>
@@ -107,6 +104,9 @@ export default {
         this.error = true
       }
     },
+    loadDatabase (database) {
+      this.$router.push(`/container/${database.container_id}/database/${database.id}/info`)
+    },
     trim (s) {
       return s.slice(0, 12)
     },
@@ -130,6 +130,9 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .database:hover {
+    cursor: pointer;
   }
   .color-grey {
     color: #aaa;

@@ -79,7 +79,7 @@ public class TableDataEndpoint {
                 .body(queryService.insert(id, databaseId, tableId, data));
     }
 
-    @GetMapping
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD})
     @Transactional(readOnly = true)
     @ApiOperation(value = "Get values", notes = "Get Data from a Table in the database.")
     @ApiResponses({
@@ -114,29 +114,6 @@ public class TableDataEndpoint {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(response);
-    }
-
-    @RequestMapping(method = RequestMethod.HEAD)
-    @Transactional(readOnly = true)
-    @ApiOperation(value = "Get values", notes = "Get Data Count from a Table in the database.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Get data from the table."),
-            @ApiResponse(code = 401, message = "Not authorized to update tables."),
-            @ApiResponse(code = 404, message = "The table is not found in database."),
-            @ApiResponse(code = 405, message = "The connection to the database was unsuccessful."),
-    })
-    public ResponseEntity<QueryResultDto> getCount(@NotNull @PathVariable("id") Long id,
-                                                   @NotNull @PathVariable("databaseId") Long databaseId,
-                                                   @NotNull @PathVariable("tableId") Long tableId,
-                                                   @RequestParam(required = false) Instant timestamp)
-            throws TableNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            TableMalformedException, ContainerNotFoundException {
-        final BigInteger count = queryService.count(id, databaseId, tableId, timestamp);
-        final HttpHeaders headers = new HttpHeaders();
-        headers.set("FDA-COUNT", count.toString());
-        return ResponseEntity.ok()
-                .headers(headers)
-                .build();
     }
 
 
