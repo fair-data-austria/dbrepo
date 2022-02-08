@@ -346,7 +346,7 @@ services:
       fda-public:
         ipv4_address: 172.29.0.15
     ports:
-      - "3000:3000"
+      - "443:3000"
     volumes:
       - /tmp:/tmp
       - "./fda-ui/.prod:/certs"
@@ -367,5 +367,7 @@ services:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
       TZ: Europe/Vienna
+      KEY: "${UI_KEY}"
+      CERT: "${UI_CERT}"
     logging:
       driver: json-file
