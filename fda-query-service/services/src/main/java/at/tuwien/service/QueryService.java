@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.query.ExecuteStatementDto;
+import at.tuwien.api.database.query.ImportDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
@@ -91,13 +92,13 @@ public interface QueryService {
      *
      * @param databaseId The database id.
      * @param tableId    The table id.
-     * @param path       The data path.
+     * @param data       The data path.
      * @return The number of tuples affected.
      * @throws ImageNotSupportedException The image is not supported.
      * @throws TableMalformedException    The table does not exist in the metadata database.
      * @throws DatabaseNotFoundException  The database is not found in the metadata database.
      * @throws TableNotFoundException     The table is not found in the metadata database.
      */
-    Integer insert(Long containerId, Long databaseId, Long tableId, String path) throws ImageNotSupportedException,
+    Integer insert(Long containerId, Long databaseId, Long tableId, ImportDto data) throws ImageNotSupportedException,
             TableMalformedException, DatabaseNotFoundException, TableNotFoundException, ContainerNotFoundException;
 }

@@ -71,9 +71,9 @@ public interface QueryMapper {
                 .build();
     }
 
-    default InsertTableRawQuery pathToRawInsertQuery(Table table, String path) {
+    default InsertTableRawQuery pathToRawInsertQuery(Table table, ImportDto data) {
         final StringBuilder query = new StringBuilder("LOAD DATA LOCAL INFILE '")
-                .append(path)
+                .append(data.getLocation())
                 .append("' INTO TABLE `")
                 .append(table.getDatabase().getInternalName())
                 .append("`.`")
@@ -117,7 +117,7 @@ public interface QueryMapper {
         query.append(")")
                 .append(dateSet.length() != 0 ? (" SET " + dateSet) : "")
                 .append(";");
-        log.debug("import csv {} for table {}", path, table);
+        log.debug("import csv {} for table {}", data.getLocation(), table);
         log.trace("raw import query: [{}]", query);
         return InsertTableRawQuery.builder()
                 .query(query.toString())

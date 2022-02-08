@@ -2,6 +2,7 @@ package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
 import at.tuwien.api.database.query.ExecuteStatementDto;
+import at.tuwien.api.database.query.ImportDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
@@ -289,12 +290,15 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void insert_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
             TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+        final ImportDto request = ImportDto.builder()
+                .location("/tmp/csv_12.csv")
+                .build();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_3);
 
         /* test */
-        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, "/tmp/csv_12.csv");
+        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, request);
         assertEquals(9999, rows);
         final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
         assertEquals("1", response.get(0).get(0));
@@ -338,12 +342,15 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void insert_large_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
             TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+        final ImportDto request = ImportDto.builder()
+                .location("/tmp/csv_13.csv")
+                .build();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_3);
 
         /* test */
-        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, "/tmp/csv_13.csv");
+        final Integer rows = queryService.insert(CONTAINER_1_ID, DATABASE_3_ID, TABLE_3_ID, request);
         assertEquals(1397856, rows);
         final List<List<String>> response = MariaDbConfig.select(TABLE_3, 1);
         assertEquals("1", response.get(0).get(0));

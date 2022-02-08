@@ -1,6 +1,7 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
+import at.tuwien.api.database.query.ImportDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.ReadyConfig;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Log4j2
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class DataEndpointUnitTest extends BaseUnitTest {
+public class TableDataEndpointUnitTest extends BaseUnitTest {
 
     @MockBean
     private Channel channel;
@@ -36,7 +37,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     private ReadyConfig readyConfig;
 
     @Autowired
-    private DataEndpoint dataEndpoint;
+    private TableDataEndpoint dataEndpoint;
 
     @MockBean
     private QueryServiceImpl queryService;
@@ -47,11 +48,12 @@ public class DataEndpointUnitTest extends BaseUnitTest {
     @Test
     public void insert_succeeds() throws TableNotFoundException, TableMalformedException, DatabaseNotFoundException,
             ImageNotSupportedException, FileStorageException, ContainerNotFoundException {
-        final String request = "test:csv/csv_01.csv";
+        final ImportDto request = ImportDto.builder()
+                .location("test:csv/csv_01.csv")
+                .build();
 
         /* test */
-        final ResponseEntity<?> response = dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request,
-                null);
+        final ResponseEntity<?> response = dataEndpoint.importCsv(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         assertNotNull(response);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
@@ -64,8 +66,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
                 .build();
 
         /* test */
-        final ResponseEntity<?> response = dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null,
-                request);
+        final ResponseEntity<?> response = dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
         assertNotNull(response);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
     }
@@ -75,20 +76,7 @@ public class DataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(TableMalformedException.class, () -> {
-            dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null);
-        });
-    }
-
-    @Test
-    public void insert_locationAndDataNotNull_fails() {
-        final String location = "";
-        final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of("value"))
-                .build();
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location, request);
+            dataEndpoint.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null);
         });
     }
 
@@ -186,47 +174,6 @@ public class DataEndpointUnitTest extends BaseUnitTest {
         assertThrows(PaginationException.class, () -> {
             dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
         });
-    }
-
-    @Test
-    public void export_timestampNull_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
-            PaginationException, ContainerNotFoundException {
-
-        /* test */
-        final ResponseEntity<InputStreamResource> response = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID,
-                TABLE_1_ID, null);
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    public void export_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException,
-            ContainerNotFoundException {
-        final Instant request = Instant.now()
-                .minusMillis(1000 * 1000);
-
-        /* test */
-        final ResponseEntity<InputStreamResource> response = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID,
-                TABLE_1_ID, request);
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-    }
-
-    @Test
-    public void export_inFuture_succeeds() throws TableNotFoundException, DatabaseConnectionException,
-            TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, FileStorageException,
-            PaginationException, ContainerNotFoundException {
-        final Instant request = Instant.now()
-                .plusMillis(1000 * 1000);
-
-        /* test */
-        final ResponseEntity<InputStreamResource> response = dataEndpoint.export(CONTAINER_1_ID, DATABASE_1_ID,
-                TABLE_1_ID, request);
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test

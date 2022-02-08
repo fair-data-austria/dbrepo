@@ -14,6 +14,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @ExceptionHandler({ContainerNotFoundException.class})
+    public ResponseEntity<Object> handle(ContainerNotFoundException e, WebRequest request) {
+        final ApiErrorDto response = ApiErrorDto.builder()
+                .status(HttpStatus.NOT_FOUND)
+                .message(e.getLocalizedMessage())
+                .code("error.container.notfound")
+                .build();
+        return new ResponseEntity<>(response, new HttpHeaders(), response.getStatus());
+    }
+
     @ExceptionHandler({DatabaseConnectionException.class})
     public ResponseEntity<Object> handle(DatabaseConnectionException e, WebRequest request) {
         final ApiErrorDto response = ApiErrorDto.builder()

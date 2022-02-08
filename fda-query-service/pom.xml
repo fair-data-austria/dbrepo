@@ -37,7 +37,6 @@
         <module>services</module>
         <module>report</module>
         <module>api</module>
-        <module>docs</module>
     </modules>
 
     <properties>

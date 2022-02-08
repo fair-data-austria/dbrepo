@@ -62,7 +62,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/**/table/**/export/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/query/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/**/query/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/container/**/database/**/version/**").permitAll()
                 /* our private endpoints */
                 .anyRequest().authenticated();
         /* add JWT token filter */

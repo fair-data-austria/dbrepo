@@ -9,7 +9,6 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.mapper.StoreMapper;
-import at.tuwien.querystore.Version;
 import at.tuwien.service.ContainerService;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.StoreService;
@@ -145,55 +144,6 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         session.close();
         factory.close();
         return query;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public void createVersion(Long containerId, Long databaseId) throws ContainerNotFoundException,
-            DatabaseNotFoundException, ImageNotSupportedException {
-        /* find */
-        final Container container = containerService.find(containerId);
-        final Database database = databaseService.find(databaseId);
-        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
-            throw new ImageNotSupportedException("Currently only MariaDB is supported");
-        }
-        /* run query */
-        final SessionFactory factory = getSessionFactory(database, true);
-        final Session session = factory.openSession();
-        final Transaction transaction = session.beginTransaction();
-        /* use jpa to create new version */
-        final Long id = (Long) session.save(new Version());
-        transaction.commit();
-        /* store the result in the query store */
-        log.info("Saved version with id {}", id);
-        session.close();
-        factory.close();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Version> listVersions(Long containerId, Long databaseId) throws ContainerNotFoundException,
-            DatabaseNotFoundException, ImageNotSupportedException {
-        /* find */
-        final Container container = containerService.find(containerId);
-        final Database database = databaseService.find(databaseId);
-        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
-            throw new ImageNotSupportedException("Currently only MariaDB is supported");
-        }
-        /* run query */
-        final SessionFactory factory = getSessionFactory(database, true);
-        final Session session = factory.openSession();
-        final Transaction transaction = session.beginTransaction();
-        /* use jpa to create new version */
-        final org.hibernate.query.Query<Version> versions = session.createQuery("select v from Version v", Version.class);
-        transaction.commit();
-        final List<Version> out = versions.list();
-        /* store the result in the query store */
-        log.info("Found {} versions", out.size());
-        log.debug("found versions {}", out);
-        session.close();
-        factory.close();
-        return out;
     }
 
 }

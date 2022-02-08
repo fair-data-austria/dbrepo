@@ -163,7 +163,7 @@ export default {
       const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/data?location=${encodeURI('/tmp/' + this.fileLocation)}`
       let insertResult
       try {
-        insertResult = await this.$axios.post(insertUrl, {
+        insertResult = await this.$axios.post(insertUrl, new FormData(), {
           headers: { Authorization: `Bearer ${this.token}` }
         })
         console.debug('inserted table', insertResult.data)

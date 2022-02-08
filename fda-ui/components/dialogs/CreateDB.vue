@@ -90,7 +90,7 @@ export default {
       return this.$store.state.token
     }
   },
-  beforeMount () {
+  mounted () {
     this.getImages()
   },
   methods: {

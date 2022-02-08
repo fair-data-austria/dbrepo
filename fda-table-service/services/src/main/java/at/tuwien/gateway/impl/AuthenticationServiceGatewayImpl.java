@@ -3,6 +3,7 @@ package at.tuwien.gateway.impl;
 import at.tuwien.api.user.UserDto;
 import at.tuwien.gateway.AuthenticationServiceGateway;
 import at.tuwien.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 public class AuthenticationServiceGatewayImpl implements AuthenticationServiceGateway {
 

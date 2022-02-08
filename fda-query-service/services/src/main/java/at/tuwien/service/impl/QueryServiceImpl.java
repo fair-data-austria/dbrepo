@@ -2,6 +2,7 @@ package at.tuwien.service.impl;
 
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.ExecuteStatementDto;
+import at.tuwien.api.database.query.ImportDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
@@ -33,16 +34,14 @@ import java.util.stream.Collectors;
 public class QueryServiceImpl extends HibernateConnector implements QueryService {
 
     private final QueryMapper queryMapper;
-    private final StoreService storeService;
     private final TableService tableService;
     private final DatabaseService databaseService;
     private final TableColumnRepository tableColumnRepository;
 
     @Autowired
-    public QueryServiceImpl(QueryMapper queryMapper, StoreService storeService, TableService tableService,
-                            DatabaseService databaseService, TableColumnRepository tableColumnRepository) {
+    public QueryServiceImpl(QueryMapper queryMapper, TableService tableService, DatabaseService databaseService,
+                            TableColumnRepository tableColumnRepository) {
         this.queryMapper = queryMapper;
-        this.storeService = storeService;
         this.tableService = tableService;
         this.databaseService = databaseService;
         this.tableColumnRepository = tableColumnRepository;
@@ -180,14 +179,12 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final InsertTableRawQuery raw = queryMapper.tableCsvDtoToRawInsertQuery(table, data);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
         log.trace("query with parameters {}", query.setParameterList(1, raw.getData()));
-        final Integer affected = insert(query, session, factory);
-        storeService.createVersion(containerId, databaseId);
-        return affected;
+        return insert(query, session, factory);
     }
 
     @Override
     @Transactional
-    public Integer insert(Long containerId, Long databaseId, Long tableId, String path)
+    public Integer insert(Long containerId, Long databaseId, Long tableId, ImportDto data)
             throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
             TableNotFoundException, ContainerNotFoundException {
         /* find */
@@ -200,11 +197,9 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         /* prepare the statement */
-        final InsertTableRawQuery raw = queryMapper.pathToRawInsertQuery(table, path);
+        final InsertTableRawQuery raw = queryMapper.pathToRawInsertQuery(table, data);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
-        final Integer affected = insert(query, session, factory);
-        storeService.createVersion(containerId, databaseId);
-        return affected;
+        return insert(query, session, factory);
     }
 
     /**
