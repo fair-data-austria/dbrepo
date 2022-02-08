@@ -36,6 +36,7 @@ public class RabbitMqServiceImpl implements MessageQueueService {
     @Transactional
     public void createUserConsumer(Table table) throws IOException {
         channel.basicConsume(table.getTopic(), true, (consumerTag, response) -> {
+            log.debug("received data {}", response);
             try {
                 queryService.insert(table.getDatabase().getContainer().getId(),
                         table.getDatabase().getId(), table.getId(),
@@ -61,7 +62,8 @@ public class RabbitMqServiceImpl implements MessageQueueService {
                 /* ignore */
             }
         }, consumerTag -> {/* */});
-        log.debug("declare consumer {}", table);
+        log.info("Declared consumer for table topic {}", table.getTopic());
+        log.info("declared consumer {}", table);
     }
 
 }

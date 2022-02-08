@@ -1,6 +1,5 @@
 package at.tuwien.service;
 
-import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.AmqpException;
 
@@ -13,29 +12,13 @@ public interface MessageQueueService {
      *
      * @throws IOException Error on any of these actions.
      */
-    void init() throws IOException;
-
-    /**
-     * Creates a queue/topic for a table.
-     *
-     * @param table The table.
-     * @throws AmqpException Creation failed.
-     */
-    void createQueue(Table table) throws AmqpException;
-
-    /**
-     * Creates an exchange for a database.
-     *
-     * @param database The database.
-     * @throws IOException Creation failed.
-     */
-    void create(Database database) throws IOException;
+    void init() throws IOException, AmqpException;
 
     /**
      * Creates a queue for a table.
      *
      * @param table The table.
-     * @throws IOException Creation failed.
+     * @throws AmqpException Creation failed.
      */
-    void create(Table table) throws IOException;
+    void create(Table table) throws AmqpException;
 }

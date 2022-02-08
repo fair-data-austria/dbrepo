@@ -76,7 +76,7 @@ public class TableEndpoint {
             ArbitraryPrimaryKeysException, TableMalformedException, AmqpException, TableNameExistsException,
             ContainerNotFoundException {
         final Table table = tableService.createTable(id, databaseId, createDto);
-        amqpService.createQueue(table);
+        amqpService.create(table);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
     }

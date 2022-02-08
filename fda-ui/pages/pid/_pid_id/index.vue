@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card>
+    <v-card v-if="loading">
       <v-card-title>PID Not Found</v-card-title>
       <v-card-subtitle>{{ pid }}</v-card-subtitle>
       <v-card-text>
@@ -17,16 +17,22 @@
 
 <script>
 export default {
-  mounted () {
-    this.findPid()
+  data () {
+    return {
+      loading: false
+    }
   },
   computed: {
     pid () {
       return this.$route.params.pid_id
     }
   },
+  mounted () {
+    this.findPid()
+  },
   methods: {
     async findPid () {
+      this.loading = true
       try {
         const res = await this.$axios.get(`/api/pid/${this.$route.params.pid_id}`)
         console.debug('persistent id', res.data)
@@ -34,8 +40,8 @@ export default {
       } catch (err) {
         console.error('Could not load query', err)
         this.$toast.error('Could not load query')
-        this.loading = false
       }
+      this.loading = false
     }
   }
 }

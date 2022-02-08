@@ -86,7 +86,7 @@ services:
       fda-public:
         ipv4_address: 172.29.0.9
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,seeder
       TZ: Europe/Vienna
     ports:
       - "9092:9092"

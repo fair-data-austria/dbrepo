@@ -1,6 +1,6 @@
 package at.tuwien.config;
 
-import at.tuwien.seeder.Seeder;
+import at.tuwien.seeder.impl.SeederImpl;
 import com.google.common.io.Files;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,19 +16,11 @@ import java.io.IOException;
 @Configuration
 public class ReadyConfig {
 
-    private final Seeder seeder;
-
     @Value("${fda.ready.path}")
     private String readyPath;
 
-    @Autowired
-    public ReadyConfig(Seeder seeder) {
-        this.seeder = seeder;
-    }
-
     @EventListener(ApplicationReadyEvent.class)
     public void init() throws IOException {
-        seeder.seed();
         Files.touch(new File(readyPath));
     }
 

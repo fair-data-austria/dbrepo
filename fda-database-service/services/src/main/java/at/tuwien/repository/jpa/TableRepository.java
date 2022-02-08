@@ -1,4 +1,4 @@
-package at.tuwien.repository;
+package at.tuwien.repository.jpa;
 
 import at.tuwien.entities.database.table.Table;
 import org.springframework.data.jpa.repository.JpaRepository;

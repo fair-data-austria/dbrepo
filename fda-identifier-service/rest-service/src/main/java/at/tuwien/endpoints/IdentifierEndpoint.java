@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,10 +45,10 @@ public class IdentifierEndpoint {
     })
     public ResponseEntity<List<IdentifierDto>> findAll(@NotNull @PathVariable("id") Long id,
                                                        @NotNull @PathVariable("databaseId") Long databaseId,
-                                                       @RequestParam(name = "qid", required = false) Long queryId)
+                                                       @RequestParam Long qid)
             throws IdentifierNotFoundException {
-        if (queryId != null) {
-            final Identifier identifier = identifierService.find(id, databaseId, queryId);
+        if (qid != null) {
+            final Identifier identifier = identifierService.find(id, databaseId, qid);
             return ResponseEntity.ok(List.of(identifierMapper.identifierToIdentifierDto(identifier)));
         }
         final List<Identifier> identifiers = identifierService.findAll(id, databaseId);

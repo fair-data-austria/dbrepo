@@ -12,6 +12,8 @@ services:
       fda-public:
     environment:
       TZ: Europe/Vienna
+      EXCHANGE:
+      KEY:
     volumes:
       - /sys/class/thermal:/thermal
       - /sys/class/hwmon:/hwmon

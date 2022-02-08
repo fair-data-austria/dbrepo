@@ -1,8 +1,7 @@
 package at.tuwien.service.impl;
 
-import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
-import at.tuwien.exception.*;
+import at.tuwien.exception.AmqpException;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.MessageQueueService;
 import com.rabbitmq.client.BuiltinExchangeType;
@@ -40,7 +39,7 @@ public class RabbitMqService implements MessageQueueService {
     @Override
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
-    public void init() throws IOException {
+    public void init() throws IOException, AmqpException {
         channel.exchangeDeclare(AMQP_EXCHANGE, BuiltinExchangeType.TOPIC, true);
         final List<Table> tables = tableRepository.findAll();
         for (Table table : tables) {
@@ -49,32 +48,16 @@ public class RabbitMqService implements MessageQueueService {
     }
 
     @Override
-    public void createQueue(Table table) throws AmqpException {
+    @Transactional
+    public void create(Table table) throws AmqpException {
         try {
-            create(table);
-            log.info("Created queue for table with id {}", table.getId());
-            log.debug("created queue and consumer for table {}", table);
+            channel.queueDeclare(table.getTopic(), true, false, false, null);
+            channel.queueBind(table.getTopic(), table.getDatabase().getExchange(), table.getTopic());
         } catch (IOException e) {
-            log.error("Could not create exchange and consumer: {}", e.getMessage());
-            throw new AmqpException("Could not create exchange and consumer", e);
+            log.error("Failed to create queue and bind for table with id {}", table.getId());
+            log.debug("Failed to create queue and bind for table {}", table);
+            throw new AmqpException("Failed to create", e);
         }
-    }
-
-    @Override
-    @Transactional
-    public void create(Database database) throws IOException {
-        channel.exchangeDeclare(database.getExchange(), BuiltinExchangeType.FANOUT, true);
-        channel.exchangeBind(database.getExchange(), AMQP_EXCHANGE, database.getExchange());
-        log.info("Created exchange for database with id {}", database.getId());
-        log.debug("declare fanout exchange {}", database.getExchange());
-        log.debug("bind exchange {} to {}", database.getExchange(), AMQP_EXCHANGE);
-    }
-
-    @Override
-    @Transactional
-    public void create(Table table) throws IOException {
-        channel.queueDeclare(table.getTopic(), true, false, false, null);
-        channel.queueBind(table.getTopic(), table.getDatabase().getExchange(), table.getTopic());
         log.info("Created queue for database with id {}", table.getId());
         log.debug("declare queue for table {}", table);
         log.debug("bind queue to {}", table.getDatabase().getExchange());
