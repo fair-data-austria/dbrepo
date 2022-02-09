@@ -9,10 +9,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Entity
-@Table(name = "qs_queries")
+@javax.persistence.Table(name = "qs_queries")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,35 +31,38 @@ public class Query implements Serializable {
     )
     private Long id;
 
-    @Column(nullable = false)
+    @javax.persistence.Column(nullable = false)
     private Long cid;
 
-    @Column(nullable = false)
+    @javax.persistence.Column(nullable = false)
     private Long dbid;
 
-    @Column
+    @javax.persistence.Column
     private Instant execution;
 
-    @Column(nullable = false)
+    @javax.persistence.Column(nullable = false)
     private String query;
 
-    @Column(name = "query_normalized")
+    @javax.persistence.Column(name = "query_normalized")
     private String queryNormalized;
 
-    @Column(name = "query_hash", nullable = false)
+    @javax.persistence.Column(name = "query_hash", nullable = false)
     private String queryHash;
 
-    @Column(name = "result_hash")
+    @javax.persistence.Column(name = "result_hash")
     private String resultHash;
 
-    @Column(name = "result_number")
+    @javax.persistence.Column(name = "result_number")
     private Long resultNumber;
 
-    @Column(nullable = false, updatable = false)
+    @javax.persistence.Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant created;
 
-    @Column(name = "last_modified")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    private List<Table> tables;
+
+    @javax.persistence.Column(name = "last_modified")
     @LastModifiedDate
     private Instant lastModified;
 

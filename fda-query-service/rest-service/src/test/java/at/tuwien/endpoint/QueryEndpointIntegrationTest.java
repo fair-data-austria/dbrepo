@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -142,11 +143,12 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
         final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
+        final Instant execution = Instant.now();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
         MariaDbConfig.clearQueryStore(TABLE_1);
-        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement);
+        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement, execution);
 
         /* test */
         final ResponseEntity<QueryResultDto> response = queryEndpoint.reExecute(CONTAINER_1_ID, DATABASE_1_ID,

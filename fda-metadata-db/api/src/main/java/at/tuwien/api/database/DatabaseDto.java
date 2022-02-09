@@ -22,7 +22,6 @@ import java.util.List;
 public class DatabaseDto {
 
     @NotNull
-    @Min(value = 1)
     @ApiModelProperty(name = "database id", example = "1")
     private Long id;
 
@@ -59,11 +58,9 @@ public class DatabaseDto {
     @ApiModelProperty(name = "database publisher", example = "National Office")
     private String publisher;
 
-    @NotBlank
     @ApiModelProperty(name = "database creation time", example = "2020-08-04 11:12:00")
     private Instant created;
 
-    @NotBlank
     @ApiModelProperty(name = "database deletion time", example = "2020-08-04 11:13:00")
     private Instant deleted;
 

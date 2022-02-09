@@ -3,7 +3,9 @@ package at.tuwien.service.impl;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItemType;
 import at.tuwien.entities.database.Database;
+import at.tuwien.querystore.Column;
 import at.tuwien.querystore.Query;
+import at.tuwien.querystore.Table;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -58,7 +60,9 @@ public abstract class HibernateConnector {
                 .setProperty("hibernate.c3p0.max_size", String.valueOf(MAX_SIZE))
                 .setProperty("hibernate.c3p0.acquire_increment", String.valueOf(INCREMENT_SIZE))
                 .setProperty("hibernate.c3p0.timeout", String.valueOf(TIMEOUT))
-                .addAnnotatedClass(Query.class);
+                .addAnnotatedClass(Query.class)
+                .addAnnotatedClass(Table.class)
+                .addAnnotatedClass(Column.class);
         return configuration.buildSessionFactory();
     }
 

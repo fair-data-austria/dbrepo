@@ -53,6 +53,9 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
+    depends_on:
+      fda-gateway-service:
+        condition: service_healthy
     ports:
       - "9090:9090"
     logging:
@@ -93,14 +96,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-authentication-service:
-        condition: service_healthy
-      fda-broker-service:
-        condition: service_healthy
-      fda-metadata-db:
-        condition: service_healthy
       fda-container-service:
         condition: service_healthy
     logging:
@@ -123,11 +118,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
       fda-authentication-service:
-        condition: service_healthy
-      fda-metadata-db:
         condition: service_healthy
     logging:
       driver: json-file
@@ -147,10 +138,6 @@ services:
     ports:
       - "9097:9097"
     depends_on:
-      fda-metadata-db:
-        condition: service_healthy
-      fda-discovery-service:
-        condition: service_healthy
       fda-discovery-service:
         condition: service_healthy
     logging:
@@ -174,15 +161,7 @@ services:
     volumes:
       - /tmp:/tmp
     depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-      fda-container-service:
-        condition: service_healthy
-      fda-authentication-service:
-        condition: service_healthy
       fda-table-service:
-        condition: service_healthy
-      fda-metadata-db:
         condition: service_healthy
     logging:
       driver: json-file
@@ -207,18 +186,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
     depends_on:
-      fda-metadata-db:
-        condition: service_healthy
-      fda-discovery-service:
-        condition: service_healthy
-      fda-authentication-service:
-        condition: service_healthy
-      fda-broker-service:
-        condition: service_healthy
       fda-database-service:
         condition: service_healthy
-      fda-search-service:
-        condition: service_started
     logging:
       driver: json-file
 
@@ -237,12 +206,6 @@ services:
     ports:
       - "9096:9096"
     depends_on:
-      fda-metadata-db:
-        condition: service_healthy
-      fda-authentication-service:
-        condition: service_healthy
-      fda-discovery-service:
-        condition: service_healthy
       fda-query-service:
         condition: service_healthy
 
@@ -266,8 +229,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       fda-discovery-service:
-        condition: service_healthy
-      fda-database-service:
         condition: service_healthy
     logging:
       driver: json-file
@@ -309,6 +270,9 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    depends_on:
+      fda-discovery-service:
+        condition: service_healthy
     volumes:
       - fda-broker-service-data:/var/lib/rabbitmq/
     logging:
@@ -351,17 +315,7 @@ services:
       - /tmp:/tmp
       - "./fda-ui/.prod:/certs"
     depends_on:
-      fda-container-service:
-        condition: service_healthy
-      fda-database-service:
-        condition: service_healthy
-      fda-table-service:
-        condition: service_healthy
-      fda-query-service:
-        condition: service_healthy
       fda-identifier-service:
-        condition: service_healthy
-      fda-authentication-service:
         condition: service_healthy
     environment:
       HOST: 0.0.0.0

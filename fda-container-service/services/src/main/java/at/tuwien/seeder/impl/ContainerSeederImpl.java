@@ -33,6 +33,10 @@ public class ContainerSeederImpl extends AbstractSeeder implements Seeder {
         log.info("Created container id {}", container1.getId());
         final Container container1start = containerService.start(CONTAINER_1_ID);
         log.info("Started container id {}", container1start.getId());
+        final Container container2 = containerService.create(CONTAINER_2_CREATE_DTO);
+        log.info("Created container id {}", container2.getId());
+        final Container container2start = containerService.start(CONTAINER_2_ID);
+        log.info("Started container id {}", container2start.getId());
     }
 
 }

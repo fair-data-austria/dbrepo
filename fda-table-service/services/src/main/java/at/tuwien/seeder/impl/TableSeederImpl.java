@@ -31,6 +31,8 @@ public class TableSeederImpl extends AbstractSeeder implements Seeder {
         }
         final Table table1 = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_CREATE_DTO);
         log.info("Seeded table id {}", table1.getId());
+        final Table table2 = tableService.createTable(CONTAINER_2_ID, DATABASE_2_ID, TABLE_2_CREATE_DTO);
+        log.info("Seeded table id {}", table2.getId());
     }
 
 }

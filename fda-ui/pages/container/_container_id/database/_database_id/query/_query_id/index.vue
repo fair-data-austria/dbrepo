@@ -7,7 +7,7 @@
         <v-btn color="blue-grey white--text" class="mr-2" :disabled="!query.execution || identifier.id || !token" @click.stop="persistQueryDialog = true">
           <v-icon left>mdi-fingerprint</v-icon> Persist
         </v-btn>
-        <v-btn color="primary" :disabled="!token">
+        <v-btn color="primary" :disabled="!token" @click.stop="reExecute">
           <v-icon left>mdi-run</v-icon> Re-Execute
         </v-btn>
       </v-toolbar-title>
@@ -162,6 +162,19 @@ export default {
           this.$toast.error('Could not load identifier')
         }
         this.loading = false
+      }
+      this.loading = false
+    },
+    async reExecute () {
+      try {
+        this.loading = true
+        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/query/${this.$route.params.query_id}`, {}, {
+          headers: this.headers
+        })
+        console.debug('re-execute query', res.data)
+      } catch (err) {
+        console.error('Could not re-execute query', err)
+        this.$toast.error('Could not re-execute query')
       }
       this.loading = false
     }

@@ -82,7 +82,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void getAll_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, PaginationException, ContainerNotFoundException {
+            DatabaseNotFoundException, ImageNotSupportedException, PaginationException, ContainerNotFoundException, QueryStoreException {
 
         /* test */
         dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null, null);
@@ -91,7 +91,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
     @Test
     public void findAll_noPagination_succeeds() throws TableNotFoundException, DatabaseConnectionException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException,
-            ContainerNotFoundException {
+            ContainerNotFoundException, QueryStoreException {
         final Long page = null;
         final Long size = null;
 
@@ -179,7 +179,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
     @Test
     public void getAllTotal_succeeds() throws TableNotFoundException, DatabaseConnectionException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
-            PaginationException, ContainerNotFoundException {
+            PaginationException, ContainerNotFoundException, QueryStoreException {
         final Instant timestamp = Instant.now();
 
         /* test */
@@ -192,7 +192,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
     @Test
     public void getAllCount_succeeds() throws TableNotFoundException, DatabaseConnectionException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
-            PaginationException, ContainerNotFoundException {
+            PaginationException, ContainerNotFoundException, QueryStoreException {
         final Instant timestamp = Instant.now();
 
         /* test */

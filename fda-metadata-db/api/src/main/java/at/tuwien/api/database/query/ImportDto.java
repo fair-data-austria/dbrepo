@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class ImportDto {
 
-    @NotBlank
+    @NotBlank(message = "location is required")
     @ApiModelProperty(name = "csv location")
     private String location;
 }

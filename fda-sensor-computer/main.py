@@ -15,7 +15,7 @@ def send(temp):
     channel = connection.channel()
     ex = argv[1]
     key = argv[2]
-    channel.basic_publish(exchange=ex, routing_key=key, body=bytes('{"wifi":' + str(temp) + '}', encoding='utf8'))
+    channel.basic_publish(exchange=ex, routing_key=key, body=bytes('{"temp":' + str(temp) + '}', encoding='utf8'))
     connection.close()
 
 

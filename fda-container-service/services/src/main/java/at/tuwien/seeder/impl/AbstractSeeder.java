@@ -139,10 +139,21 @@ public abstract class AbstractSeeder {
     public final static String CONTAINER_1_REPOSITORY = "mariadb";
     public final static String CONTAINER_1_TAG = "10.5";
 
+    public final static Long CONTAINER_2_ID = 2L;
+    public final static String CONTAINER_2_NAME = "Sensor";
+    public final static String CONTAINER_2_REPOSITORY = "mariadb";
+    public final static String CONTAINER_2_TAG = "10.5";
+
     public final static ContainerCreateRequestDto CONTAINER_1_CREATE_DTO = ContainerCreateRequestDto.builder()
             .name(CONTAINER_1_NAME)
             .repository(CONTAINER_1_REPOSITORY)
             .tag(CONTAINER_1_TAG)
+            .build();
+
+    public final static ContainerCreateRequestDto CONTAINER_2_CREATE_DTO = ContainerCreateRequestDto.builder()
+            .name(CONTAINER_2_NAME)
+            .repository(CONTAINER_2_REPOSITORY)
+            .tag(CONTAINER_2_TAG)
             .build();
 
 }

@@ -16,16 +16,16 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class DatabaseCreateDto {
 
-    @NotBlank
+    @NotBlank(message = "database name is required")
     @ApiModelProperty(name = "database name", example = "Weather Australia")
     private String name;
 
-    @NotNull
+    @NotNull(message = "public attribute is required")
     @JsonProperty("is_public")
     @Parameter(name = "database publicity", example = "true")
     private Boolean isPublic;
 
-    @NotBlank
+    @NotBlank(message = "description is required")
     @Parameter(name = "database description", example = "true")
     private String description;
 

@@ -25,6 +25,7 @@ import javax.persistence.PersistenceException;
 import java.math.BigInteger;
 import java.time.DateTimeException;
 import java.time.Instant;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,7 +78,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
             throw new QueryMalformedException("Query not valid for this database", e);
         }
         /* map the result to the tables (with respective columns) from the statement metadata */
-        final List<TableColumn> columns = parseColumns(statement);
+        final List<TableColumn> columns = parseColumns(databaseId, statement);
         final QueryResultDto result = queryMapper.resultListToQueryResultDto(columns, query.getResultList());
         session.close();
         factory.close();
@@ -234,13 +235,21 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
      * @param statement The list of tables (ids) and referenced column ids.
      * @return The list of columns if successful
      */
-    private List<TableColumn> parseColumns(ExecuteStatementDto statement) {
-        return statement.getColumns()
-                .stream()
-                .map(c -> tableColumnRepository.findById(c.getId()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+    private List<TableColumn> parseColumns(Long databaseId, ExecuteStatementDto statement) {
+        final List<TableColumn> columns = new LinkedList<>();
+        final int[] idx = new int[]{0};
+        statement.getTables()
+                .forEach(table -> {
+                    columns.addAll(statement.getColumns()
+                            .get(idx[0]++)
+                            .stream()
+                            .map(column -> tableColumnRepository
+                                    .findByIdAndTidAndCdbid(column.getId(), table.getId(), databaseId))
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .collect(Collectors.toList()));
+                });
+        return columns;
     }
 
 }

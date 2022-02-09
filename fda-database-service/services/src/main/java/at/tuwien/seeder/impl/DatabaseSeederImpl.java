@@ -31,6 +31,8 @@ public class DatabaseSeederImpl extends AbstractSeeder implements Seeder {
         }
         final Database database1 = databaseService.create(CONTAINER_1_ID, DATABASE_1_CREATE_DTO);
         log.info("Seeded database id {}", database1.getId());
+        final Database database2 = databaseService.create(CONTAINER_2_ID, DATABASE_2_CREATE_DTO);
+        log.info("Seeded database id {}", database2.getId());
     }
 
 }

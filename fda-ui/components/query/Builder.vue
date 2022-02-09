@@ -161,7 +161,7 @@ export default {
           })]
         }
         console.debug('send data', data)
-        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query/execute`, data, {
+        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query`, data, {
           headers: this.headers
         })
         console.debug('query result', res)
@@ -183,7 +183,7 @@ export default {
       const query = this.query.sql.replaceAll('`', '')
       this.loading = true
       try {
-        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query/save`, { statement: query }, {
+        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query`, { statement: query }, {
           headers: this.headers
         })
         console.debug('query result', res)

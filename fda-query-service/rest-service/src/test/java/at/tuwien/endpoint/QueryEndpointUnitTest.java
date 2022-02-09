@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -56,11 +57,12 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .id(QUERY_1_ID)
                 .result(List.of(Map.of("key", "value")))
                 .build();
+        final Instant execution = Instant.now();
 
         /* mock */
         when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request))
                 .thenReturn(result);
-        when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request))
+        when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request, execution))
                 .thenReturn(QUERY_1);
 
         /* test */
@@ -79,11 +81,12 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .id(QUERY_1_ID)
                 .result(List.of())
                 .build();
+        final Instant execution = Instant.now();
 
         /* mock */
         when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request))
                 .thenReturn(result);
-        when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request))
+        when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request, execution))
                 .thenReturn(QUERY_1);
 
         /* test */

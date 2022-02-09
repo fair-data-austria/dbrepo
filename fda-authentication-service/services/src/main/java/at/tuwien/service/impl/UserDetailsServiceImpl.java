@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,11 +31,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        final User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        final Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            log.error("Failed to load user by username {}", username);
+            throw new UsernameNotFoundException("Failed to load user by username");
+        }
         log.debug("loaded user {}", user);
-        final UserDetailsDto details = userMapper.userToUserDetailsDto(user);
-        details.setAuthorities(user.getRoles()
+        final UserDetailsDto details = userMapper.userToUserDetailsDto(user.get());
+        details.setAuthorities(user.get()
+                .getRoles()
                 .stream()
                 .map(userMapper::roleTypeToGrantedAuthority)
                 .collect(Collectors.toList()));

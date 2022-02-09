@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -125,12 +126,13 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         final ExecuteStatementDto statement2 = ExecuteStatementDto.builder()
                 .statement(QUERY_2_STATEMENT)
                 .build();
+        final Instant execution = Instant.now();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
         MariaDbConfig.clearQueryStore(TABLE_1);
-        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement1);
-        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement2);
+        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement1, execution);
+        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement2, execution);
 
         /* test */
         final List<Query> response = storeService.findAll(CONTAINER_1_ID, DATABASE_1_ID);
@@ -146,11 +148,12 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
+        final Instant execution = Instant.now();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
         MariaDbConfig.clearQueryStore(TABLE_1);
-        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement);
+        storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement, execution);
 
         /* test */
         final Query response = storeService.findOne(CONTAINER_1_ID, DATABASE_1_ID, QUERY_1_ID);
@@ -187,13 +190,14 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
+        final Instant execution = Instant.now();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
         MariaDbConfig.clearQueryStore(TABLE_1);
 
         /* test */
-        final Query response = storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement);
+        final Query response = storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement, execution);
         assertEquals(QUERY_1_ID, response.getId());
         assertEquals(QUERY_1_STATEMENT, response.getQuery());
     }
@@ -206,13 +210,14 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
+        final Instant execution = Instant.now();
 
         /* mock */
         DockerConfig.stopContainer(CONTAINER_1);
 
         /* test */
         assertThrows(QueryStoreException.class, () -> {
-            storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement);
+            storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement, execution);
         });
     }
 
@@ -224,6 +229,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
         final ExecuteStatementDto statement = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
+        final Instant execution = Instant.now();
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_1);
@@ -231,7 +237,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            storeService.insert(CONTAINER_1_ID, 9999L, result, statement);
+            storeService.insert(CONTAINER_1_ID, 9999L, result, statement, execution);
         });
     }
 

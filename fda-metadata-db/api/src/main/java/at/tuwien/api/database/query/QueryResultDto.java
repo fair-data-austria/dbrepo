@@ -16,11 +16,11 @@ import java.util.Map;
 @ToString
 public class QueryResultDto {
 
-    @NotNull
+    @NotNull(message = "result set is required")
     @ApiModelProperty(notes = "query result")
     private List<Map<String, Object>> result;
 
-    @NotNull
+    @NotNull(message = "query id is required")
     @ApiModelProperty(notes = "query id")
     private Long id;
 

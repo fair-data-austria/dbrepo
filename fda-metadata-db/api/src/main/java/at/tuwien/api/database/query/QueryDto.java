@@ -18,22 +18,22 @@ import java.time.Instant;
 @ToString
 public class QueryDto {
 
-    @NotNull
+    @NotNull(message = "id is required")
     @ApiModelProperty(name = "query id", example = "1")
     private Long id;
 
-    @NotNull
+    @NotNull(message = "container id is required")
     @ApiModelProperty(name = "container id", example = "1")
     private Long cid;
 
-    @NotNull
+    @NotNull(message = "database id is required")
     @ApiModelProperty(name = "database id", example = "1")
     private Long dbid;
 
     @ApiModelProperty(name = "execution time", example = "2022-01-01 08:00:00.000")
     private Instant execution;
 
-    @NotBlank
+    @NotBlank(message = "statement is required")
     @ApiModelProperty(name = "query raw", example = "select * from table")
     private String query;
 
@@ -41,7 +41,7 @@ public class QueryDto {
     @ApiModelProperty(name = "query normalized", example = "select id, name from table")
     private String queryNormalized;
 
-    @NotBlank
+    @NotBlank(message = "query hash is required")
     @JsonProperty("query_hash")
     @ApiModelProperty(name = "query hash sha256", example = "17e682f060b5f8e47ea04c5c4855908b0a5ad612022260fe50e11ecb0cc0ab76")
     private String queryHash;
@@ -54,10 +54,9 @@ public class QueryDto {
     @ApiModelProperty(name = "result number of records", example = "1")
     private Long resultNumber;
 
-    @NotNull
+    @NotNull(message = "created timestamp is required")
     private Instant created;
 
-    @NotNull
     @JsonProperty("last_modified")
     private Instant lastModified;
 

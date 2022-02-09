@@ -16,15 +16,15 @@ import java.util.List;
 @NoArgsConstructor
 public class ExecuteStatementDto {
 
-    @NotBlank
+    @NotBlank(message = "statement is required")
     @ApiModelProperty(name = "sql query")
     private String statement;
 
-    @NotNull
+    @NotNull(message = "list of tables is required")
     @ApiModelProperty(name = "tables mentioned in the query")
     private List<TableBriefDto> tables;
 
-    @NotNull
+    @NotNull(message = "list of columns is required")
     @ApiModelProperty(name = "columns mentioned in the query")
-    private List<ColumnBriefDto> columns;
+    private List<List<ColumnBriefDto>> columns;
 }

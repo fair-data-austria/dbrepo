@@ -9,10 +9,18 @@ public abstract class AbstractSeeder {
 
     public final static Long CONTAINER_1_ID = 1L;
 
+    public final static Long CONTAINER_2_ID = 2L;
+
     public final static Long DATABASE_1_ID = 1L;
+
+    public final static Long DATABASE_2_ID = 2L;
 
     public final static Database DATABASE_1 = Database.builder()
             .id(DATABASE_1_ID)
+            .build();
+
+    public final static Database DATABASE_2 = Database.builder()
+            .id(DATABASE_2_ID)
             .build();
 
     public final static Long TABLE_1_ID = 1L;
@@ -23,6 +31,15 @@ public abstract class AbstractSeeder {
     public final static Character TABLE_1_SEPERATOR = ',';
     public final static String TABLE_1_SKIP_LINES = "1";
     public final static String TABLE_1_DESCRIPTION = "The data table is a variance analysis of the times certain trams and busses should have departed and when they actually departed.";
+
+    public final static Long TABLE_2_ID = 2L;
+    public final static String TABLE_2_NAME = "Ethernet Temperature";
+    public final static String TABLE_2_FALSE_ELEMENT = null;
+    public final static String TABLE_2_TRUE_ELEMENT = null;
+    public final static String TABLE_2_NULL_ELEMENT = null;
+    public final static Character TABLE_2_SEPERATOR = ',';
+    public final static String TABLE_2_SKIP_LINES = "1";
+    public final static String TABLE_2_DESCRIPTION = "Temperature of the server's Ethernet module in degree Celsius";
 
     public final static Long IMAGE_DATE_3_ID = 3L;
 
@@ -358,6 +375,27 @@ public abstract class AbstractSeeder {
                     ColumnCreateDto.builder()
                             .type(ColumnTypeDto.NUMBER)
                             .name("halt_punkt_id_nach")
+                            .nullAllowed(true)
+                            .primaryKey(false)
+                            .unique(false)
+                            .dfid(null)
+                            .checkExpression(null)
+                            .enumValues(null)
+                            .build()})
+            .build();
+
+    public final static TableCreateDto TABLE_2_CREATE_DTO = TableCreateDto.builder()
+            .name(TABLE_2_NAME)
+            .description(TABLE_2_DESCRIPTION)
+            .falseElement(TABLE_2_FALSE_ELEMENT)
+            .trueElement(TABLE_2_TRUE_ELEMENT)
+            .nullElement(TABLE_2_NULL_ELEMENT)
+            .separator(TABLE_2_SEPERATOR)
+            .skipLines(TABLE_2_SKIP_LINES)
+            .columns(new ColumnCreateDto[]{
+                    ColumnCreateDto.builder()
+                            .type(ColumnTypeDto.NUMBER)
+                            .name("temp")
                             .nullAllowed(true)
                             .primaryKey(false)
                             .unique(false)

@@ -15,15 +15,15 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class TableBriefDto {
 
-    @NotNull
+    @NotNull(message = "id is required")
     @ApiModelProperty(name = "table id", example = "1")
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "name is required")
     @ApiModelProperty(name = "table name", example = "Weather Australia")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "internal name is required")
     @JsonProperty("internal_name")
     @ApiModelProperty(name = "table internal name", example = "weather_australia")
     private String internalName;

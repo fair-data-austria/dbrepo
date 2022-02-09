@@ -49,6 +49,7 @@
         <CreateDB @close="createDbDialog = false" />
       </v-dialog>
     </v-card>
+    <v-breadcrumbs :items="items" class="pa-0 mt-2" />
   </div>
 </template>
 <script>
@@ -65,6 +66,9 @@ export default {
     return {
       createDbDialog: false,
       databases: [],
+      items: [
+        { text: 'Databases', href: '/container' }
+      ],
       loading: true,
       error: false,
       iconSelect: mdiDatabaseArrowRightOutline

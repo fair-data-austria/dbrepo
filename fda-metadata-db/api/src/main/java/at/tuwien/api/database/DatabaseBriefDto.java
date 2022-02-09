@@ -15,23 +15,22 @@ import java.time.Instant;
 @NoArgsConstructor
 public class DatabaseBriefDto {
 
-    @NotNull
+    @NotNull(message = "database id is required")
     @Parameter(name = "database id", example = "1")
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "name is required")
     @Parameter(name = "database name", example = "Weather Australia")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "description is required")
     @Parameter(name = "database description", example = "Weather in Australia")
     private String description;
 
-    @NotBlank
+    @NotBlank(message = "engine is required")
     @Parameter(name = "database engine", example = "mariadb:latest")
     private String engine;
 
-    @NotBlank
     @Parameter(name = "database creation time", example = "2020-08-04 11:12:00")
     private Instant created;
 

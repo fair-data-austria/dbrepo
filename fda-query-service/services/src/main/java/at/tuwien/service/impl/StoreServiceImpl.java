@@ -107,12 +107,12 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
     public Query insert(Long containerId, Long databaseId, QueryResultDto result, SaveStatementDto metadata)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
             ContainerNotFoundException {
-        return insert(containerId, databaseId, result, queryMapper.saveStatementDtoToExecuteStatementDto(metadata));
+        return insert(containerId, databaseId, result, queryMapper.saveStatementDtoToExecuteStatementDto(metadata), null);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Query insert(Long containerId, Long databaseId, QueryResultDto result, ExecuteStatementDto metadata)
+    public Query insert(Long containerId, Long databaseId, QueryResultDto result, ExecuteStatementDto metadata, Instant execution)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
             ContainerNotFoundException {
         /* find */
@@ -121,7 +121,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
-        log.debug("Insert into database id {}, record {}, metadata {}", databaseId, result, metadata);
+        log.debug("Insert into database id {}, metadata {}", databaseId, metadata);
         /* save */
         final SessionFactory factory = getSessionFactory(database, true);
         final Session session = factory.openSession();
@@ -134,7 +134,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
                 .queryHash(DigestUtils.sha256Hex(metadata.getStatement()))
                 .resultNumber(storeMapper.queryResultDtoToLong(result))
                 .resultHash(storeMapper.queryResultDtoToString(result))
-                .execution(Instant.now())
+                .execution(execution)
                 .build();
         session.save(query);
         transaction.commit();

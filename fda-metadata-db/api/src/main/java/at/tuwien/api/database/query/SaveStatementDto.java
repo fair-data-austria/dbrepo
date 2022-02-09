@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class SaveStatementDto {
 
-    @NotBlank
+    @NotBlank(message = "statement is required")
     @ApiModelProperty(notes = "sql query")
     private String statement;
 }
