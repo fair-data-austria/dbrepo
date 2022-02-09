@@ -269,7 +269,7 @@ export default {
         { value: 'STRING', text: 'Character Varying' },
         { value: 'TEXT', text: 'Text' }
       ],
-      newTableId: 42
+      newTableId: 42 // FIXME ???
     }
   },
   computed: {

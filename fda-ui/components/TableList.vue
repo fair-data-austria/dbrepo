@@ -21,8 +21,11 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
-                      ID: {{ tableDetails.id }}
+                      ID
                     </v-list-item-title>
+                    <v-list-item-content>
+                      {{ tableDetails.id }}
+                    </v-list-item-content>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item>
@@ -31,8 +34,11 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
-                      Internal Name: <code>{{ tableDetails.internal_name }}</code>
+                      Internal Name
                     </v-list-item-title>
+                    <v-list-item-content>
+                      {{ tableDetails.internal_name }}
+                    </v-list-item-content>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item>
@@ -41,8 +47,24 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
-                      AMQP Routing Key: <code>{{ tableDetails.topic }}</code>
+                      AMQP Routing Key
                     </v-list-item-title>
+                    <v-list-item-content>
+                      {{ tableDetails.topic }}
+                    </v-list-item-content>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon>mdi-table</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      Columns
+                    </v-list-item-title>
+                    <v-list-item-content>
+                      {{ tableDetails.columns.length }}
+                    </v-list-item-content>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item>
@@ -51,8 +73,11 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
-                      Description: {{ tableDetails.description }}
+                      Description
                     </v-list-item-title>
+                    <v-list-item-content>
+                      {{ tableDetails.description }}
+                    </v-list-item-content>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -134,7 +159,13 @@ export default {
     return {
       loading: false,
       tables: [],
-      tableDetails: { id: 0 },
+      tableDetails: {
+        id: null,
+        internal_name: null,
+        description: null,
+        topic: null,
+        columns: []
+      },
       dialogDelete: false
     }
   },

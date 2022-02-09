@@ -45,7 +45,7 @@ public class IdentifierEndpoint {
     })
     public ResponseEntity<List<IdentifierDto>> findAll(@NotNull @PathVariable("id") Long id,
                                                        @NotNull @PathVariable("databaseId") Long databaseId,
-                                                       @RequestParam Long qid)
+                                                       @RequestParam(required = false) Long qid)
             throws IdentifierNotFoundException {
         if (qid != null) {
             final Identifier identifier = identifierService.find(id, databaseId, qid);

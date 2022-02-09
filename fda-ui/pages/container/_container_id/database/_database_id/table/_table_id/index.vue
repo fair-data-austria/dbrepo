@@ -7,10 +7,10 @@
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
-        <v-btn class="mr-2" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/import`">
+        <v-btn class="mr-2" :disabled="!token" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/import`">
           <v-icon left>mdi-cloud-upload</v-icon> Import csv
         </v-btn>
-        <v-btn color="primary" :href="`/api/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/data/export`" target="_blank">
+        <v-btn color="primary" :disabled="!token" :href="`/api/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/data/export`" target="_blank">
           <v-icon left>mdi-download</v-icon> Download
         </v-btn>
       </v-toolbar-title>
@@ -36,6 +36,7 @@
       <v-data-table
         :headers="headers"
         :items="rows"
+        :loading="loadingData"
         :options.sync="options"
         :server-items-length="total"
         :footer-props="footerProps"
@@ -67,7 +68,8 @@ export default {
   data () {
     return {
       loading: true,
-      total: null,
+      loadingData: true,
+      total: 0,
       footerProps: {
         'items-per-page-options': [10, 20, 30, 40, 50]
       },
@@ -97,6 +99,9 @@ export default {
     loadingColor () {
       return this.error ? 'red lighten-2' : 'primary'
     },
+    token () {
+      return this.$store.state.token
+    },
     versionColor () {
       console.debug('version', this.version)
       if (this.version === null) {
@@ -120,7 +125,6 @@ export default {
   mounted () {
     this.loadProperties()
     this.loadData()
-    this.loadDataCount()
   },
   methods: {
     async loadProperties () {
@@ -136,12 +140,12 @@ export default {
         })
       } catch (err) {
         this.$toast.error('Could not get table details.')
-        this.loading = false
       }
+      this.loading = false
     },
     async loadData () {
       try {
-        this.loading = true
+        this.loadingData = true
         let url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data?page=${this.options.page - 1}&size=${this.options.itemsPerPage}`
         if (this.version !== null) {
           console.info('versioning active', this.version)
@@ -149,25 +153,13 @@ export default {
         }
         const res = await this.$axios.get(url)
         console.debug('version', this.datetime, 'table data', res.data)
+        this.total = res.headers['fda-count']
         this.rows = res.data.result
       } catch (err) {
         console.error('failed to load data', err)
         this.$toast.error('Could not load table data.')
       }
-      this.loading = false
-    },
-    loadDataCount () { // TODO
-      // try {
-      //   this.loading = true
-      //   const url = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}/data`
-      //   const res = await this.$axios.head(url)
-      //   console.debug('data count', res.data)
-      //   this.total = res.data.count
-      // } catch (err) {
-      //   console.error('failed to load total count', err)
-      // }
-      this.total = 1000000
-      this.loading = false
+      this.loadingData = false
     },
     columnAddition (column) {
       if (column.is_primary_key) {

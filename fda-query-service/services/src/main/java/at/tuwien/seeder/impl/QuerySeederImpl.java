@@ -29,8 +29,12 @@ public class QuerySeederImpl extends AbstractSeeder implements Seeder {
             log.warn("Already seeded. Skip.");
             return;
         }
+        final Integer import1 = queryService.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, QUERY_1_IMPORT_DTO);
+        log.info("Imported {} rows into table id {}", import1, TABLE_1_ID);
         final Query query1 = storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, null, QUERY_1_SAVE_DTO);
         log.info("Saved query id {}", query1.getId());
+        final Query query2 = storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, null, QUERY_2_SAVE_DTO);
+        log.info("Saved query id {}", query2.getId());
     }
 
 }

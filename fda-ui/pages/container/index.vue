@@ -36,7 +36,7 @@
               @click="loadDatabase(item)">
               <td>{{ item.name }}</td>
               <td>{{ item.engine }}</td>
-              <td></td>
+              <td />
               <td>{{ formatDate(item.created) }}</td>
             </tr>
           </tbody>

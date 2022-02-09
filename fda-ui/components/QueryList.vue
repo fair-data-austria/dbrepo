@@ -10,7 +10,7 @@
       <v-expansion-panels v-if="!loading && queries.length > 0" accordion>
         <v-expansion-panel v-for="(item, i) in queries" :key="i" @click="details(item)">
           <v-expansion-panel-header>
-            Query {{ item.id }}
+            <span v-bind:class="{'font-weight-black': item.identifier !== undefined}">{{ title(item) }}</span>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
             <v-row dense>
@@ -22,18 +22,30 @@
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
-                        ID: {{ queryDetails.id }}
+                        ID
                       </v-list-item-title>
+                      <v-list-item-content>
+                        {{ queryDetails.id }}
+                      </v-list-item-content>
+                      <v-list-item-title v-if="queryDetails.identifier !== undefined">
+                        Persistent ID
+                      </v-list-item-title>
+                      <v-list-item-content v-if="queryDetails.identifier !== undefined">
+                        https://dbrepo.ossdip.at/pid/{{ queryDetails.identifier.id }}
+                      </v-list-item-content>
                     </v-list-item-content>
                   </v-list-item>
-                  <v-list-item>
+                  <v-list-item v-if="queryDetails.identifier !== undefined">
                     <v-list-item-icon>
-                      <v-icon>mdi-table-of-contents</v-icon>
+                      <v-icon>mdi-text</v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
-                        Result Number: <code>{{ queryDetails.result_number }}</code>
+                        Description
                       </v-list-item-title>
+                      <v-list-item-content>
+                        {{ queryDetails.identifier.description }}
+                      </v-list-item-content>
                     </v-list-item-content>
                   </v-list-item>
                   <v-list-item>
@@ -42,8 +54,11 @@
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
-                        Execution Timestamp: <code>{{ queryDetails.execution }}</code>
+                        Execution Timestamp
                       </v-list-item-title>
+                      <v-list-item-content>
+                        {{ queryDetails.execution }}
+                      </v-list-item-content>
                     </v-list-item-content>
                   </v-list-item>
                   <v-list-item>
@@ -52,8 +67,11 @@
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
-                        Query: <code>{{ queryDetails.query }}</code>
+                        Query
                       </v-list-item-title>
+                      <v-list-item-content>
+                        <code>{{ queryDetails.query }}</code>
+                      </v-list-item-content>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list>
@@ -79,6 +97,7 @@ export default {
     return {
       loading: false,
       queries: [],
+      identifiers: [],
       queryDetails: {
         id: null,
         doi: null,
@@ -106,10 +125,31 @@ export default {
         res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query`)
         this.queries = res.data
         console.debug('queries', this.queries)
+        try {
+          this.loading = true
+          const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/identifier`)
+          this.identifiers = res.data
+          console.debug('identifiers', this.identifiers)
+          this.queries.forEach((query) => {
+            const id = this.identifiers.find(id => id.qid === query.id)
+            console.debug('id', id)
+            if (id !== undefined) {
+              query.identifier = id
+            }
+          })
+        } catch (err) {
+          console.error('Failed to get identifiers', err)
+        }
         this.loading = false
       } catch (err) {
         this.$toast.error('Could not list queries.')
       }
+    },
+    title (query) {
+      if (query.identifier !== undefined) {
+        return query.identifier.title
+      }
+      return `Query ${query.id}`
     },
     details (query) {
       this.queryDetails = query
