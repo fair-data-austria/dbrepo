@@ -86,6 +86,9 @@ export default {
         const res = await this.$axios.post(url, this.loginAccount)
         console.debug('login user', res.data)
         this.$store.commit('SET_TOKEN', res.data.token)
+        const user = { ...res.data }
+        delete user.token
+        this.$store.commit('SET_USER', user)
         this.$toast.success('Welcome back!')
         this.$router.push('/container')
       } catch (err) {

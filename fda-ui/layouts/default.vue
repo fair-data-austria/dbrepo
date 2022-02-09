@@ -42,6 +42,7 @@
         to="/signup">
         <v-icon left>mdi-account-plus</v-icon> Signup
       </v-btn>
+      {{ username }}
       <v-menu bottom offset-y left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -61,6 +62,10 @@
           <v-list-item
             @click="switchTheme()">
             {{ nextTheme }} Theme
+          </v-list-item>
+          <v-list-item
+            @click="logout">
+            Logout
           </v-list-item>
         </v-list>
       </v-menu>
@@ -150,6 +155,9 @@ export default {
     token () {
       return this.$store.state.token
     },
+    username () {
+      return this.$store.state.user && this.$store.state.user.username
+    },
     nextTheme () {
       return this.$vuetify.theme.dark ? 'Light' : 'Dark'
     },
@@ -177,6 +185,12 @@ export default {
   methods: {
     switchTheme () {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+    },
+    logout () {
+      this.$store.commit('SET_TOKEN', null)
+      this.$store.commit('SET_USER', null)
+      this.$toast.success('Logged out')
+      this.$router.push('/container')
     },
     async loadDB () {
       if (this.$route.params.db_id && !this.db) {
