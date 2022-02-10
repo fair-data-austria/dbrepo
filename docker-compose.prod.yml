@@ -332,6 +332,7 @@ services:
     image: fda-vienna-lines
     networks:
       fda-public:
+        ipv4_address: 172.29.0.16
     depends_on:
       fda-query-service:
         condition: service_healthy
