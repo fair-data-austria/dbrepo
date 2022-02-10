@@ -118,7 +118,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         tmp.setInternalName(tableMapper.nameToInternalName(tmp.getName()));
         tmp.setTdbid(databaseId);
         tmp.setDatabase(database);
-        tmp.setTopic(database.getExchange() + "." + tmp.getInternalName());
+        tmp.setTopic(tmp.getInternalName());
         tmp.setColumns(List.of());
         log.debug("mapped new table {}", tmp);
         /* save in metadata database */

@@ -15,7 +15,6 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
-import com.rabbitmq.client.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Rule;
@@ -38,9 +37,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
@@ -52,9 +49,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class QueryServiceIntegrationTest extends BaseUnitTest {
-
-    @MockBean
-    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;
@@ -394,7 +388,42 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     public void insert_sensor_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
             TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
         final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of("2","1","15.01.17","2076","6","1","6030","0","DEP4","15.01.17","17580","17562","17580","17562","2","1357","1","KALK","15.01.17","17622","17647","17622","17664","8538","41253","15","2","15","DEP4 - KALK","135780","2251","1906","12462","10563"))
+                .data(new HashMap<>() {{
+                    put("linie", 2);
+                    put("richtung", 1);
+                    put("betriebsdatum", "15.01.17");
+                    put("fahrzeug", 2076);
+                    put("kurs", 6);
+                    put("seq_von", 1);
+                    put("halt_diva_von", 6030);
+                    put("halt_punkt_diva_von", 0);
+                    put("halt_kurz_von1", "DEP4");
+                    put("datum_von", "15.01.17");
+                    put("soll_an_von", 17580);
+                    put("ist_an_von", 17562);
+                    put("soll_ab_von", 17580);
+                    put("ist_ab_von", 17562);
+                    put("seq_nach", 2);
+                    put("halt_diva_nach", 1357);
+                    put("halt_punkt_diva_nach", 1);
+                    put("halt_kurz_nach1", "KALK");
+                    put("datum_nach", "15.01.17");
+                    put("soll_an_nach", 17622);
+                    put("ist_an_nach1", 17647);
+                    put("soll_ab_nach", 17622);
+                    put("ist_ab_nach", 17664);
+                    put("fahrt_id", 8538);
+                    put("fahrweg_id", 41253);
+                    put("fw_no", 15);
+                    put("fw_typ", 2);
+                    put("fw_kurz", 15);
+                    put("fw_lang", "DEP4 - KALK");
+                    put("umlauf_von", 135780);
+                    put("halt_id_von", 2251);
+                    put("halt_id_nach", 1906);
+                    put("halt_punkt_id_von", 12462);
+                    put("halt_punkt_id_nach", 10563);
+                }})
                 .build();
 
         /* mock */

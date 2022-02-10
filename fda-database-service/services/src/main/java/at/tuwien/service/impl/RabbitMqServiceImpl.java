@@ -62,10 +62,10 @@ public class RabbitMqServiceImpl implements MessageQueueService {
     }
 
     public void create(Database database) throws IOException {
-        channel.exchangeDeclare(database.getExchange(), BuiltinExchangeType.FANOUT, true);
-        log.debug("declare fanout exchange {}", database.getExchange());
-        channel.exchangeBind(database.getExchange(), AMQP_EXCHANGE, database.getExchange());
-        log.debug("bind exchange {} to {}", database.getExchange(), AMQP_EXCHANGE);
+        channel.exchangeDeclare(AMQP_EXCHANGE + "." + database.getExchange(), BuiltinExchangeType.FANOUT, true);
+        log.debug("declare fanout exchange {}", AMQP_EXCHANGE + "." + database.getExchange());
+        channel.exchangeBind(AMQP_EXCHANGE + "." + database.getExchange(), AMQP_EXCHANGE, AMQP_EXCHANGE + "." + database.getExchange());
+        log.debug("bind exchange {} to {}", AMQP_EXCHANGE + "." + database.getExchange(), AMQP_EXCHANGE);
     }
 
     public void delete(Database database) throws IOException {

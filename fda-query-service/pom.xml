@@ -171,18 +171,13 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
             <version>${mapstruct.version}</version>
-            <optional>true</optional><!-- IntelliJ -->
+            <optional>true</optional>
+        <!-- IntelliJ -->
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
-        </dependency>
-        <!-- AMPQ -->
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>${rabbit-amqp-client.version}</version>
         </dependency>
         <!-- DTO -->
         <dependency>

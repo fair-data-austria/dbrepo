@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -14,8 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 public class TableCsvDto {
 
-    @NotNull
+    @NotNull(message = "data is required")
     @ApiModelProperty(name = "data")
-    private List<Object> data;
+    private Map<String, Object> data;
 
 }

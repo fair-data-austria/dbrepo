@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 public interface AmqpMapper {
 
     default String exchangeName(Database database) {
-        return "fda." + database.getInternalName();
+        return database.getInternalName();
     }
 
 }

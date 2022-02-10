@@ -15,8 +15,8 @@ spring:
     name: fda-table-service
   rabbitmq:
     host: localhost
-    username: guest
-    password: guest
+    username: fda
+    password: fda
   cloud:
     loadbalancer.ribbon.enabled: false
 server.port: 9094
@@ -24,7 +24,6 @@ logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
     root: warn
-    at.tuwien.mapper.: trace
     at.tuwien.: debug
 eureka:
   instance.hostname: fda-table-service

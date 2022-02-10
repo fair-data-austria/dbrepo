@@ -38,7 +38,6 @@ public class TableDataEndpoint {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
     @Transactional
     @ApiOperation(value = "Insert values", notes = "Insert Data into a Table in the database. When the location string is set, the data argument is ignored and the location is used as data input")
     @ApiResponses({

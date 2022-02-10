@@ -83,7 +83,6 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         session.close();
         factory.close();
         log.debug("query id {}", result.getId());
-        log.trace("result {}", result);
         return result;
     }
 
@@ -217,9 +216,10 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         try {
             affectedTuples = query.executeUpdate();
         } catch (PersistenceException e) {
-            log.error("Could not insert data");
             session.close();
             factory.close();
+            log.error("Could not insert data: {}", e.getMessage());
+            log.throwing(e);
             throw new TableMalformedException("Could not insert data", e);
         }
         session.getTransaction()

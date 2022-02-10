@@ -24,7 +24,7 @@ public abstract class AbstractSeeder {
             .build();
 
     public final static Long TABLE_1_ID = 1L;
-    public final static String TABLE_1_NAME = "Fahrzeiten Soll-Ist 2017";
+    public final static String TABLE_1_NAME = "Timetable Zürich";
     public final static String TABLE_1_FALSE_ELEMENT = null;
     public final static String TABLE_1_TRUE_ELEMENT = null;
     public final static String TABLE_1_NULL_ELEMENT = null;
@@ -40,6 +40,15 @@ public abstract class AbstractSeeder {
     public final static Character TABLE_2_SEPERATOR = ',';
     public final static String TABLE_2_SKIP_LINES = "1";
     public final static String TABLE_2_DESCRIPTION = "Temperature of the server's Ethernet module in degree Celsius";
+
+    public final static Long TABLE_3_ID = 3L;
+    public final static String TABLE_3_NAME = "Vienna Public Transport Delays";
+    public final static String TABLE_3_FALSE_ELEMENT = null;
+    public final static String TABLE_3_TRUE_ELEMENT = null;
+    public final static String TABLE_3_NULL_ELEMENT = null;
+    public final static Character TABLE_3_SEPERATOR = ',';
+    public final static String TABLE_3_SKIP_LINES = "1";
+    public final static String TABLE_3_DESCRIPTION = "Current delays from Vienna public transport gathered via live API";
 
     public final static Long IMAGE_DATE_3_ID = 3L;
 
@@ -396,6 +405,87 @@ public abstract class AbstractSeeder {
                     ColumnCreateDto.builder()
                             .type(ColumnTypeDto.NUMBER)
                             .name("temp")
+                            .nullAllowed(true)
+                            .primaryKey(false)
+                            .unique(false)
+                            .dfid(null)
+                            .checkExpression(null)
+                            .enumValues(null)
+                            .build()})
+            .build();
+
+    public final static TableCreateDto TABLE_3_CREATE_DTO = TableCreateDto.builder()
+            .name(TABLE_3_NAME)
+            .description(TABLE_3_DESCRIPTION)
+            .falseElement(TABLE_3_FALSE_ELEMENT)
+            .trueElement(TABLE_3_TRUE_ELEMENT)
+            .nullElement(TABLE_3_NULL_ELEMENT)
+            .separator(TABLE_3_SEPERATOR)
+            .skipLines(TABLE_3_SKIP_LINES)
+            .columns(new ColumnCreateDto[]{
+                    ColumnCreateDto.builder()
+                            .type(ColumnTypeDto.STRING)
+                            .name("name")
+                            .nullAllowed(true)
+                            .primaryKey(false)
+                            .unique(false)
+                            .dfid(null)
+                            .checkExpression(null)
+                            .enumValues(null)
+                            .build(),
+                    ColumnCreateDto.builder()
+                            .type(ColumnTypeDto.STRING)
+                            .name("priority")
+                            .nullAllowed(true)
+                            .primaryKey(false)
+                            .unique(false)
+                            .dfid(null)
+                            .checkExpression(null)
+                            .enumValues(null)
+                            .build(),
+                    ColumnCreateDto.builder()
+                            .type(ColumnTypeDto.STRING)
+                            .name("owner")
+                            .nullAllowed(true)
+                            .primaryKey(false)
+                            .unique(false)
+                            .dfid(null)
+                            .checkExpression(null)
+                            .enumValues(null)
+                            .build(),
+                    ColumnCreateDto.builder()
+                            .type(ColumnTypeDto.STRING)
+                            .name("title")
+                            .nullAllowed(true)
+                            .primaryKey(false)
+                            .unique(false)
+                            .dfid(null)
+                            .checkExpression(null)
+                            .enumValues(null)
+                            .build(),
+                    ColumnCreateDto.builder()
+                            .type(ColumnTypeDto.TEXT)
+                            .name("description")
+                            .nullAllowed(true)
+                            .primaryKey(false)
+                            .unique(false)
+                            .dfid(null)
+                            .checkExpression(null)
+                            .enumValues(null)
+                            .build(),
+                    ColumnCreateDto.builder()
+                            .type(ColumnTypeDto.STRING)
+                            .name("start_time")
+                            .nullAllowed(true)
+                            .primaryKey(false)
+                            .unique(false)
+                            .dfid(null)
+                            .checkExpression(null)
+                            .enumValues(null)
+                            .build(),
+                    ColumnCreateDto.builder()
+                            .type(ColumnTypeDto.STRING)
+                            .name("end_time")
                             .nullAllowed(true)
                             .primaryKey(false)
                             .unique(false)

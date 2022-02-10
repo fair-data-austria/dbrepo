@@ -13,10 +13,6 @@ spring:
     open-in-view: false
   application:
     name: fda-query-service
-  rabbitmq:
-    host: localhost
-    username: guest
-    password: guest
   cloud:
     loadbalancer.ribbon.enabled: false
 server.port: 9093
@@ -25,7 +21,7 @@ logging:
   level:
     root: warn
     at.tuwien.: debug
-    at.tuwien.mapper.: trace
+    at.tuwien.service.QueryService: trace
     at.tuwien.config.: trace
 eureka:
   instance.hostname: fda-query-service

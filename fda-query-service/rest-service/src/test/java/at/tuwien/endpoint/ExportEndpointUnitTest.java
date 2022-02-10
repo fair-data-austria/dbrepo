@@ -1,13 +1,10 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.service.CommaValueService;
 import at.tuwien.service.impl.QueryServiceImpl;
-import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,9 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class ExportEndpointUnitTest extends BaseUnitTest {
-
-    @MockBean
-    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;

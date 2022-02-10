@@ -53,6 +53,9 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
+    depends_on:
+      fda-gateway-service:
+        condition: service_healthy
     ports:
       - "9090:9090"
     logging:
@@ -70,9 +73,6 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
-    depends_on:
-      fda-discovery-service:
-        condition: service_healthy
     ports:
       - "9095:9095"
     logging:
@@ -321,5 +321,23 @@ services:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
       TZ: Europe/Vienna
+    logging:
+      driver: json-file
+
+  fda-vienna-lines:
+    restart: on-failure
+    container_name: fda-vienna-lines
+    hostname: fda-vienna-lines
+    build: ./fda-vienna-lines
+    image: fda-vienna-lines
+    networks:
+      fda-public:
+    depends_on:
+      fda-query-service:
+        condition: service_healthy
+    environment:
+      TZ: Europe/Vienna
+      EXCHANGE: foo
+      KEY: vienna_public_transport_delays
     logging:
       driver: json-file

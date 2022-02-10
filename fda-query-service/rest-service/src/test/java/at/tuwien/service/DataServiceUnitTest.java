@@ -14,7 +14,6 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
-import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,9 +38,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 @Log4j2
 public class DataServiceUnitTest extends BaseUnitTest {
-
-    @MockBean
-    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;

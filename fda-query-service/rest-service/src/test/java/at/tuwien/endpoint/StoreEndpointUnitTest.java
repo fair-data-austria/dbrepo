@@ -6,7 +6,6 @@ import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.service.QueryService;
 import at.tuwien.service.impl.StoreServiceImpl;
-import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +25,6 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class StoreEndpointUnitTest extends BaseUnitTest {
-
-    @MockBean
-    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;

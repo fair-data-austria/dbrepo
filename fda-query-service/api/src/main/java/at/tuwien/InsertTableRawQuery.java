@@ -2,7 +2,7 @@ package at.tuwien;
 
 import lombok.*;
 
-import java.util.List;
+import java.util.Collection;
 
 @Getter
 @Setter
@@ -14,6 +14,6 @@ public class InsertTableRawQuery {
 
     private String query;
 
-    private List<Object> data;
+    private Collection<Object> data;
 
 }

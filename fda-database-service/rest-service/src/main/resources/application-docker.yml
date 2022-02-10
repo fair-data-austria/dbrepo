@@ -17,8 +17,8 @@ spring:
     loadbalancer.ribbon.enabled: false
   rabbitmq:
     host: fda-broker-service
-    username: guest
-    password: guest
+    username: fda
+    password: fda
 server.port: 9092
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"

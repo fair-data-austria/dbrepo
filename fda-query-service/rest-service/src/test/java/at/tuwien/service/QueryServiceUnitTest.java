@@ -11,7 +11,6 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
-import com.rabbitmq.client.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,6 +27,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -39,9 +39,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 @Log4j2
 public class QueryServiceUnitTest extends BaseUnitTest {
-
-    @MockBean
-    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;
@@ -181,7 +178,7 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     @Test
     public void insert_columns_fails() {
         final TableCsvDto request = TableCsvDto.builder()
-                .data(List.of("some_value"))
+                .data(Map.of("key", "some_value"))
                 .build();
 
         /* mock */

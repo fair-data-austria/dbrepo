@@ -61,7 +61,7 @@ public interface QueryMapper {
             int[] idx = new int[]{0};
             final Object[] data = (Object[]) iterator.next();
             final Map<String, Object> map = new HashMap<>();
-                    columns
+            columns
                     .forEach(column -> map.put(column.getName(),
                             dataColumnToObject(data[idx[0]++], column)));
             resultList.add(map);
@@ -142,10 +142,10 @@ public interface QueryMapper {
                         .collect(Collectors.joining(",")))
                 .append(") VALUES (?1);");
         /* debug */
-        log.trace("raw insert query: [{}]", query);
+        log.trace("raw insert query: [{}] with data {}", query, data.getData().values());
         return InsertTableRawQuery.builder()
                 .query(query.toString())
-                .data(data.getData())
+                .data(data.getData().values())
                 .build();
     }
 
