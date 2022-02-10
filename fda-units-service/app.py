@@ -48,26 +48,22 @@ def suggest():
         res = {"success": False, "message": str(e)}
         return jsonify(res), 500
 
-@app.route('/api/units/validate', methods=["POST"], endpoint='validate')
+@app.route('/api/units/validate/<unit>', methods=["GET"], endpoint='validate')
 @swag_from('validate.yml')
-def valitate():
-    input_json = request.get_json()
+def valitate(unit):
     try:
-        unit = str(input_json['ustring'])
-        res = validator(stringmapper(unit))
+        res = validator(unit)
         return str(res), 200
     except Exception as e:
         print(e)
         res = {"success": False, "message": str(e)}
         return jsonify(res)
 
-@app.route('/api/units/uri', methods=["GET"], endpoint='uri')
+@app.route('/api/units/uri/<uname>', methods=["GET"], endpoint='uri')
 @swag_from('geturi.yml')
-def geturi():
-    input_json = request.get_json()
+def geturi(uname):
     try:
-        name = str(input_json['uname'])
-        res = get_uri(name)
+        res = get_uri(uname)
         return jsonify(res), 200
     except Exception as e:
         print(e)
