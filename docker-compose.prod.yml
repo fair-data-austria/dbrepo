@@ -320,6 +320,8 @@ services:
     environment:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
+      KEY: "${UI_KEY}"
+      CERT: "${UI_CERT}"
       TZ: Europe/Vienna
     logging:
       driver: json-file
