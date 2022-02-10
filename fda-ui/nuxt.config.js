@@ -55,7 +55,8 @@ export default {
   plugins: [
     { src: '~/plugins/toast', ssr: false },
     { src: '~/plugins/vendors', ssr: false },
-    { src: '~/plugins/axios' }
+    { src: '~/plugins/axios' },
+    { src: '~/plugins/vuex-persist.js', mode: 'client' }
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
