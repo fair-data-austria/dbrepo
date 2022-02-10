@@ -5,16 +5,11 @@ consumes:
 produces:
 - "application/json"
 parameters:
-- in: "body"
-  name: "body"
+- in: "path"
+  type: "string"
+  name: "uname"
   description: "to-do description"
   required: true
-  schema:
-    type: "object"
-    properties:
-      uname:
-        type: "string"
-        example : "metre"
 responses:
   200: 
     description: "OK"

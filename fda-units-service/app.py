@@ -8,6 +8,7 @@ from flasgger.utils import swag_from
 from flasgger import LazyString, LazyJSONEncoder
 from list import list_units, get_uri
 from validate import validator, stringmapper
+from save import insert_mdb_concepts, insert_mdb_columns_concepts
 
 app = Flask(__name__)
 app.config["SWAGGER"] = {"title": "FDA-Units-Service", "uiversion": 3}
@@ -47,27 +48,57 @@ def suggest():
         res = {"success": False, "message": str(e)}
         return jsonify(res), 500
 
-@app.route('/api/units/validate', methods=["POST"], endpoint='validate')
+@app.route('/api/units/validate/<unit>', methods=["GET"], endpoint='validate')
 @swag_from('validate.yml')
-def valitate():
-    input_json = request.get_json()
+def valitate(unit):
     try:
-        unit = str(input_json['ustring'])
-        res = validator(stringmapper(unit))
+        res = validator(unit)
         return str(res), 200
     except Exception as e:
         print(e)
         res = {"success": False, "message": str(e)}
         return jsonify(res)
 
-@app.route('/api/units/geturi', methods=["POST"], endpoint='geturi')
+@app.route('/api/units/uri/<uname>', methods=["GET"], endpoint='uri')
 @swag_from('geturi.yml')
-def geturi():
+def geturi(uname):
+    try:
+        res = get_uri(uname)
+        return jsonify(res), 200
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": str(e)}
+        return jsonify(res), 500
+
+@app.route('/api/units/saveconcept', methods=["POST"], endpoint='saveconcept')
+@swag_from('saveconcept.yml')
+def saveconcept():
     input_json = request.get_json()
     try:
-        name = str(input_json['uname'])
-        res = get_uri(name)
-        return jsonify(res), 200
+        uri = str(input_json['uri'])
+        c_name = str(input_json['name'])
+        if insert_mdb_concepts(uri, c_name) > 0:
+            return jsonify({'uri': uri}), 201
+        else:
+            return jsonify({'status': 'error'}), 400
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": str(e)}
+        return jsonify(res), 500
+
+@app.route('/api/units/savecolumnsconcept', methods=["POST"], endpoint='savecolumnsconcept')
+@swag_from('savecolumnsconcept.yml')
+def saveconcept():
+    input_json = request.get_json()
+    try:
+        uri = str(input_json['uri'])
+        cid = int(input_json['cid'])
+        tid = int(input_json['tid'])
+        cdbid = int(input_json['cdbid'])
+        if insert_mdb_columns_concepts(cdbid, tid, cid, uri)>0:
+            return jsonify({'uri': uri}), 201
+        else:
+            return jsonify({'status': 'error'}), 400
     except Exception as e:
         print(e)
         res = {"success": False, "message": str(e)}
