@@ -38,7 +38,8 @@ if __name__ == "__main__":
         exit(1)
     if os.getenv('KEY') is None:
         exit(2)
-    print('Started AMQP producer.')
+    print('Started AMQP producer. Waiting 60s.')
+    sleep(60)
     while 1:
         send()
         sleep(100)
