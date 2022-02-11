@@ -6,8 +6,13 @@
         Make Research Data FAIR in Digital Libraries
       </v-card-subtitle>
       <v-card-text>
-        <p>Video</p>
+        <div>
+          <video width="720" height="405" poster="/teaser_image.png" controls>
+            <source src="/teaser.mp4" type="video/mp4">
+          </video>
+        </div>
         <v-btn
+          class="mt-2"
           color="primary"
           to="/publications">
           Read More
