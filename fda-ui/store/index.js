@@ -1,6 +1,7 @@
 export const state = () => ({
   db: null,
-  token: null
+  token: null,
+  user: null
 })
 
 export const mutations = {
@@ -9,5 +10,8 @@ export const mutations = {
   },
   SET_TOKEN (state, token) {
     state.token = token
+  },
+  SET_USER (state, user) {
+    state.user = user
   }
 }
