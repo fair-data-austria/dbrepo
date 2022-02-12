@@ -2,7 +2,6 @@ package at.tuwien.handlers;
 
 import at.tuwien.api.error.ApiErrorDto;
 import at.tuwien.exception.*;
-import net.sf.jsqlparser.JSQLParserException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

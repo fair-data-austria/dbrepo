@@ -7,6 +7,7 @@ import at.tuwien.service.DatabaseService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -22,12 +23,13 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public Database findDatabase(Long id) throws DatabaseNotFoundException {
-        final Optional<Database> optional = databaseRepository.findById(id);
-        if (optional.isEmpty()) {
-            log.error("Failed to find database with id {} in metadata database", id);
-            throw new DatabaseNotFoundException("Database not found");
+    @Transactional
+    public Database find(Long id) throws DatabaseNotFoundException {
+        final Optional<Database> database = databaseRepository.findById(id);
+        if (database.isEmpty()) {
+            log.error("Database with id {} not found in metadata database", id);
+            throw new DatabaseNotFoundException("Database not found in metadata database");
         }
-        return optional.get();
+        return database.get();
     }
 }

@@ -4,13 +4,13 @@ import at.tuwien.entities.container.Container;
 import at.tuwien.exception.ContainerNotFoundException;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.service.ContainerService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Slf4j
+@Log4j2
 @Service
 public class ContainerServiceImpl implements ContainerService {
 
@@ -26,7 +26,7 @@ public class ContainerServiceImpl implements ContainerService {
         final Optional<Container> container = containerRepository.findById(id);
         if (container.isEmpty()) {
             log.error("Failed to find container with id {}", id);
-            throw new ContainerNotFoundException("Failed to find container");
+            throw new ContainerNotFoundException("Container not found");
         }
         return container.get();
     }

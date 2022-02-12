@@ -1,9 +1,9 @@
 package at.tuwien.endpoint;
 
 import at.tuwien.api.database.query.*;
+import at.tuwien.mapper.QueryMapper;
 import at.tuwien.querystore.Query;
 import at.tuwien.exception.*;
-import at.tuwien.mapper.QueryMapper;
 import at.tuwien.service.QueryService;
 import at.tuwien.service.StoreService;
 import io.swagger.annotations.ApiOperation;

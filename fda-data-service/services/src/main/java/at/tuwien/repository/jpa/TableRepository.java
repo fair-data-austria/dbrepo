@@ -11,10 +11,6 @@ import java.util.Optional;
 @Repository
 public interface TableRepository extends JpaRepository<Table, Long> {
 
-    List<Table> findByDatabase(Database database);
-
     Optional<Table> findByDatabaseAndId(Database database, Long tableId);
-
-    Optional<Table> findByInternalName(String internalName);
 
 }

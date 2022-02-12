@@ -176,24 +176,6 @@ public class QueryServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void insert_columns_fails() {
-        final TableCsvDto request = TableCsvDto.builder()
-                .data(Map.of("key", "some_value"))
-                .build();
-
-        /* mock */
-        when(databaseRepository.findById(DATABASE_1_ID))
-                .thenReturn(Optional.of(DATABASE_1));
-        when(tableRepository.findByDatabaseAndId(DATABASE_1, TABLE_1_ID))
-                .thenReturn(Optional.of(TABLE_1));
-
-        /* test */
-        assertThrows(TableMalformedException.class, () -> {
-            queryService.insert(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, request);
-        });
-    }
-
-    @Test
     public void findAll_timestampMissing_succeeds() throws TableNotFoundException, DatabaseConnectionException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException,
             ContainerNotFoundException {

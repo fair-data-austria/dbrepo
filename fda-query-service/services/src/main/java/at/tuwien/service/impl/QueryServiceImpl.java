@@ -1,10 +1,7 @@
 package at.tuwien.service.impl;
 
-import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.ExecuteStatementDto;
-import at.tuwien.api.database.query.ImportDto;
 import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
@@ -158,75 +155,6 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         session.close();
         factory.close();
         return count;
-    }
-
-    @Override
-    @Transactional
-    public Integer insert(Long containerId, Long databaseId, Long tableId, TableCsvDto data)
-            throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
-            TableNotFoundException, ContainerNotFoundException {
-        /* find */
-        final Database database = databaseService.find(databaseId);
-        final Table table = tableService.find(databaseId, tableId);
-        /* run query */
-        if (data.getData().size() == 0) return null;
-        final long startSession = System.currentTimeMillis();
-        final SessionFactory factory = getSessionFactory(database, true);
-        final Session session = factory.openSession();
-        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
-        session.beginTransaction();
-        /* prepare the statement */
-        final InsertTableRawQuery raw = queryMapper.tableCsvDtoToRawInsertQuery(table, data);
-        final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
-        log.trace("query with parameters {}", query.setParameterList(1, raw.getData()));
-        return insert(query, session, factory);
-    }
-
-    @Override
-    @Transactional
-    public Integer insert(Long containerId, Long databaseId, Long tableId, ImportDto data)
-            throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
-            TableNotFoundException, ContainerNotFoundException {
-        /* find */
-        final Database database = databaseService.find(databaseId);
-        final Table table = tableService.find(databaseId, tableId);
-        /* run query */
-        final long startSession = System.currentTimeMillis();
-        final SessionFactory factory = getSessionFactory(database, true);
-        final Session session = factory.openSession();
-        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
-        session.beginTransaction();
-        /* prepare the statement */
-        final InsertTableRawQuery raw = queryMapper.pathToRawInsertQuery(table, data);
-        final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
-        return insert(query, session, factory);
-    }
-
-    /**
-     * Executes a insert query on an active Hibernate session on a table with given id and returns the affected rows.
-     *
-     * @param query   The query.
-     * @param session The active Hibernate session.
-     * @param factory The active Hibernate session factory.
-     * @return The affected rows, if successful.
-     * @throws TableMalformedException The table metadata is wrong.
-     */
-    private Integer insert(NativeQuery<?> query, Session session, SessionFactory factory) throws TableMalformedException {
-        final int affectedTuples;
-        try {
-            affectedTuples = query.executeUpdate();
-        } catch (PersistenceException e) {
-            session.close();
-            factory.close();
-            log.error("Could not insert data: {}", e.getMessage());
-            log.throwing(e);
-            throw new TableMalformedException("Could not insert data", e);
-        }
-        session.getTransaction()
-                .commit();
-        session.close();
-        factory.close();
-        return affectedTuples;
     }
 
     /**

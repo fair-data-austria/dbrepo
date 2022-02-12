@@ -1,16 +1,15 @@
 package at.tuwien.service;
 
 import at.tuwien.entities.database.Database;
-import at.tuwien.exception.*;
+import at.tuwien.exception.DatabaseNotFoundException;
 
 public interface DatabaseService {
 
     /**
-     * Finds a database by id.
+     * Finds a database by given id in the remote database service.
      *
      * @param id The id.
-     * @return Return the database if found.
-     * @throws DatabaseNotFoundException
+     * @return The database.
      */
-    Database findDatabase(Long id) throws DatabaseNotFoundException;
+    Database find(Long id) throws DatabaseNotFoundException;
 }

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.IOException;
 
-@ResponseStatus(code = HttpStatus.BAD_REQUEST)
+@ResponseStatus(code = HttpStatus.CONFLICT)
 public class ImageNotSupportedException extends Exception {
 
     public ImageNotSupportedException(String msg) {

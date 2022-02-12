@@ -12,23 +12,20 @@ spring:
       ddl-auto: validate
     open-in-view: false
   application:
-    name: fda-table-service
-  rabbitmq:
-    host: localhost
-    username: fda
-    password: fda
+    name: fda-query-service
   cloud:
     loadbalancer.ribbon.enabled: false
-server.port: 9094
+server.port: 9093
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
     root: warn
     at.tuwien.: debug
+    at.tuwien.service.QueryService: trace
+    at.tuwien.config.: trace
 eureka:
-  instance.hostname: fda-table-service
+  instance.hostname: fda-query-service
   client.serviceUrl.defaultZone: http://localhost:9090/eureka/
 fda:
-  ready.path: ./readyalhost:9090/eureka/
   gateway.endpoint: http://localhost:9095
-  elastic.endpoint: fda-search-service:9200
+  ready.path: ./ready

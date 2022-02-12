@@ -3,6 +3,7 @@ package at.tuwien.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -16,7 +17,7 @@ import java.util.Collections;
 public class SwaggerConfig {
 
     @Bean
-    public Docket tableApi() {
+    public Docket queryApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
@@ -25,8 +26,8 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfo("FDA-Table-Service API",
-                "Service API for table service",
+        return new ApiInfo("FDA-Query-Service API",
+                "Service that add Query Services",
                 "1.0",
                 null,
                 new Contact("Ao.Univ.Prof. Andreas Rauber", "http://www.ifs.tuwien.ac.at/~andi/", "rauber@ifs.tuwien.ac.at"),
@@ -38,3 +39,4 @@ public class SwaggerConfig {
     }
 
 }
+

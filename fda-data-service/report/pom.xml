@@ -4,17 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fda-table-service</artifactId>
+        <artifactId>fda-query-service</artifactId>
         <groupId>at.tuwien</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>report</artifactId>
-    <name>fda-table-service-report</name>
-
-    <properties>
-        <jacoco.version>0.8.7</jacoco.version>
-    </properties>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>fda-query-service-report</name>
+    <description>
+        This module is only intended for the pipeline coverage report. See the detailed report in the
+        respective modules
+    </description>
 
     <dependencies>
         <dependency>
@@ -28,6 +29,10 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <jacoco.version>0.8.7</jacoco.version>
+    </properties>
 
     <build>
         <plugins>
