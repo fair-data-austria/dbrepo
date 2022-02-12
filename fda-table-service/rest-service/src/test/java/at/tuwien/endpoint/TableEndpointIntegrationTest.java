@@ -12,7 +12,6 @@ import at.tuwien.repository.jpa.ImageRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Network;
-import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class TableEndpointIntegrationTest extends BaseUnitTest {
-
-    @MockBean
-    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;
@@ -112,7 +108,7 @@ public class TableEndpointIntegrationTest extends BaseUnitTest {
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
-            AmqpException, TableNameExistsException, InterruptedException, ContainerNotFoundException {
+            TableNameExistsException, InterruptedException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_3_NAME)
                 .description(TABLE_3_DESCRIPTION)

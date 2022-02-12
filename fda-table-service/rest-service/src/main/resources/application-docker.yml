@@ -13,10 +13,6 @@ spring:
     open-in-view: false
   application:
     name: fda-table-service
-  rabbitmq:
-    host: fda-broker-service
-    username: fda
-    password: fda
   cloud:
     loadbalancer.ribbon.enabled: false
 server.port: 9094

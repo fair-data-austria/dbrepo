@@ -3,7 +3,6 @@ package at.tuwien.seeder.impl;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.seeder.Seeder;
-import at.tuwien.service.MessageQueueService;
 import at.tuwien.service.TableService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +15,11 @@ public class TableSeederImpl extends AbstractSeeder implements Seeder {
 
     private final TableService tableService;
     private final TableRepository tableRepository;
-    private final MessageQueueService messageQueueService;
 
     @Autowired
-    public TableSeederImpl(TableService tableService, TableRepository tableRepository,
-                           MessageQueueService messageQueueService) {
+    public TableSeederImpl(TableService tableService, TableRepository tableRepository) {
         this.tableService = tableService;
         this.tableRepository = tableRepository;
-        this.messageQueueService = messageQueueService;
     }
 
     @SneakyThrows
@@ -39,12 +35,6 @@ public class TableSeederImpl extends AbstractSeeder implements Seeder {
         log.info("Seeded table id {}", table2.getId());
         final Table table3 = tableService.createTable(CONTAINER_1_ID, DATABASE_1_ID, TABLE_3_CREATE_DTO);
         log.info("Seeded table id {}", table3.getId());
-        messageQueueService.create(table1);
-        log.info("Created message queue for table with id {}", table1.getId());
-        messageQueueService.create(table2);
-        log.info("Created message queue for table with id {}", table2.getId());
-        messageQueueService.create(table3);
-        log.info("Created message queue for table with id {}", table3.getId());
     }
 
 }

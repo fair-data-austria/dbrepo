@@ -9,9 +9,7 @@ import at.tuwien.endpoints.TableEndpoint;
 import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
-import at.tuwien.service.MessageQueueService;
 import at.tuwien.service.impl.TableServiceImpl;
-import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,9 +32,6 @@ import static org.mockito.Mockito.*;
 public class TableEndpointUnitTest extends BaseUnitTest {
 
     @MockBean
-    private Channel channel;
-
-    @MockBean
     private ReadyConfig readyConfig;
 
     @MockBean
@@ -48,9 +42,6 @@ public class TableEndpointUnitTest extends BaseUnitTest {
 
     @MockBean
     private DatabaseRepository databaseRepository;
-
-    @MockBean
-    private MessageQueueService messageQueueService;
 
     @Autowired
     private TableEndpoint tableEndpoint;
@@ -73,7 +64,7 @@ public class TableEndpointUnitTest extends BaseUnitTest {
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
-            AmqpException, IOException, TableNameExistsException, ContainerNotFoundException {
+            TableNameExistsException, ContainerNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_1_NAME)
                 .description(TABLE_1_DESCRIPTION)
@@ -85,9 +76,6 @@ public class TableEndpointUnitTest extends BaseUnitTest {
                 .thenReturn(Optional.of(TABLE_1));
         when(tableService.findById(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID))
                 .thenReturn(TABLE_1);
-        doNothing()
-                .when(messageQueueService)
-                .create(TABLE_1);
 
         /* test */
         final ResponseEntity<TableBriefDto> response = tableEndpoint.create(CONTAINER_1_ID, DATABASE_1_ID, request);

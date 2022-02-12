@@ -7,7 +7,6 @@ import at.tuwien.exception.*;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.impl.TableServiceImpl;
-import com.rabbitmq.client.Channel;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +25,6 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class TableServiceUnitTest extends BaseUnitTest {
-
-    @MockBean
-    private Channel channel;
 
     @MockBean
     private ReadyConfig readyConfig;

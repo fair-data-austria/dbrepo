@@ -95,11 +95,6 @@
             <artifactId>mariadb-java-client</artifactId>
             <version>${mariadb.version}</version>
         </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.version}</version>
-        </dependency>
         <!-- CSV -->
         <dependency>
             <groupId>net.sf.supercsv</groupId>
@@ -121,12 +116,6 @@
             <artifactId>jnanoid</artifactId>
             <scope>test</scope>
             <version>${random-utils.version}</version>
-        </dependency>
-        <!-- AMPQ -->
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>${rabbit-amqp-client.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>

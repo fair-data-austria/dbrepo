@@ -4,10 +4,7 @@ import at.tuwien.api.database.table.*;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
-import at.tuwien.service.MessageQueueService;
 import at.tuwien.service.TableService;
-import at.tuwien.service.impl.RabbitMqService;
-import at.tuwien.service.impl.TableServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -31,13 +28,11 @@ import java.util.stream.Collectors;
 public class TableEndpoint {
 
     private final TableService tableService;
-    private final MessageQueueService amqpService;
     private final TableMapper tableMapper;
 
     @Autowired
-    public TableEndpoint(TableService tableService, MessageQueueService amqpService, TableMapper tableMapper) {
+    public TableEndpoint(TableService tableService, TableMapper tableMapper) {
         this.tableService = tableService;
-        this.amqpService = amqpService;
         this.tableMapper = tableMapper;
     }
 
@@ -73,10 +68,9 @@ public class TableEndpoint {
                                                 @NotNull @PathVariable("databaseId") Long databaseId,
                                                 @NotNull @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException,
-            ArbitraryPrimaryKeysException, TableMalformedException, AmqpException, TableNameExistsException,
+            ArbitraryPrimaryKeysException, TableMalformedException, TableNameExistsException,
             ContainerNotFoundException {
         final Table table = tableService.createTable(id, databaseId, createDto);
-        amqpService.create(table);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tableMapper.tableToTableBriefDto(table));
     }

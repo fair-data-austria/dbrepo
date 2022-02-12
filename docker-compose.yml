@@ -2,7 +2,6 @@ version: "3.6"
 
 volumes:
   fda-metadata-db-data:
-  fda-broker-service-data:
 
 networks:
   fda-public:

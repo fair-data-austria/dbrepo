@@ -1,0 +1,34 @@
+spring:
+  main.banner-mode: off
+  datasource:
+    url: jdbc:postgresql://fda-metadata-db:5432/fda
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  application:
+    name: fda-table-service
+  rabbitmq:
+    host: fda-broker-service
+    username: fda
+    password: fda
+  cloud:
+    loadbalancer.ribbon.enabled: false
+server.port: 9094
+logging:
+  pattern.console: "%d %highlight(%-5level) %msg%n"
+  level:
+    root: warn
+    at.tuwien.: debug
+eureka:
+  instance.hostname: fda-table-service
+  client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
+fda:
+  ready.path: /ready
+  gateway.endpoint: http://fda-gateway-service:9095
+  elastic.endpoint: fda-search-service:9200
