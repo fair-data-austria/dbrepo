@@ -346,11 +346,13 @@ services:
     logging:
       driver: json-file
 
-  fda-taskmanager-service:
+# TODO this needs to be started by the container service for each live-table
+  fda-data-stream-service:
     image: fda-taskmanager-service
     restart: on-failure
-    container_name: fda-taskmanager-service
-    hostname: fda-taskmanager-service
+    container_name: fda-data-stream-service
+    hostname: fda-data-stream-service
+    build: ./fda-data-stream-service
     networks:
       fda-public:
     expose:
