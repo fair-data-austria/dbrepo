@@ -1,4 +1,4 @@
-package at.tuwien.repository;
+package at.tuwien.repository.jpa;
 
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;

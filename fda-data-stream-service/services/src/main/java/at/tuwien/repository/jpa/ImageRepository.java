@@ -1,4 +1,4 @@
-package at.tuwien.repository;
+package at.tuwien.repository.jpa;
 
 import at.tuwien.entities.container.image.ContainerImage;
 import org.springframework.data.jpa.repository.JpaRepository;

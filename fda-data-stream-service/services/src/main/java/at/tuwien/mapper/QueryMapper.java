@@ -2,12 +2,17 @@ package at.tuwien.mapper;
 
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
+import at.tuwien.exception.StreamException;
 import at.tuwien.exception.TableMalformedException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
 import org.mapstruct.Mapper;
 import org.mariadb.jdbc.MariaDbBlob;
 import org.springframework.transaction.annotation.Transactional;
+import scala.Tuple1;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,6 +26,8 @@ import java.util.stream.Collectors;
 public interface QueryMapper {
 
     org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QueryMapper.class);
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     default String tableToRawInsertQuery(Table table)
             throws TableMalformedException {
@@ -48,6 +55,16 @@ public interface QueryMapper {
         /* debug */
         log.trace("raw insert query: [{}]", query);
         return query.toString();
+    }
+
+    default Tuple1<Object[]> stringToTuple(String data) throws StreamException {
+        try {
+            return new Tuple1<>(objectMapper.readValue(data.getBytes(StandardCharsets.UTF_8),
+                    Object[].class));
+        } catch (IOException e) {
+            log.error("Failed to map input to tuple");
+            throw new StreamException("Failed to map input to tuple", e);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -93,9 +110,9 @@ public interface QueryMapper {
         }
     }
 
-    default JdbcStatementBuilder<Object> tableToJdbcStatementBuilder(Table table) {
+    default JdbcStatementBuilder<Tuple1<Object[]>> tableToJdbcStatementBuilder(Table table) {
         final int[] idx = new int[]{0};
-        final JdbcStatementBuilder<Object> builder = (statement, entity) -> table.getColumns()
+        final JdbcStatementBuilder<Tuple1<Object[]>> builder = (statement, entity) -> table.getColumns()
                 .forEach(column -> {
                     try {
                         dataColumnToObject(statement, column, entity, idx[0]++);

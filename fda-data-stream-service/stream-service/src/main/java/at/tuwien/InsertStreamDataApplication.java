@@ -1,8 +1,25 @@
 package at.tuwien;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import springfox.documentation.oas.annotations.EnableOpenApi;
+
+@EnableOpenApi
+@EnableJpaAuditing
+@SpringBootApplication
+@EnableTransactionManagement
+@EntityScan(basePackages = "at.tuwien.entities")
+@EnableElasticsearchRepositories(basePackages = {"at.tuwien.repository.elastic"})
+@EnableJpaRepositories(basePackages = {"at.tuwien.repository.jpa"})
 public class InsertStreamDataApplication {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        SpringApplication.run(InsertStreamDataApplication.class, args);
     }
 
 }

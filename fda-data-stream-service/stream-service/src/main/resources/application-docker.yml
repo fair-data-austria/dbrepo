@@ -1,0 +1,31 @@
+spring:
+  main:
+    banner-mode: off
+    web-application-type: none
+  datasource:
+    url: jdbc:postgresql://fda-metadata-db:5432/fda
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  application:
+    name: fda-data-stream-service
+  cloud:
+    loadbalancer.ribbon.enabled: false
+logging:
+  pattern.console: "%d %highlight(%-5level) %msg%n"
+  level:
+    root: warn
+    at.tuwien.: debug
+eureka:
+  instance.hostname: fda-data-stream-service
+  client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
+fda:
+  stream.database_id: "${DATABASE_ID}"
+  stream.table_id: "${TABLE_ID}"
+  ready.path: /ready

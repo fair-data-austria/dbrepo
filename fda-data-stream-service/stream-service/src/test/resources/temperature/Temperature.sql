@@ -1,0 +1,5 @@
+CREATE TABLE temperature
+(
+    id   INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    temp DOUBLE  NOT NULL
+)
