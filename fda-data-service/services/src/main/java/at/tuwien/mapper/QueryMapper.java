@@ -4,7 +4,6 @@ import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.*;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.TableMalformedException;
-import at.tuwien.querystore.Query;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ImageNotSupportedException;
@@ -35,10 +34,6 @@ public interface QueryMapper {
     ExecuteStatementDto queryDtoToExecuteStatementDto(QueryDto data);
 
     ExecuteStatementDto saveStatementDtoToExecuteStatementDto(SaveStatementDto data);
-
-    QueryDto queryToQueryDto(Query data);
-
-    List<QueryDto> queryListToQueryDtoList(List<Query> data);
 
     @Named("internalMapping")
     default String nameToInternalName(String data) {

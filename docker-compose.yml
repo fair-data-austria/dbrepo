@@ -2,6 +2,7 @@ version: "3.6"
 
 volumes:
   fda-metadata-db-data:
+  fda-streaming-service-data:
 
 networks:
   fda-public:
@@ -27,7 +28,6 @@ services:
     image: fda-metadata-db
     networks:
       fda-public:
-        ipv4_address: 172.29.0.5
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
     ports:
@@ -48,7 +48,6 @@ services:
     image: fda-discovery-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.4
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -68,7 +67,6 @@ services:
     image: fda-gateway-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.2
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -86,7 +84,6 @@ services:
     networks:
       fda-userdb:
       fda-public:
-        ipv4_address: 172.29.0.9
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -108,7 +105,6 @@ services:
     image: fda-container-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.8
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -130,7 +126,6 @@ services:
     build: fda-authentication-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.14
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -150,7 +145,6 @@ services:
     image: fda-query-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.12
       fda-userdb:
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -173,7 +167,6 @@ services:
     image: fda-table-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.11
       fda-userdb:
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -190,6 +183,26 @@ services:
     logging:
       driver: json-file
 
+  fda-data-service:
+    restart: on-failure
+    container_name: fda-data-service
+    hostname: fda-data-service
+    build: ./fda-data-service
+    image: fda-data-service
+    networks:
+      fda-public:
+      fda-userdb:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TZ: Europe/Vienna
+    ports:
+      - "9098:9098"
+    depends_on:
+      fda-database-service:
+        condition: service_healthy
+    logging:
+      driver: json-file
+
   fda-identifier-service:
     restart: on-failure
     container_name: fda-identifier-service
@@ -198,7 +211,6 @@ services:
     image: fda-identifier-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.13
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -216,7 +228,6 @@ services:
     image: fda-analyse-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.10
       fda-userdb:
     command: sh -c "/wait && flask run" # docker-compose should not test the implementation
     environment:
@@ -240,7 +251,6 @@ services:
     image: fda-units-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.7
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
       TZ: Europe/Vienna
@@ -255,28 +265,6 @@ services:
     logging:
       driver: json-file
 
-  fda-broker-service:
-    restart: on-failure
-    container_name: fda-broker-service
-    hostname: fda-broker-service
-    build: ./fda-broker-service
-    image: fda-broker-service
-    environment:
-      TZ: Europe/Vienna
-    networks:
-      fda-public:
-        ipv4_address: 172.29.0.3
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    depends_on:
-      fda-discovery-service:
-        condition: service_healthy
-    volumes:
-      - fda-broker-service-data:/var/lib/rabbitmq/
-    logging:
-      driver: json-file
-
   fda-search-service:
     restart: always
     container_name: fda-search-service
@@ -285,7 +273,6 @@ services:
     command: [ "elasticsearch" ]
     networks:
       fda-public:
-        ipv4_address: 172.29.0.6
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -307,7 +294,6 @@ services:
     image: fda-ui
     networks:
       fda-public:
-        ipv4_address: 172.29.0.15
     ports:
       - "3000:3000"
     volumes:
@@ -320,5 +306,62 @@ services:
       HOST: 0.0.0.0
       API: http://fda-gateway-service:9095
       TZ: Europe/Vienna
+    logging:
+      driver: json-file
+
+  fda-streaming-service:
+    image: fda-streaming-service
+    restart: on-failure
+    container_name: fda-streaming-service
+    hostname: fda-streaming-service
+    build: ./fda-streaming-service
+    networks:
+      fda-public:
+    ports:
+      - "2181:2181"
+    environment:
+      TZ: Europe/Vienna
+    logging:
+      driver: json-file
+
+  fda-jobmanager-service:
+    image: fda-jobmanager-service
+    restart: on-failure
+    container_name: fda-jobmanager-service
+    hostname: fda-jobmanager-service
+    build: ./fda-jobmanager-service
+    networks:
+      fda-public:
+    expose:
+      - "6123"
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: fda-jobmanager-service
+      TZ: Europe/Vienna
+    depends_on:
+      fda-streaming-service:
+        condition: service_started
+    logging:
+      driver: json-file
+
+  fda-taskmanager-service:
+    image: fda-taskmanager-service
+    restart: on-failure
+    container_name: fda-taskmanager-service
+    hostname: fda-taskmanager-service
+    networks:
+      fda-public:
+    expose:
+      - "6121"
+      - "6122"
+    command: taskmanager
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: fda-jobmanager-service
+      TZ: Europe/Vienna
+    depends_on:
+      fda-jobmanager-service:
+        condition: service_started
     logging:
       driver: json-file

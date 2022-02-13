@@ -12,10 +12,10 @@ spring:
       ddl-auto: validate
     open-in-view: false
   application:
-    name: fda-query-service
+    name: fda-data-service
   cloud:
     loadbalancer.ribbon.enabled: false
-server.port: 9093
+server.port: 9098
 logging:
   pattern.console: "%d %highlight(%-5level) %msg%n"
   level:
@@ -24,7 +24,7 @@ logging:
     at.tuwien.service.QueryService: trace
     at.tuwien.config.: debug
 eureka:
-  instance.hostname: fda-query-service
+  instance.hostname: fda-data-service
   client.serviceUrl.defaultZone: http://fda-discovery-service:9090/eureka/
 fda:
   gateway.endpoint: http://fda-gateway-service:9095

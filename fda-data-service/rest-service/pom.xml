@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fda-query-service</artifactId>
+        <artifactId>fda-data-service</artifactId>
         <groupId>at.tuwien</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>rest-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-query-service-rest</name>
+    <name>fda-data-service-rest</name>
 
     <dependencies>
         <dependency>

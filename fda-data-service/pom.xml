@@ -9,13 +9,11 @@
     </parent>
 
     <groupId>at.tuwien</groupId>
-    <artifactId>fda-query-service</artifactId>
+    <artifactId>fda-data-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fda-query-service</name>
     <description>
-        The query service provides an interface to insert data into the tables created by the table service. It
-        also allows for view-only (possibly paginated and versioned) query execution to the raw data and consumes
-        messages in the message queue from the Broker Service.
+        The data service is responsible for adding data to the researcher databases
     </description>
     <url>https://dbrepo.ossdip.at</url>
     <developers>
@@ -240,7 +238,6 @@
                         <exclude>at/tuwien/handlers/**/*</exclude>
                         <exclude>at/tuwien/exception/**/*</exclude>
                         <exclude>at/tuwien/config/**/*</exclude>
-                        <exclude>**/RabbitMqServiceImpl.class</exclude>
                         <exclude>**/ServiceSeeder.class</exclude>
                         <exclude>**/FdaQueryServiceApplication.class</exclude>
                     </excludes>

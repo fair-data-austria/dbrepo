@@ -7,7 +7,7 @@ import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.ReadyConfig;
 import at.tuwien.exception.*;
 import at.tuwien.service.CommaValueService;
-import at.tuwien.service.impl.QueryServiceImpl;
+import at.tuwien.service.QueryService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +35,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
     private TableDataEndpoint dataEndpoint;
 
     @MockBean
-    private QueryServiceImpl queryService;
+    private QueryService queryService;
 
     @MockBean
     private CommaValueService commaValueService;

@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>fda-query-service</artifactId>
+        <artifactId>fda-data-service</artifactId>
         <groupId>at.tuwien</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>report</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fda-query-service-report</name>
+    <name>fda-data-service-report</name>
     <description>
         This module is only intended for the pipeline coverage report. See the detailed report in the
         respective modules

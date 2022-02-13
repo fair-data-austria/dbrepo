@@ -26,8 +26,8 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfo("FDA-Query-Service API",
-                "Service that add Query Services",
+        return new ApiInfo("FDA-Data-Service API",
+                "Service that adds Data",
                 "1.0",
                 null,
                 new Contact("Ao.Univ.Prof. Andreas Rauber", "http://www.ifs.tuwien.ac.at/~andi/", "rauber@ifs.tuwien.ac.at"),
