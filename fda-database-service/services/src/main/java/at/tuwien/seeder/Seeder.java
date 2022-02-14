@@ -5,6 +5,5 @@ import org.springframework.context.event.EventListener;
 
 public interface Seeder {
 
-    @EventListener(ApplicationReadyEvent.class)
     void seed();
 }

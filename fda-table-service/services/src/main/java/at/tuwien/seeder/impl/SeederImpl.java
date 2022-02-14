@@ -20,7 +20,6 @@ public class SeederImpl implements Seeder {
     }
 
     @Override
-    @EventListener(ApplicationReadyEvent.class)
     public void seed() {
         databaseSeederImpl.seed();
     }
