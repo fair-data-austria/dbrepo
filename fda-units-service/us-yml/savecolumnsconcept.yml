@@ -1,0 +1,31 @@
+summary: "Save concepts to MDB"
+description: "This is a simple API for saving units and concepts."
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "body"
+  description: "to-do description"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      uri:
+        type: "string"
+        example: "http://www.ontology-of-units-of-measure.org/resource/om-2/metre"
+      cid:
+        type: "integer"
+        example: "1"
+      tid: 
+        type: "integer"
+        example: "1"
+      cdbid:
+        type: "integer"
+        example: "1"
+responses:
+  200: 
+    description: "OK"
+  405:
+    description: "Invalid input"
