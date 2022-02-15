@@ -67,7 +67,7 @@ export default {
       createDbDialog: false,
       databases: [],
       items: [
-        { text: 'Databases', href: '/container' }
+        { text: 'Databases', to: '/container', activeClass: '' }
       ],
       loading: true,
       error: false,
