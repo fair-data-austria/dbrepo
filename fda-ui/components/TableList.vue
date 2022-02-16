@@ -101,6 +101,7 @@
                 <thead>
                   <th>Column Name</th>
                   <th>Type</th>
+                  <th>Unit</th>
                   <th>Primary Key</th>
                   <th>Unique</th>
                   <th>NULL Allowed</th>
@@ -112,6 +113,9 @@
                     </td>
                     <td>
                       {{ col.column_type }}
+                    </td>
+                    <td>
+                      <DialogsColumnUnit :column="col" />
                     </td>
                     <td>
                       <v-simple-checkbox v-model="col.is_primary_key" disabled aria-readonly="true" />

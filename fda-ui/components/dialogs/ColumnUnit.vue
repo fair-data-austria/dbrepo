@@ -3,11 +3,17 @@
     v-model="dialog"
     max-width="600px">
     <template v-slot:activator="{ on, attrs }">
+      <i v-if="!name">unspecified</i>
+      <span v-else>{{ name }}</span>
       <v-btn
+        class="ml-2"
+        icon
         small
         v-bind="attrs"
         v-on="on">
-        Unit
+        <v-icon>
+          mdi-pencil-outline
+        </v-icon>
       </v-btn>
     </template>
     <v-card>
@@ -15,16 +21,57 @@
         <span class="text-h5">Column Unit</span>
       </v-card-title>
       <v-card-text>
-        <div>
-          <i>
-            Autocomplete not working yet
-          </i>
-        </div>
         <v-autocomplete
+          v-model="model"
+          solo
+          clearable
+          auto-select-first
+          :cache-items="false"
+          autofocus
+          :search-input.sync="search"
+          :items="items"
+          hide-no-data
           hide-details
-          dense
-          clearable />
+          dense>
+          <template
+            v-slot:item="{ item, attrs, on }">
+            <v-list-item v-bind="attrs" v-on="on">
+              <v-list-item-content>
+                <v-list-item-title>{{ item.value.name }}</v-list-item-title>
+                <v-list-item-subtitle>{{ item.value.comment }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
+        </v-autocomplete>
       </v-card-text>
+      <v-expand-transition>
+        <v-list v-if="model" class="lighten-3" subheader three-line>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Name</v-list-item-title>
+              <v-list-item-subtitle>{{ model.name }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Symbol</v-list-item-title>
+              <v-list-item-subtitle>{{ model.symbol }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Comment</v-list-item-title>
+              <v-list-item-subtitle>{{ model.comment }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item v-if="uri" three-line>
+            <v-list-item-content>
+              <v-list-item-title>URI</v-list-item-title>
+              <v-list-item-subtitle>{{ uri }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-expand-transition>
       <v-card-actions>
         <v-spacer />
         <v-btn
@@ -54,42 +101,54 @@ export default {
       dialog: false,
       isLoading: false,
       model: null,
+      uri: null,
       search: null,
       entries: []
     }
   },
   computed: {
+    name () {
+      // TODO
+      return null
+    },
     items () {
-      return this.entries.map((entry) => {
-        const Description = entry.Description.length > this.descriptionLimit
-          ? entry.Description.slice(0, this.descriptionLimit) + '...'
-          : entry.Description
-
-        return Object.assign({}, entry, { Description })
+      return this.entries && this.entries.map((entry) => {
+        return {
+          // text: `${entry.name} [${entry.symbol}], ${entry.comment}`,
+          text: entry.name,
+          value: entry
+        }
       })
     }
   },
 
   watch: {
-    search (val) {
-      // Items have already been loaded
-      if (this.items.length > 0) { return }
-
-      // Items have already been requested
+    async model (val) {
+      this.uri = null
+      if (!val) { return }
+      try {
+        const res = await this.$axios.get(`/api/units/uri/${val.name}`)
+        this.uri = res.data.URI
+      } catch (err) {
+        this.$toast.error(`Could not load URI of unit "${val.name}"`)
+        console.log(err)
+      }
+    },
+    async search (val) {
       if (this.isLoading) { return }
-
+      if (!val || !val.length) { return }
       this.isLoading = true
-
-      // Lazily load input items
-      this.$axios.get('/api/units/suggest')
-        .then((res) => {
-          debugger
-          this.entries = res
+      try {
+        const res = await this.$axios.post('/api/units/suggest', {
+          offset: 0,
+          ustring: this.search
         })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => (this.isLoading = false))
+        this.entries = res.data
+      } catch (err) {
+        this.$toast.error('Could not load unit suggestions.')
+        console.log(err)
+      }
+      this.isLoading = false
     }
   },
   mounted () {
