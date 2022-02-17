@@ -36,7 +36,7 @@ def insert_mdb_columns_concepts(cdbid,tid, cid, uri):
         cursor = conn.cursor()
 
         # Insert tblnames into table mdb_TABLES
-        cursor.execute("INSERT INTO mdb_columns_concepts (cDBID,tID, cID,URI,created) VALUES (%s,%s,%s,%s,current_timestamp) ON CONFLICT (cDBID, tID, cID, URI) DO NOTHING", (cdbid,tid,cid,uri))
+        cursor.execute("INSERT INTO mdb_columns_concepts (cDBID,tID, cID,URI,created) VALUES (%s,%s,%s,%s,current_timestamp) ON CONFLICT (cDBID, tID, cID) DO UPDATE SET uri = EXCLUDED.uri", (cdbid,tid,cid,uri))
         r = cursor.rowcount
         conn.commit()
         conn.close()
