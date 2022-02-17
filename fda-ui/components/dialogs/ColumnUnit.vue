@@ -3,8 +3,6 @@
     v-model="dialog"
     max-width="600px">
     <template v-slot:activator="{ on, attrs }">
-      <i v-if="!name">unspecified</i>
-      <span v-else>{{ name }}</span>
       <v-btn
         class="ml-2"
         icon
@@ -169,7 +167,6 @@ export default {
           console.log(error)
         }
       }
-      console.log(this.$route.params.database_id, this.tableId, this.column)
       try {
         await this.$axios.post('/api/units/savecolumnsconcept', {
           cdbid: Number(this.$route.params.database_id),
@@ -180,7 +177,7 @@ export default {
         this.dialog = false
         this.saved = true
         this.$nextTick(() => {
-          this.$emit('save')
+          this.$emit('save', this.tableId)
         })
       } catch (err) {
         this.$toast.error('Could not save column unit.')

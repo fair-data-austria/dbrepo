@@ -6,8 +6,8 @@
         (no tables)
       </v-card-title>
     </v-card>
-    <v-expansion-panels v-if="!loading && tables.length > 0" accordion>
-      <v-expansion-panel v-for="(item,i) in tables" :key="i" @click="details(item)">
+    <v-expansion-panels v-if="!loading && tables.length > 0" v-model="panel" accordion>
+      <v-expansion-panel v-for="(item,i) in tables" :key="i" @click="details(item.id, true)">
         <v-expansion-panel-header>
           {{ item.name }}
         </v-expansion-panel-header>
@@ -115,7 +115,7 @@
                       {{ col.column_type }}
                     </td>
                     <td>
-                      <DialogsColumnUnit :column="col" :table-id="tableDetails.id" />
+                      <DialogsColumnUnit :column="col" :table-id="tableDetails.id" @save="details" />
                     </td>
                     <td>
                       <v-simple-checkbox v-model="col.is_primary_key" disabled aria-readonly="true" />
@@ -163,6 +163,7 @@ export default {
     return {
       loading: false,
       tables: [],
+      panel: null,
       tableDetails: {
         id: null,
         internal_name: null,
@@ -178,12 +179,13 @@ export default {
     this.refresh()
   },
   methods: {
-    async details (table) {
-      if (this.tableDetails.id === table.id) {
+    async details (tableId, clicked = false) {
+      // don't fetch details when we click-close an open accordion
+      if (clicked && this.tables[this.panel] && this.tables[this.panel].id === tableId) {
         return
       }
       try {
-        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${table.id}`)
+        const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${tableId}`)
         console.debug('table', res.data)
         this.tableDetails = res.data
       } catch (err) {
@@ -191,14 +193,17 @@ export default {
         this.$toast.error('Could not get table details.')
       }
     },
-    async refresh () {
-      // XXX same as in QueryBuilder
+    /**
+     * if tableId is given, open the table after refresh
+     */
+    async refresh (tableId) {
       let res
       try {
         this.loading = true
         res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table`)
         this.tables = res.data
         this.loading = false
+        if (tableId) { this.openPanelByTableId(tableId) }
       } catch (err) {
         this.$toast.error('Could not list table.')
       }
@@ -217,6 +222,12 @@ export default {
     showDeleteTableDialog (id) {
       this.deleteTableId = id
       this.dialogDelete = true
+    },
+    /**
+     * open up the accordion with the table that has been updated (by the ColumnUnit dialog)
+     */
+    openPanelByTableId (id) {
+      this.panel = this.tables.findIndex(t => t.id === id)
     }
   }
 }
