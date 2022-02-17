@@ -83,7 +83,8 @@
         <v-btn
           color="blue darken-1"
           text
-          @click="dialog = false">
+          :disabled="!model || !uri"
+          @click="save">
           Save
         </v-btn>
       </v-card-actions>
@@ -94,12 +95,14 @@
 <script>
 export default {
   props: {
-    column: { type: Object, default: () => ({}) }
+    column: { type: Object, default: () => ({}) },
+    tableId: { type: Number, default: () => -1 }
   },
   data () {
     return {
       dialog: false,
       isLoading: false,
+      saved: false,
       model: null,
       uri: null,
       search: null,
@@ -108,8 +111,7 @@ export default {
   },
   computed: {
     name () {
-      // TODO
-      return null
+      return this.saved && this.model && this.model.name
     },
     items () {
       return this.entries && this.entries.map((entry) => {
@@ -121,10 +123,10 @@ export default {
       })
     }
   },
-
   watch: {
     async model (val) {
       this.uri = null
+      this.saved = false
       if (!val) { return }
       try {
         const res = await this.$axios.get(`/api/units/uri/${val.name}`)
@@ -154,6 +156,37 @@ export default {
   mounted () {
   },
   methods: {
+    async save () {
+      try {
+        await this.$axios.post('/api/units/saveconcept', {
+          name: this.model.name,
+          uri: this.uri
+        })
+      } catch (error) {
+        const { status } = error.response
+        if (status !== 201 && status !== 400) {
+          this.$toast.error('Could not save concept.')
+          console.log(error)
+        }
+      }
+      console.log(this.$route.params.database_id, this.tableId, this.column)
+      try {
+        await this.$axios.post('/api/units/savecolumnsconcept', {
+          cdbid: Number(this.$route.params.database_id),
+          cid: this.column.id,
+          tid: this.tableId,
+          uri: this.uri
+        })
+        this.dialog = false
+        this.saved = true
+        this.$nextTick(() => {
+          this.$emit('save')
+        })
+      } catch (err) {
+        this.$toast.error('Could not save column unit.')
+        console.log(err)
+      }
+    }
   }
 }
 </script>

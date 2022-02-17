@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-progress-linear v-if="loading" :indeterminate="!error" />
+    <v-progress-linear v-if="loading" />
     <v-card v-if="!loading && tables.length === 0" flat>
       <v-card-title>
         (no tables)
@@ -115,7 +115,7 @@
                       {{ col.column_type }}
                     </td>
                     <td>
-                      <DialogsColumnUnit :column="col" />
+                      <DialogsColumnUnit :column="col" :table-id="tableDetails.id" />
                     </td>
                     <td>
                       <v-simple-checkbox v-model="col.is_primary_key" disabled aria-readonly="true" />
