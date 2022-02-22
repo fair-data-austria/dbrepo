@@ -67,6 +67,12 @@ public class TableColumn implements Comparable<TableColumn> {
     @Column(nullable = false)
     private String internalName;
 
+    @Column(name = "decimal_digits_before")
+    private Long decimalDigitsBefore;
+
+    @Column(name = "decimal_digits_after")
+    private Long decimalDigitsAfter;
+
     @Column(nullable = false)
     private Boolean isPrimaryKey = false;
 

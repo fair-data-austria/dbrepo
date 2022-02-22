@@ -153,6 +153,26 @@
                   required
                   label="Data Type" />
               </v-col>
+              <v-col cols="auto" class="pl-10" :hidden="c.type !== 'DECIMAL'">
+                <v-text-field
+                  v-model="c.decimal_digits_before"
+                  label="Digits before decimal"
+                  type="number"
+                  value="10"
+                  required
+                  hint="e.g. 4 for 1111.11"
+                  :rules="[v => !!v || $t('Required')]" />
+              </v-col>
+              <v-col cols="auto" class="pl-10" :hidden="c.type !== 'DECIMAL'">
+                <v-text-field
+                  v-model="c.decimal_digits_after"
+                  label="Digits after decimal"
+                  type="number"
+                  value="2"
+                  required
+                  hint="e.g. 2 for 1111.11"
+                  :rules="[v => !!v || $t('Required')]" />
+              </v-col>
               <v-col cols="2" :hidden="c.type !== 'ENUM'">
                 <v-select
                   v-model="c.enum_values"
@@ -264,6 +284,7 @@ export default {
         { value: 'ENUM', text: 'Enumeration' },
         { value: 'BOOLEAN', text: 'Boolean' },
         { value: 'NUMBER', text: 'Number' },
+        { value: 'DECIMAL', text: 'Decimal' },
         { value: 'BLOB', text: 'Binary Large Object' },
         { value: 'DATE', text: 'Date' },
         { value: 'STRING', text: 'Character Varying' },

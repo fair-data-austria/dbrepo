@@ -119,7 +119,7 @@ public interface TableMapper {
             case NUMBER:
                 return "BIGINT";
             case DECIMAL:
-                return "DOUBLE";
+                return "DECIMAL(" + data.getDecimalDigitsBefore() + "," + data.getDecimalDigitsAfter() + ")";
             case BOOLEAN:
                 return "BOOLEAN";
             case ENUM:

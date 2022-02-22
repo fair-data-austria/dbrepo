@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -35,6 +36,14 @@ public class ColumnCreateDto {
 
     @ApiModelProperty(name = "date format id", example = "1")
     private Long dfid;
+
+    @JsonProperty("decimal_digits_before")
+    @ApiModelProperty(name = "decimal digits before point", example = "3")
+    private Long decimalDigitsBefore;
+
+    @JsonProperty("decimal_digits_after")
+    @ApiModelProperty(name = "decimal digits after point", example = "0")
+    private Long decimalDigitsAfter;
 
     @NotNull
     @ApiModelProperty(name = "unique", example = "true")
