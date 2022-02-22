@@ -40,7 +40,8 @@
         :options.sync="options"
         :server-items-length="total"
         :footer-props="footerProps"
-        class="elevation-1" />
+        class="elevation-1"
+        @update:page="paginate" />
     </v-card>
     <div class="mt-3">
       <v-chip
@@ -155,13 +156,17 @@ export default {
         }
         const res = await this.$axios.get(url)
         console.debug('version', this.datetime, 'data', res.data)
-        this.total = res.headers['fda-count']
+        this.total = Number.parseFloat(res.headers['fda-count'])
         this.rows = res.data.result
       } catch (err) {
         console.error('failed to load data', err)
         this.$toast.error('Could not load table data.')
       }
       this.loadingData = false
+    },
+    paginate (page) {
+      this.options.page = page
+      this.loadData()
     },
     columnAddition (column) {
       if (column.is_primary_key) {
