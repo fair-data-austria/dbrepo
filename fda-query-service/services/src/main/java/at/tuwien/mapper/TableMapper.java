@@ -8,7 +8,6 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring")
 public interface TableMapper {
 
-    @Mappings({})
     TableDto tableToTableDto(Table data);
 
 }

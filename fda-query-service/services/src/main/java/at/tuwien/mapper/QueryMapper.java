@@ -201,16 +201,33 @@ public interface QueryMapper {
         return query.toString();
     }
 
+    /**
+     * Map the result list with table.
+     * <p>
+     * We have a special case in MariaDB where when the result is only (id=1),(id=2),... the {@link Iterator#next()}
+     * function only returns a single entity instead of a list.
+     *
+     * @param result The result list.
+     * @param table  The table.
+     * @return Result of the query execution.
+     * @throws DateTimeException
+     */
     default QueryResultDto queryTableToQueryResultDto(List<?> result, Table table) throws DateTimeException {
         final Iterator<?> iterator = result.iterator();
         final List<Map<String, Object>> queryResult = new LinkedList<>();
         while (iterator.hasNext()) {
             /* map the result set to the columns through the stored metadata in the metadata database */
             int[] idx = new int[]{0};
-            final Object[] data = (Object[]) iterator.next();
+            final Object[] data;
+            if (table.getColumns().size() == 1 && table.getColumns().get(0).getIsPrimaryKey()) {
+                /* special MariaDB case */
+                data = new Object[]{iterator.next()};
+            } else {
+                data = (Object[]) iterator.next();
+            }
             final Map<String, Object> map = new HashMap<>();
             table.getColumns()
-                    .forEach(column -> map.put(column.getName(), dataColumnToObject(data[idx[0]++], column)));
+                    .forEach(column -> map.put(column.getInternalName(), dataColumnToObject(data[idx[0]++], column)));
             queryResult.add(map);
         }
         log.info("Selected {} records from table id {}", queryResult.size(), table.getId());

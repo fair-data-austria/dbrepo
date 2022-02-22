@@ -132,13 +132,15 @@ export default {
         const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`)
         this.table = res.data
         console.debug('headers', res.data.columns)
-        this.headers = res.data.columns.map((c) => {
+        this.headers = res.data.columns.filter(c => !c.auto_generated)
+        this.headers = this.headers.map((c) => {
           return {
             value: c.internal_name,
             text: this.columnAddition(c) + c.name
           }
         })
       } catch (err) {
+        console.error('Failed to load table details', err)
         this.$toast.error('Could not get table details.')
       }
       this.loading = false
@@ -152,7 +154,7 @@ export default {
           url += `&timestamp=${new Date(this.version).toISOString()}`
         }
         const res = await this.$axios.get(url)
-        console.debug('version', this.datetime, 'table data', res.data)
+        console.debug('version', this.datetime, 'data', res.data)
         this.total = res.headers['fda-count']
         this.rows = res.data.result
       } catch (err) {

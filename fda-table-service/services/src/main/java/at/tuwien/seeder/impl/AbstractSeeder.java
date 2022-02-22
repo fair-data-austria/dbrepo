@@ -29,7 +29,7 @@ public abstract class AbstractSeeder {
     public final static String TABLE_1_TRUE_ELEMENT = null;
     public final static String TABLE_1_NULL_ELEMENT = null;
     public final static Character TABLE_1_SEPERATOR = ',';
-    public final static String TABLE_1_SKIP_LINES = "1";
+    public final static Long TABLE_1_SKIP_LINES = 1L;
     public final static String TABLE_1_DESCRIPTION = "The data table is a variance analysis of the times certain trams and busses should have departed and when they actually departed.";
 
     public final static Long TABLE_2_ID = 2L;
@@ -38,7 +38,7 @@ public abstract class AbstractSeeder {
     public final static String TABLE_2_TRUE_ELEMENT = null;
     public final static String TABLE_2_NULL_ELEMENT = null;
     public final static Character TABLE_2_SEPERATOR = ',';
-    public final static String TABLE_2_SKIP_LINES = "1";
+    public final static Long TABLE_2_SKIP_LINES = 1L;
     public final static String TABLE_2_DESCRIPTION = "Temperature of the server's Ethernet module in degree Celsius";
 
     public final static Long TABLE_3_ID = 3L;
@@ -47,7 +47,7 @@ public abstract class AbstractSeeder {
     public final static String TABLE_3_TRUE_ELEMENT = null;
     public final static String TABLE_3_NULL_ELEMENT = null;
     public final static Character TABLE_3_SEPERATOR = ',';
-    public final static String TABLE_3_SKIP_LINES = "1";
+    public final static Long TABLE_3_SKIP_LINES = 1L;
     public final static String TABLE_3_DESCRIPTION = "Current delays from Vienna public transport gathered via live API";
 
     public final static Long IMAGE_DATE_3_ID = 3L;

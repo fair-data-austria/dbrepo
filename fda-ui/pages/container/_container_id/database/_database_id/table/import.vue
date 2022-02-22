@@ -143,7 +143,7 @@
           <div v-for="(c, idx) in tableCreate.columns" :key="idx">
             <v-row dense class="column pa-2 ml-1 mr-1 mb-2">
               <v-col cols="2">
-                <v-text-field v-model="c.name" disabled required label="Name" />
+                <v-text-field v-model="c.name" required label="Name" />
               </v-col>
               <v-col cols="2">
                 <v-select
@@ -180,7 +180,7 @@
                 <v-checkbox v-model="c.null_allowed" :disabled="c.primary_key" label="Null Allowed" />
               </v-col>
               <v-col cols="auto" class="pl-10">
-                <v-checkbox v-model="c.unique" :hidden="c.primary_key" label="Unique" />
+                <v-checkbox v-model="c.unique" :disabled="c.primary_key" label="Unique" />
               </v-col>
               <v-col cols="auto" class="pl-10">
                 <v-text-field v-model="c.foreign_key" hidden required label="Foreign Key" />
@@ -224,7 +224,7 @@ export default {
     return {
       step: 1,
       validStep1: false,
-      validStep2: false,
+      validStep2: true,
       validStep3: false,
       validStep4: false,
       separators: [
@@ -253,7 +253,7 @@ export default {
         true_element: null,
         null_element: null,
         separator: ',',
-        skip_lines: 0
+        skip_lines: '0'
       },
       loading: false,
       file: null,
