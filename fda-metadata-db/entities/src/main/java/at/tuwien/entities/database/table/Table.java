@@ -2,6 +2,7 @@ package at.tuwien.entities.database.table;
 
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.columns.TableColumn;
+import at.tuwien.entities.user.User;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -41,6 +42,12 @@ public class Table {
     @Id
     @EqualsAndHashCode.Include
     private Long tdbid;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "createdBy", referencedColumnName = "UserID")
+    })
+    private User creator;
 
     @Column(nullable = false, name = "tname")
     private String name;

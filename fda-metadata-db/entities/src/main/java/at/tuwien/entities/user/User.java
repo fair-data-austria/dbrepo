@@ -1,5 +1,8 @@
 package at.tuwien.entities.user;
 
+import at.tuwien.entities.container.Container;
+import at.tuwien.entities.database.Database;
+import at.tuwien.entities.identifier.Identifier;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -58,6 +61,18 @@ public class User {
     @ToString.Exclude
     @Column(nullable = false)
     private String password;
+
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "creator")
+    private List<Container> containers;
+
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "creator")
+    private List<Database> databases;
+
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "creator")
+    private List<Identifier> identifiers;
 
     @ElementCollection(targetClass = RoleType.class)
     @JoinTable(name = "mdb_user_roles", joinColumns = @JoinColumn(name = "uid"))

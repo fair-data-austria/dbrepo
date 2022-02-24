@@ -55,11 +55,11 @@ public abstract class AbstractSeeder {
 
     public final static User USER_3 = User.builder()
             .id(USER_3_ID)
-            .username(USER_2_USERNAME)
-            .firstname(USER_2_FIRSTNAME)
-            .lastname(USER_2_LASTNAME)
-            .email(USER_2_EMAIL)
-            .roles(USER_2_ROLES)
+            .username(USER_3_USERNAME)
+            .firstname(USER_3_FIRSTNAME)
+            .lastname(USER_3_LASTNAME)
+            .email(USER_3_EMAIL)
+            .roles(USER_3_ROLES)
             .build();
 
 }

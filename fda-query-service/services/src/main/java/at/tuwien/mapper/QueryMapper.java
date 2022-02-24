@@ -81,7 +81,6 @@ public interface QueryMapper {
                 .append("` CHARACTER SET utf8 FIELDS TERMINATED BY '")
                 .append(table.getSeparator())
                 .append("'")
-//                .append("' LINES TERMINATED BY '\\r\\n'")
                 .append(table.getSkipLines() != null ? (" IGNORE " + table.getSkipLines() + " LINES") : "")
                 .append(" (");
         final StringBuilder dateSet = new StringBuilder();
