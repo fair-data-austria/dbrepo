@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-toolbar flat>
-      <v-toolbar-title>Create Table Schema (and Import Data) from .csv</v-toolbar-title>
+      <v-toolbar-title>Create Table Schema (and Import Data) from .csv (TEST)</v-toolbar-title>
     </v-toolbar>
     <v-stepper v-model="step" vertical flat>
       <v-stepper-step :complete="step > 1" step="1">
@@ -314,6 +314,7 @@ export default {
       const data = new FormData()
       data.append('file', this.file)
       try {
+        console.debug('uploading to middleware')
         const res = await this.$axios.post(url, data, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -378,7 +379,10 @@ export default {
       try {
         this.loading = true
         createResult = await this.$axios.post(createUrl, this.tableCreate, {
-          headers: { Authorization: `Bearer ${this.token}` }
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.token}`
+          }
         })
         this.newTableId = createResult.data.id
         console.debug('created table', createResult.data)
@@ -396,7 +400,10 @@ export default {
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, { location: `/tmp/${this.fileLocation}` }, {
-          headers: { Authorization: `Bearer ${this.token}` }
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.token}`
+          }
         })
         console.debug('inserted table', insertResult.data)
       } catch (err) {

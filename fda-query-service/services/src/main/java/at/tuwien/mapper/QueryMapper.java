@@ -262,17 +262,22 @@ public interface QueryMapper {
                 log.trace("mapping {} to date with format '{}' to value {}", data, column.getDateFormat(), val);
                 return val;
             case ENUM:
+                log.trace("mapping {} to enum", data);
+                return String.valueOf(data);
             case TEXT:
+                log.trace("mapping {} to text", data);
+                return String.valueOf(data);
             case STRING:
                 log.trace("mapping {} to character array", data);
                 return String.valueOf(data);
             case NUMBER:
-                log.trace("mapping {} to non-decimal number", data);
+                log.trace("mapping {} to integer number", data);
                 return new BigInteger(String.valueOf(data));
             case DECIMAL:
                 log.trace("mapping {} to decimal number", data);
                 return Double.valueOf(String.valueOf(data));
             case BOOLEAN:
+                log.trace("mapping {} to boolean", data);
                 return Boolean.valueOf(String.valueOf(data));
             default:
                 throw new IllegalArgumentException("Column type not known");

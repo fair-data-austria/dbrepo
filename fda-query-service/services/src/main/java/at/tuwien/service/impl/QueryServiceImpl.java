@@ -249,6 +249,9 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
                             .map(Optional::get)
                             .collect(Collectors.toList()));
                 });
+
+        log.debug("parsed {} columns", columns.size());
+        log.trace("parsed columns {}", columns);
         return columns;
     }
 
