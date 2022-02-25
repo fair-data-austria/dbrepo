@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface DatabaseService {
@@ -20,6 +21,7 @@ public interface DatabaseService {
 
     /**
      * Finds all known databases in the metadata database.
+     *
      * @return List of databases.
      */
     List<Database> findAll();
@@ -60,7 +62,7 @@ public interface DatabaseService {
      * @throws AmqpException              The exchange could not be created.
      */
     Database create(Long id, DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException;
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, UserNotFoundException;
 
     /**
      * Returns a new session for a given {@link Database} entity.

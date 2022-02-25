@@ -5,28 +5,33 @@ import at.tuwien.entities.container.Container;
 import at.tuwien.exception.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface ContainerService {
-    @Transactional
-    Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException;
 
-    @Transactional
+    /**
+     * Creates a container with given information.
+     *
+     * @param createDto The information.
+     * @return The created container as stored in the metadata database.
+     * @throws ImageNotFoundException The image for the container was not found in the metadata database.
+     * @throws DockerClientException  The image for the container was not found on the server.
+     * @throws UserNotFoundException  The user was not found.
+     */
+    Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException,
+            DockerClientException, UserNotFoundException;
+
     Container stop(Long containerId) throws ContainerNotFoundException, DockerClientException;
 
-    @Transactional
     void remove(Long containerId) throws ContainerNotFoundException, DockerClientException,
             ContainerStillRunningException;
 
-    @Transactional
     Container find(Long id) throws ContainerNotFoundException;
 
-    @Transactional
     Container inspect(Long id) throws ContainerNotFoundException, DockerClientException, ContainerNotRunningException;
 
-    @Transactional
     List<Container> getAll();
 
-    @Transactional
     Container start(Long containerId) throws ContainerNotFoundException, DockerClientException;
 }

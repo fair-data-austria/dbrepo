@@ -12,6 +12,7 @@ public abstract class AbstractSeeder {
     public final static String DATABASE_1_NAME = "Public Transport";
     public final static String DATABASE_1_DESCRIPTION = "Public transport for various cities in the world";
     public final static Boolean DATABASE_1_PUBLIC = true;
+    public final static String DATABASE_1_CREATOR = "system";
 
     public final static DatabaseCreateDto DATABASE_1_CREATE_DTO = DatabaseCreateDto.builder()
             .name(DATABASE_1_NAME)
@@ -23,6 +24,7 @@ public abstract class AbstractSeeder {
     public final static String DATABASE_2_NAME = "Sensor Data collected from the Server";
     public final static String DATABASE_2_DESCRIPTION = "Collection of various live data from the deployment server";
     public final static Boolean DATABASE_2_PUBLIC = true;
+    public final static String DATABASE_2_CREATOR = "system";
 
     public final static DatabaseCreateDto DATABASE_2_CREATE_DTO = DatabaseCreateDto.builder()
             .name(DATABASE_2_NAME)

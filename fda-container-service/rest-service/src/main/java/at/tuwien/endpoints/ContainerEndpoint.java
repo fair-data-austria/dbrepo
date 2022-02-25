@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,10 +62,10 @@ public class ContainerEndpoint {
             @ApiResponse(code = 201, message = "Successfully created a new container."),
             @ApiResponse(code = 400, message = "Malformed payload."),
             @ApiResponse(code = 401, message = "Not authorized to create a container."),
-            @ApiResponse(code = 404, message = "The container was not found after creation."),
+            @ApiResponse(code = 404, message = "The container was not found after creation or the user was not found."),
     })
     public ResponseEntity<ContainerBriefDto> create(@Valid @RequestBody ContainerCreateRequestDto data)
-            throws ImageNotFoundException, DockerClientException {
+            throws ImageNotFoundException, DockerClientException, UserNotFoundException {
         final Container container = containerService.create(data);
         final ContainerBriefDto response = containerMapper.containerToDatabaseContainerBriefDto(container);
         return ResponseEntity.status(HttpStatus.CREATED)

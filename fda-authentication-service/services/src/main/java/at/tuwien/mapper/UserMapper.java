@@ -11,6 +11,7 @@ import org.mapstruct.Mapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
 import java.util.Objects;
@@ -68,14 +69,18 @@ public interface UserMapper {
                 .build();
     }
 
-    default UserDto principalToUserDto(Principal principal) {
+    default UserDto userDetailsToUserDto(UserDetails data, Principal principal) {
         final UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
-        return UserDto.builder()
+        final UserDto user = UserDto.builder()
+                .username(data.getUsername())
+                .password(data.getPassword())
                 .authorities(token.getAuthorities()
                         .stream()
                         .map(this::grantedAuthorityToGrantedAuthority)
                         .collect(Collectors.toList()))
                 .build();
+        log.debug("mapped user and principal {}", user);
+        return user;
     }
 
 }

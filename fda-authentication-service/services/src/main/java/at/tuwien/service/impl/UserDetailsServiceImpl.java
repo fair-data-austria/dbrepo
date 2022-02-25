@@ -36,14 +36,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             log.error("Failed to load user by username {}", username);
             throw new UsernameNotFoundException("Failed to load user by username");
         }
-        log.debug("loaded user {}", user);
+        log.trace("loaded user {}", user);
         final UserDetailsDto details = userMapper.userToUserDetailsDto(user.get());
         details.setAuthorities(user.get()
                 .getRoles()
                 .stream()
                 .map(userMapper::roleTypeToGrantedAuthority)
                 .collect(Collectors.toList()));
-        log.debug("mapped user {}", details);
+        log.trace("mapped user {}", details);
         return details;
     }
 
