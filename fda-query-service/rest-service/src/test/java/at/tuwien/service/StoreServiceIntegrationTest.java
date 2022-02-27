@@ -112,7 +112,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void findAll_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
-            InterruptedException, SQLException, ContainerNotFoundException {
+            InterruptedException, SQLException, ContainerNotFoundException, UserNotFoundException {
         final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();
@@ -137,7 +137,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void findOne_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
-            QueryNotFoundException, InterruptedException, SQLException, ContainerNotFoundException {
+            QueryNotFoundException, InterruptedException, SQLException, ContainerNotFoundException, UserNotFoundException {
         final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();
@@ -179,7 +179,7 @@ public class StoreServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insert_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
-            InterruptedException, SQLException, ContainerNotFoundException {
+            InterruptedException, SQLException, ContainerNotFoundException, UserNotFoundException {
         final QueryResultDto result = QueryResultDto.builder()
                 .result(List.of(Map.of("key", "val")))
                 .build();

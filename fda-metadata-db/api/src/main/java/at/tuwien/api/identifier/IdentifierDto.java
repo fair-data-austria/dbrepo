@@ -1,5 +1,6 @@
 package at.tuwien.api.identifier;
 
+import at.tuwien.api.user.UserDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Getter
@@ -31,6 +33,10 @@ public class IdentifierDto {
     @ApiModelProperty(name = "query id", example = "1")
     private Long qid;
 
+    @NotNull
+    @ApiModelProperty(name = "user")
+    private UserDto creator;
+
     @NotBlank
     @ApiModelProperty(name = "query title", example = "Select all weather events for 2012")
     private String title;
@@ -47,7 +53,7 @@ public class IdentifierDto {
 
     @NotNull
     @ApiModelProperty(name = "creators")
-    private CreatorDto[] creators;
+    private List<UserDto> creators;
 
     private Instant created;
 

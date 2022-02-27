@@ -51,7 +51,7 @@ public interface StoreService {
      * @throws ImageNotSupportedException The image is not supported
      */
     Query insert(Long containerId, Long databaseId, QueryResultDto result, SaveStatementDto metadata)
-            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException;
+            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, UserNotFoundException;
 
     /**
      * Inserts a query and metadata to the query store of a given database id
@@ -67,6 +67,6 @@ public interface StoreService {
      */
     Query insert(Long containerId, Long databaseId, QueryResultDto result, ExecuteStatementDto metadata,
                  Instant execution) throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
-            ContainerNotFoundException;
+            ContainerNotFoundException, UserNotFoundException;
 
 }

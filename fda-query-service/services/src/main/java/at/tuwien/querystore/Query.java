@@ -37,6 +37,9 @@ public class Query implements Serializable {
     @javax.persistence.Column(nullable = false)
     private Long dbid;
 
+    @javax.persistence.Column(nullable = false)
+    private Long createdBy;
+
     @javax.persistence.Column
     private Instant execution;
 

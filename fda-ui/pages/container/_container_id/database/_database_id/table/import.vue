@@ -1,14 +1,14 @@
 <template>
   <div>
     <v-toolbar flat>
-      <v-toolbar-title>Create Table Schema (and Import Data) from .csv (TEST)</v-toolbar-title>
+      <v-toolbar-title>Create table schema (and import data) from .csv</v-toolbar-title>
     </v-toolbar>
     <v-stepper v-model="step" vertical flat>
       <v-stepper-step :complete="step > 1" step="1">
         Table Information
       </v-stepper-step>
 
-      <v-stepper-content class="pt-0 pb-1" step="1">
+      <v-stepper-content step="1">
         <v-form ref="form" v-model="validStep1" @submit.prevent="submit">
           <v-row dense>
             <v-col cols="8">
@@ -151,6 +151,7 @@
                   :items="columnTypes"
                   item-value="value"
                   required
+                  :rules="[v => !!v || $t('Required')]"
                   label="Data Type" />
               </v-col>
               <v-col cols="auto" class="pl-10" :hidden="c.type !== 'DECIMAL'">
@@ -210,7 +211,12 @@
               </v-col>
             </v-row>
           </div>
-          <v-btn class="mt-2" color="primary" :loading="loading" type="submit" @click="createTable">
+          <v-btn
+            class="mt-2"
+            color="primary"
+            :loading="loading"
+            type="submit"
+            @click="createTable">
             Continue
           </v-btn>
         </v-form>

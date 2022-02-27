@@ -4,6 +4,7 @@ import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.entities.container.Container;
+import at.tuwien.entities.user.User;
 import at.tuwien.querystore.Query;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
@@ -12,10 +13,13 @@ import at.tuwien.mapper.StoreMapper;
 import at.tuwien.service.ContainerService;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.StoreService;
+import at.tuwien.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,14 +32,16 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
 
     private final QueryMapper queryMapper;
     private final StoreMapper storeMapper;
+    private final UserService userService;
     private final DatabaseService databaseService;
     private final ContainerService containerService;
 
     @Autowired
-    public StoreServiceImpl(QueryMapper queryMapper, StoreMapper storeMapper, DatabaseService databaseService,
+    public StoreServiceImpl(QueryMapper queryMapper, StoreMapper storeMapper, UserService userService, DatabaseService databaseService,
                             ContainerService containerService) {
         this.queryMapper = queryMapper;
         this.storeMapper = storeMapper;
+        this.userService = userService;
         this.databaseService = databaseService;
         this.containerService = containerService;
     }
@@ -106,7 +112,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
     @Transactional(readOnly = true)
     public Query insert(Long containerId, Long databaseId, QueryResultDto result, SaveStatementDto metadata)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
-            ContainerNotFoundException {
+            ContainerNotFoundException, UserNotFoundException {
         return insert(containerId, databaseId, result, queryMapper.saveStatementDtoToExecuteStatementDto(metadata), null);
     }
 
@@ -114,7 +120,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
     @Transactional(readOnly = true)
     public Query insert(Long containerId, Long databaseId, QueryResultDto result, ExecuteStatementDto metadata, Instant execution)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
-            ContainerNotFoundException {
+            ContainerNotFoundException, UserNotFoundException {
         /* find */
         final Container container = containerService.find(containerId);
         final Database database = databaseService.find(databaseId);
@@ -122,6 +128,10 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         log.debug("Insert into database id {}, metadata {}", databaseId, metadata);
+        /* user */
+        final UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder
+                .getContext().getAuthentication();
+        final User user = userService.findByUsername(authentication.getName());
         /* save */
         final SessionFactory factory = getSessionFactory(database, true);
         final Session session = factory.openSession();
@@ -129,6 +139,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         final Query query = Query.builder()
                 .cid(containerId)
                 .dbid(databaseId)
+                .createdBy(user.getId())
                 .query(metadata.getStatement())
                 .queryNormalized(metadata.getStatement())
                 .queryHash(DigestUtils.sha256Hex(metadata.getStatement()))

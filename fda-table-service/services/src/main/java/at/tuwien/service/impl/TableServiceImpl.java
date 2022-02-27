@@ -5,16 +5,20 @@ import at.tuwien.api.database.table.TableCreateDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.user.User;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.TableMapper;
 import at.tuwien.repository.jpa.TableRepository;
 import at.tuwien.service.ContainerService;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.TableService;
+import at.tuwien.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,14 +31,16 @@ import java.util.stream.Collectors;
 public class TableServiceImpl extends HibernateConnector implements TableService {
 
     private final TableMapper tableMapper;
+    private final UserService userService;
     private final TableRepository tableRepository;
     private final DatabaseService databaseService;
     private final ContainerService containerService;
 
     @Autowired
-    public TableServiceImpl(TableMapper tableMapper, TableRepository tableRepository,
+    public TableServiceImpl(TableMapper tableMapper, UserService userService, TableRepository tableRepository,
                             DatabaseService databaseService, ContainerService containerService) {
         this.tableMapper = tableMapper;
+        this.userService = userService;
         this.tableRepository = tableRepository;
         this.databaseService = databaseService;
         this.containerService = containerService;
@@ -82,7 +88,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
     @Transactional
     public Table createTable(Long containerId, Long databaseId, TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseNotFoundException, TableMalformedException,
-            TableNameExistsException, ContainerNotFoundException {
+            TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         /* find */
         final Container container = containerService.find(containerId);
         final Database database = databaseService.findDatabase(databaseId);
@@ -91,6 +97,10 @@ public class TableServiceImpl extends HibernateConnector implements TableService
             log.error("Table name exists in database with id {} as table id {}", database.getId(), optional.get().getId());
             throw new TableNameExistsException("Table name exists");
         }
+        /* user */
+        final UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder
+                .getContext().getAuthentication();
+        final User user = userService.findByUsername(authentication.getName());
         /* run query */
         final Session session = getSessionFactory(database)
                 .openSession();
@@ -118,6 +128,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         tmp.setInternalName(tableMapper.nameToInternalName(tmp.getName()));
         tmp.setTdbid(databaseId);
         tmp.setDatabase(database);
+        tmp.setCreator(user);
         tmp.setTopic(tmp.getInternalName());
         tmp.setColumns(List.of());
         log.debug("mapped new table {}", tmp);
@@ -131,6 +142,7 @@ public class TableServiceImpl extends HibernateConnector implements TableService
         table.getColumns()
                 .forEach(column -> {
                     column.setOrdinalPosition(idx[0]++);
+                    column.setCreator(user);
                 });
         log.info("Created table with id {} {}", table.getId(), query.getGenerated() ? "and auto-generated id column" : "");
         log.debug("created table {}", table);

@@ -17,6 +17,7 @@
             v-model="database"
             name="database"
             label="Name *"
+            autocomplete="off"
             autofocus
             :rules="[v => !!v || $t('Required')]"
             required />
@@ -24,6 +25,7 @@
             id="description"
             v-model="description"
             name="description"
+            autocomplete="off"
             rows="2"
             label="Description *"
             :rules="[v => !!v || $t('Required')]"

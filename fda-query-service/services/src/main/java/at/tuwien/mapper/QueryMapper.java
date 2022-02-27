@@ -59,7 +59,13 @@ public interface QueryMapper {
         while (iterator.hasNext()) {
             /* map the result set to the columns through the stored metadata in the metadata database */
             int[] idx = new int[]{0};
-            final Object[] data = (Object[]) iterator.next();
+            final Object[] data;
+            if (columns.size() == 1) {
+                /* issue #135 */
+                data = new Object[]{iterator.next()};
+            } else {
+                data = (Object[]) iterator.next();
+            }
             final Map<String, Object> map = new HashMap<>();
             columns
                     .forEach(column -> map.put(column.getName(),

@@ -1,6 +1,5 @@
 package at.tuwien.api.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

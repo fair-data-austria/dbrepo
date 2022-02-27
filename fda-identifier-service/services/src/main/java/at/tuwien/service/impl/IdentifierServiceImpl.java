@@ -5,20 +5,19 @@ import at.tuwien.api.identifier.IdentifierDto;
 import at.tuwien.api.identifier.VisibilityTypeDto;
 import at.tuwien.entities.identifier.Identifier;
 import at.tuwien.entities.identifier.VisibilityType;
-import at.tuwien.entities.user.User;
 import at.tuwien.exception.*;
 import at.tuwien.gateway.QueryServiceGateway;
 import at.tuwien.mapper.IdentifierMapper;
 import at.tuwien.repository.jpa.IdentifierRepository;
 import at.tuwien.service.IdentifierService;
+import at.tuwien.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,13 +25,15 @@ import java.util.Optional;
 @Service
 public class IdentifierServiceImpl implements IdentifierService {
 
+    private final UserService userService;
     private final IdentifierMapper identifierMapper;
     private final QueryServiceGateway queryServiceGateway;
     private final IdentifierRepository identifierRepository;
 
     @Autowired
-    public IdentifierServiceImpl(IdentifierMapper identifierMapper, QueryServiceGateway queryServiceGateway,
-                                 IdentifierRepository identifierRepository) {
+    public IdentifierServiceImpl(UserService userService, IdentifierMapper identifierMapper,
+                                 QueryServiceGateway queryServiceGateway, IdentifierRepository identifierRepository) {
+        this.userService = userService;
         this.identifierMapper = identifierMapper;
         this.queryServiceGateway = queryServiceGateway;
         this.identifierRepository = identifierRepository;
@@ -59,12 +60,14 @@ public class IdentifierServiceImpl implements IdentifierService {
     @Transactional
     public Identifier create(Long containerId, Long databaseId, IdentifierDto data)
             throws IdentifierPublishingNotAllowedException, QueryNotFoundException,
-            RemoteUnavailableException, IdentifierAlreadyExistsException {
+            RemoteUnavailableException, IdentifierAlreadyExistsException, UserNotFoundException {
         if (!data.getVisibility().equals(VisibilityTypeDto.SELF)) {
             log.error("Identifier must be self visible for creation");
             log.debug("identifier is not self-visible {}", data);
             throw new IdentifierPublishingNotAllowedException("Identifier not self-visible");
         }
+        final UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder
+                .getContext().getAuthentication();
         /* find */
         final Optional<Identifier> optional = identifierRepository.findByQid(data.getQid());
         if (optional.isPresent()) {
@@ -74,6 +77,7 @@ public class IdentifierServiceImpl implements IdentifierService {
         }
         final QueryDto query = queryServiceGateway.find(data) /* check if exists */;
         final Identifier identifier = identifierMapper.identifierDtoToIdentifier(data);
+        identifier.setCreator(userService.findByUsername(authentication.getName()));
         identifier.setVisibility(identifierMapper.visibilityTypeDtoToVisibilityType(data.getVisibility()));
         /* create in metadata database */
         final Identifier entity = identifierRepository.save(identifier);

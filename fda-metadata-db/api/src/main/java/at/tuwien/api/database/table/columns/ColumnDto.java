@@ -1,6 +1,7 @@
 package at.tuwien.api.database.table.columns;
 
 import at.tuwien.api.container.image.ImageDateDto;
+import at.tuwien.api.user.UserDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -29,6 +30,10 @@ public class ColumnDto {
     @JsonProperty("internal_name")
     @ApiModelProperty(name = "internal name", example = "mdb_date", required = true)
     private String internalName;
+
+    @NotNull
+    @ApiModelProperty(name = "user")
+    private UserDto creator;
 
     @NotBlank
     @JsonProperty("date_format")

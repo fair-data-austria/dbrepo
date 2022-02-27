@@ -2,6 +2,7 @@ package at.tuwien.entities.database.table.columns;
 
 import at.tuwien.entities.container.image.ContainerImageDate;
 import at.tuwien.entities.database.table.Table;
+import at.tuwien.entities.user.User;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -56,6 +57,12 @@ public class TableColumn implements Comparable<TableColumn> {
             @JoinColumn(name = "cdbid", referencedColumnName = "tdbid", insertable = false, updatable = false)
     })
     private Table table;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "createdBy", referencedColumnName = "UserID")
+    })
+    private User creator;
 
     @Column(name = "cname", nullable = false)
     private String name;

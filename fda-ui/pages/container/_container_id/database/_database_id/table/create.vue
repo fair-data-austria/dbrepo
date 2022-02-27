@@ -3,7 +3,7 @@
     <v-progress-linear v-if="loading" :color="loadingColor" :indeterminate="!error" />
     <v-toolbar flat>
       <v-toolbar-title>
-        <span>Create Table Schema</span>
+        <span>Create table schema</span>
       </v-toolbar-title>
     </v-toolbar>
     <v-stepper v-model="step" vertical flat>

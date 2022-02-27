@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-toolbar flat>
-      <v-toolbar-title>Import Data</v-toolbar-title>
+      <v-toolbar-title>Import data</v-toolbar-title>
     </v-toolbar>
     <v-card>
       <v-card-title v-if="!loading">
