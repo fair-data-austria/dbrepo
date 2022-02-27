@@ -134,8 +134,8 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
         try {
             log.debug("query affected {} rows", query.executeUpdate());
         } catch (PersistenceException e) {
-            log.error("Failed to delete database.");
-            throw new DatabaseMalformedException("Failed to delete database", e);
+            log.error("Failed to create database.");
+            throw new DatabaseMalformedException("Failed to create database", e);
         }
         final NativeQuery<?> grant = session.createSQLQuery(databaseMapper.imageToRawGrantReadonlyAccessQuery());
         try {

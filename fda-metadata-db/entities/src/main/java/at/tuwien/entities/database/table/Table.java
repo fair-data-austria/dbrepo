@@ -65,10 +65,10 @@ public class Table {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "tdbid", insertable = false, updatable = false)
     private Database database;
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
+    
     @OrderBy("ordinalPosition")
-    @Field(type = FieldType.Nested, ignoreFields = {"table"})
+    @Field(type = FieldType.Object)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
     private List<TableColumn> columns;
 
     @Column(name = "separator")

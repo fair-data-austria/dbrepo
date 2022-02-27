@@ -3,10 +3,12 @@ package at.tuwien.entities.user;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.entities.identifier.Identifier;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -62,14 +64,17 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Transient
     @ToString.Exclude
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "creator")
     private List<Container> containers;
 
+    @Transient
     @ToString.Exclude
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "creator")
     private List<Database> databases;
 
+    @Transient
     @ToString.Exclude
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "creator")
     private List<Identifier> identifiers;
