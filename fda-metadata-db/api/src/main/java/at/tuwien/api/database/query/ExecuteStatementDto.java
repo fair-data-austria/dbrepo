@@ -14,6 +14,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class ExecuteStatementDto {
 
     @NotBlank(message = "statement is required")

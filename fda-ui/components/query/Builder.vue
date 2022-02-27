@@ -204,7 +204,7 @@ export default {
       const url = '/server-middleware/query/build'
       const data = {
         table: this.table.internal_name,
-        select: this.select.map(s => s.name),
+        select: this.select.map(s => s.internal_name),
         clauses: this.clauses
       }
       try {

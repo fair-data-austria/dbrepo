@@ -30,4 +30,14 @@ public class UserServiceImpl implements UserService {
         }
         return user.get();
     }
+
+    @Override
+    public User findById(Long id) throws UserNotFoundException {
+        final Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            log.error("Failed to find user by id {}", id);
+            throw new UserNotFoundException("Failed to find user");
+        }
+        return user.get();
+    }
 }

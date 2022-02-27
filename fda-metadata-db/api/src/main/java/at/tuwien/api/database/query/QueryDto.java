@@ -1,6 +1,9 @@
 package at.tuwien.api.database.query;
 
+import at.tuwien.api.user.UserDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -29,6 +32,15 @@ public class QueryDto {
     @NotNull(message = "database id is required")
     @ApiModelProperty(name = "database id", example = "1")
     private Long dbid;
+
+    @JsonIgnore
+    @NotNull(message = "created by is required")
+    @ApiModelProperty(name = "creator id", example = "1")
+    private Long createdBy;
+
+    @NotNull(message = "creator is required")
+    @ApiModelProperty(name = "creator")
+    private UserDto creator;
 
     @ApiModelProperty(name = "execution time", example = "2022-01-01 08:00:00.000")
     private Instant execution;

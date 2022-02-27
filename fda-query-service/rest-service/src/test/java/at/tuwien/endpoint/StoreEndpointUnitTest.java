@@ -56,7 +56,7 @@ public class StoreEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void find_succeeds() throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, ContainerNotFoundException {
+            ImageNotSupportedException, ContainerNotFoundException, UserNotFoundException {
 
         /* mock */
         when(storeService.findOne(CONTAINER_1_ID, DATABASE_1_ID, QUERY_1_ID))
