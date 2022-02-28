@@ -77,6 +77,7 @@ export default {
       timeMenu: false,
       pickVersionDialog: null,
       version: null,
+      error: false, // XXX: `error` is never changed
       options: {
         page: 1,
         itemsPerPage: 10

@@ -91,7 +91,7 @@ export default {
   data () {
     return {
       loading: false,
-      error: false,
+      error: false, // XXX: `error` is never changed
       valid: false,
       privacy: false,
       consent: false,

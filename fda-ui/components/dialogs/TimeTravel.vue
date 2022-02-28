@@ -49,7 +49,7 @@ export default {
     return {
       formValid: false,
       loading: false,
-      error: false,
+      error: false, // XXX: `error` is never changed
       date: null,
       time: null
     }
