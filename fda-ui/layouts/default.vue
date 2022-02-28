@@ -64,6 +64,7 @@
             {{ nextTheme }} Theme
           </v-list-item>
           <v-list-item
+            v-if="token"
             @click="logout">
             Logout
           </v-list-item>
