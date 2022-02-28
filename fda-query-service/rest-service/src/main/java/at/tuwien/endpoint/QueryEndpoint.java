@@ -37,6 +37,7 @@ public class QueryEndpoint {
         this.storeService = storeService;
     }
 
+    @Deprecated
     @PutMapping
     @Transactional
     @PreAuthorize("hasRole('ROLE_RESEARCHER')")
@@ -61,10 +62,8 @@ public class QueryEndpoint {
             log.error("Table list is empty");
             throw new QueryMalformedException("Invalid table");
         }
+        log.debug("Data for execution: {}", data);
         final QueryResultDto result = queryService.execute(id, databaseId, data);
-        final QueryDto query = queryMapper.queryToQueryDto(storeService.insert(id, databaseId, result, data,
-                Instant.now()));
-        result.setId(query.getId());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
     }
@@ -104,8 +103,11 @@ public class QueryEndpoint {
             throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, QueryMalformedException, ContainerNotFoundException {
         final Query query = storeService.findOne(id, databaseId, queryId);
+        log.debug(query.toString());
         final QueryDto queryDto = queryMapper.queryToQueryDto(query);
+        log.debug(queryDto.toString());
         final ExecuteStatementDto statement = queryMapper.queryDtoToExecuteStatementDto(queryDto);
+        log.debug(statement.toString());
         final QueryResultDto result = queryService.execute(id, databaseId, statement);
         result.setId(queryId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)

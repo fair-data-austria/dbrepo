@@ -2,7 +2,9 @@ package at.tuwien.mapper;
 
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.*;
+import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.entities.database.Database;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.querystore.Query;
 import at.tuwien.entities.database.table.Table;
@@ -162,6 +164,38 @@ public interface QueryMapper {
                 LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
                 "';";
     }
+
+    default String queryToRawTimestampedCountQuery(String query, Database database, Instant timestamp) throws ImageNotSupportedException {
+        /* param check */
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        if (timestamp == null) {
+            timestamp = Instant.now();
+        }
+        return "SELECT COUNT(*) FROM " +  query.toLowerCase(Locale.ROOT).split("from ")[1] +
+                " FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
+                "';";
+    }
+
+    default String queryToRawTimestampedQuery(String query, Database database, Instant timestamp) throws ImageNotSupportedException {
+        /* param check */
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        if (timestamp == null) {
+            timestamp = Instant.now();
+        }
+        return query +
+                " FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
+                "';";
+    }
+
+
+
+
 
     default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page)
             throws ImageNotSupportedException {

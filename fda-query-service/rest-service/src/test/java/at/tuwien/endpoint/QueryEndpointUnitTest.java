@@ -93,7 +93,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void execute_tableNotFound_fails() throws TableNotFoundException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, QueryStoreException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
