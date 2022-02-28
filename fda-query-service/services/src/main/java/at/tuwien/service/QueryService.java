@@ -39,6 +39,8 @@ public interface QueryService {
      * @param timestamp   The given time.
      * @param page        The page.
      * @param size        The page size.
+     * @param sortBy      The column after which should be sorted.
+     * @param sortDesc    The direction it should be sorted, if true the column is sorted Z to A, if false otherwise.
      * @return The select all data result
      * @throws ContainerNotFoundException  The container was not found in the metadata database.
      * @throws TableNotFoundException      The table was not found in the metadata database.
@@ -48,7 +50,7 @@ public interface QueryService {
      * @throws DatabaseConnectionException The connection to the remote database was unsuccessful.
      */
     QueryResultDto findAll(Long containerId, Long databaseId, Long tableId, Instant timestamp,
-                           Long page, Long size) throws TableNotFoundException, DatabaseNotFoundException,
+                           Long page, Long size, String sortBy, Boolean sortDesc) throws TableNotFoundException, DatabaseNotFoundException,
             ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException,
             ContainerNotFoundException;
 

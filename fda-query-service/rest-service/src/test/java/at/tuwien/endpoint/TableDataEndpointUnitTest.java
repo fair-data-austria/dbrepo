@@ -78,21 +78,22 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void getAll_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, PaginationException, ContainerNotFoundException, QueryStoreException {
+            DatabaseNotFoundException, ImageNotSupportedException, PaginationException, ContainerNotFoundException,
+            QueryStoreException, SortDataException {
 
         /* test */
-        dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null, null);
+        dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, null, null, null, null, null);
     }
 
     @Test
     public void findAll_noPagination_succeeds() throws TableNotFoundException, DatabaseConnectionException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException, PaginationException,
-            ContainerNotFoundException, QueryStoreException {
+            ContainerNotFoundException, QueryStoreException, SortDataException {
         final Long page = null;
         final Long size = null;
 
         /* test */
-        dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+        dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size, null, null);
     }
 
     @Test
@@ -102,7 +103,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size, null, null);
         });
     }
 
@@ -113,7 +114,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size, null, null);
         });
     }
 
@@ -124,7 +125,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size, null, null);
         });
     }
 
@@ -135,7 +136,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size, null, null);
         });
     }
 
@@ -146,7 +147,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size, null, null);
         });
     }
 
@@ -157,7 +158,7 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size, null, null);
         });
     }
 
@@ -168,19 +169,19 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PaginationException.class, () -> {
-            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size);
+            dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, DATABASE_1_CREATED, page, size, null, null);
         });
     }
 
     @Test
     public void getAllTotal_succeeds() throws TableNotFoundException, DatabaseConnectionException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
-            PaginationException, ContainerNotFoundException, QueryStoreException {
+            PaginationException, ContainerNotFoundException, QueryStoreException, SortDataException {
         final Instant timestamp = Instant.now();
 
         /* test */
         final ResponseEntity<QueryResultDto> response = dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID,
-                TABLE_1_ID, timestamp, null, null);
+                TABLE_1_ID, timestamp, null, null, null, null);
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -188,12 +189,12 @@ public class TableDataEndpointUnitTest extends BaseUnitTest {
     @Test
     public void getAllCount_succeeds() throws TableNotFoundException, DatabaseConnectionException,
             TableMalformedException, DatabaseNotFoundException, ImageNotSupportedException,
-            PaginationException, ContainerNotFoundException, QueryStoreException {
+            PaginationException, ContainerNotFoundException, QueryStoreException, SortDataException {
         final Instant timestamp = Instant.now();
 
         /* test */
         final ResponseEntity<QueryResultDto> response = dataEndpoint.getAll(CONTAINER_1_ID, DATABASE_1_ID,
-                TABLE_1_ID, timestamp, null, null);
+                TABLE_1_ID, timestamp, null, null, null, null);
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getHeaders().containsKey("FDA-COUNT"));

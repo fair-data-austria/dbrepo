@@ -49,7 +49,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto statement)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryMalformedException {
         /* find */
@@ -87,11 +87,11 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public QueryResultDto findAll(Long containerId, Long databaseId, Long tableId, Instant timestamp, Long page,
-                                  Long size) throws TableNotFoundException, DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseConnectionException, TableMalformedException, PaginationException,
-            ContainerNotFoundException {
+                                  Long size, String sortBy, Boolean sortDesc) throws TableNotFoundException,
+            DatabaseNotFoundException, ImageNotSupportedException, DatabaseConnectionException, TableMalformedException,
+            PaginationException, ContainerNotFoundException {
         /* find */
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
@@ -102,7 +102,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         final NativeQuery<?> query = session.createSQLQuery(queryMapper.tableToRawFindAllQuery(table, timestamp, size,
-                page));
+                page, sortBy, sortDesc));
         final int affectedTuples;
         try {
             affectedTuples = query.executeUpdate();
@@ -128,7 +128,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public BigInteger count(Long containerId, Long databaseId, Long tableId, Instant timestamp)
             throws DatabaseNotFoundException, TableNotFoundException,
             TableMalformedException, ImageNotSupportedException {

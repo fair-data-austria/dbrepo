@@ -152,7 +152,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         final QueryResultDto result = queryService.findAll(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, Instant.now(),
-                null, null);
+                null, null, null, null);
         assertEquals(3, result.getResult().size());
         assertEquals(BigInteger.valueOf(1L), result.getResult().get(0).get(COLUMN_1_1_NAME));
         assertEquals(toInstant("2008-12-01"), result.getResult().get(0).get(COLUMN_1_2_NAME));

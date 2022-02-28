@@ -168,7 +168,8 @@ public interface QueryMapper {
                 "';";
     }
 
-    default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page)
+    default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page, String sortBy,
+                                          Boolean sortDesc)
             throws ImageNotSupportedException {
         /* param check */
         if (!table.getDatabase().getContainer().getImage().getRepository().equals("mariadb")) {
@@ -192,6 +193,14 @@ public interface QueryMapper {
                 .append("` FOR SYSTEM_TIME AS OF TIMESTAMP'")
                 .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
                 .append("'");
+        if (sortBy != null && sortDesc != null) {
+            /* sorting requested */
+            query.append(" ORDER BY ")
+                    .append("`")
+                    .append(sortBy)
+                    .append("` ")
+                    .append(sortDesc ? "DESC" : "ASC");
+        }
         if (size != null && page != null) {
             log.trace("pagination size/limit of {}", size);
             query.append(" LIMIT ")
