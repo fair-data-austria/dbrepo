@@ -54,7 +54,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws ImageNotFoundException, DockerClientException {
+    public void create_succeeds() throws ImageNotFoundException, DockerClientException, ContainerAlreadyExistsException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
                 .repository(IMAGE_1.getRepository())
@@ -72,7 +72,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
 
     @Disabled
     @Test
-    public void create_noImage_fails() throws DockerClientException, ImageNotFoundException {
+    public void create_noImage_fails() throws DockerClientException, ImageNotFoundException, ContainerAlreadyExistsException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
                 .repository("image")
@@ -89,7 +89,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
 
     @Disabled
     @Test
-    public void create_docker_fails() throws DockerClientException, ImageNotFoundException {
+    public void create_docker_fails() throws DockerClientException, ImageNotFoundException, ContainerAlreadyExistsException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
                 .repository(IMAGE_1.getRepository())

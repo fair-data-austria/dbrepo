@@ -146,7 +146,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws DockerClientException, ImageNotFoundException {
+    public void create_succeeds() throws DockerClientException, ImageNotFoundException, ContainerAlreadyExistsException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -159,7 +159,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_conflictingNames_fails() throws DockerClientException, ImageNotFoundException {
+    public void create_conflictingNames_fails() throws DockerClientException, ImageNotFoundException, ContainerAlreadyExistsException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)

@@ -64,7 +64,7 @@ public class ContainerEndpoint {
             @ApiResponse(code = 404, message = "The container was not found after creation."),
     })
     public ResponseEntity<ContainerBriefDto> create(@Valid @RequestBody ContainerCreateRequestDto data)
-            throws ImageNotFoundException, DockerClientException {
+            throws ImageNotFoundException, DockerClientException, ContainerAlreadyExistsException {
         final Container container = containerService.create(data);
         final ContainerBriefDto response = containerMapper.containerToDatabaseContainerBriefDto(container);
         return ResponseEntity.status(HttpStatus.CREATED)

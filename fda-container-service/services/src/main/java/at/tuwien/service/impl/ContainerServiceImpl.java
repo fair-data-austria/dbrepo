@@ -53,7 +53,7 @@ public class ContainerServiceImpl implements ContainerService {
 
     @Override
     @Transactional
-    public Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException {
+    public Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException, ContainerAlreadyExistsException {
         final Optional<ContainerImage> image = imageRepository.findByRepositoryAndTag(createDto.getRepository(), createDto.getTag());
         if (image.isEmpty()) {
             log.error("failed to get image with name {}:{}", createDto.getRepository(), createDto.getTag());
@@ -82,7 +82,7 @@ public class ContainerServiceImpl implements ContainerService {
                     .exec();
         } catch (ConflictException e) {
             log.error("Conflicting names {}", createDto.getName());
-            throw new DockerClientException("Unexpected behavior", e);
+            throw new ContainerAlreadyExistsException("Unexpected behavior", e);
         } catch (NotFoundException e) {
             log.error("The image {}:{} not available on the container service", createDto.getRepository(), createDto.getTag());
             log.debug("payload was {}", createDto);

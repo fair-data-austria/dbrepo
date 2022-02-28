@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ContainerService {
     @Transactional
-    Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException;
+    Container create(ContainerCreateRequestDto createDto) throws ImageNotFoundException, DockerClientException, ContainerAlreadyExistsException;
 
     @Transactional
     Container stop(Long containerId) throws ContainerNotFoundException, DockerClientException;
