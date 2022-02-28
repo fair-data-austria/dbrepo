@@ -1,6 +1,6 @@
 import os
 from flask import Flask, flash, request, redirect, url_for, Response, abort, jsonify
-from determine_dt import determine_datatypes
+from determine_dt import determine_datatypes, guess_separator
 from analysecsv import analysecsv
 from insert_mdb_db import insert_mdb_db
 from import_db import import_db
@@ -83,6 +83,18 @@ def determinedt():
         print(e)
         res = {"success": False, "message": "Unknown error"}
     return jsonify(res), 200
+
+@app.route('/api/analyse/separator', methods=["GET"], endpoint='analyze_separator')
+@swag_from('/as-yml/separator.yml')
+def separator():
+    path = request.args.get('path')
+    try:
+        res = guess_separator(path)
+        return str(res), 200
+    except Exception as e:
+        print(e)
+        res = {"success": False, "message": str(e)}
+        return jsonify(res)
 
 @app.route('/api/analyse/determinepk', methods=["POST"], endpoint='analyze_determinepk')
 @swag_from('/as-yml/determinepk.yml')
