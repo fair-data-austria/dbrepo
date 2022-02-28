@@ -160,10 +160,10 @@ export default {
         console.error('Could not upload data.', err)
         return
       }
-      const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/data?location=${encodeURI('/tmp/' + this.fileLocation)}`
+      const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/data/import`
       let insertResult
       try {
-        insertResult = await this.$axios.post(insertUrl, new FormData(), {
+        insertResult = await this.$axios.post(insertUrl, { location: '/tmp/' + this.fileLocation }, {
           headers: { Authorization: `Bearer ${this.token}` }
         })
         console.debug('inserted table', insertResult.data)

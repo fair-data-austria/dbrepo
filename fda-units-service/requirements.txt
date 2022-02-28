@@ -5,3 +5,4 @@ docker==5.0.0
 gevent==21.8.0
 rdflib==6.0.2
 psycopg2-binary==2.8.6
+itsdangerous==2.0.1
