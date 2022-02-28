@@ -18,7 +18,7 @@
             name="database"
             label="Name *"
             autofocus
-            :rules="[v => !!v || $t('Required')]"
+            :rules="[v => notEmpty(v) || $t('Required')]"
             required />
           <v-textarea
             id="description"
@@ -26,7 +26,7 @@
             name="description"
             rows="2"
             label="Description *"
-            :rules="[v => !!v || $t('Required')]"
+            :rules="[v => notEmpty(v) || $t('Required')]"
             required />
           <v-select
             id="engine"
@@ -120,6 +120,9 @@ export default {
         setTimeout(resolve, ms)
       })
     },
+    notEmpty (str) {
+      return typeof str === 'string' && str.trim().length > 0
+    },
     async createDB () {
       let res
       // create a container
@@ -129,8 +132,8 @@ export default {
         this.loading = true
         this.error = false
         res = await this.$axios.post('/api/container', {
-          name: this.database,
-          description: this.description,
+          name: this.database.trim(),
+          description: this.description.trim(),
           repository: this.engine.repository,
           tag: this.engine.tag
         }, {
@@ -156,9 +159,10 @@ export default {
       try {
         this.loading = true
         this.error = false
-        res = await this.$axios.put(`/api/container/${containerId}`, { action: 'START' }, {
-          headers: { Authorization: `Bearer ${this.token}` }
-        })
+        res = await this.$axios.put(`/api/container/${containerId}`,
+          { action: 'START' }, {
+            headers: { Authorization: `Bearer ${this.token}` }
+          })
         console.debug('started container', res.data)
       } catch (err) {
         this.error = true
@@ -176,8 +180,8 @@ export default {
       for (let i = 0; i < 5; i++) {
         try {
           res = await this.$axios.post(`/api/container/${containerId}/database`, {
-            name: this.database,
-            description: this.description,
+            name: this.database.trim(),
+            description: this.description.trim(),
             is_public: this.isPublic
           }, {
             headers: { Authorization: `Bearer ${this.token}` }
