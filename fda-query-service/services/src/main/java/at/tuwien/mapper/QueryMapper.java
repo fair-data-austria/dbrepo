@@ -295,4 +295,14 @@ public interface QueryMapper {
                 throw new IllegalArgumentException("Column type not known");
         }
     }
+
+    @Named("EscapedString")
+    default String stringToEscapedString(String name) throws ImageNotSupportedException {
+        log.debug("StringToEscapedString: {}",name);
+        if(name!=null && !name.startsWith("`") && !name.endsWith("`")) {
+            return "`"+name+"`";
+        }
+        return name;
+    }
+
 }

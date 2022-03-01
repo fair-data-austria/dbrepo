@@ -18,6 +18,7 @@ import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jsqlparser.JSQLParserException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,7 +132,7 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
     @Test
     public void reExecute_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException, QueryNotFoundException, InterruptedException,
-            SQLException, ContainerNotFoundException {
+            SQLException, ContainerNotFoundException, JSQLParserException {
         final QueryResultDto result = QueryResultDto.builder()
                 .id(QUERY_1_ID)
                 .result(List.of(Map.of("MinTemp", 13.4, "Rainfall", 0.6, "id", 1)))
