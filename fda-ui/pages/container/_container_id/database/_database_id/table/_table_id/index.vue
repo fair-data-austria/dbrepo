@@ -121,6 +121,9 @@ export default {
     version (newVersion, oldVersion) {
       console.info('selected new version', newVersion)
       this.loadData()
+    },
+    options () {
+      this.loadData()
     }
   },
   mounted () {
@@ -154,7 +157,7 @@ export default {
         }
         const res = await this.$axios.get(url)
         console.debug('version', this.datetime, 'table data', res.data)
-        this.total = res.headers['fda-count']
+        this.total = parseInt(res.headers['fda-count'])
         this.rows = res.data.result
       } catch (err) {
         console.error('failed to load data', err)
