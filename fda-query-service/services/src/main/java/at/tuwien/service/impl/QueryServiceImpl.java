@@ -3,7 +3,6 @@ package at.tuwien.service.impl;
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.ImportDto;
-import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.Database;
@@ -16,7 +15,6 @@ import at.tuwien.repository.jpa.TableColumnRepository;
 import at.tuwien.service.*;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
@@ -93,12 +91,49 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         /* map the result to the tables (with respective columns) from the statement metadata */
         final List<TableColumn> columns = parseColumns(databaseId, statement);
         final QueryResultDto result = queryMapper.resultListToQueryResultDto(columns, query.getResultList());
-        /* Ssave query in the querystore */
+        /* Save query in the querystore */
         Query q = storeService.insert(containerId, databaseId, result, statement, i);
         result.setId(q.getId());
         session.close();
         factory.close();
         log.debug("query id {}", result.getId());
+        return result;
+    }
+
+    @Override
+    public QueryResultDto reExecute(Long containerId, Long databaseId, Query query) throws TableNotFoundException, QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException {
+        /* find */
+        final Database database = databaseService.find(databaseId);
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        /* run query */
+        final long startSession = System.currentTimeMillis();
+        final SessionFactory factory = getSessionFactory(database);
+        final Session session = factory.openSession();
+        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        session.beginTransaction();
+        /* prepare the statement */
+        Instant i = Instant.now();
+        final NativeQuery<?> nativeQuery = session.createSQLQuery(queryMapper.queryToRawTimestampedQuery(query.getQuery(), database, query.getExecution()));
+        final int affectedTuples;
+        try {
+            log.debug("execute raw view-only query {}", query);
+            affectedTuples = nativeQuery.executeUpdate();
+            log.info("Execution on database id {} affected {} rows", databaseId, affectedTuples);
+            session.getTransaction()
+                    .commit();
+        } catch (SQLGrammarException e) {
+            session.close();
+            factory.close();
+            throw new QueryMalformedException("Query not valid for this database", e);
+        }
+        /* map the result to the tables (with respective columns) from the statement metadata */
+        final List<TableColumn> columns = parseColumns(query, database);
+        final QueryResultDto result = queryMapper.resultListToQueryResultDto(columns, nativeQuery.getResultList());
+        /* Save query in the querystore */
+        session.close();
+        factory.close();
         return result;
     }
 
@@ -273,9 +308,9 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         return columns;
     }
 
-    private Query parse(Query query, Database database) throws SQLException, ImageNotSupportedException, JSQLParserException {
-        Instant ts = Instant.now();
-        query.setExecution(ts);
+    private List<TableColumn> parseColumns(Query query, Database database) throws SQLException, ImageNotSupportedException, JSQLParserException {
+        final List<TableColumn> columns = new ArrayList<>();
+
         CCJSqlParserManager parserRealSql = new CCJSqlParserManager();
         Statement statement = parserRealSql.parse(new StringReader(query.getQuery()));
         log.debug("Given query {}", query.getQuery());
@@ -301,7 +336,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
                 boolean i = false;
                 log.debug("from item iterated through: {}", f);
                 for(Table t : database.getTables()) {
-                    if(f.toString().equals(t.getInternalName()) || f.toString().equals(t.getName())) {
+                    if(queryMapper.stringToEscapedString(f.toString()).equals(queryMapper.stringToEscapedString(t.getInternalName()))) {
                         allColumns.addAll(t.getColumns());
                         i=false;
                         break;
@@ -309,13 +344,14 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
                     i = true;
                 }
                 if(i) {
-                    throw new JSQLParserException("Table "+f.toString() + " does not exist");
+                    throw new JSQLParserException("Table "+queryMapper.stringToEscapedString(f.toString())+ " does not exist");
                 }
             }
 
             //Checking if all columns exist
             for(SelectItem s : selectItems) {
-                String select = s.toString();
+                String select = queryMapper.stringToEscapedString(s.toString());
+                log.debug(select);
                 if(select.trim().equals("*")) {
                     log.debug("Please do not use * to query data");
                     continue;
@@ -328,8 +364,9 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
                 boolean i = false;
                 for(TableColumn tc : allColumns ) {
                     log.debug("{},{},{}", tc.getInternalName(), tc.getName(), s);
-                    if(select.equals(tc.getInternalName()) || select.toString().equals(tc.getName())) {
+                    if(select.equals(queryMapper.stringToEscapedString(tc.getInternalName()))) {
                         i=false;
+                        columns.add(tc);
                         break;
                     }
                     i = true;
@@ -338,12 +375,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
                     throw new JSQLParserException("Column "+s.toString() + " does not exist");
                 }
             }
-            //TODO Future work
-            if(ps.getWhere() != null) {
-                Expression where = ps.getWhere();
-                log.debug("Where clause: {}", where);
-            }
-            return query;
+            return columns;
         }
         else {
             throw new JSQLParserException("SQL Query is not a SELECT statement - please only use SELECT statements");

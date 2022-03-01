@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jsqlparser.JSQLParserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.sql.SQLException;
 import java.time.Instant;
 
 @Log4j2
@@ -101,14 +103,10 @@ public class QueryEndpoint {
                                                     @NotNull @PathVariable("databaseId") Long databaseId,
                                                     @NotNull @PathVariable("queryId") Long queryId)
             throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, QueryMalformedException, ContainerNotFoundException {
+            TableNotFoundException, QueryMalformedException, ContainerNotFoundException, SQLException, JSQLParserException {
         final Query query = storeService.findOne(id, databaseId, queryId);
         log.debug(query.toString());
-        final QueryDto queryDto = queryMapper.queryToQueryDto(query);
-        log.debug(queryDto.toString());
-        final ExecuteStatementDto statement = queryMapper.queryDtoToExecuteStatementDto(queryDto);
-        log.debug(statement.toString());
-        final QueryResultDto result = queryService.execute(id, databaseId, statement);
+        final QueryResultDto result = queryService.reExecute(id, databaseId, query);
         result.setId(queryId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
