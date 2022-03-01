@@ -67,7 +67,7 @@ public class Table {
     private Database database;
     
     @OrderBy("ordinalPosition")
-    @Field(type = FieldType.Object)
+    @Field(type = FieldType.Nested)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
     private List<TableColumn> columns;
 

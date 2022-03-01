@@ -102,5 +102,5 @@ public interface QueryService {
      * @throws TableNotFoundException     The table is not found in the metadata database.
      */
     Integer insert(Long containerId, Long databaseId, Long tableId, ImportDto data) throws ImageNotSupportedException,
-            TableMalformedException, DatabaseNotFoundException, TableNotFoundException, ContainerNotFoundException;
+            TableMalformedException, DatabaseNotFoundException, TableNotFoundException, ContainerNotFoundException, FileStorageException;
 }

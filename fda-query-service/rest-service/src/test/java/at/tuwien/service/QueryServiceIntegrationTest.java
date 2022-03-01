@@ -201,7 +201,6 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         assertEquals(0.0, response.getResult().get(2).get(COLUMN_1_5_NAME));
     }
 
-    // TODO use own user that has only read-only permissions
     @Test
     @Disabled
     public void execute_modifyData_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
@@ -283,7 +282,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insert_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
-            TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+            TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException,
+            FileStorageException {
         final ImportDto request = ImportDto.builder()
                 .location("/tmp/csv_12.csv")
                 .build();
@@ -335,7 +335,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void insert_large_succeeds() throws InterruptedException, TableNotFoundException, DatabaseNotFoundException,
-            TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException {
+            TableMalformedException, ImageNotSupportedException, SQLException, ContainerNotFoundException,
+            FileStorageException {
         final ImportDto request = ImportDto.builder()
                 .location("/tmp/csv_13.csv")
                 .build();

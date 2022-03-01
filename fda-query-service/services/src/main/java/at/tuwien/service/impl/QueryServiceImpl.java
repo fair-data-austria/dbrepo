@@ -9,6 +9,7 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.*;
+import at.tuwien.mapper.DataMapper;
 import at.tuwien.mapper.QueryMapper;
 import at.tuwien.repository.jpa.TableColumnRepository;
 import at.tuwien.service.*;
@@ -34,17 +35,22 @@ import java.util.stream.Collectors;
 @Service
 public class QueryServiceImpl extends HibernateConnector implements QueryService {
 
+    private final DataMapper dataMapper;
     private final QueryMapper queryMapper;
     private final TableService tableService;
     private final DatabaseService databaseService;
+    private final CommaValueService commaValueService;
     private final TableColumnRepository tableColumnRepository;
 
     @Autowired
-    public QueryServiceImpl(QueryMapper queryMapper, TableService tableService, DatabaseService databaseService,
+    public QueryServiceImpl(DataMapper dataMapper, QueryMapper queryMapper, TableService tableService,
+                            DatabaseService databaseService, CommaValueService commaValueService,
                             TableColumnRepository tableColumnRepository) {
+        this.dataMapper = dataMapper;
         this.queryMapper = queryMapper;
         this.tableService = tableService;
         this.databaseService = databaseService;
+        this.commaValueService = commaValueService;
         this.tableColumnRepository = tableColumnRepository;
     }
 
@@ -170,6 +176,9 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final Table table = tableService.find(databaseId, tableId);
         /* run query */
         if (data.getData().size() == 0) return null;
+        /* replace */
+        data = dataMapper.replace(data, table);
+        /* insert */
         final long startSession = System.currentTimeMillis();
         final SessionFactory factory = getSessionFactory(database, true);
         final Session session = factory.openSession();
@@ -186,10 +195,12 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     @Transactional
     public Integer insert(Long containerId, Long databaseId, Long tableId, ImportDto data)
             throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
-            TableNotFoundException, ContainerNotFoundException {
+            TableNotFoundException, ContainerNotFoundException, FileStorageException {
         /* find */
         final Database database = databaseService.find(databaseId);
         final Table table = tableService.find(databaseId, tableId);
+        /* replace */
+        commaValueService.replace(table, data.getLocation());
         /* run query */
         final long startSession = System.currentTimeMillis();
         final SessionFactory factory = getSessionFactory(database, true);

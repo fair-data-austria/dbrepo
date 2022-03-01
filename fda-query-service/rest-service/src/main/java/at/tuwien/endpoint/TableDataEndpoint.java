@@ -75,7 +75,7 @@ public class TableDataEndpoint {
                                              @NotNull @PathVariable("tableId") Long tableId,
                                              @Valid @RequestBody ImportDto data)
             throws TableNotFoundException, DatabaseNotFoundException, TableMalformedException,
-            ImageNotSupportedException, ContainerNotFoundException {
+            ImageNotSupportedException, ContainerNotFoundException, FileStorageException {
         log.info("Insert data from location {} into database id {}", data, databaseId);
         return ResponseEntity.accepted()
                 .body(queryService.insert(id, databaseId, tableId, data));

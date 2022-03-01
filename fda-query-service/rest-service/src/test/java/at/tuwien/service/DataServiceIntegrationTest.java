@@ -1,10 +1,8 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.config.DockerConfig;
 import at.tuwien.config.ReadyConfig;
-import at.tuwien.exception.*;
 import at.tuwien.repository.elastic.DatabaseRepository;
 import at.tuwien.repository.jpa.TableRepository;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -25,7 +23,6 @@ import java.util.Arrays;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
 import static at.tuwien.config.DockerConfig.hostConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Log4j2
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -124,45 +121,5 @@ public class DataServiceIntegrationTest extends BaseUnitTest {
         tableRepository.save(TABLE_2);
     }
 
-    @Test
-    @Disabled
-    public void write_succeeds() throws TableNotFoundException, DatabaseConnectionException, TableMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, FileStorageException, PaginationException,
-            ContainerNotFoundException {
-
-        /* test */
-//        final Resource response = dataService.export(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID);
-//        assertTrue(response.exists());
-    }
-
-    @Test
-    public void read_url_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException,
-            ContainerNotFoundException {
-        final String location = "http://" + CONTAINER_NGINX_IP + "/weather_aus.csv";
-
-        /* test */
-        final TableCsvDto response = dataService.read(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location);
-        assertEquals(3, response.getData().size());
-    }
-
-    @Test
-    public void read_classpath_succeeds() throws TableNotFoundException, DatabaseNotFoundException,
-            FileStorageException, ContainerNotFoundException {
-        final String location = "test:csv/csv_12.csv";
-
-        /* test */
-        final TableCsvDto response = dataService.read(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location);
-        assertEquals(10000, response.getData().size());
-    }
-
-    @Test
-    public void read_succeeds() throws TableNotFoundException, DatabaseNotFoundException, FileStorageException,
-            ContainerNotFoundException {
-        final String location = "/csv_12.csv";
-
-        /* test */
-        final TableCsvDto response = dataService.read(CONTAINER_1_ID, DATABASE_1_ID, TABLE_1_ID, location);
-        assertEquals(10000, response.getData().size());
-    }
 
 }
