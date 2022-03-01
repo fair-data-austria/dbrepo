@@ -56,7 +56,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
-        log.debug("find all queries in database id {}", databaseId);
+        log.trace("find all queries in database id {}", databaseId);
         /* run query */
         final SessionFactory factory = getSessionFactory(database, true);
         final Session session = factory.openSession();
@@ -127,7 +127,8 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
-        log.debug("Insert into database id {}, metadata {}", databaseId, metadata);
+        log.info("Insert into database with id {}", databaseId);
+        log.debug("insert into database with id {}, metadata {}", databaseId, metadata);
         /* user */
         final UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder
                 .getContext().getAuthentication();

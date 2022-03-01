@@ -177,7 +177,7 @@ public interface QueryMapper {
         }
         if (timestamp == null) {
             timestamp = Instant.now();
-            log.debug("no timestamp provided, default to {}", timestamp);
+            log.trace("no timestamp provided, default to {}", timestamp);
         } else {
             log.debug("timestamp provided {}", timestamp);
         }
@@ -244,7 +244,7 @@ public interface QueryMapper {
                     .forEach(column -> map.put(column.getInternalName(), dataColumnToObject(data[idx[0]++], column)));
             queryResult.add(map);
         }
-        log.info("Selected {} records from table id {}", queryResult.size(), table.getId());
+        log.debug("selected {} records from table id {}", queryResult.size(), table.getId());
         log.trace("table {} contains {} records", table, queryResult.size());
         return QueryResultDto.builder()
                 .result(queryResult)

@@ -67,13 +67,13 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final long startSession = System.currentTimeMillis();
         final SessionFactory factory = getSessionFactory(database);
         final Session session = factory.openSession();
-        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        log.trace("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         /* prepare the statement */
         final NativeQuery<?> query = session.createSQLQuery(statement.getStatement());
         final int affectedTuples;
         try {
-            log.debug("execute raw view-only query {}", statement);
+            log.trace("execute raw view-only query {}", statement);
             affectedTuples = query.executeUpdate();
             log.info("Execution on database id {} affected {} rows", databaseId, affectedTuples);
             session.getTransaction()
@@ -105,7 +105,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final long startSession = System.currentTimeMillis();
         final SessionFactory factory = getSessionFactory(database, true);
         final Session session = factory.openSession();
-        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        log.trace("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         final NativeQuery<?> query = session.createSQLQuery(queryMapper.tableToRawFindAllQuery(table, timestamp, size,
                 page, sortBy, sortDesc));
@@ -145,13 +145,13 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final long startSession = System.currentTimeMillis();
         final SessionFactory factory = getSessionFactory(database, false);
         final Session session = factory.openSession();
-        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        log.trace("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         final NativeQuery<BigInteger> query = session.createSQLQuery(queryMapper.tableToRawCountAllQuery(table, timestamp));
         final int affectedTuples;
         try {
             affectedTuples = query.executeUpdate();
-            log.info("Counted {} tuples in table id {}", affectedTuples, tableId);
+            log.debug("counted {} tuples in table id {}", affectedTuples, tableId);
         } catch (PersistenceException e) {
             log.error("Failed to count tuples");
             session.close();
@@ -205,7 +205,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final long startSession = System.currentTimeMillis();
         final SessionFactory factory = getSessionFactory(database, true);
         final Session session = factory.openSession();
-        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        log.trace("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         /* prepare the statement */
         final InsertTableRawQuery raw = queryMapper.pathToRawInsertQuery(table, data);
