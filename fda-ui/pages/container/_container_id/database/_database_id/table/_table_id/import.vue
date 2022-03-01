@@ -73,11 +73,14 @@
         </v-row>
       </v-card-text>
       <v-card-actions>
-        <v-col>
-          <v-btn :disabled="!file" :loading="loading" color="primary" @click="upload">Next</v-btn>
-        </v-col>
+        <v-btn :disabled="!file" :loading="loading" color="primary" @click="upload">Upload</v-btn>
+        <v-btn :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}`" outlined>
+          <v-icon>mdi-table</v-icon>
+          View
+        </v-btn>
       </v-card-actions>
     </v-card>
+    <v-breadcrumbs :items="items" class="pa-0 mt-2" />
   </div>
 </template>
 <script>
@@ -107,7 +110,15 @@ export default {
         false_element: null
       },
       file: null,
-      fileLocation: null
+      fileLocation: null,
+      items: [
+        { text: 'Databases', to: '/container', activeClass: '' },
+        {
+          text: `${this.$route.params.database_id}`,
+          to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info`,
+          activeClass: ''
+        }
+      ]
     }
   },
   computed: {

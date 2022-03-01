@@ -14,7 +14,7 @@
             <v-col cols="8">
               <v-text-field
                 v-model="tableCreate.name"
-                required
+                :rules="[v => notEmpty(v) || $t('Required')]"
                 autocomplete="off"
                 label="Name *" />
             </v-col>
@@ -23,14 +23,14 @@
             <v-col cols="8">
               <v-text-field
                 v-model="tableCreate.description"
-                required
+                :rules="[v => notEmpty(v) || $t('Required')]"
                 autocomplete="off"
                 label="Description *" />
             </v-col>
           </v-row>
           <v-row dense>
             <v-col cols="8">
-              <v-btn :disabled="!step1Valid" color="primary" type="submit" @click="step = 2">
+              <v-btn :disabled="!validStep1" color="primary" type="submit" @click="step = 2">
                 Continue
               </v-btn>
             </v-col>
@@ -48,7 +48,7 @@
             <v-col cols="8">
               <v-select
                 v-model="tableCreate.separator"
-                :rules="[rules.required]"
+                :rules="[v => notEmpty(v) || $t('Required')]"
                 :items="separators"
                 required
                 hint="Character separating the values"
@@ -59,10 +59,12 @@
             <v-col cols="8">
               <v-text-field
                 v-model="tableCreate.skip_lines"
-                :rules="[rules.required, rules.positive]"
+                :rules="[
+                  v => notEmpty(v) || $t('Required'),
+                  v => isNonNegativeInteger(v) || $t('Number of lines to skip')]"
                 type="number"
                 required
-                hint="Skip n lines from the top"
+                hint="Skip n lines from the top. These may include comments or the header of column names."
                 label="Skip Lines *"
                 placeholder="e.g. 0" />
             </v-col>
@@ -96,7 +98,7 @@
           </v-row>
           <v-row dense>
             <v-col cols="6">
-              <v-btn :disabled="!tableCreate.separator || !tableCreate.skip_lines" :loading="loading" color="primary" type="submit" @click="step = 3">Next</v-btn>
+              <v-btn :disabled="!validStep2 || !tableCreate.separator || !tableCreate.skip_lines" :loading="loading" color="primary" type="submit" @click="step = 3">Next</v-btn>
             </v-col>
           </v-row>
         </v-form>
@@ -216,6 +218,8 @@
   </div>
 </template>
 <script>
+const { notEmpty, isNonNegativeInteger } = require('@/utils')
+
 export default {
   name: 'TableFromCSV',
   components: {
@@ -245,8 +249,7 @@ export default {
         }
       ],
       rules: {
-        required: value => !!value || 'Required',
-        positive: value => value >= 0 || 'Positive number'
+        required: value => !!value || 'Required'
       },
       dateFormats: [],
       tableCreate: {
@@ -257,7 +260,7 @@ export default {
         true_element: null,
         null_element: null,
         separator: ',',
-        skip_lines: 0
+        skip_lines: '1'
       },
       loading: false,
       file: null,
@@ -277,9 +280,6 @@ export default {
     }
   },
   computed: {
-    step1Valid () {
-      return this.tableCreate.name !== null && this.tableCreate.name.length > 0 && this.tableCreate.description !== null && this.tableCreate.description.length > 0
-    },
     token () {
       return this.$store.state.token
     }
@@ -288,6 +288,8 @@ export default {
     this.loadDateFormats()
   },
   methods: {
+    notEmpty,
+    isNonNegativeInteger,
     submit () {
       this.$refs.form.validate()
     },
@@ -343,19 +345,24 @@ export default {
     },
     async createTable () {
       /* make enum values to array */
-      this.tableCreate.columns.forEach((column) => {
+      const validColumns = this.tableCreate.columns.map((column) => {
         // validate `id` column: must be a PK
         if (column.name === 'id' && (!column.primary_key)) {
           this.$toast.error('Column `id` has to be a Primary Key')
-          return
+          return false
         }
-        if (column.enum_values == null) {
-          return
+        if (column.enum_values === null) {
+          return false
         }
         if (column.enum_values.length > 0) {
           column.enum_values = column.enum_values.split(',')
         }
+        return true
       })
+
+      // bail out if there is a problem with one of the columns
+      if (!validColumns.every(Boolean)) { return }
+
       const createUrl = `/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table`
       let createResult
       try {

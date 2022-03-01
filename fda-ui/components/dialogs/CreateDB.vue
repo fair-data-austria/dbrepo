@@ -68,6 +68,8 @@
 </template>
 
 <script>
+const { notEmpty } = require('@/utils')
+
 export default {
   data () {
     return {
@@ -120,9 +122,7 @@ export default {
         setTimeout(resolve, ms)
       })
     },
-    notEmpty (str) {
-      return typeof str === 'string' && str.trim().length > 0
-    },
+    notEmpty,
     async createDB () {
       let res
       // create a container
