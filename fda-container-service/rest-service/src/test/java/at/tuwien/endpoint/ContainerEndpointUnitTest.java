@@ -15,8 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,7 +57,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws ImageNotFoundException, DockerClientException, ContainerAlreadyExistsException {
+    public void create_succeeds() throws ImageNotFoundException, DockerClientException, UserNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
                 .repository(IMAGE_1.getRepository())
@@ -72,7 +75,7 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
 
     @Disabled
     @Test
-    public void create_noImage_fails() throws DockerClientException, ImageNotFoundException, ContainerAlreadyExistsException {
+    public void create_noImage_fails() throws DockerClientException, ImageNotFoundException, UserNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
                 .repository("image")
@@ -88,8 +91,9 @@ public class ContainerEndpointUnitTest extends BaseUnitTest {
     }
 
     @Disabled
+    @WithMockUser(username = "not3x1st1ng", roles = {"ROLE_RESEARCHER"})
     @Test
-    public void create_docker_fails() throws DockerClientException, ImageNotFoundException, ContainerAlreadyExistsException {
+    public void create_docker_fails() throws DockerClientException, ImageNotFoundException, UserNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .name(CONTAINER_1_NAME)
                 .repository(IMAGE_1.getRepository())

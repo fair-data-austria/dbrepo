@@ -74,7 +74,7 @@ public class TableEndpoint {
                                                 @NotNull @Valid @RequestBody TableCreateDto createDto)
             throws ImageNotSupportedException, DatabaseNotFoundException, DataProcessingException,
             ArbitraryPrimaryKeysException, TableMalformedException, AmqpException, TableNameExistsException,
-            ContainerNotFoundException {
+            ContainerNotFoundException, UserNotFoundException {
         final Table table = tableService.createTable(id, databaseId, createDto);
         amqpService.create(table);
         return ResponseEntity.status(HttpStatus.CREATED)

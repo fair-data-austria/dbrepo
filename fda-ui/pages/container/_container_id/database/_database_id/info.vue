@@ -1,7 +1,7 @@
 <template>
   <div v-if="db">
     <DBToolbar />
-    <v-progress-linear v-if="loading" />
+    <v-progress-linear v-if="loading" :indeterminate="!error" />
     <v-tabs-items v-if="!loading" v-model="tab">
       <v-tab-item>
         <v-card flat>
@@ -39,12 +39,8 @@ export default {
     return {
       loading: false,
       items: [
-        { text: 'Databases', to: '/container', activeClass: '' },
-        {
-          text: `${this.$route.params.database_id}`,
-          to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info`,
-          activeClass: ''
-        }
+        { text: 'Databases', href: '/container' },
+        { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` }
       ]
     }
   },

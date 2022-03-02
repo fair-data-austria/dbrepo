@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-toolbar flat>
-      <v-toolbar-title>Import Data</v-toolbar-title>
+      <v-toolbar-title>Import data</v-toolbar-title>
     </v-toolbar>
     <v-card>
       <v-card-title v-if="!loading">
@@ -163,7 +163,7 @@ export default {
       const insertUrl = `/api/container/${this.$route.params.container_id}/database/${this.databaseId}/table/${this.tableId}/data/import`
       let insertResult
       try {
-        insertResult = await this.$axios.post(insertUrl, { location: '/tmp/' + this.fileLocation }, {
+        insertResult = await this.$axios.post(insertUrl, { location: `/tmp/${this.fileLocation}` }, {
           headers: { Authorization: `Bearer ${this.token}` }
         })
         console.debug('inserted table', insertResult.data)

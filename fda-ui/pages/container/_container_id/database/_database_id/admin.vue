@@ -48,12 +48,8 @@ export default {
       dialogDelete: false,
       confirm: null,
       items: [
-        { text: 'Databases', to: '/container', activeClass: '' },
-        {
-          text: `${this.$route.params.database_id}`,
-          to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info`,
-          activeClass: ''
-        }
+        { text: 'Databases', to: '/databases', activeClass: '' },
+        { text: `${this.$route.params.database_id}`, to: `/databases/${this.$route.params.database_id}/info`, activeClass: '' }
       ]
     }
   },

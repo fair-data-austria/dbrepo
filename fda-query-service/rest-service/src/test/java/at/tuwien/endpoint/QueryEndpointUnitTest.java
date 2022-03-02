@@ -45,7 +45,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void execute_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, UserNotFoundException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -69,7 +69,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void execute_emptyResult_succeeds() throws TableNotFoundException, QueryStoreException,
-            QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException {
+            QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, UserNotFoundException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -110,7 +110,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void save_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
-            ContainerNotFoundException {
+            ContainerNotFoundException, UserNotFoundException {
         final SaveStatementDto request = SaveStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -127,7 +127,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void save_dbNotFound_fails() throws QueryStoreException, DatabaseNotFoundException,
-            ImageNotSupportedException, ContainerNotFoundException {
+            ImageNotSupportedException, ContainerNotFoundException, UserNotFoundException {
         final SaveStatementDto request = SaveStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();

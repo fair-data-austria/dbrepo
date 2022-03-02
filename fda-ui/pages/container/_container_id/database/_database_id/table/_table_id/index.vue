@@ -10,7 +10,7 @@
         <v-btn class="mr-2" :disabled="!token" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/import`">
           <v-icon left>mdi-cloud-upload</v-icon> Import csv
         </v-btn>
-        <v-btn color="primary" :disabled="!token" :href="`/api/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/data/export`" target="_blank">
+        <v-btn color="primary" :disabled="!token" :href="`/api/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/export`" target="_blank">
           <v-icon left>mdi-download</v-icon> Download
         </v-btn>
       </v-toolbar-title>
@@ -40,7 +40,8 @@
         :options.sync="options"
         :server-items-length="total"
         :footer-props="footerProps"
-        class="elevation-1" />
+        class="elevation-1"
+        @update:page="paginate" />
     </v-card>
     <div class="mt-3">
       <v-chip
@@ -77,7 +78,6 @@ export default {
       timeMenu: false,
       pickVersionDialog: null,
       version: null,
-      error: false, // XXX: `error` is never changed
       options: {
         page: 1,
         itemsPerPage: 10
@@ -87,10 +87,10 @@ export default {
         description: null
       },
       items: [
-        { text: 'Databases', to: '/container', activeClass: '' },
-        { text: `${this.$route.params.database_id}`, to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info`, activeClass: '' },
-        { text: 'Tables', to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table`, activeClass: '' },
-        { text: `${this.$route.params.table_id}`, to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`, activeClass: '' }
+        { text: 'Databases', href: '/container' },
+        { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` },
+        { text: 'Tables', href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table` },
+        { text: `${this.$route.params.table_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}` }
       ],
       headers: [],
       rows: []
@@ -133,13 +133,15 @@ export default {
         const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${this.$route.params.table_id}`)
         this.table = res.data
         console.debug('headers', res.data.columns)
-        this.headers = res.data.columns.map((c) => {
+        this.headers = res.data.columns.filter(c => !c.auto_generated)
+        this.headers = this.headers.map((c) => {
           return {
             value: c.internal_name,
             text: this.columnAddition(c) + c.name
           }
         })
       } catch (err) {
+        console.error('Failed to load table details', err)
         this.$toast.error('Could not get table details.')
       }
       this.loading = false
@@ -153,14 +155,18 @@ export default {
           url += `&timestamp=${new Date(this.version).toISOString()}`
         }
         const res = await this.$axios.get(url)
-        console.debug('version', this.datetime, 'table data', res.data)
-        this.total = res.headers['fda-count']
+        console.debug('version', this.datetime, 'data', res.data)
+        this.total = Number.parseFloat(res.headers['fda-count'])
         this.rows = res.data.result
       } catch (err) {
         console.error('failed to load data', err)
         this.$toast.error('Could not load table data.')
       }
       this.loadingData = false
+    },
+    paginate (page) {
+      this.options.page = page
+      this.loadData()
     },
     columnAddition (column) {
       if (column.is_primary_key) {

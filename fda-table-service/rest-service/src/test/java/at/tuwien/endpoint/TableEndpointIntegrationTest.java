@@ -112,7 +112,7 @@ public class TableEndpointIntegrationTest extends BaseUnitTest {
     @Test
     public void create_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
             DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException,
-            AmqpException, TableNameExistsException, InterruptedException, ContainerNotFoundException {
+            AmqpException, TableNameExistsException, InterruptedException, ContainerNotFoundException, UserNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_3_NAME)
                 .description(TABLE_3_DESCRIPTION)

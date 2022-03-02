@@ -1,14 +1,14 @@
 <template>
   <div>
     <v-toolbar flat>
-      <v-toolbar-title>Create Table Schema (and Import Data) from .csv</v-toolbar-title>
+      <v-toolbar-title>Create table schema (and import data) from .csv</v-toolbar-title>
     </v-toolbar>
     <v-stepper v-model="step" vertical flat>
       <v-stepper-step :complete="step > 1" step="1">
         Table Information
       </v-stepper-step>
 
-      <v-stepper-content class="pt-0 pb-1" step="1">
+      <v-stepper-content step="1">
         <v-form ref="form" v-model="validStep1" @submit.prevent="submit">
           <v-row dense>
             <v-col cols="8">
@@ -143,7 +143,7 @@
           <div v-for="(c, idx) in tableCreate.columns" :key="idx">
             <v-row dense class="column pa-2 ml-1 mr-1 mb-2">
               <v-col cols="2">
-                <v-text-field v-model="c.name" disabled required label="Name" />
+                <v-text-field v-model="c.name" required label="Name" />
               </v-col>
               <v-col cols="2">
                 <v-select
@@ -151,7 +151,27 @@
                   :items="columnTypes"
                   item-value="value"
                   required
-                  label="Data Type" />
+                  :rules="[v => !!v || $t('Required')]"
+                  label="Data Type"
+                  @change="setDecimal(c)" />
+              </v-col>
+              <v-col cols="auto" class="pl-10" :hidden="c.type !== 'DECIMAL'">
+                <v-text-field
+                  v-model="c.decimal_digits_before"
+                  label="Digits before decimal"
+                  type="number"
+                  required
+                  hint="e.g. 4 for 1111.11"
+                  :rules="[v => !!v || $t('Required')]" />
+              </v-col>
+              <v-col cols="auto" class="pl-10" :hidden="c.type !== 'DECIMAL'">
+                <v-text-field
+                  v-model="c.decimal_digits_after"
+                  label="Digits after decimal"
+                  type="number"
+                  required
+                  hint="e.g. 2 for 1111.11"
+                  :rules="[v => !!v || $t('Required')]" />
               </v-col>
               <v-col cols="2" :hidden="c.type !== 'ENUM'">
                 <v-select
@@ -180,7 +200,7 @@
                 <v-checkbox v-model="c.null_allowed" :disabled="c.primary_key" label="Null Allowed" />
               </v-col>
               <v-col cols="auto" class="pl-10">
-                <v-checkbox v-model="c.unique" :hidden="c.primary_key" label="Unique" />
+                <v-checkbox v-model="c.unique" :disabled="c.primary_key" label="Unique" />
               </v-col>
               <v-col cols="auto" class="pl-10">
                 <v-text-field v-model="c.foreign_key" hidden required label="Foreign Key" />
@@ -190,7 +210,12 @@
               </v-col>
             </v-row>
           </div>
-          <v-btn class="mt-2" color="primary" :loading="loading" type="submit" @click="createTable">
+          <v-btn
+            class="mt-2"
+            color="primary"
+            :loading="loading"
+            type="submit"
+            @click="createTable">
             Continue
           </v-btn>
         </v-form>
@@ -224,7 +249,7 @@ export default {
     return {
       step: 1,
       validStep1: false,
-      validStep2: false,
+      validStep2: true,
       validStep3: false,
       validStep4: false,
       separators: [
@@ -237,12 +262,8 @@ export default {
         '#'
       ],
       items: [
-        { text: 'Databases', to: '/container', activeClass: '' },
-        {
-          text: `${this.$route.params.database_id}`,
-          to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info`,
-          activeClass: ''
-        }
+        { text: 'Databases', href: '/container' },
+        { text: `${this.$route.params.database_id}`, href: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info` }
       ],
       rules: {
         required: value => !!value || 'Required',
@@ -257,7 +278,7 @@ export default {
         true_element: null,
         null_element: null,
         separator: ',',
-        skip_lines: 0
+        skip_lines: '0'
       },
       loading: false,
       file: null,
@@ -268,6 +289,7 @@ export default {
         { value: 'ENUM', text: 'Enumeration' },
         { value: 'BOOLEAN', text: 'Boolean' },
         { value: 'NUMBER', text: 'Number' },
+        { value: 'DECIMAL', text: 'Decimal' },
         { value: 'BLOB', text: 'Binary Large Object' },
         { value: 'DATE', text: 'Date' },
         { value: 'STRING', text: 'Character Varying' },
@@ -297,6 +319,7 @@ export default {
       const data = new FormData()
       data.append('file', this.file)
       try {
+        console.debug('uploading to middleware')
         const res = await this.$axios.post(url, data, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -326,6 +349,12 @@ export default {
     setOthers (column) {
       column.null_allowed = false
       column.unique = true
+    },
+    setDecimal (column) {
+      if (column.type === 'DECIMAL') {
+        column.decimal_digits_before = 10
+        column.decimal_digits_after = 2
+      }
     },
     async loadDateFormats () {
       const getUrl = `/api/container/${this.$route.params.container_id}`
@@ -361,7 +390,10 @@ export default {
       try {
         this.loading = true
         createResult = await this.$axios.post(createUrl, this.tableCreate, {
-          headers: { Authorization: `Bearer ${this.token}` }
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.token}`
+          }
         })
         this.newTableId = createResult.data.id
         console.debug('created table', createResult.data)
@@ -379,7 +411,10 @@ export default {
       let insertResult
       try {
         insertResult = await this.$axios.post(insertUrl, { location: `/tmp/${this.fileLocation}` }, {
-          headers: { Authorization: `Bearer ${this.token}` }
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.token}`
+          }
         })
         console.debug('inserted table', insertResult.data)
       } catch (err) {

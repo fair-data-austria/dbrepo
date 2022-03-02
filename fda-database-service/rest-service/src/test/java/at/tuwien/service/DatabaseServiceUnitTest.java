@@ -23,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.channels.Channel;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -123,7 +124,7 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws DatabaseNotFoundException {
+    public void findById_succeeds() throws DatabaseNotFoundException, ContainerNotFoundException {
 
         /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))

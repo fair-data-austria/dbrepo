@@ -27,6 +27,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.Optional;
 
 import static at.tuwien.config.DockerConfig.dockerClient;
@@ -55,13 +56,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     private DatabaseRepository databaseRepository;
 
     @Autowired
-    private ContainerRepository containerRepository;
-
-    @Autowired
     private MariaDbServiceImpl databaseService;
-
-    @Autowired
-    private HibernateConnector hibernateConnector;
 
     private static Container CONTAINER_BROKER;
 
@@ -156,7 +151,8 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     @Test
     public void create_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException, InterruptedException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, InterruptedException,
+            UserNotFoundException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .name(DATABASE_1_NAME)
                 .isPublic(DATABASE_1_PUBLIC)
@@ -226,7 +222,8 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException, InterruptedException, ContainerConnectionException {
+            DatabaseMalformedException, AmqpException, InterruptedException, ContainerConnectionException,
+            ContainerNotFoundException {
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_BROKER);
@@ -273,7 +270,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void find_succeeds() throws DatabaseNotFoundException, InterruptedException {
+    public void find_succeeds() throws DatabaseNotFoundException, InterruptedException, ContainerNotFoundException {
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_BROKER);

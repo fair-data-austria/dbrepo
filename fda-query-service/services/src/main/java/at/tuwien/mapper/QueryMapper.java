@@ -1,5 +1,6 @@
 package at.tuwien.mapper;
 
+import at.tuwien.ExportTableRawQuery;
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.*;
 import at.tuwien.api.database.table.TableCsvDto;
@@ -8,6 +9,7 @@ import at.tuwien.querystore.Query;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
 import at.tuwien.exception.ImageNotSupportedException;
+import org.apache.commons.lang.RandomStringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -59,7 +61,13 @@ public interface QueryMapper {
         while (iterator.hasNext()) {
             /* map the result set to the columns through the stored metadata in the metadata database */
             int[] idx = new int[]{0};
-            final Object[] data = (Object[]) iterator.next();
+            final Object[] data;
+            if (columns.size() == 1) {
+                /* issue #135 */
+                data = new Object[]{iterator.next()};
+            } else {
+                data = (Object[]) iterator.next();
+            }
             final Map<String, Object> map = new HashMap<>();
             columns
                     .forEach(column -> map.put(column.getName(),
@@ -81,7 +89,6 @@ public interface QueryMapper {
                 .append("` CHARACTER SET utf8 FIELDS TERMINATED BY '")
                 .append(table.getSeparator())
                 .append("'")
-//                .append("' LINES TERMINATED BY '\\r\\n'")
                 .append(table.getSkipLines() != null ? (" IGNORE " + table.getSkipLines() + " LINES") : "")
                 .append(" (");
         final StringBuilder dateSet = new StringBuilder();
@@ -163,7 +170,8 @@ public interface QueryMapper {
                 "';";
     }
 
-    default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page)
+    default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page, String sortBy,
+                                          Boolean sortDesc)
             throws ImageNotSupportedException {
         /* param check */
         if (!table.getDatabase().getContainer().getImage().getRepository().equals("mariadb")) {
@@ -171,7 +179,7 @@ public interface QueryMapper {
         }
         if (timestamp == null) {
             timestamp = Instant.now();
-            log.debug("no timestamp provided, default to {}", timestamp);
+            log.trace("no timestamp provided, default to {}", timestamp);
         } else {
             log.debug("timestamp provided {}", timestamp);
         }
@@ -187,6 +195,14 @@ public interface QueryMapper {
                 .append("` FOR SYSTEM_TIME AS OF TIMESTAMP'")
                 .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
                 .append("'");
+        if (sortBy != null && sortDesc != null) {
+            /* sorting requested */
+            query.append(" ORDER BY ")
+                    .append("`")
+                    .append(sortBy)
+                    .append("` ")
+                    .append(sortDesc ? "DESC" : "ASC");
+        }
         if (size != null && page != null) {
             log.trace("pagination size/limit of {}", size);
             query.append(" LIMIT ")
@@ -201,26 +217,81 @@ public interface QueryMapper {
         return query.toString();
     }
 
+    /**
+     * Map the result list with table.
+     * <p>
+     * We have a special case in MariaDB where when the result is only (id=1),(id=2),... the {@link Iterator#next()}
+     * function only returns a single entity instead of a list.
+     *
+     * @param result The result list.
+     * @param table  The table.
+     * @return Result of the query execution.
+     * @throws DateTimeException
+     */
     default QueryResultDto queryTableToQueryResultDto(List<?> result, Table table) throws DateTimeException {
         final Iterator<?> iterator = result.iterator();
         final List<Map<String, Object>> queryResult = new LinkedList<>();
         while (iterator.hasNext()) {
             /* map the result set to the columns through the stored metadata in the metadata database */
             int[] idx = new int[]{0};
-            final Object[] data = (Object[]) iterator.next();
+            final Object[] data;
+            if (table.getColumns().size() == 1 && table.getColumns().get(0).getIsPrimaryKey()) {
+                /* special MariaDB case */
+                data = new Object[]{iterator.next()};
+            } else {
+                data = (Object[]) iterator.next();
+            }
             final Map<String, Object> map = new HashMap<>();
             table.getColumns()
-                    .forEach(column -> map.put(column.getName(), dataColumnToObject(data[idx[0]++], column)));
+                    .forEach(column -> map.put(column.getInternalName(), dataColumnToObject(data[idx[0]++], column)));
             queryResult.add(map);
         }
-        log.info("Selected {} records from table id {}", queryResult.size(), table.getId());
         log.trace("table {} contains {} records", table, queryResult.size());
         return QueryResultDto.builder()
                 .result(queryResult)
                 .build();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    default ExportTableRawQuery tableToExportRawQuery(Table table, Instant timestamp) {
+        final String filename = RandomStringUtils.randomAlphabetic(20);
+        /* versioning */
+        if (timestamp == null) {
+            log.trace("no timestamp provided, use current timestamp");
+            timestamp = Instant.now();
+        }
+        /* build */
+        final StringBuilder query = new StringBuilder("SELECT ");
+        int[] idx = new int[]{0};
+        table.getColumns()
+                .forEach(column -> {
+                    if (column.getAutoGenerated()) {
+                        return;
+                    }
+                    query.append(idx[0] != 0 ? "," : "")
+                            .append("`")
+                            .append(column.getInternalName())
+                            .append("`");
+                    idx[0]++;
+                });
+        query.append(" INTO OUTFILE '/tmp/")
+                .append(filename)
+                .append("' FIELDS TERMINATED BY ")
+                .append("'")
+                .append(table.getSeparator())
+                .append("' FROM `")
+                .append(table.getInternalName())
+                .append("` FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
+                .append("';");
+        log.trace("raw export table query: [{}]", query);
+        return ExportTableRawQuery.builder()
+                .statement(query.toString())
+                .filename(filename)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
     default Object dataColumnToObject(Object data, TableColumn column) throws DateTimeException {
         if (data == null) {
             return null;
@@ -245,17 +316,22 @@ public interface QueryMapper {
                 log.trace("mapping {} to date with format '{}' to value {}", data, column.getDateFormat(), val);
                 return val;
             case ENUM:
+                log.trace("mapping {} to enum", data);
+                return String.valueOf(data);
             case TEXT:
+                log.trace("mapping {} to text", data);
+                return String.valueOf(data);
             case STRING:
                 log.trace("mapping {} to character array", data);
                 return String.valueOf(data);
             case NUMBER:
-                log.trace("mapping {} to non-decimal number", data);
+                log.trace("mapping {} to integer number", data);
                 return new BigInteger(String.valueOf(data));
             case DECIMAL:
                 log.trace("mapping {} to decimal number", data);
                 return Double.valueOf(String.valueOf(data));
             case BOOLEAN:
+                log.trace("mapping {} to boolean", data);
                 return Boolean.valueOf(String.valueOf(data));
             default:
                 throw new IllegalArgumentException("Column type not known");

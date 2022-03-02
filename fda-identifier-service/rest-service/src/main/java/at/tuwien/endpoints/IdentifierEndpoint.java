@@ -70,7 +70,7 @@ public class IdentifierEndpoint {
                                                 @NotNull @PathVariable("databaseId") Long databaseId,
                                                 @NotNull @Valid @RequestBody IdentifierDto data)
             throws IdentifierAlreadyExistsException, QueryNotFoundException, IdentifierPublishingNotAllowedException,
-            RemoteUnavailableException {
+            RemoteUnavailableException, UserNotFoundException {
         final Identifier identifier = identifierService.create(id, databaseId, data);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(identifierMapper.identifierToIdentifierDto(identifier));

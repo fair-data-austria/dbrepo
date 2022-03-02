@@ -65,7 +65,7 @@ export default {
     return {
       formValid: false,
       loading: false,
-      error: false, // XXX: `error` is never changed
+      error: false,
       visibility: [{
         name: 'Public',
         value: 'EVERYONE'

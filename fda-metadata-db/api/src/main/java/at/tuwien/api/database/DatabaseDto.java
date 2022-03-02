@@ -3,11 +3,11 @@ package at.tuwien.api.database;
 import at.tuwien.api.container.ContainerDto;
 import at.tuwien.api.container.image.ImageDto;
 import at.tuwien.api.database.table.TableDto;
+import at.tuwien.api.user.UserDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -33,6 +33,10 @@ public class DatabaseDto {
     @JsonProperty("internal_name")
     @ApiModelProperty(name = "database internal name", example = "weather_australia")
     private String internalName;
+
+    @NotNull
+    @ApiModelProperty(name = "user")
+    private UserDto creator;
 
     @NotBlank
     @ApiModelProperty(name = "database description", example = "Weather Australia 2009-2021")

@@ -17,16 +17,18 @@
             v-model="database"
             name="database"
             label="Name *"
+            autocomplete="off"
             autofocus
-            :rules="[v => notEmpty(v) || $t('Required')]"
+            :rules="[v => !!v || $t('Required')]"
             required />
           <v-textarea
             id="description"
             v-model="description"
             name="description"
+            autocomplete="off"
             rows="2"
             label="Description *"
-            :rules="[v => notEmpty(v) || $t('Required')]"
+            :rules="[v => !!v || $t('Required')]"
             required />
           <v-select
             id="engine"
@@ -120,9 +122,6 @@ export default {
         setTimeout(resolve, ms)
       })
     },
-    notEmpty (str) {
-      return typeof str === 'string' && str.trim().length > 0
-    },
     async createDB () {
       let res
       // create a container
@@ -132,8 +131,8 @@ export default {
         this.loading = true
         this.error = false
         res = await this.$axios.post('/api/container', {
-          name: this.database.trim(),
-          description: this.description.trim(),
+          name: this.database,
+          description: this.description,
           repository: this.engine.repository,
           tag: this.engine.tag
         }, {
@@ -159,10 +158,9 @@ export default {
       try {
         this.loading = true
         this.error = false
-        res = await this.$axios.put(`/api/container/${containerId}`,
-          { action: 'START' }, {
-            headers: { Authorization: `Bearer ${this.token}` }
-          })
+        res = await this.$axios.put(`/api/container/${containerId}`, { action: 'START' }, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
         console.debug('started container', res.data)
       } catch (err) {
         this.error = true
@@ -180,8 +178,8 @@ export default {
       for (let i = 0; i < 5; i++) {
         try {
           res = await this.$axios.post(`/api/container/${containerId}/database`, {
-            name: this.database.trim(),
-            description: this.description.trim(),
+            name: this.database,
+            description: this.description,
             is_public: this.isPublic
           }, {
             headers: { Authorization: `Bearer ${this.token}` }

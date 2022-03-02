@@ -51,7 +51,7 @@ public class QueryEndpoint {
                                                   @NotNull @PathVariable("databaseId") Long databaseId,
                                                   @Valid @RequestBody ExecuteStatementDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException, QueryMalformedException,
-            TableNotFoundException, ContainerNotFoundException {
+            TableNotFoundException, ContainerNotFoundException, UserNotFoundException {
         /* validation */
         if (data.getStatement() == null || data.getStatement().isBlank()) {
             log.error("Query is empty");
@@ -82,7 +82,7 @@ public class QueryEndpoint {
                                          @NotNull @PathVariable("databaseId") Long databaseId,
                                          @Valid @RequestBody SaveStatementDto data)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
-            ContainerNotFoundException {
+            ContainerNotFoundException, UserNotFoundException {
         final Query query = storeService.insert(id, databaseId, null, data);
         final QueryDto queryDto = queryMapper.queryToQueryDto(query);
         return ResponseEntity.status(HttpStatus.ACCEPTED)

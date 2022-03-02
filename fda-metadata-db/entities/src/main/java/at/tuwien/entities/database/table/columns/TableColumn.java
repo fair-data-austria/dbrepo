@@ -2,7 +2,7 @@ package at.tuwien.entities.database.table.columns;
 
 import at.tuwien.entities.container.image.ContainerImageDate;
 import at.tuwien.entities.database.table.Table;
-import io.swagger.annotations.ApiModelProperty;
+import at.tuwien.entities.user.User;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,7 +22,9 @@ import java.util.List;
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@javax.persistence.Table(name = "mdb_columns")
+@javax.persistence.Table(name = "mdb_columns", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"tid", "internalName"})
+})
 public class TableColumn implements Comparable<TableColumn> {
 
     @Id
@@ -58,6 +60,12 @@ public class TableColumn implements Comparable<TableColumn> {
     })
     private Table table;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "createdBy", referencedColumnName = "UserID")
+    })
+    private User creator;
+
     @Column(name = "cname", nullable = false)
     private String name;
 
@@ -66,6 +74,12 @@ public class TableColumn implements Comparable<TableColumn> {
 
     @Column(nullable = false)
     private String internalName;
+
+    @Column(name = "decimal_digits_before")
+    private Long decimalDigitsBefore;
+
+    @Column(name = "decimal_digits_after")
+    private Long decimalDigitsAfter;
 
     @Column(nullable = false)
     private Boolean isPrimaryKey = false;

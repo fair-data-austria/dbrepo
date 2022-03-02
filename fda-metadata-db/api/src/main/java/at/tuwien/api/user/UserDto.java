@@ -1,5 +1,6 @@
 package at.tuwien.api.user;
 
+import at.tuwien.api.container.ContainerDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -24,6 +25,34 @@ public class UserDto {
     @NotNull
     @ApiModelProperty(name = "user name")
     private String username;
+
+    @NotNull
+    @ApiModelProperty(name = "titles before the first name")
+    private String titlesBefore;
+
+    @NotNull
+    @ApiModelProperty(name = "titles after the last name")
+    private String titlesAfter;
+
+    @NotNull
+    @ApiModelProperty(name = "first name")
+    private String firstname;
+
+    @NotNull
+    @ApiModelProperty(name = "last name")
+    private String lastname;
+
+    @NotNull
+    @ApiModelProperty(name = "list of containers")
+    private List<ContainerDto> containers;
+
+    @NotNull
+    @ApiModelProperty(name = "list of databases")
+    private List<ContainerDto> databases;
+
+    @NotNull
+    @ApiModelProperty(name = "list of identifiers")
+    private List<ContainerDto> identifiers;
 
     @NotNull
     @ToString.Exclude

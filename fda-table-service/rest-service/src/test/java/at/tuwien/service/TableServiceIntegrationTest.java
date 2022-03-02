@@ -128,7 +128,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
-            TableNameExistsException, ContainerNotFoundException {
+            TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_2_NAME)
                 .description(TABLE_2_DESCRIPTION)
@@ -151,7 +151,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_noPrimaryKeyAutoGenerate_succeeds() throws ArbitraryPrimaryKeysException,
             DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, TableMalformedException,
-            InterruptedException, TableNameExistsException, ContainerNotFoundException {
+            InterruptedException, TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_2_NAME)
@@ -186,7 +186,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_noPrimaryKeyAutoGenerateEmpty_succeeds() throws ArbitraryPrimaryKeysException,
             DatabaseNotFoundException, ImageNotSupportedException, DataProcessingException, TableMalformedException,
-            InterruptedException, TableNameExistsException, ContainerNotFoundException {
+            InterruptedException, TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[0];
         final TableCreateDto request = TableCreateDto.builder()
                 .name(TABLE_2_NAME)
@@ -249,7 +249,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_groupPrimaryKey_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
-            TableNameExistsException, ContainerNotFoundException {
+            TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_1_NAME)
@@ -293,7 +293,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_checkExpression_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
-            TableNameExistsException, ContainerNotFoundException {
+            TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_1_NAME)
@@ -327,7 +327,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_withEnum_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
-            TableNameExistsException, ContainerNotFoundException {
+            TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_1_NAME)
@@ -372,7 +372,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_withUniqueColumn_succeeds() throws ArbitraryPrimaryKeysException, DatabaseNotFoundException,
             ImageNotSupportedException, DataProcessingException, TableMalformedException, InterruptedException,
-            TableNameExistsException, ContainerNotFoundException {
+            TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final ColumnCreateDto[] columns = new ColumnCreateDto[]{
                 ColumnCreateDto.builder()
                         .name(COLUMN_1_1_NAME)
@@ -435,7 +435,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_textPrimaryKey_succeeds() throws InterruptedException, SQLException, TableMalformedException,
             ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException, TableNameExistsException, ContainerNotFoundException {
+            DataProcessingException, TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name("Issue 99")
                 .description("Related to issue 99")
@@ -468,7 +468,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_blobPrimaryKey_succeeds() throws InterruptedException, SQLException, TableMalformedException,
             ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException, TableNameExistsException, ContainerNotFoundException {
+            DataProcessingException, TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name("Issue 99")
                 .description("Related to issue 99")
@@ -513,7 +513,7 @@ public class TableServiceIntegrationTest extends BaseUnitTest {
     @Test
     public void createTable_issue106_succeeds() throws InterruptedException, SQLException, TableMalformedException,
             ArbitraryPrimaryKeysException, DatabaseNotFoundException, ImageNotSupportedException,
-            DataProcessingException, TableNameExistsException, ContainerNotFoundException {
+            DataProcessingException, TableNameExistsException, ContainerNotFoundException, UserNotFoundException {
         final TableCreateDto request = TableCreateDto.builder()
                 .name("Table")
                 .description(TABLE_2_DESCRIPTION)

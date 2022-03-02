@@ -52,6 +52,6 @@ public interface TableService {
      * @throws TableMalformedException       The table seems malformed by the mapper.
      */
     Table createTable(Long containerId, Long databaseId, TableCreateDto createDto) throws ImageNotSupportedException,
-            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException, TableNameExistsException, ContainerNotFoundException;
+            DatabaseNotFoundException, DataProcessingException, ArbitraryPrimaryKeysException, TableMalformedException, TableNameExistsException, ContainerNotFoundException, UserNotFoundException;
 
 }

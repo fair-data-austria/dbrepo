@@ -75,8 +75,7 @@ public class TableDataEndpoint {
                                              @NotNull @PathVariable("tableId") Long tableId,
                                              @Valid @RequestBody ImportDto data)
             throws TableNotFoundException, DatabaseNotFoundException, TableMalformedException,
-            ImageNotSupportedException, ContainerNotFoundException {
-        log.info("Insert data from location {} into database id {}", data, databaseId);
+            ImageNotSupportedException, ContainerNotFoundException, FileStorageException {
         return ResponseEntity.accepted()
                 .body(queryService.insert(id, databaseId, tableId, data));
     }
@@ -95,27 +94,36 @@ public class TableDataEndpoint {
                                                  @NotNull @PathVariable("tableId") Long tableId,
                                                  @RequestParam(required = false) Instant timestamp,
                                                  @RequestParam(required = false) Long page,
-                                                 @RequestParam(required = false) Long size)
+                                                 @RequestParam(required = false) Long size,
+                                                 @RequestParam(required = false) String sortBy,
+                                                 @RequestParam(required = false) Boolean sortDesc)
             throws TableNotFoundException, DatabaseNotFoundException, DatabaseConnectionException,
             ImageNotSupportedException, TableMalformedException, PaginationException, ContainerNotFoundException,
-            QueryStoreException {
+            QueryStoreException, SortDataException {
         if ((page == null && size != null) || (page != null && size == null)) {
             log.error("Cannot perform pagination with only one of page/size set.");
             log.debug("invalid pagination specification, one of page/size is null, either both should be null or none.");
             throw new PaginationException("Invalid pagination parameters");
         }
         if (page != null && page < 0) {
-            throw new PaginationException("Page number cannot be lower than 0");
+            log.error("Failed to paginate: page number cannot be lower than 0");
+            throw new PaginationException("Failed to paginate");
         }
         if (size != null && size <= 0) {
-            throw new PaginationException("Page number cannot be lower or equal to 0");
+            log.error("Failed to paginate: page number cannot be lower or equal to 0");
+            throw new PaginationException("Failed to paginate");
+        }
+        if ((sortBy != null && sortDesc == null) || (sortBy == null && sortDesc != null)) {
+            log.error("Failed to sort: both sortBy and sortDesc must be present or absent");
+            throw new SortDataException("Failed to sort");
         }
         /* fixme query store maybe not created, create it through running findAll() */
         storeService.findAll(id, databaseId);
         final BigInteger count = queryService.count(id, databaseId, tableId, timestamp);
         final HttpHeaders headers = new HttpHeaders();
         headers.set("FDA-COUNT", count.toString());
-        final QueryResultDto response = queryService.findAll(id, databaseId, tableId, timestamp, page, size);
+        final QueryResultDto response = queryService.findAll(id, databaseId, tableId, timestamp, page, size, sortBy,
+                sortDesc);
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(response);

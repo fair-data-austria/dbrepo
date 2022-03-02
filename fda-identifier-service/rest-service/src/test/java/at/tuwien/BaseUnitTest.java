@@ -2,9 +2,9 @@ package at.tuwien;
 
 import at.tuwien.api.database.query.QueryDto;
 import at.tuwien.api.database.query.QueryResultDto;
-import at.tuwien.api.identifier.CreatorDto;
 import at.tuwien.api.identifier.IdentifierDto;
 import at.tuwien.api.identifier.VisibilityTypeDto;
+import at.tuwien.api.user.UserDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.entities.container.image.ContainerImageEnvironmentItem;
@@ -84,13 +84,10 @@ public abstract class BaseUnitTest {
             .lastModified(CREATOR_1_MODIFIED)
             .build();
 
-    public final static CreatorDto CREATOR_1_DTO = CreatorDto.builder()
+    public final static UserDto CREATOR_1_DTO = UserDto.builder()
             .id(CREATOR_1_ID)
-            .pid(CREATOR_1_IDENTIFIER_ID)
             .firstname(CREATOR_1_FIRSTNAME)
             .lastname(CREATOR_1_LASTNAME)
-            .created(CREATOR_1_CREATED)
-            .lastModified(CREATOR_1_MODIFIED)
             .build();
 
     public final static Creator CREATOR_1_REQUEST = Creator.builder()
@@ -126,13 +123,10 @@ public abstract class BaseUnitTest {
             .lastModified(CREATOR_2_MODIFIED)
             .build();
 
-    public final static CreatorDto CREATOR_2_DTO = CreatorDto.builder()
+    public final static UserDto CREATOR_2_DTO = UserDto.builder()
             .id(CREATOR_2_ID)
-            .pid(CREATOR_2_IDENTIFIER_ID)
             .firstname(CREATOR_2_FIRSTNAME)
             .lastname(CREATOR_2_LASTNAME)
-            .created(CREATOR_2_CREATED)
-            .lastModified(CREATOR_2_MODIFIED)
             .build();
 
     public final static String CREATOR_1_NAME = "First1 Last1";
@@ -357,7 +351,7 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_1_VISIBILITY_DTO)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
-            .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+            .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO))
             .build();
 
     public final static IdentifierDto IDENTIFIER_1_DTO_REQUEST = IdentifierDto.builder()
@@ -369,7 +363,7 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_1_VISIBILITY_DTO)
             .created(IDENTIFIER_1_CREATED)
             .lastModified(IDENTIFIER_1_MODIFIED)
-            .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+            .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO))
             .build();
 
     public final static IdentifierDto IDENTIFIER_2_DTO_REQUEST = IdentifierDto.builder()
@@ -381,7 +375,7 @@ public abstract class BaseUnitTest {
             .visibility(IDENTIFIER_2_VISIBILITY_DTO)
             .created(IDENTIFIER_2_CREATED)
             .lastModified(IDENTIFIER_2_MODIFIED)
-            .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+            .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO))
             .build();
 
     public final static String COLUMN_1_INTERNAL_NAME = "id";

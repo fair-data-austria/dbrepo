@@ -1,6 +1,6 @@
 #!/bin/bash
-docker container stop $(docker container ls -aq -f name=^/fda-.*) || true
-docker container rm $(docker container ls -aq -f name=^/fda-.*) || true
+docker container stop $(docker container ls -aq) || true
+docker container rm $(docker container ls -aq) || true
 docker volume rm $(docker volume ls -q) || true
 docker network rm fda-userdb || true
 docker network rm fda-public || true

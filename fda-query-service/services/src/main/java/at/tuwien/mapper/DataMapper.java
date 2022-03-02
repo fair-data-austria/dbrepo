@@ -1,12 +1,13 @@
 package at.tuwien.mapper;
 
 import at.tuwien.api.database.query.QueryResultDto;
+import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.entities.database.table.Table;
 import at.tuwien.entities.database.table.columns.TableColumn;
+import at.tuwien.entities.database.table.columns.TableColumnType;
 import at.tuwien.exception.FileStorageException;
 import com.opencsv.CSVWriter;
 import org.mapstruct.Mapper;
-import org.mariadb.jdbc.MariaDbBlob;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
@@ -24,21 +25,30 @@ public interface DataMapper {
 
     org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DataMapper.class);
 
-    default Object tableColumnToObject(Object data, String nullElement, String trueElement, String falseElement) {
-        /* null mapping */
-        if (data == null || nullElement == null || nullElement.isEmpty() || nullElement.isBlank()
-                || data.equals(nullElement)) {
-            return null;
-        }
-        /* boolean mapping */
-        if (data.equals(trueElement)) {
-            return true;
-        } else if (data.equals(falseElement)) {
-            return false;
-        }
-        return data;
+    default TableCsvDto replace(TableCsvDto data, Table table) {
+        /* true element */
+        table.getColumns()
+                .stream()
+                .filter(c -> c.getColumnType().equals(TableColumnType.BOOLEAN))
+                .filter(c -> data.getData().get(c.getInternalName()).equals(table.getTrueElement()))
+                .forEach(c -> data.getData().replace(c.getInternalName(), true));
+        /* false element */
+        table.getColumns()
+                .stream()
+                .filter(c -> c.getColumnType().equals(TableColumnType.BOOLEAN))
+                .filter(c -> data.getData().get(c.getInternalName()).equals(table.getFalseElement()))
+                .forEach(c -> data.getData().replace(c.getInternalName(), false));
+        /* null element */
+        table.getColumns()
+                .stream()
+                .filter(c -> data.getData().get(c.getInternalName()).equals(table.getNullElement()))
+                .forEach(c -> data.getData().replace(c.getInternalName(), null));
+        return TableCsvDto.builder()
+                .data(data.getData())
+                .build();
     }
 
+    // TODO do not remove me
     default Resource resultTableToResource(QueryResultDto result, Table table) throws FileStorageException {
         /* transform data */
         final List<String[]> data = tableQueryResultDtoToStringArrayList(table, result);
@@ -95,8 +105,6 @@ public interface DataMapper {
                         .map(String::valueOf)
                         .toArray(String[]::new)));
         log.trace("mapped csv rows {}", rows.size() - 1);
-        /* map null */
-        /* map boolean */
         return rows;
     }
 

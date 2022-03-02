@@ -112,6 +112,27 @@ CREATE SEQUENCE public.mdb_creators_seq
     NO MAXVALUE
     CACHE 1;
 
+CREATE TABLE IF NOT EXISTS mdb_users
+(
+    UserID               bigint                      not null DEFAULT nextval('mdb_user_seq'),
+    external_id          VARCHAR(255) UNIQUE,
+    OID                  bigint,
+    username             VARCHAR(255)                not null,
+    First_name           VARCHAR(50),
+    Last_name            VARCHAR(50),
+    Gender               gender,
+    Preceding_titles     VARCHAR(50),
+    Postpositioned_title VARCHAR(50),
+    Main_Email           VARCHAR(255)                not null,
+    password             VARCHAR(255)                not null,
+    created              timestamp without time zone NOT NULL DEFAULT NOW(),
+    last_modified        timestamp without time zone,
+    PRIMARY KEY (UserID),
+    UNIQUE (username),
+    UNIQUE (Main_Email),
+    UNIQUE (OID)
+);
+
 CREATE TABLE public.mdb_images
 (
     id            bigint                      NOT NULL DEFAULT nextval('mdb_images_seq'),
@@ -154,10 +175,12 @@ CREATE TABLE IF NOT EXISTS mdb_containers
     image_id      bigint,
     ip_address    character varying(255),
     created       timestamp without time zone NOT NULL DEFAULT NOW(),
+    created_by    bigint                      not null,
     LAST_MODIFIED timestamp without time zone,
     deleted       timestamp without time zone,
     PRIMARY KEY (id),
-    FOREIGN KEY (image_id) REFERENCES mdb_images (id)
+    FOREIGN KEY (image_id) REFERENCES mdb_images (id),
+    FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
 
 CREATE TABLE public.mdb_images_environment_item
@@ -184,27 +207,6 @@ CREATE TABLE IF NOT EXISTS mdb_data
     PRIMARY KEY (ID)
 );
 
-CREATE TABLE IF NOT EXISTS mdb_users
-(
-    UserID               bigint                      not null DEFAULT nextval('mdb_user_seq'),
-    external_id          VARCHAR(255) UNIQUE,
-    OID                  bigint,
-    username             VARCHAR(255)                not null,
-    First_name           VARCHAR(50),
-    Last_name            VARCHAR(50),
-    Gender               gender,
-    Preceding_titles     VARCHAR(50),
-    Postpositioned_title VARCHAR(50),
-    Main_Email           VARCHAR(255)                not null,
-    password             VARCHAR(255)                not null,
-    created              timestamp without time zone NOT NULL DEFAULT NOW(),
-    last_modified        timestamp without time zone,
-    PRIMARY KEY (UserID),
-    UNIQUE (username),
-    UNIQUE (Main_Email),
-    UNIQUE (OID)
-);
-
 CREATE TABLE IF NOT EXISTS mdb_user_roles
 (
     uid           bigint                      not null,
@@ -227,13 +229,15 @@ CREATE TABLE IF NOT EXISTS mdb_databases
     Year          DATE                                 DEFAULT CURRENT_DATE,
     License       TEXT,
     is_public     BOOLEAN                     NOT NULL DEFAULT TRUE,
-    Creator       INTEGER REFERENCES mdb_USERS (UserID),
     Contactperson INTEGER REFERENCES mdb_USERS (UserID),
     created       timestamp without time zone NOT NULL DEFAULT NOW(),
+    created_by    bigint                      not null,
     last_modified timestamp without time zone,
     deleted       timestamp without time zone NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (id) REFERENCES mdb_containers (id) /* currently we only support one-to-one */
+    UNIQUE (id, internal_name),
+    FOREIGN KEY (id) REFERENCES mdb_containers (id), /* currently we only support one-to-one */
+    FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_tables
@@ -253,32 +257,40 @@ CREATE TABLE IF NOT EXISTS mdb_tables
     element_false VARCHAR(50),
     Version       TEXT,
     created       timestamp without time zone NOT NULL DEFAULT NOW(),
+    created_by    bigint                      NOT NULL,
     last_modified timestamp without time zone,
     PRIMARY KEY (tDBID, ID),
-    FOREIGN KEY (tDBID) REFERENCES mdb_DATABASES (id)
+    UNIQUE (tDBID, internal_name),
+    FOREIGN KEY (tDBID) REFERENCES mdb_DATABASES (id),
+    FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_COLUMNS
 (
-    ID               bigint                               DEFAULT nextval('mdb_columns_seq'),
-    cDBID            bigint,
-    tID              bigint,
-    dfID             bigint,
-    cName            VARCHAR(100),
-    internal_name    VARCHAR(100)                NOT NULL,
-    Datatype         VARCHAR(50),
-    ordinal_position INTEGER,
-    is_primary_key   BOOLEAN,
-    is_unique        BOOLEAN,
-    auto_generated   BOOLEAN                              DEFAULT false,
-    is_null_allowed  BOOLEAN,
-    foreign_key      VARCHAR(255),
-    reference_table  VARCHAR(255),
-    check_expression character varying(255),
-    created          timestamp without time zone NOT NULL DEFAULT NOW(),
-    last_modified    timestamp without time zone,
+    ID                    bigint                               DEFAULT nextval('mdb_columns_seq'),
+    cDBID                 bigint,
+    tID                   bigint,
+    dfID                  bigint,
+    cName                 VARCHAR(100),
+    internal_name         VARCHAR(100)                NOT NULL,
+    Datatype              VARCHAR(50),
+    ordinal_position      INTEGER,
+    decimal_digits_before bigint,
+    decimal_digits_after  bigint,
+    is_primary_key        BOOLEAN,
+    is_unique             BOOLEAN,
+    auto_generated        BOOLEAN                              DEFAULT false,
+    is_null_allowed       BOOLEAN,
+    foreign_key           VARCHAR(255),
+    reference_table       VARCHAR(255),
+    check_expression      character varying(255),
+    created               timestamp without time zone NOT NULL DEFAULT NOW(),
+    created_by            bigint                      NOT NULL,
+    last_modified         timestamp without time zone,
+    PRIMARY KEY (cDBID, tID, ID),
+    UNIQUE (tID, internal_name),
     FOREIGN KEY (cDBID, tID) REFERENCES mdb_TABLES (tDBID, ID),
-    PRIMARY KEY (cDBID, tID, ID)
+    FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_COLUMNS_ENUMS
@@ -366,8 +378,10 @@ CREATE TABLE IF NOT EXISTS mdb_VIEW
     NumRows       INTEGER,
     InitialView   BOOLEAN,
     created       timestamp without time zone NOT NULL DEFAULT NOW(),
+    created_by    bigint                      NOT NULL,
     last_modified timestamp without time zone,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_identifiers
@@ -381,12 +395,14 @@ CREATE TABLE IF NOT EXISTS mdb_identifiers
     visibility    VARCHAR(10)                 NOT NULL DEFAULT 'SELF',
     doi           VARCHAR(255),
     created       timestamp without time zone NOT NULL DEFAULT NOW(),
+    created_by    bigint                      NOT NULL,
     last_modified timestamp without time zone,
     deleted       timestamp without time zone,
     PRIMARY KEY (id), /* must be a single id from persistent identifier concept */
+    UNIQUE (cid, dbid, qid),
     FOREIGN KEY (cid) REFERENCES mdb_containers (id),
     FOREIGN KEY (dbid) REFERENCES mdb_databases (id),
-    UNIQUE (cid, dbid, qid)
+    FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_creators

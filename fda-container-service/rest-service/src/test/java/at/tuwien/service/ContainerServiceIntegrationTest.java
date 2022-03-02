@@ -27,6 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -146,7 +147,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_succeeds() throws DockerClientException, ImageNotFoundException, ContainerAlreadyExistsException {
+    public void create_succeeds() throws DockerClientException, ImageNotFoundException, UserNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)
@@ -159,7 +160,7 @@ public class ContainerServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void create_conflictingNames_fails() throws DockerClientException, ImageNotFoundException, ContainerAlreadyExistsException {
+    public void create_conflictingNames_fails() throws DockerClientException, ImageNotFoundException, UserNotFoundException {
         final ContainerCreateRequestDto request = ContainerCreateRequestDto.builder()
                 .repository(IMAGE_1_REPOSITORY)
                 .tag(IMAGE_1_TAG)

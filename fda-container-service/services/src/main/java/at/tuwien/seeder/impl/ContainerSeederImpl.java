@@ -4,10 +4,13 @@ import at.tuwien.entities.container.Container;
 import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.seeder.Seeder;
 import at.tuwien.service.ContainerService;
+import com.sun.security.auth.UserPrincipal;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.security.Principal;
 
 @Slf4j
 @Service
@@ -29,6 +32,7 @@ public class ContainerSeederImpl extends AbstractSeeder implements Seeder {
             log.warn("Already seeded. Skip.");
             return;
         }
+        /* seed */
         final Container container1 = containerService.create(CONTAINER_1_CREATE_DTO);
         log.info("Created container id {}", container1.getId());
         final Container container1start = containerService.start(CONTAINER_1_ID);

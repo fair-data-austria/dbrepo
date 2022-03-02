@@ -37,6 +37,9 @@ public class Query implements Serializable {
     @javax.persistence.Column(nullable = false)
     private Long dbid;
 
+    @javax.persistence.Column(nullable = false)
+    private Long createdBy;
+
     @javax.persistence.Column
     private Instant execution;
 
@@ -58,9 +61,6 @@ public class Query implements Serializable {
     @javax.persistence.Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant created;
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    private List<Table> tables;
 
     @javax.persistence.Column(name = "last_modified")
     @LastModifiedDate

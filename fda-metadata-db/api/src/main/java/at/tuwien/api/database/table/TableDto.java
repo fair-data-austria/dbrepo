@@ -1,6 +1,7 @@
 package at.tuwien.api.database.table;
 
 import at.tuwien.api.database.table.columns.ColumnDto;
+import at.tuwien.api.user.UserDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -29,6 +30,10 @@ public class TableDto {
     @JsonProperty("internal_name")
     @ApiModelProperty(name = "table internal name", example = "weather_australia")
     private String internalName;
+
+    @NotNull
+    @ApiModelProperty(name = "user")
+    private UserDto creator;
 
     @NotBlank
     @ApiModelProperty(name = "topic name", example = "fda.c1.d1.t1")

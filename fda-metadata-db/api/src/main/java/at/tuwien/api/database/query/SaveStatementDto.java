@@ -10,6 +10,8 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class SaveStatementDto {
 
     @NotBlank(message = "statement is required")

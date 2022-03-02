@@ -10,6 +10,8 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class ImportDto {
 
     @NotBlank(message = "location is required")

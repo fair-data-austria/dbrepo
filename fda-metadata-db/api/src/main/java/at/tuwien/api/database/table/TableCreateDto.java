@@ -28,7 +28,7 @@ public class TableCreateDto {
     @Min(value = 0L)
     @JsonProperty("skip_lines")
     @ApiModelProperty(name = "number of lines to skip when importing", example = "0")
-    private String skipLines;
+    private Long skipLines;
 
     @JsonProperty("false_element")
     @ApiModelProperty(name = "element denoting boolean false when importing", example = "0")

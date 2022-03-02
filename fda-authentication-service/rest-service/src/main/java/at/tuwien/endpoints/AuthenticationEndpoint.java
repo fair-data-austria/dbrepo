@@ -11,6 +11,8 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -24,11 +26,14 @@ import java.security.Principal;
 public class AuthenticationEndpoint {
 
     private final UserMapper userMapper;
+    private final UserDetailsService userDetailsServiceImpl;
     private final AuthenticationService authenticationService;
 
     @Autowired
-    public AuthenticationEndpoint(UserMapper userMapper, AuthenticationService authenticationService) {
+    public AuthenticationEndpoint(UserMapper userMapper, UserDetailsService userDetailsServiceImpl,
+                                  AuthenticationService authenticationService) {
         this.userMapper = userMapper;
+        this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.authenticationService = authenticationService;
     }
 
@@ -49,8 +54,9 @@ public class AuthenticationEndpoint {
             @ApiResponse(code = 201, message = "Successfully authenticated a user.")
     })
     public ResponseEntity<UserDto> authenticateUser(Principal principal) {
+        final UserDetails details = userDetailsServiceImpl.loadUserByUsername(principal.getName());
         return ResponseEntity.accepted()
-                .body(userMapper.principalToUserDto(principal));
+                .body(userMapper.userDetailsToUserDto(details, principal));
     }
 
 }

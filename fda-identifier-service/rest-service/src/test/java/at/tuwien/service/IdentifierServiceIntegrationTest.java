@@ -1,23 +1,14 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.identifier.CreatorDto;
 import at.tuwien.api.identifier.IdentifierDto;
 import at.tuwien.api.identifier.VisibilityTypeDto;
-import at.tuwien.config.DockerConfig;
-import at.tuwien.entities.container.Container;
 import at.tuwien.entities.identifier.Identifier;
-import at.tuwien.entities.identifier.VisibilityType;
 import at.tuwien.exception.*;
 import at.tuwien.gateway.QueryServiceGateway;
 import at.tuwien.repository.jpa.*;
 import at.tuwien.service.impl.IdentifierServiceImpl;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.Network;
 import lombok.extern.log4j.Log4j2;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,11 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
 
-import static at.tuwien.config.DockerConfig.dockerClient;
-import static at.tuwien.config.DockerConfig.hostConfig;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -111,7 +99,7 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void create_succeeds() throws IdentifierPublishingNotAllowedException, QueryNotFoundException,
-            RemoteUnavailableException, IdentifierAlreadyExistsException {
+            RemoteUnavailableException, IdentifierAlreadyExistsException, UserNotFoundException {
 
         /* mock */
         when(queryServiceGateway.find(IDENTIFIER_2_DTO_REQUEST))
@@ -139,7 +127,7 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
                 .visibility(IDENTIFIER_2_VISIBILITY_DTO)
                 .created(IDENTIFIER_2_CREATED)
                 .lastModified(IDENTIFIER_2_MODIFIED)
-                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO))
                 .build();
 
         /* mock */
@@ -164,7 +152,7 @@ public class IdentifierServiceIntegrationTest extends BaseUnitTest {
                 .visibility(IDENTIFIER_2_VISIBILITY_DTO)
                 .created(IDENTIFIER_2_CREATED)
                 .lastModified(IDENTIFIER_2_MODIFIED)
-                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO))
                 .build();
 
         /* mock */

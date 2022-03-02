@@ -45,7 +45,7 @@ public interface DatabaseMapper {
     DatabaseDto databaseToDatabaseDto(Database data);
 
     default String databaseToRawCreateDatabaseQuery(Database database) {
-        return "CREATE DATABASE " + database.getInternalName() + ";";
+        return "CREATE DATABASE `" + database.getInternalName() + "`;";
     }
 
     default String imageToRawGrantReadonlyAccessQuery() {
@@ -53,7 +53,7 @@ public interface DatabaseMapper {
     }
 
     default String databaseToRawDeleteDatabaseQuery(Database database) {
-        return "DROP DATABASE " + database.getInternalName() + ";";
+        return "DROP DATABASE `" + database.getInternalName() + "`;";
     }
 
 }

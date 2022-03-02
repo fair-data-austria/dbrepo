@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface DatabaseService {
@@ -20,6 +21,7 @@ public interface DatabaseService {
 
     /**
      * Finds all known databases in the metadata database.
+     *
      * @return List of databases.
      */
     List<Database> findAll();
@@ -32,7 +34,7 @@ public interface DatabaseService {
      * @return The database if found.
      * @throws DatabaseNotFoundException The database was not found.
      */
-    Database findById(Long id, Long databaseId) throws DatabaseNotFoundException;
+    Database findById(Long id, Long databaseId) throws DatabaseNotFoundException, ContainerNotFoundException;
 
     /**
      * Deletes a database with given id in the metadata database. Side effects: does only mark the database as deleted,
@@ -46,7 +48,7 @@ public interface DatabaseService {
      * @throws AmqpException              The exchange could not be deleted.
      */
     void delete(Long id, Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException;
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, ContainerNotFoundException;
 
     /**
      * Creates a new database with minimal metadata in the metadata database and creates a new database on the container.
@@ -60,7 +62,7 @@ public interface DatabaseService {
      * @throws AmqpException              The exchange could not be created.
      */
     Database create(Long id, DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException;
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, UserNotFoundException;
 
     /**
      * Returns a new session for a given {@link Database} entity.

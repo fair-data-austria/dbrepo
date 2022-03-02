@@ -1,7 +1,6 @@
 package at.tuwien.service;
 
 import at.tuwien.BaseUnitTest;
-import at.tuwien.api.identifier.CreatorDto;
 import at.tuwien.api.identifier.IdentifierDto;
 import at.tuwien.api.identifier.VisibilityTypeDto;
 import at.tuwien.entities.identifier.Identifier;
@@ -98,7 +97,7 @@ public class IdentifierServiceUnitTest extends BaseUnitTest {
                 .visibility(VisibilityTypeDto.EVERYONE)
                 .created(IDENTIFIER_1_CREATED)
                 .lastModified(IDENTIFIER_1_MODIFIED)
-                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO).toArray(new CreatorDto[0]))
+                .creators(List.of(CREATOR_1_DTO, CREATOR_2_DTO))
                 .build();
 
         /* test */
