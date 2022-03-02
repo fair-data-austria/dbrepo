@@ -1,6 +1,7 @@
 package at.tuwien.service.impl;
 
 import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
@@ -154,6 +155,30 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
         databaseidxRepository.save(database);
         amqpService.createExchange(database);
         log.debug("created exchange {}", database.getExchange());
+        return out;
+    }
+
+    @Override
+    @Transactional
+    public Database update(Long id, Long databaseId, DatabaseModifyDto metadata) throws ContainerNotFoundException,
+            UserNotFoundException, DatabaseNotFoundException {
+        /* find */
+        final Container container = containerService.find(id);
+        final Database database = findById(id, databaseId);
+        /* user */
+        final UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder
+                .getContext().getAuthentication();
+        /* update in metadata database */
+        database.setIsPublic(metadata.getIsPublic());
+        database.setDescription(metadata.getDescription());
+        database.setPublisher(metadata.getPublisher());
+        database.setLicense(metadata.getLicense());
+        database.setContact(userService.findById(metadata.getContactPerson()));
+        final Database out = databaseRepository.save(database);
+        log.info("Updated database with id {}", out.getId());
+        log.debug("updated database {}", out);
+        // save in database_index - elastic search
+        databaseidxRepository.save(database);
         return out;
     }
 

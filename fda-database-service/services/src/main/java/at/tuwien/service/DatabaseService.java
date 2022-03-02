@@ -1,6 +1,7 @@
 package at.tuwien.service;
 
 import at.tuwien.api.database.DatabaseCreateDto;
+import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import org.hibernate.Session;
@@ -57,12 +58,27 @@ public interface DatabaseService {
      * @param createDto The metadata.
      * @return The created database as stored on the metadata database.
      * @throws ImageNotSupportedException The image is not supported.
-     * @throws ContainerNotFoundException The container was not foudn.
+     * @throws ContainerNotFoundException The container was not found.
      * @throws DatabaseMalformedException The query string is malformed.
      * @throws AmqpException              The exchange could not be created.
      */
     Database create(Long id, DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException, UserNotFoundException;
+
+    /**
+     * Updates a database with metadata in the metadata database  for a given database id.
+     *
+     * @param id         The container id.
+     * @param databaseId The database id.
+     * @param metadata   The metadata.
+     * @return The update database, if successful.
+     * @throws ContainerNotFoundException   The container was not found.
+     * @throws DatabaseMalformedException   The query string is malformed.
+     * @throws ContainerConnectionException
+     * @throws UserNotFoundException
+     */
+    Database update(Long id, Long databaseId, DatabaseModifyDto metadata) throws ContainerNotFoundException,
+            DatabaseMalformedException, ContainerConnectionException, UserNotFoundException, DatabaseNotFoundException;
 
     /**
      * Returns a new session for a given {@link Database} entity.

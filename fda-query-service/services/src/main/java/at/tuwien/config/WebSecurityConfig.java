@@ -62,6 +62,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/**/table/**/export/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/query/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/container/**/database/**/query/**").permitAll()
+                .antMatchers("/v2/api-docs",
+                        "/configuration/ui",
+                        "/swagger-resources",
+                        "/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**",
+                        "/swagger-resources/configuration/ui",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**").permitAll()
                 /* insert endpoint */
                 .antMatchers(HttpMethod.POST, "/api/container/**/database/**/table/**/data").permitAll()
                 /* our private endpoints */

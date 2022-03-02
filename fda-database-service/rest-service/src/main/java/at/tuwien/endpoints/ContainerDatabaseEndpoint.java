@@ -3,6 +3,7 @@ package at.tuwien.endpoints;
 import at.tuwien.api.database.DatabaseBriefDto;
 import at.tuwien.api.database.DatabaseCreateDto;
 import at.tuwien.api.database.DatabaseDto;
+import at.tuwien.api.database.DatabaseModifyDto;
 import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.DatabaseMapper;
@@ -87,6 +88,22 @@ public class ContainerDatabaseEndpoint {
                                                 @NotBlank @PathVariable Long databaseId)
             throws DatabaseNotFoundException, ContainerNotFoundException {
         return ResponseEntity.ok(databaseMapper.databaseToDatabaseDto(databaseService.findById(id, databaseId)));
+    }
+
+    @PutMapping("/{databaseId}")
+    @Transactional
+    @ApiOperation(value = "Updates information about the database")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "The database information is displayed."),
+            @ApiResponse(code = 400, message = "The payload contains invalid data."),
+            @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
+    })
+    public ResponseEntity<DatabaseDto> update(@NotBlank @PathVariable("id") Long id,
+                                              @NotBlank @PathVariable Long databaseId,
+                                              @Valid @RequestBody DatabaseModifyDto metadata)
+            throws UserNotFoundException, ContainerNotFoundException, DatabaseNotFoundException {
+        return ResponseEntity.accepted()
+                .body(databaseMapper.databaseToDatabaseDto(databaseService.update(id, databaseId, metadata)));
     }
 
     @DeleteMapping("/{databaseId}")

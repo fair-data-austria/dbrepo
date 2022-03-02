@@ -14,4 +14,5 @@ public interface UserService {
      */
     User findByUsername(String username) throws UserNotFoundException;
 
+    User findById(Long id) throws UserNotFoundException;
 }

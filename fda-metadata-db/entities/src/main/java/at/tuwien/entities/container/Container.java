@@ -57,6 +57,7 @@ public class Container {
     @Column
     private Integer port;
 
+    @Transient
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumns({
             @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)

@@ -15,13 +15,22 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class DatabaseModifyDto {
 
-    @NotBlank
+    @NotNull
     @JsonProperty("is_public")
     @Parameter(name = "database publicity", example = "true")
     private Boolean isPublic;
 
-    @NotBlank
-    @Parameter(name = "database description", example = "true")
+    @Parameter(name = "database description", example = "Sample")
     private String description;
+
+    @Parameter(name = "database publisher", example = "TU Wien")
+    private String publisher;
+
+    @Parameter(name = "database license", example = "MIT")
+    private String license;
+
+    @JsonProperty("contact_person")
+    @Parameter(name = "database license", example = "Max Mustermann")
+    private Long contactPerson;
 
 }

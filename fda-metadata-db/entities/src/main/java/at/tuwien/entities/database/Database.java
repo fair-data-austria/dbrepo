@@ -66,7 +66,21 @@ public class Database {
     @Column
     private String description;
 
+    @Column
+    private String publisher;
+
+    @Column
+    private String license;
+
+    @Transient
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumns({
+            @JoinColumn(name = "contactperson", referencedColumnName = "UserID", insertable = false, updatable = false)
+    })
+    private User contact;
+
     @ToString.Exclude
+    @Transient
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumns({
             @JoinColumn(name = "tdbid", referencedColumnName = "id", insertable = false, updatable = false)
