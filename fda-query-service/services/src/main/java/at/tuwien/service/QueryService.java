@@ -5,6 +5,7 @@ import at.tuwien.api.database.query.ImportDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -90,7 +91,7 @@ public interface QueryService {
 
     /**
      * Insert data from a csv into a table of a table-database id tuple, we need the "root" role for this as the
-     * default "mariadb" user is configured to only be allowed to execute "SELECT statements.
+     * default "mariadb" user is configured to only be allowed to execute "SELECT" statements.
      *
      * @param databaseId The database id.
      * @param tableId    The table id.
@@ -103,4 +104,22 @@ public interface QueryService {
      */
     Integer insert(Long containerId, Long databaseId, Long tableId, ImportDto data) throws ImageNotSupportedException,
             TableMalformedException, DatabaseNotFoundException, TableNotFoundException, ContainerNotFoundException, FileStorageException;
+
+    /**
+     * Exports data from a table from a table-database id tuple for a given timestamp. If no timestamp is provided
+     * the timestamp is set to now.
+     *
+     * @param containerId The container id.
+     * @param databaseId  The database id.
+     * @param tableId     The table id.
+     * @param timestamp   The timestamp.
+     * @return The exported resource.
+     * @throws ImageNotSupportedException The image is not supported.
+     * @throws TableMalformedException    The table does not exist in the metadata database.
+     * @throws DatabaseNotFoundException  The database is not found in the metadata database.
+     * @throws TableNotFoundException     The table is not found in the metadata database.
+     * @throws FileStorageException       The exported file.
+     */
+    InputStreamResource export(Long containerId, Long databaseId, Long tableId, Instant timestamp) throws ImageNotSupportedException,
+            TableMalformedException, DatabaseNotFoundException, TableNotFoundException, FileStorageException;
 }

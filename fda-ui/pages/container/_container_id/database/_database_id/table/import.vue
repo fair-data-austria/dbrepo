@@ -152,14 +152,14 @@
                   item-value="value"
                   required
                   :rules="[v => !!v || $t('Required')]"
-                  label="Data Type" />
+                  label="Data Type"
+                  @change="setDecimal(c)" />
               </v-col>
               <v-col cols="auto" class="pl-10" :hidden="c.type !== 'DECIMAL'">
                 <v-text-field
                   v-model="c.decimal_digits_before"
                   label="Digits before decimal"
                   type="number"
-                  value="10"
                   required
                   hint="e.g. 4 for 1111.11"
                   :rules="[v => !!v || $t('Required')]" />
@@ -169,7 +169,6 @@
                   v-model="c.decimal_digits_after"
                   label="Digits after decimal"
                   type="number"
-                  value="2"
                   required
                   hint="e.g. 2 for 1111.11"
                   :rules="[v => !!v || $t('Required')]" />
@@ -350,6 +349,12 @@ export default {
     setOthers (column) {
       column.null_allowed = false
       column.unique = true
+    },
+    setDecimal (column) {
+      if (column.type === 'DECIMAL') {
+        column.decimal_digits_before = 10
+        column.decimal_digits_after = 2
+      }
     },
     async loadDateFormats () {
       const getUrl = `/api/container/${this.$route.params.container_id}`

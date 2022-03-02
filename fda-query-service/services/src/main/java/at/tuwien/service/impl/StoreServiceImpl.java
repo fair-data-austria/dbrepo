@@ -65,8 +65,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         final org.hibernate.query.Query<Query> queries = session.createQuery("select q from Query q", Query.class);
         transaction.commit();
         final List<Query> out = queries.list();
-        log.info("Found {} queries", out.size());
-        log.debug("found queries {}", out);
+        log.trace("found queries {}", out);
         session.close();
         factory.close();
         return out;
@@ -101,8 +100,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             factory.close();
             throw new QueryNotFoundException("Query was not found");
         }
-        log.info("Found query with id {}", queryId);
-        log.debug("Found query {}", result);
+        log.trace("found query {}", result);
         session.close();
         factory.close();
         return result;

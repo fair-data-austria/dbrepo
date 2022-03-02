@@ -1,5 +1,6 @@
 package at.tuwien.service.impl;
 
+import at.tuwien.ExportTableRawQuery;
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.ExecuteStatementDto;
 import at.tuwien.api.database.query.ImportDto;
@@ -19,11 +20,17 @@ import org.hibernate.SessionFactory;
 import org.hibernate.exception.SQLGrammarException;
 import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.PersistenceException;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.LinkedList;
@@ -112,7 +119,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final int affectedTuples;
         try {
             affectedTuples = query.executeUpdate();
-            log.info("Found {} tuples in database id {}", affectedTuples, databaseId);
+            log.trace("Found {} tuples in database id {}", affectedTuples, databaseId);
         } catch (PersistenceException e) {
             log.error("Failed to find data");
             session.close();
@@ -151,7 +158,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final int affectedTuples;
         try {
             affectedTuples = query.executeUpdate();
-            log.debug("counted {} tuples in table id {}", affectedTuples, tableId);
+            log.trace("counted {} tuples in table id {}", affectedTuples, tableId);
         } catch (PersistenceException e) {
             log.error("Failed to count tuples");
             session.close();
@@ -167,7 +174,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Integer insert(Long containerId, Long databaseId, Long tableId, TableCsvDto data)
             throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
             TableNotFoundException, ContainerNotFoundException {
@@ -182,7 +189,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         final long startSession = System.currentTimeMillis();
         final SessionFactory factory = getSessionFactory(database, true);
         final Session session = factory.openSession();
-        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        log.trace("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
         session.beginTransaction();
         /* prepare the statement */
         final InsertTableRawQuery raw = queryMapper.tableCsvDtoToRawInsertQuery(table, data);
@@ -192,7 +199,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Integer insert(Long containerId, Long databaseId, Long tableId, ImportDto data)
             throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
             TableNotFoundException, ContainerNotFoundException, FileStorageException {
@@ -210,7 +217,52 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         /* prepare the statement */
         final InsertTableRawQuery raw = queryMapper.pathToRawInsertQuery(table, data);
         final NativeQuery<?> query = session.createSQLQuery(raw.getQuery());
+        log.info("Import file into table with id {}", tableId);
+        log.debug("Import file {} into table {}", data, table);
         return insert(query, session, factory);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public InputStreamResource export(Long containerId, Long databaseId, Long tableId, Instant timestamp)
+            throws ImageNotSupportedException, TableMalformedException, DatabaseNotFoundException,
+            TableNotFoundException, FileStorageException {
+        /* find */
+        final Database database = databaseService.find(databaseId);
+        final Table table = tableService.find(databaseId, tableId);
+        /* run query */
+        final long startSession = System.currentTimeMillis();
+        final SessionFactory factory = getSessionFactory(database, true);
+        final Session session = factory.openSession();
+        log.trace("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        session.beginTransaction();
+        /* prepare the statement */
+        final ExportTableRawQuery statement = queryMapper.tableToExportRawQuery(table, timestamp);
+        final NativeQuery<?> query = session.createSQLQuery(statement.getStatement());
+        final int affectedTuples;
+        try {
+            affectedTuples = query.executeUpdate();
+        } catch (PersistenceException e) {
+            session.close();
+            factory.close();
+            log.error("Could not export data: {}", e.getMessage());
+            log.throwing(e);
+            throw new TableMalformedException("Could not export data", e);
+        }
+        session.getTransaction()
+                .commit();
+        session.close();
+        factory.close();
+        log.trace("query affected {} rows", affectedTuples);
+        try {
+            final MultipartFile file = new MockMultipartFile(statement.getFilename(), Files.readAllBytes(
+                    Paths.get("/tmp/" + statement.getFilename())));
+            return new InputStreamResource(file.getInputStream());
+        } catch (IOException e) {
+            log.error("Failed to mock multipart file");
+            log.throwing(e);
+            throw new FileStorageException("Failed to mock multipart file", e);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package at.tuwien.service.impl;
 
 import at.tuwien.api.container.ContainerCreateRequestDto;
+import at.tuwien.config.MountProperties;
 import at.tuwien.entities.container.Container;
 import at.tuwien.entities.container.image.ContainerImage;
 import at.tuwien.exception.*;
@@ -16,15 +17,14 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Link;
 import com.github.dockerjava.api.model.PortBinding;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.SocketUtils;
 
@@ -41,6 +41,7 @@ public class ContainerServiceImpl implements ContainerService {
     private final UserService userService;
     private final ImageMapper imageMapper;
     private final DockerClient dockerClient;
+    private final MountProperties mountProperties;
     private final ImageRepository imageRepository;
     private final ContainerMapper containerMapper;
     private final ContainerRepository containerRepository;
@@ -48,8 +49,8 @@ public class ContainerServiceImpl implements ContainerService {
     @Autowired
     public ContainerServiceImpl(DockerClient dockerClient, ContainerRepository containerRepository,
                                 ImageRepository imageRepository, HostConfig hostConfig, UserService userService,
-                                ContainerMapper containerMapper,
-                                ImageMapper imageMapper) {
+                                ContainerMapper containerMapper, ImageMapper imageMapper,
+                                MountProperties mountProperties) {
         this.hostConfig = hostConfig;
         this.dockerClient = dockerClient;
         this.imageRepository = imageRepository;
@@ -57,6 +58,7 @@ public class ContainerServiceImpl implements ContainerService {
         this.userService = userService;
         this.containerMapper = containerMapper;
         this.imageMapper = imageMapper;
+        this.mountProperties = mountProperties;
     }
 
     @Override
@@ -93,6 +95,7 @@ public class ContainerServiceImpl implements ContainerService {
                     .withHostName(container.getInternalName())
                     .withEnv(imageMapper.environmentItemsToStringList(image.get().getEnvironment()))
                     .withHostConfig(hostConfig)
+                    .withBinds(Bind.parse(mountProperties.getMountPath() + ":/tmp"))
                     .exec();
         } catch (ConflictException e) {
             log.error("Conflicting names {}", createDto.getName());
@@ -190,8 +193,7 @@ public class ContainerServiceImpl implements ContainerService {
                     log.trace("key {} network {}", key, network);
                     container.setIpAddress(network.getIpAddress());
                 });
-        log.info("Inspect container with id {}", id);
-        log.debug("inspect container {}", container);
+        log.trace("inspect container {}", container);
         return container;
     }
 
@@ -199,8 +201,7 @@ public class ContainerServiceImpl implements ContainerService {
     @Transactional(readOnly = true)
     public List<Container> getAll() {
         final List<Container> containers = containerRepository.findAll();
-        log.info("Found {} containers", containers.size());
-        log.debug("found containers {}", containers);
+        log.trace("found containers {}", containers);
         return containers;
     }
 
