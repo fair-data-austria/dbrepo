@@ -1,0 +1,51 @@
+version: "3.6"
+
+networks:
+  fda-public:
+    name: fda-public
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/16
+
+services:
+
+  fda-sensor-temp-vienna:
+    restart: on-failure
+    container_name: fda-sensor-temp-vienna
+    hostname: fda-sensor-temp-vienna
+    build: ./fda-sensor-temperature
+    image: fda-sensor-temperature
+    networks:
+      fda-public:
+    environment:
+      NAME: Vienna
+      KEY: temperature
+    logging:
+      driver: json-file
+
+  fda-sensor-temp-graz:
+    restart: on-failure
+    container_name: fda-sensor-temp-graz
+    hostname: fda-sensor-temp-graz
+    image: fda-sensor-temperature
+    networks:
+      fda-public:
+    environment:
+      NAME: Graz
+      KEY: temperature
+    logging:
+      driver: json-file
+
+  fda-sensor-temp-linz:
+    restart: on-failure
+    container_name: fda-sensor-temp-linz
+    hostname: fda-sensor-temp-linz
+    image: fda-sensor-temperature
+    networks:
+      fda-public:
+    environment:
+      NAME: Linz
+      KEY: temperature
+    logging:
+      driver: json-file

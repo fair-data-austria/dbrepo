@@ -19,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.*;
 import java.util.*;
+import java.util.function.Predicate;
 
 @Mapper(componentModel = "spring")
 public interface DataMapper {
@@ -41,7 +42,8 @@ public interface DataMapper {
         /* null element */
         table.getColumns()
                 .stream()
-                .filter(c -> data.getData().get(c.getInternalName()).equals(table.getNullElement()))
+                .filter(column -> Objects.nonNull(data.getData().get(column.getInternalName())))
+                .filter(column -> data.getData().get(column.getInternalName()).equals(table.getNullElement()))
                 .forEach(c -> data.getData().replace(c.getInternalName(), null));
         return TableCsvDto.builder()
                 .data(data.getData())

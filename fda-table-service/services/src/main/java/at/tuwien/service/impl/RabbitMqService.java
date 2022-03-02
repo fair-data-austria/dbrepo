@@ -88,7 +88,6 @@ public class RabbitMqService implements MessageQueueService {
                         final TableCsvDto data = TableCsvDto.builder()
                                 .data(objectMapper.readValue(body, payloadReference))
                                 .build();
-                        log.debug("queue recv {}", data);
                         queryServiceGateway.publish(table.getDatabase().getContainer().getId(), table.getDatabase().getId(),
                                 table.getId(), data);
                     } catch (IOException e) {
