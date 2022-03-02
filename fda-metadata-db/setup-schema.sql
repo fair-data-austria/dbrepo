@@ -235,6 +235,7 @@ CREATE TABLE IF NOT EXISTS mdb_databases
     last_modified timestamp without time zone,
     deleted       timestamp without time zone NULL,
     PRIMARY KEY (id),
+    UNIQUE (id, internal_name),
     FOREIGN KEY (id) REFERENCES mdb_containers (id), /* currently we only support one-to-one */
     FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
@@ -259,6 +260,7 @@ CREATE TABLE IF NOT EXISTS mdb_tables
     created_by    bigint                      NOT NULL,
     last_modified timestamp without time zone,
     PRIMARY KEY (tDBID, ID),
+    UNIQUE (tDBID, internal_name),
     FOREIGN KEY (tDBID) REFERENCES mdb_DATABASES (id),
     FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
@@ -286,6 +288,7 @@ CREATE TABLE IF NOT EXISTS mdb_COLUMNS
     created_by            bigint                      NOT NULL,
     last_modified         timestamp without time zone,
     PRIMARY KEY (cDBID, tID, ID),
+    UNIQUE (tID, internal_name),
     FOREIGN KEY (cDBID, tID) REFERENCES mdb_TABLES (tDBID, ID),
     FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
@@ -396,10 +399,10 @@ CREATE TABLE IF NOT EXISTS mdb_identifiers
     last_modified timestamp without time zone,
     deleted       timestamp without time zone,
     PRIMARY KEY (id), /* must be a single id from persistent identifier concept */
+    UNIQUE (cid, dbid, qid),
     FOREIGN KEY (cid) REFERENCES mdb_containers (id),
     FOREIGN KEY (dbid) REFERENCES mdb_databases (id),
-    FOREIGN KEY (created_by) REFERENCES mdb_users (UserID),
-    UNIQUE (cid, dbid, qid)
+    FOREIGN KEY (created_by) REFERENCES mdb_users (UserID)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_creators

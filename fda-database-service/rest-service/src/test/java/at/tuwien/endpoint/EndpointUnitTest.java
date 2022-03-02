@@ -194,7 +194,7 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws DatabaseNotFoundException {
+    public void findById_succeeds() throws DatabaseNotFoundException, ContainerNotFoundException {
         when(databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID))
                 .thenReturn(DATABASE_1);
 
@@ -207,7 +207,7 @@ public class EndpointUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_notFound_fails() throws DatabaseNotFoundException {
+    public void findById_notFound_fails() throws DatabaseNotFoundException, ContainerNotFoundException {
         when(databaseService.findById(CONTAINER_1_ID, DATABASE_1_ID))
                 .thenThrow(DatabaseNotFoundException.class);
 
@@ -219,7 +219,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, ContainerNotFoundException {
         final ResponseEntity<?> response = databaseEndpoint.delete(CONTAINER_1_ID, DATABASE_1_ID);
 
         /* test */
@@ -228,7 +228,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_invalidImage_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, ContainerNotFoundException {
         willThrow(ImageNotSupportedException.class)
                 .given(databaseService)
                 .delete(CONTAINER_1_ID, DATABASE_1_ID);
@@ -241,7 +241,7 @@ public class EndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void delete_notFound_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, ContainerNotFoundException {
         willThrow(DatabaseNotFoundException.class)
                 .given(databaseService)
                 .delete(CONTAINER_1_ID, DATABASE_1_ID);

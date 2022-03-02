@@ -26,7 +26,9 @@ import java.util.List;
 @Where(clause = "deleted is null")
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "update mdb_databases set deleted = NOW() where id = ?")
-@javax.persistence.Table(name = "mdb_databases")
+@javax.persistence.Table(name = "mdb_databases", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"id", "internalName"})
+})
 public class Database {
 
     @Id

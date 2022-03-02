@@ -84,7 +84,8 @@ public class ContainerDatabaseEndpoint {
             @ApiResponse(code = 404, message = "No database with this id was found in metadata database."),
     })
     public ResponseEntity<DatabaseDto> findById(@NotBlank @PathVariable("id") Long id,
-                                                @NotBlank @PathVariable Long databaseId) throws DatabaseNotFoundException {
+                                                @NotBlank @PathVariable Long databaseId)
+            throws DatabaseNotFoundException, ContainerNotFoundException {
         return ResponseEntity.ok(databaseMapper.databaseToDatabaseDto(databaseService.findById(id, databaseId)));
     }
 
@@ -101,7 +102,8 @@ public class ContainerDatabaseEndpoint {
     })
     public ResponseEntity<?> delete(@NotBlank @PathVariable("id") Long id,
                                     @NotBlank @PathVariable Long databaseId) throws DatabaseNotFoundException,
-            ImageNotSupportedException, DatabaseMalformedException, AmqpException, ContainerConnectionException {
+            ImageNotSupportedException, DatabaseMalformedException, AmqpException, ContainerConnectionException,
+            ContainerNotFoundException {
         databaseService.delete(id, databaseId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();

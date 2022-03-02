@@ -151,7 +151,8 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     @Transactional
     @Test
     public void create_succeeds() throws ImageNotSupportedException, ContainerNotFoundException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException, InterruptedException, UserNotFoundException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, InterruptedException,
+            UserNotFoundException {
         final DatabaseCreateDto request = DatabaseCreateDto.builder()
                 .name(DATABASE_1_NAME)
                 .isPublic(DATABASE_1_PUBLIC)
@@ -221,7 +222,8 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void delete_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException, InterruptedException, ContainerConnectionException {
+            DatabaseMalformedException, AmqpException, InterruptedException, ContainerConnectionException,
+            ContainerNotFoundException {
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_BROKER);
@@ -268,7 +270,7 @@ public class DatabaseServiceIntegrationTest extends BaseUnitTest {
     }
 
     @Test
-    public void find_succeeds() throws DatabaseNotFoundException, InterruptedException {
+    public void find_succeeds() throws DatabaseNotFoundException, InterruptedException, ContainerNotFoundException {
 
         /* mock */
         DockerConfig.startContainer(CONTAINER_BROKER);

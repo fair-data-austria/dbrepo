@@ -124,7 +124,7 @@ public class DatabaseServiceUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void findById_succeeds() throws DatabaseNotFoundException {
+    public void findById_succeeds() throws DatabaseNotFoundException, ContainerNotFoundException {
 
         /* mock */
         when(databaseRepository.findById(DATABASE_1_ID))

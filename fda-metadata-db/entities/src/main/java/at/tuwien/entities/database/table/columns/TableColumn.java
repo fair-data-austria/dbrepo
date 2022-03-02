@@ -22,7 +22,9 @@ import java.util.List;
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@javax.persistence.Table(name = "mdb_columns")
+@javax.persistence.Table(name = "mdb_columns", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"tid", "internalName"})
+})
 public class TableColumn implements Comparable<TableColumn> {
 
     @Id

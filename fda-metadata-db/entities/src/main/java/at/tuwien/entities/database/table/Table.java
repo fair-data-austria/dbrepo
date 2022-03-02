@@ -26,7 +26,9 @@ import java.util.List;
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@javax.persistence.Table(name = "mdb_tables")
+@javax.persistence.Table(name = "mdb_tables", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"tdbid", "internalName"})
+})
 public class Table {
 
     @Id

@@ -6,9 +6,9 @@ import at.tuwien.entities.database.Database;
 import at.tuwien.exception.*;
 import at.tuwien.mapper.AmqpMapper;
 import at.tuwien.mapper.DatabaseMapper;
-import at.tuwien.repository.jpa.ContainerRepository;
 import at.tuwien.repository.jpa.DatabaseRepository;
 import at.tuwien.repository.elastic.DatabaseidxRepository;
+import at.tuwien.service.ContainerService;
 import at.tuwien.service.DatabaseService;
 import at.tuwien.service.UserService;
 import lombok.extern.log4j.Log4j2;
@@ -20,10 +20,8 @@ import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -41,38 +39,40 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
     private final UserService userService;
     private final DatabaseMapper databaseMapper;
     private final RabbitMqServiceImpl amqpService;
+    private final ContainerService containerService;
     private final DatabaseRepository databaseRepository;
-    private final ContainerRepository containerRepository;
     private final DatabaseidxRepository databaseidxRepository;
 
     @Autowired
-    public MariaDbServiceImpl(ContainerRepository containerRepository, DatabaseRepository databaseRepository,
+    public MariaDbServiceImpl(DatabaseRepository databaseRepository,
                               DatabaseidxRepository databaseidxRepository, DatabaseMapper databaseMapper,
-                              RabbitMqServiceImpl amqpService, AmqpMapper amqpMapper, UserService userService) {
-        this.containerRepository = containerRepository;
+                              RabbitMqServiceImpl amqpService, AmqpMapper amqpMapper, UserService userService,
+                              ContainerService containerService) {
         this.databaseRepository = databaseRepository;
         this.databaseMapper = databaseMapper;
         this.databaseidxRepository = databaseidxRepository;
         this.amqpService = amqpService;
         this.amqpMapper = amqpMapper;
         this.userService = userService;
+        this.containerService = containerService;
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Database> findAll(Long id) {
         return databaseRepository.findAllByContainerId(id);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Database> findAll() {
         return databaseRepository.findAll();
     }
 
     @Override
-    @Transactional
-    public Database findById(Long id, Long databaseId) throws DatabaseNotFoundException {
+    @Transactional(readOnly = true)
+    public Database findById(Long id, Long databaseId) throws DatabaseNotFoundException, ContainerNotFoundException {
+        final Container container = containerService.find(id);
         final Optional<Database> database = databaseRepository.findById(databaseId);
         if (database.isEmpty()) {
             log.warn("could not find database with id {}", databaseId);
@@ -84,7 +84,7 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
     @Override
     @Transactional
     public void delete(Long id, Long databaseId) throws DatabaseNotFoundException, ImageNotSupportedException,
-            DatabaseMalformedException, AmqpException, ContainerConnectionException {
+            DatabaseMalformedException, AmqpException, ContainerConnectionException, ContainerNotFoundException {
         final Database database = findById(id, databaseId);
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
@@ -114,16 +114,12 @@ public class MariaDbServiceImpl extends HibernateConnector implements DatabaseSe
     @Transactional
     public Database create(Long id, DatabaseCreateDto createDto) throws ImageNotSupportedException, ContainerNotFoundException,
             DatabaseMalformedException, AmqpException, ContainerConnectionException, UserNotFoundException {
-        final Optional<Container> container = containerRepository.findById(id);
-        if (container.isEmpty()) {
-            log.warn("Container with id {} does not exist", id);
-            throw new ContainerNotFoundException("Container does not exist.");
-        }
+        final Container container = containerService.find(id);
         /* start the object */
         final Database database = new Database();
         database.setName(createDto.getName());
         database.setInternalName(databaseMapper.nameToInternalName(database.getName()));
-        database.setContainer(container.get());
+        database.setContainer(container);
         /* user */
         final UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder
                 .getContext().getAuthentication();
