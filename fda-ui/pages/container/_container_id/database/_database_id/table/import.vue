@@ -246,7 +246,8 @@ export default {
           text: `${this.$route.params.database_id}`,
           to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/info`,
           activeClass: ''
-        }
+        },
+        { text: 'Tables', to: `/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table`, activeClass: '' }
       ],
       rules: {
         required: value => !!value || 'Required'

@@ -1,7 +1,8 @@
 export const state = () => ({
-  db: null,
   token: null,
-  user: null
+  user: null,
+  db: null,
+  table: null
 })
 
 export const mutations = {
@@ -13,5 +14,13 @@ export const mutations = {
   },
   SET_USER (state, user) {
     state.user = user
+  },
+
+  /**
+   Workaround. Helps to go 'back' from table data view and
+   have the accordion open on the same table
+   */
+  SET_TABLE (state, table) {
+    state.table = table
   }
 }

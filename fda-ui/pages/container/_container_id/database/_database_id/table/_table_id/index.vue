@@ -7,6 +7,9 @@
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
+        <v-btn class="mr-2" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table`">
+          <v-icon left>mdi-arrow-left</v-icon> Back
+        </v-btn>
         <v-btn class="mr-2" :disabled="!token" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/import`">
           <v-icon left>mdi-cloud-upload</v-icon> Import csv
         </v-btn>
