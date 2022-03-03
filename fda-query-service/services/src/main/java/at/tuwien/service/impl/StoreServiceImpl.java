@@ -148,7 +148,7 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
 
     @Override
     @Transactional(readOnly = true)
-    public Query update(Long containerId, Long databaseId, QueryResultDto result, Long resultNumber, Query metadata)
+    public Query update(Long containerId, Long databaseId, QueryResultDto result, Long resultNumber, Query query)
             throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
             ContainerNotFoundException {
         /* find */
@@ -158,21 +158,14 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
 
-        log.debug("Update database id {}, metadata {}", databaseId, metadata);
+        log.debug("Update database id {}, metadata {}", databaseId, query);
         /* save */
         final SessionFactory factory = getSessionFactory(database, true);
         final Session session = factory.openSession();
         final Transaction transaction = session.beginTransaction();
-        final Query query = Query.builder()
-                .cid(containerId)
-                .dbid(databaseId)
-                .query(metadata.getQuery())
-                .queryNormalized(metadata.getQuery())
-                .queryHash(DigestUtils.sha256Hex(metadata.getQuery()))
-                .resultNumber(resultNumber)
-                .resultHash(storeMapper.queryResultDtoToString(result))
-                .execution(metadata.getExecution())
-                .build();
+        query.setQueryHash(DigestUtils.sha256Hex(query.getQuery()));
+        query.setResultNumber(resultNumber);
+        query.setResultHash(storeMapper.queryResultDtoToString(result));
         session.update(query);
         transaction.commit();
         /* store the result in the query store */
