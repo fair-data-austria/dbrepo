@@ -146,4 +146,43 @@ public class StoreServiceImpl extends HibernateConnector implements StoreService
         return query;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Query update(Long containerId, Long databaseId, QueryResultDto result, Long resultNumber, Query metadata)
+            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
+            ContainerNotFoundException {
+        /* find */
+        final Container container = containerService.find(containerId);
+        final Database database = databaseService.find(databaseId);
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+
+        log.debug("Update database id {}, metadata {}", databaseId, metadata);
+        /* save */
+        final SessionFactory factory = getSessionFactory(database, true);
+        final Session session = factory.openSession();
+        final Transaction transaction = session.beginTransaction();
+        final Query query = Query.builder()
+                .cid(containerId)
+                .dbid(databaseId)
+                .query(metadata.getQuery())
+                .queryNormalized(metadata.getQuery())
+                .queryHash(DigestUtils.sha256Hex(metadata.getQuery()))
+                .resultNumber(resultNumber)
+                .resultHash(storeMapper.queryResultDtoToString(result))
+                .execution(metadata.getExecution())
+                .build();
+        session.update(query);
+        transaction.commit();
+        /* store the result in the query store */
+        log.info("Update query with id {}", query.getId());
+        log.debug("saved query {}", query);
+        session.close();
+        factory.close();
+        return query;
+    }
+
+
+
 }

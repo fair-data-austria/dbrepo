@@ -17,6 +17,7 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jsqlparser.JSQLParserException;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
 import org.junit.jupiter.api.*;
@@ -173,7 +174,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void execute_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException,
-            QueryMalformedException, TableNotFoundException, QueryStoreException, ContainerNotFoundException {
+            QueryMalformedException, TableNotFoundException, QueryStoreException, ContainerNotFoundException, SQLException, JSQLParserException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -207,7 +208,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Disabled
     public void execute_modifyData_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
             InterruptedException, QueryMalformedException, TableNotFoundException, QueryStoreException,
-            ContainerNotFoundException {
+            ContainerNotFoundException, SQLException, JSQLParserException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement("DELETE FROM `weather_aus`;")
                 .build();

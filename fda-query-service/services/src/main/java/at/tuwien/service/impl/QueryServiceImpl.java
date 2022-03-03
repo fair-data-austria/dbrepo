@@ -61,42 +61,12 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     @Override
     @Transactional
     public QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto statement, Long page, Long size)
-            throws DatabaseNotFoundException, ImageNotSupportedException, QueryMalformedException, QueryStoreException, ContainerNotFoundException {
-        /* find */
-        final Database database = databaseService.find(databaseId);
-        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
-            throw new ImageNotSupportedException("Currently only MariaDB is supported");
-        }
-        /* run query */
-        final long startSession = System.currentTimeMillis();
-        final SessionFactory factory = getSessionFactory(database);
-        final Session session = factory.openSession();
-        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
-        session.beginTransaction();
-        /* prepare the statement */
+            throws DatabaseNotFoundException, ImageNotSupportedException, QueryMalformedException, QueryStoreException, ContainerNotFoundException, TableNotFoundException, SQLException, JSQLParserException {
         Instant i = Instant.now();
-        final NativeQuery<?> query = session.createSQLQuery(queryMapper.queryToRawTimestampedQuery(statement.getStatement(), database, i));
-        final int affectedTuples;
-        try {
-            log.debug("execute raw view-only query {}", statement);
-            affectedTuples = query.executeUpdate();
-            log.info("Execution on database id {} affected {} rows", databaseId, affectedTuples);
-            session.getTransaction()
-                    .commit();
-        } catch (SQLGrammarException e) {
-            session.close();
-            factory.close();
-            throw new QueryMalformedException("Query not valid for this database", e);
-        }
-        /* map the result to the tables (with respective columns) from the statement metadata */
-        final List<TableColumn> columns = parseColumns(databaseId, statement);
-        final QueryResultDto result = queryMapper.resultListToQueryResultDto(columns, query.getResultList());
-        /* Save query in the querystore */
-        Query q = storeService.insert(containerId, databaseId, result, statement, i);
-        result.setId(q.getId());
-        session.close();
-        factory.close();
-        log.debug("query id {}", result.getId());
+        Query q = storeService.insert(containerId, databaseId, null, statement, i);
+        final QueryResultDto result = this.reExecute(containerId,databaseId,q,page,size);
+        Long resultNumber = 0L;
+        q = storeService.update(containerId,databaseId,result, resultNumber,q);
         return result;
     }
 

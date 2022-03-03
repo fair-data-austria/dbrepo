@@ -6,6 +6,7 @@ import at.tuwien.api.database.query.SaveStatementDto;
 import at.tuwien.exception.*;
 import at.tuwien.querystore.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -69,4 +70,8 @@ public interface StoreService {
                  Instant execution) throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
             ContainerNotFoundException;
 
+    @Transactional(readOnly = true)
+    Query update(Long containerId, Long databaseId, QueryResultDto result, Long resultNumber, Query metadata)
+            throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
+            ContainerNotFoundException;
 }
