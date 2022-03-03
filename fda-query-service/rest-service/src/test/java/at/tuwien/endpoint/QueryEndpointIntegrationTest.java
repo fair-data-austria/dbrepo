@@ -156,29 +156,5 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
         assertEquals(QUERY_1_ID, response.getBody().getId());
     }
 
-    @Test
-    public void save_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
-            InterruptedException, SQLException, ContainerNotFoundException {
-        final SaveStatementDto statement = SaveStatementDto.builder()
-                .statement(QUERY_1_STATEMENT)
-                .build();
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-        MariaDbConfig.clearQueryStore(TABLE_1);
-
-        /* test */
-        final ResponseEntity<QueryDto> response = queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, statement);
-        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(QUERY_1_ID, response.getBody().getId());
-        assertEquals(CONTAINER_1_ID, response.getBody().getCid());
-        assertEquals(DATABASE_1_ID, response.getBody().getDbid());
-        assertEquals(QUERY_1_STATEMENT, response.getBody().getQuery());
-        assertEquals(QUERY_1_STATEMENT, response.getBody().getQueryNormalized());
-        assertNull(response.getBody().getResultNumber());
-        assertNull(response.getBody().getResultHash());
-    }
-
 
 }
