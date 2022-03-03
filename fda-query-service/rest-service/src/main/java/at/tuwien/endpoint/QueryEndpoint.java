@@ -39,7 +39,6 @@ public class QueryEndpoint {
         this.storeService = storeService;
     }
 
-    @Deprecated
     @PutMapping
     @Transactional
     @PreAuthorize("hasRole('ROLE_RESEARCHER')")
@@ -61,34 +60,10 @@ public class QueryEndpoint {
             log.error("Query is empty");
             throw new QueryMalformedException("Invalid query");
         }
-        if (data.getTables().size() == 0) {
-            log.error("Table list is empty");
-            throw new QueryMalformedException("Invalid table");
-        }
         log.debug("Data for execution: {}", data);
         final QueryResultDto result = queryService.execute(id, databaseId, data, page, size);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
-    }
-
-    @PostMapping
-    @Transactional
-    @PreAuthorize("hasRole('ROLE_RESEARCHER')")
-    @ApiOperation(value = "saves a query without execution")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Executed the query, Saved it and return the results"),
-            @ApiResponse(code = 404, message = "The database does not exist."),
-            @ApiResponse(code = 405, message = "The container is not running."),
-            @ApiResponse(code = 409, message = "The container image is not supported."),})
-    public ResponseEntity<QueryDto> save(@NotNull @PathVariable("id") Long id,
-                                         @NotNull @PathVariable("databaseId") Long databaseId,
-                                         @Valid @RequestBody SaveStatementDto data)
-            throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException,
-            ContainerNotFoundException {
-        final Query query = storeService.insert(id, databaseId, null, data);
-        final QueryDto queryDto = queryMapper.queryToQueryDto(query);
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(queryDto);
     }
 
     @PutMapping("/{queryId}")
