@@ -55,7 +55,7 @@ public class QueryEndpoint {
                                                   @Valid @RequestBody ExecuteStatementDto data,
                                                   @RequestParam(value = "page", required = false ) Long page, @RequestParam(value = "size", required = false) Long size)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException, QueryMalformedException,
-            TableNotFoundException, ContainerNotFoundException, SQLException, JSQLParserException {
+            TableNotFoundException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException {
         /* validation */
         if (data.getStatement() == null || data.getStatement().isBlank()) {
             log.error("Query is empty");
@@ -105,7 +105,7 @@ public class QueryEndpoint {
                                                     @NotNull @PathVariable("queryId") Long queryId,
                                                     @RequestParam(value = "page", required = false) Long page, @RequestParam(value = "size", required = false) Long size)
             throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
-            TableNotFoundException, QueryMalformedException, ContainerNotFoundException, SQLException, JSQLParserException {
+            TableNotFoundException, QueryMalformedException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException {
         final Query query = storeService.findOne(id, databaseId, queryId);
         log.debug(query.toString());
         final QueryResultDto result = queryService.reExecute(id, databaseId, query, page, size);

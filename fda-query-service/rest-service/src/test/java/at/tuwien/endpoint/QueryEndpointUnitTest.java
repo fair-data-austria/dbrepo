@@ -47,7 +47,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void execute_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -73,7 +73,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void execute_emptyResult_succeeds() throws TableNotFoundException, QueryStoreException,
-            QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException {
+            QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -99,7 +99,7 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
 
     @Test
     public void execute_tableNotFound_fails() throws TableNotFoundException, QueryMalformedException,
-            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, QueryStoreException, SQLException, JSQLParserException {
+            DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, QueryStoreException, SQLException, JSQLParserException, TableMalformedException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();

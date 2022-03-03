@@ -32,7 +32,7 @@ public interface QueryService {
      * @throws ImageNotSupportedException
      */
     QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto query, Long page, Long size) throws TableNotFoundException,
-            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException;
+            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException;
 
     /**
      * Re-Executes an arbitrary query on the database container. We allow the user to only view the data, therefore the
@@ -50,7 +50,7 @@ public interface QueryService {
      * @throws ImageNotSupportedException
      */
     QueryResultDto reExecute(Long containerId, Long databaseId, Query query, Long page, Long size) throws TableNotFoundException,
-            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException;
+            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException;
 
 
     /**

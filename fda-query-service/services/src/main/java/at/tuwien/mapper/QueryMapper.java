@@ -18,6 +18,7 @@ import org.mariadb.jdbc.MariaDbBlob;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.nio.charset.MalformedInputException;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -171,7 +172,7 @@ public interface QueryMapper {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         if (timestamp == null) {
-            timestamp = Instant.now();
+            throw new IllegalArgumentException("Timestamp must be provided");
         }
         return "SELECT COUNT(*) FROM " +  query.toLowerCase(Locale.ROOT).split("from ")[1] +
                 " FOR SYSTEM_TIME AS OF TIMESTAMP'" +
@@ -179,7 +180,7 @@ public interface QueryMapper {
                 "';";
     }
 
-    default String queryToRawTimestampedQuery(String query, Database database, Instant timestamp) throws ImageNotSupportedException {
+    default String queryToRawTimestampedQuery(String query, Database database, Instant timestamp, Long page, Long size) throws ImageNotSupportedException {
         /* param check */
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
@@ -187,10 +188,17 @@ public interface QueryMapper {
         if (timestamp == null) {
             timestamp = Instant.now();
         }
+        if(size != null && page != null && size > 0 && page >=0) {
+            return query +
+                    " FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                    LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
+                    " LIMIT " + size + " OFFSET " + (page*size) +
+                    "';";
+        }
         return query +
                 " FOR SYSTEM_TIME AS OF TIMESTAMP'" +
-                LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
-                "';";
+                LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) + "';";
+
     }
 
 

@@ -132,7 +132,7 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
     @Test
     public void reExecute_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException, QueryNotFoundException, InterruptedException,
-            SQLException, ContainerNotFoundException, JSQLParserException {
+            SQLException, ContainerNotFoundException, JSQLParserException, TableMalformedException {
         final QueryResultDto result = QueryResultDto.builder()
                 .id(QUERY_1_ID)
                 .result(List.of(Map.of("MinTemp", 13.4, "Rainfall", 0.6, "id", 1)))

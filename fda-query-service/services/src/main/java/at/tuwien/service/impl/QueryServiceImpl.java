@@ -61,17 +61,16 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
     @Override
     @Transactional
     public QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto statement, Long page, Long size)
-            throws DatabaseNotFoundException, ImageNotSupportedException, QueryMalformedException, QueryStoreException, ContainerNotFoundException, TableNotFoundException, SQLException, JSQLParserException {
+            throws DatabaseNotFoundException, ImageNotSupportedException, QueryMalformedException, QueryStoreException, ContainerNotFoundException, TableNotFoundException, SQLException, JSQLParserException, TableMalformedException {
         Instant i = Instant.now();
         Query q = storeService.insert(containerId, databaseId, null, statement, i);
         final QueryResultDto result = this.reExecute(containerId,databaseId,q,page,size);
-        Long resultNumber = 0L;
-        q = storeService.update(containerId,databaseId,result, resultNumber,q);
+        q = storeService.update(containerId,databaseId,result, result.getResultNumber(),q);
         return result;
     }
 
     @Override
-    public QueryResultDto reExecute(Long containerId, Long databaseId, Query query, Long page, Long size) throws TableNotFoundException, QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException {
+    public QueryResultDto reExecute(Long containerId, Long databaseId, Query query, Long page, Long size) throws TableNotFoundException, QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException {
         /* find */
         final Database database = databaseService.find(databaseId);
         if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
@@ -85,7 +84,7 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         session.beginTransaction();
         /* prepare the statement */
         Instant i = Instant.now();
-        final NativeQuery<?> nativeQuery = session.createSQLQuery(queryMapper.queryToRawTimestampedQuery(query.getQuery(), database, query.getExecution()));
+        final NativeQuery<?> nativeQuery = session.createSQLQuery(queryMapper.queryToRawTimestampedQuery(query.getQuery(), database, query.getExecution(),page, size));
         final int affectedTuples;
         try {
             log.debug("execute raw view-only query {}", query);
@@ -100,8 +99,9 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
         }
         /* map the result to the tables (with respective columns) from the statement metadata */
         final List<TableColumn> columns = parseColumns(query, database);
-        final QueryResultDto result = queryMapper.resultListToQueryResultDto(columns, nativeQuery.getResultList());
-        /* Save query in the querystore */
+        QueryResultDto result = queryMapper.resultListToQueryResultDto(columns, nativeQuery.getResultList());
+        result.setResultNumber(query.getResultNumber()!=null ? query.getResultNumber() : countQueryResults(containerId,databaseId,query));
+        result.setId(query.getId());
         session.close();
         factory.close();
         return result;
@@ -348,6 +348,37 @@ public class QueryServiceImpl extends HibernateConnector implements QueryService
             throw new JSQLParserException("SQL Query is not a SELECT statement - please only use SELECT statements");
         }
 
+    }
+
+    @Transactional
+    Long countQueryResults(Long containerId, Long databaseId, Query query)
+            throws DatabaseNotFoundException, TableNotFoundException,
+            TableMalformedException, ImageNotSupportedException {
+        /* find */
+        final Database database = databaseService.find(databaseId);
+        /* run query */
+        final long startSession = System.currentTimeMillis();
+        final SessionFactory factory = getSessionFactory(database, false);
+        final Session session = factory.openSession();
+        log.debug("opened hibernate session in {} ms", System.currentTimeMillis() - startSession);
+        session.beginTransaction();
+        final NativeQuery<BigInteger> nativeQuery = session.createSQLQuery(queryMapper.queryToRawTimestampedCountQuery(query.getQuery(), database, query.getExecution()));
+        final int affectedTuples;
+        try {
+            affectedTuples = nativeQuery.executeUpdate();
+            log.info("Counted {} tuples from query {}", affectedTuples, query.getId());
+        } catch (PersistenceException e) {
+            log.error("Failed to count tuples");
+            session.close();
+            factory.close();
+            throw new TableMalformedException("Data not found", e);
+        }
+        session.getTransaction()
+                .commit();
+        final Long count = nativeQuery.getSingleResult().longValue();
+        session.close();
+        factory.close();
+        return count;
     }
 
 
