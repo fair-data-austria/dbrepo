@@ -52,7 +52,8 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<QueryResultDto> execute(@NotNull @PathVariable("id") Long id,
                                                   @NotNull @PathVariable("databaseId") Long databaseId,
-                                                  @Valid @RequestBody ExecuteStatementDto data)
+                                                  @Valid @RequestBody ExecuteStatementDto data,
+                                                  @RequestParam("page") Long page, @RequestParam("size") Long size)
             throws DatabaseNotFoundException, ImageNotSupportedException, QueryStoreException, QueryMalformedException,
             TableNotFoundException, ContainerNotFoundException {
         /* validation */
@@ -65,7 +66,7 @@ public class QueryEndpoint {
             throw new QueryMalformedException("Invalid table");
         }
         log.debug("Data for execution: {}", data);
-        final QueryResultDto result = queryService.execute(id, databaseId, data);
+        final QueryResultDto result = queryService.execute(id, databaseId, data, page, size);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);
     }
@@ -101,12 +102,13 @@ public class QueryEndpoint {
             @ApiResponse(code = 409, message = "The container image is not supported."),})
     public ResponseEntity<QueryResultDto> reExecute(@NotNull @PathVariable("id") Long id,
                                                     @NotNull @PathVariable("databaseId") Long databaseId,
-                                                    @NotNull @PathVariable("queryId") Long queryId)
+                                                    @NotNull @PathVariable("queryId") Long queryId,
+                                                    @RequestParam("page") Long page, @RequestParam("size") Long size)
             throws QueryStoreException, QueryNotFoundException, DatabaseNotFoundException, ImageNotSupportedException,
             TableNotFoundException, QueryMalformedException, ContainerNotFoundException, SQLException, JSQLParserException {
         final Query query = storeService.findOne(id, databaseId, queryId);
         log.debug(query.toString());
-        final QueryResultDto result = queryService.reExecute(id, databaseId, query);
+        final QueryResultDto result = queryService.reExecute(id, databaseId, query, page, size);
         result.setId(queryId);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(result);

@@ -56,13 +56,15 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
         final Instant execution = Instant.now();
 
         /* mock */
-        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request))
+        //FIXME
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request, 0L, 0L))
                 .thenReturn(result);
         when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request, execution))
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
+        //FIXME
+        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request,0L,0L);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(result, response.getBody());
     }
@@ -80,13 +82,15 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
         final Instant execution = Instant.now();
 
         /* mock */
-        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request))
+        //FIXME
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request, 0L, 0L))
                 .thenReturn(result);
         when(storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, request, execution))
                 .thenReturn(QUERY_1);
 
         /* test */
-        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
+        //FIXME
+        final ResponseEntity<QueryResultDto> response = queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request,0L,0L);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(result, response.getBody());
     }
@@ -99,12 +103,14 @@ public class QueryEndpointUnitTest extends BaseUnitTest {
                 .build();
 
         /* mock */
-        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request))
+        //FIXME
+        when(queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request, 0L, 0L))
                 .thenThrow(TableNotFoundException.class);
 
         /* test */
         assertThrows(TableNotFoundException.class, () -> {
-            queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
+            //FIXME
+            queryEndpoint.execute(CONTAINER_1_ID, DATABASE_1_ID, request,0L,0L);
         });
     }
 

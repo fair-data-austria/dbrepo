@@ -22,6 +22,8 @@ public interface QueryService {
      *
      * @param databaseId The database id.
      * @param query      The query.
+     * @param page
+     * @param size
      * @return The result.
      * @throws TableNotFoundException
      * @throws QueryStoreException
@@ -29,7 +31,7 @@ public interface QueryService {
      * @throws DatabaseNotFoundException
      * @throws ImageNotSupportedException
      */
-    QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto query) throws TableNotFoundException,
+    QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto query, Long page, Long size) throws TableNotFoundException,
             QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException;
 
     /**
@@ -38,6 +40,8 @@ public interface QueryService {
      *
      * @param databaseId The database id.
      * @param query      The query.
+     * @param page
+     * @param size
      * @return The result.
      * @throws TableNotFoundException
      * @throws QueryStoreException
@@ -45,7 +49,7 @@ public interface QueryService {
      * @throws DatabaseNotFoundException
      * @throws ImageNotSupportedException
      */
-    QueryResultDto reExecute(Long containerId, Long databaseId, Query query) throws TableNotFoundException,
+    QueryResultDto reExecute(Long containerId, Long databaseId, Query query, Long page, Long size) throws TableNotFoundException,
             QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException;
 
 

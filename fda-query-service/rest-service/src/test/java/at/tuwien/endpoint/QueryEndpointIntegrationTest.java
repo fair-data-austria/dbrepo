@@ -148,8 +148,9 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
         storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement, execution);
 
         /* test */
+        //FIXME
         final ResponseEntity<QueryResultDto> response = queryEndpoint.reExecute(CONTAINER_1_ID, DATABASE_1_ID,
-                QUERY_1_ID);
+                QUERY_1_ID,0L,0L);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(QUERY_1_ID, response.getBody().getId());
