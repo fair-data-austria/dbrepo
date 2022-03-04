@@ -141,8 +141,14 @@ export default {
         console.debug('headers', res.data.columns)
         this.headers = res.data.columns.map((c) => {
           return {
-            value: c.internal_name,
-            text: this.columnAddition(c) + c.name
+            value: c.name,
+            text: this.columnAddition(c) + c.name,
+
+            // sorting is disabled for now
+            // backed has sorting functionality in 8cf84d4d3502202c5947eefb49bc6f48cebff234,
+            // branch 53-task-provide-property-information-for-metadata-db-frontend
+            // currenlty unmergable to dev
+            sortable: false
           }
         })
       } catch (err) {
