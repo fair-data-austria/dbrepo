@@ -108,7 +108,7 @@ export default {
       return columns || []
     },
     columnNames () {
-      return this.selectItems && this.selectItems.map(s => s.internalName)
+      return this.selectItems && this.selectItems.map(s => s.internal_name)
     },
     databaseId () {
       return this.$route.params.database_id
