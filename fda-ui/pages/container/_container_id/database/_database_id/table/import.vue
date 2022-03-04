@@ -269,11 +269,12 @@ export default {
       fileLocation: null,
       columns: [],
       columnTypes: [
-        { value: 'ENUM', text: 'Enumeration' },
+        // { value: 'ENUM', text: 'Enumeration' }, // Disabled for now, not implemented, #145
         { value: 'BOOLEAN', text: 'Boolean' },
         { value: 'NUMBER', text: 'Number' },
         { value: 'BLOB', text: 'Binary Large Object' },
         { value: 'DATE', text: 'Date' },
+        { value: 'DECIMAL', text: 'Decimal' },
         { value: 'STRING', text: 'Character Varying' },
         { value: 'TEXT', text: 'Text' }
       ],
