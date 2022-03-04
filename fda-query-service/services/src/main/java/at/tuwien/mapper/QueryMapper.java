@@ -161,7 +161,7 @@ public interface QueryMapper {
             timestamp = Instant.now();
         }
         return "SELECT COUNT(*) FROM `" + nameToInternalName(table.getName()) +
-                "` FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                "` FOR SYSTEM_TIME AS OF TIMESTAMP '" +
                 LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
                 "';";
     }
@@ -175,7 +175,7 @@ public interface QueryMapper {
             throw new IllegalArgumentException("Timestamp must be provided");
         }
         return "SELECT COUNT(*) FROM " +  query.toLowerCase(Locale.ROOT).split("from ")[1] +
-                " FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                " FOR SYSTEM_TIME AS OF TIMESTAMP '" +
                 LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
                 "';";
     }
@@ -190,13 +190,13 @@ public interface QueryMapper {
         }
         if(size != null && page != null && size > 0 && page >=0) {
             return query +
-                    " FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                    " FOR SYSTEM_TIME AS OF TIMESTAMP '" +
                     LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
                     " LIMIT " + size + " OFFSET " + (page*size) +
                     "';";
         }
         return query +
-                " FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                " FOR SYSTEM_TIME AS OF TIMESTAMP '" +
                 LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) + "';";
 
     }
@@ -226,7 +226,7 @@ public interface QueryMapper {
                         .append("`"));
         query.append(" FROM `")
                 .append(nameToInternalName(table.getName()))
-                .append("` FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                .append("` FOR SYSTEM_TIME AS OF TIMESTAMP '")
                 .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
                 .append("'");
         if (size != null && page != null) {
