@@ -8,7 +8,7 @@
         <v-toolbar-title>Create Query</v-toolbar-title>
         <v-spacer />
         <v-toolbar-title>
-          <v-btn :disabled="!valid || !token" color="blue-grey white--text" @click="save">
+          <v-btn v-if="false" :disabled="!valid || !token" color="blue-grey white--text" @click="save">
             Save without execution
           </v-btn>
           <v-btn :disabled="!valid || !token" color="primary" @click="execute">
@@ -178,6 +178,7 @@ export default {
         this.loading = false
       }
     },
+    /*
     async save () {
       this.$refs.form.validate()
       const query = this.query.sql.replaceAll('`', '')
@@ -197,6 +198,7 @@ export default {
         this.loading = false
       }
     },
+    */
     async buildQuery () {
       if (!this.table) {
         return
