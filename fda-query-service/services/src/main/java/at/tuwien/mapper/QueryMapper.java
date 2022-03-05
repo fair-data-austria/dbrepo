@@ -192,8 +192,8 @@ public interface QueryMapper {
             return query +
                     " FOR SYSTEM_TIME AS OF TIMESTAMP '" +
                     LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
-                    " LIMIT " + size + " OFFSET " + (page*size) +
-                    "';";
+                    "' LIMIT " + size + " OFFSET " + (page*size) +
+                    ";";
         }
         return query +
                 " FOR SYSTEM_TIME AS OF TIMESTAMP '" +
