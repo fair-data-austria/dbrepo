@@ -12,6 +12,9 @@
 import _ from 'lodash'
 
 export default {
+  props: {
+    value: { type: Number, default: () => 0 }
+  },
   data () {
     return {
       parent: null,
@@ -40,12 +43,18 @@ export default {
   },
   watch: {
     value () {
-      this.execute()
+      if (this.value) {
+        this.execute()
+      }
     },
     options (newVal, oldVal) {
       if (typeof oldVal.groupBy === 'undefined') {
         // initially, options do not have the groupBy field.
         // don't run the execute method twice, when a new query is created
+        return
+      }
+      if (!this.value) {
+        this.$toast.error('Cannot paginate invalidated Query: press Execute')
         return
       }
       this.execute()
@@ -54,11 +63,8 @@ export default {
   mounted () {
   },
   methods: {
-    async execute (parent) {
-      if (parent) {
-        this.parent = parent
-      }
-
+    async executeFirstTime (parent) {
+      this.parent = parent
       this.loading = true
       try {
         const data = {
@@ -69,10 +75,7 @@ export default {
           })]
         }
         console.debug('send data', data)
-        let page = this.options.page - 1
-        if (!this.parent.queryId) {
-          page = 0
-        }
+        const page = 0
         const urlParams = `page=${page}&size=${this.options.itemsPerPage}`
         const res = await this.$axios.put(`/api/container/
 ${this.$route.params.container_id}/database/${this.$route.params.database_id}/query
@@ -87,6 +90,30 @@ ${this.parent.queryId ? `/${this.parent.queryId}` : ''}
         this.result.headers = this.parent.select.map((s) => {
           return { text: s.name, value: s.name, sortable: false }
         })
+        this.result.rows = res.data.result
+        this.total = res.data.resultNumber
+      } catch (err) {
+        console.error('query execute', err)
+        this.$toast.error('Could not execute query')
+        this.loading = false
+      }
+    },
+    async execute () {
+      this.loading = true
+      try {
+        const page = this.options.page - 1
+        const urlParams = `page=${page}&size=${this.options.itemsPerPage}`
+        const res = await this.$axios.put(`/api/container/
+${this.$route.params.container_id}/database/${this.$route.params.database_id}/query
+/${this.value}
+?${urlParams}`, {}, {
+          headers: this.headers
+        })
+        this.loading = false
+        // Can't display headers yet
+        // this.result.headers = this.parent.select.map((s) => {
+        //   return { text: s.name, value: s.name, sortable: false }
+        // })
         this.result.rows = res.data.result
         this.total = res.data.resultNumber
       } catch (err) {

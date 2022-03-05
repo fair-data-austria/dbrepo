@@ -70,6 +70,7 @@
           Username: <code v-if="query.username">{{ query.username }}</code><span v-if="!query.username">(empty)</span>
         </p>
       </v-card-text>
+      <QueryResults v-if="false" ref="queryResults" v-model="query.id" />
     </v-card>
     <v-breadcrumbs :items="items" class="pa-0 mt-2" />
     <v-dialog
@@ -164,6 +165,11 @@ export default {
         this.loading = false
       }
       this.loading = false
+
+      // refresh QueryResults table
+      setTimeout(() => {
+        // this.$refs.queryResults.execute()
+      }, 200)
     },
     async reExecute () {
       try {

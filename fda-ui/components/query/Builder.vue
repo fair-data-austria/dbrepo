@@ -140,7 +140,7 @@ export default {
       }
     },
     execute () {
-      this.$refs.queryResults.execute(this)
+      this.$refs.queryResults.executeFirstTime(this)
     },
     async buildQuery () {
       if (!this.table) {
