@@ -10,7 +10,7 @@
       <v-expansion-panels v-if="!loading && queries.length > 0" accordion>
         <v-expansion-panel v-for="(item, i) in queries" :key="i" @click="details(item)">
           <v-expansion-panel-header>
-            <span v-bind:class="{'font-weight-black': item.identifier !== undefined}">{{ title(item) }}</span>
+            <span :class="{'font-weight-black': item.identifier !== undefined}">{{ title(item) }}</span>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
             <v-row dense>
