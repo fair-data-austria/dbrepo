@@ -47,16 +47,10 @@
               <highlightjs autodetect :code="query.formatted" />
             </v-col>
           </v-row>
-          <v-row v-if="queryId">
+          <v-row>
             <v-col>
               <p>Results</p>
-              <v-data-table
-                :headers="result.headers"
-                :items="result.rows"
-                :loading="loading"
-                :options.sync="options"
-                :server-items-length="total"
-                class="elevation-1" />
+              <QueryResults ref="queryResults" v-model="queryId" />
             </v-col>
           </v-row>
           <v-row>
@@ -73,8 +67,6 @@
 </template>
 
 <script>
-import _ from 'lodash'
-
 export default {
   data () {
     return {
@@ -85,18 +77,8 @@ export default {
       query: {
         sql: ''
       },
-      options: {
-        page: 1,
-        itemsPerPage: 10
-      },
       select: [],
-      clauses: [],
-      result: {
-        headers: [],
-        rows: []
-      },
-      total: 0,
-      loading: false
+      clauses: []
     }
   },
   computed: {
@@ -135,14 +117,6 @@ export default {
         this.queryId = null
       }
     },
-    options (newVal, oldVal) {
-      if (typeof oldVal.groupBy === 'undefined') {
-        // initially, options do not have the groupBy field.
-        // don't run the execute method twice, when a new query is created
-        return
-      }
-      this.execute()
-    },
     table () {
       this.queryId = null
     },
@@ -165,60 +139,9 @@ export default {
         this.$toast.error('Could not list table.')
       }
     },
-    async execute () {
-      this.loading = true
-      try {
-        const data = {
-          statement: this.query.sql,
-          tables: [_.pick(this.table, ['id', 'name', 'internal_name'])],
-          columns: [this.select.map(function (column) {
-            return _.pick(column, ['id', 'name', 'internal_name'])
-          })]
-        }
-        console.debug('send data', data)
-        const urlParams = `page=${this.options.page - 1}&size=${this.options.itemsPerPage}`
-        const res = await this.$axios.put(`/api/container/
-${this.$route.params.container_id}/database/${this.databaseId}/query
-${this.queryId ? `/${this.queryId}` : ''}
-?${urlParams}`, data, {
-          headers: this.headers
-        })
-        console.debug('query result', res)
-        this.$toast.success('Successfully executed query')
-        this.loading = false
-        this.queryId = res.data.id
-        this.result.headers = this.select.map((s) => {
-          return { text: s.name, value: s.name, sortable: false }
-        })
-        this.result.rows = res.data.result
-        this.total = res.data.resultNumber
-      } catch (err) {
-        console.error('query execute', err)
-        this.$toast.error('Could not execute query')
-        this.loading = false
-      }
+    execute () {
+      this.$refs.queryResults.execute(this)
     },
-    /*
-    async save () {
-      this.$refs.form.validate()
-      const query = this.query.sql.replaceAll('`', '')
-      this.loading = true
-      try {
-        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query`, { statement: query }, {
-          headers: this.headers
-        })
-        console.debug('query result', res)
-        this.$toast.success('Successfully saved query')
-        this.loading = false
-        this.queryId = res.data.id
-        this.$router.push(`/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/query/${this.queryId}`)
-      } catch (err) {
-        console.error('query save', err)
-        this.$toast.error('Could not save query')
-        this.loading = false
-      }
-    },
-    */
     async buildQuery () {
       if (!this.table) {
         return
@@ -226,7 +149,7 @@ ${this.queryId ? `/${this.queryId}` : ''}
       const url = '/server-middleware/query/build'
       const data = {
         table: this.table.internal_name,
-        select: this.select.map(s => s.name),
+        select: this.select.map(s => s.internal_name),
         clauses: this.clauses
       }
       try {
