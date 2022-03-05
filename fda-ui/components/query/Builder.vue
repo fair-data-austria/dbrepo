@@ -1,9 +1,6 @@
 <template>
   <div>
-    <v-form
-      ref="form"
-      v-model="valid"
-      lazy-validation>
+    <v-form ref="form">
       <v-toolbar flat>
         <v-toolbar-title>Create Query</v-toolbar-title>
         <v-spacer />
@@ -23,7 +20,6 @@
             <v-col cols="6">
               <v-select
                 v-model="table"
-                :rules="[rules.required]"
                 :items="tables"
                 item-text="name"
                 return-object
@@ -33,7 +29,6 @@
             <v-col cols="6">
               <v-select
                 v-model="select"
-                :rules="[rules.required]"
                 item-text="name"
                 :disabled="!table"
                 :items="selectItems"
@@ -52,14 +47,15 @@
               <highlightjs autodetect :code="query.formatted" />
             </v-col>
           </v-row>
-          <v-row>
+          <v-row v-if="queryId">
             <v-col>
               <p>Results</p>
               <v-data-table
                 :headers="result.headers"
                 :items="result.rows"
                 :loading="loading"
-                :items-per-page="30"
+                :options.sync="options"
+                :server-items-length="total"
                 class="elevation-1" />
             </v-col>
           </v-row>
@@ -82,7 +78,6 @@ import _ from 'lodash'
 export default {
   data () {
     return {
-      valid: false,
       table: null,
       tables: [],
       tableDetails: null,
@@ -90,15 +85,17 @@ export default {
       query: {
         sql: ''
       },
+      options: {
+        page: 1,
+        itemsPerPage: 10
+      },
       select: [],
       clauses: [],
       result: {
         headers: [],
         rows: []
       },
-      rules: {
-        required: value => !!value || 'Required'
-      },
+      total: 0,
       loading: false
     }
   },
@@ -124,6 +121,10 @@ export default {
         return null
       }
       return { Authorization: `Bearer ${this.token}` }
+    },
+    valid () {
+      // we need to have at least one column selected
+      return this.select.length
     }
   },
   watch: {
@@ -131,7 +132,22 @@ export default {
       deep: true,
       handler () {
         this.buildQuery()
+        this.queryId = null
       }
+    },
+    options (newVal, oldVal) {
+      if (typeof oldVal.groupBy === 'undefined') {
+        // initially, options do not have the groupBy field.
+        // don't run the execute method twice, when a new query is created
+        return
+      }
+      this.execute()
+    },
+    table () {
+      this.queryId = null
+    },
+    select () {
+      this.queryId = null
     }
   },
   beforeMount () {
@@ -150,7 +166,6 @@ export default {
       }
     },
     async execute () {
-      this.$refs.form.validate()
       this.loading = true
       try {
         const data = {
@@ -161,7 +176,11 @@ export default {
           })]
         }
         console.debug('send data', data)
-        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query`, data, {
+        const urlParams = `page=${this.options.page - 1}&size=${this.options.itemsPerPage}`
+        const res = await this.$axios.put(`/api/container/
+${this.$route.params.container_id}/database/${this.databaseId}/query
+${this.queryId ? `/${this.queryId}` : ''}
+?${urlParams}`, data, {
           headers: this.headers
         })
         console.debug('query result', res)
@@ -172,6 +191,7 @@ export default {
           return { text: s.name, value: s.name, sortable: false }
         })
         this.result.rows = res.data.result
+        this.total = res.data.resultNumber
       } catch (err) {
         console.error('query execute', err)
         this.$toast.error('Could not execute query')
