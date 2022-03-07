@@ -4,7 +4,7 @@
       <v-toolbar-title>{{ identifier.title }}</v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
-        <v-btn color="blue-grey white--text" class="mr-2" :disabled="!query.execution || identifier.id || !token" @click.stop="persistQueryDialog = true">
+        <v-btn color="blue-grey white--text" class="mr-2" :disabled="!query.execution || !!identifier.id || !token" @click.stop="persistQueryDialog = true">
           <v-icon left>mdi-fingerprint</v-icon> Persist
         </v-btn>
         <v-btn v-if="false" color="primary" :disabled="!token" @click.stop="reExecute">
