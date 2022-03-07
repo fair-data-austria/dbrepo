@@ -353,7 +353,7 @@ CREATE TABLE IF NOT EXISTS mdb_columns_concepts
     URI     TEXT REFERENCES mdb_concepts (URI),
     created timestamp without time zone NOT NULL DEFAULT NOW(),
     FOREIGN KEY (cDBID, tID, cID) REFERENCES mdb_COLUMNS (cDBID, tID, ID),
-    PRIMARY KEY (cDBID, tID, cID, URI)
+    PRIMARY KEY (cDBID, tID, cID)
 );
 
 CREATE TABLE IF NOT EXISTS mdb_VIEW
