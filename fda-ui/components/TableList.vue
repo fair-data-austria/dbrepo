@@ -102,7 +102,7 @@
                 <thead>
                   <th>Column Name</th>
                   <th>Type</th>
-                  <th>Unit</th>
+                  <th v-if="false">Unit</th>
                   <th>Primary Key</th>
                   <th>Unique</th>
                   <th>NULL Allowed</th>
@@ -115,7 +115,7 @@
                     <td>
                       {{ col.column_type }}
                     </td>
-                    <td>
+                    <td v-if="false">
                       <DialogsColumnUnit :column="col" :table-id="tableDetails.id" @save="details" />
                     </td>
                     <td>
