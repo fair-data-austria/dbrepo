@@ -7,12 +7,12 @@
         <v-btn color="blue-grey white--text" class="mr-2" :disabled="!query.execution || identifier.id || !token" @click.stop="persistQueryDialog = true">
           <v-icon left>mdi-fingerprint</v-icon> Persist
         </v-btn>
-        <v-btn color="primary" :disabled="!token" @click.stop="reExecute">
+        <v-btn v-if="false" color="primary" :disabled="!token" @click.stop="reExecute">
           <v-icon left>mdi-run</v-icon> Re-Execute
         </v-btn>
       </v-toolbar-title>
     </v-toolbar>
-    <v-card v-if="!loading" flat>
+    <v-card v-if="!loading" class="pb-2" flat>
       <v-card-title>
         Query Information
       </v-card-title>
@@ -70,7 +70,7 @@
           Username: <code v-if="query.username">{{ query.username }}</code><span v-if="!query.username">(empty)</span>
         </p>
       </v-card-text>
-      <QueryResults v-if="false" ref="queryResults" v-model="query.id" />
+      <QueryResults ref="queryResults" v-model="query.id" class="ml-2 mr-2 mt-0" />
     </v-card>
     <v-breadcrumbs :items="items" class="pa-0 mt-2" />
     <v-dialog
@@ -168,7 +168,7 @@ export default {
 
       // refresh QueryResults table
       setTimeout(() => {
-        // this.$refs.queryResults.execute()
+        this.$refs.queryResults.execute()
       }, 200)
     },
     async reExecute () {

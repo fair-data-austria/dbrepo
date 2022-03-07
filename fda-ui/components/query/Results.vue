@@ -98,6 +98,13 @@ ${this.parent.queryId ? `/${this.parent.queryId}` : ''}
         this.loading = false
       }
     },
+    buildHeaders (firstLine) {
+      return Object.keys(firstLine).map(k => ({
+        text: k,
+        value: k,
+        sortable: false
+      }))
+    },
     async execute () {
       this.loading = true
       try {
@@ -110,10 +117,9 @@ ${this.$route.params.container_id}/database/${this.$route.params.database_id}/qu
           headers: this.headers
         })
         this.loading = false
-        // Can't display headers yet
-        // this.result.headers = this.parent.select.map((s) => {
-        //   return { text: s.name, value: s.name, sortable: false }
-        // })
+        if (res.data.result.length) {
+          this.result.headers = this.buildHeaders(res.data.result[0])
+        }
         this.result.rows = res.data.result
         this.total = res.data.resultNumber
       } catch (err) {
