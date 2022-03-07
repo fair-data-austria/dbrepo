@@ -174,10 +174,23 @@ public interface QueryMapper {
         if (timestamp == null) {
             throw new IllegalArgumentException("Timestamp must be provided");
         }
-        return "SELECT COUNT(*) FROM " +  query.toLowerCase(Locale.ROOT).split("from ")[1] +
-                " FOR SYSTEM_TIME AS OF TIMESTAMP '" +
-                LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
-                "';";
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT COUNT(*) FROM");
+        if(query.contains("where")) {
+            sb.append(query.toLowerCase(Locale.ROOT).split("from ")[1].split("where")[0]);
+        } else {
+            sb.append(query.toLowerCase(Locale.ROOT).split("from ")[1]);
+        }
+        sb.append("FOR SYSTEM_TIME AS OF TIMESTAMP '");
+        sb.append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")));
+        sb.append("' ");
+        if(query.contains("where")) {
+            sb.append("where ");
+            sb.append(query.toLowerCase(Locale.ROOT).split("from ")[1].split("where")[1]);
+        }
+        sb.append(";");
+        log.debug(sb.toString());
+        return sb.toString();
     }
 
     default String queryToRawTimestampedQuery(String query, Database database, Instant timestamp, Long page, Long size) throws ImageNotSupportedException {
@@ -186,18 +199,29 @@ public interface QueryMapper {
             throw new ImageNotSupportedException("Currently only MariaDB is supported");
         }
         if (timestamp == null) {
-            timestamp = Instant.now();
+            throw new IllegalArgumentException("Please provide a timestamp before");
+        }
+        StringBuilder sb = new StringBuilder();
+        if(query.contains("where")) {
+            sb.append(query.toLowerCase(Locale.ROOT).split("where")[0]);
+        } else {
+            sb.append(query.toLowerCase(Locale.ROOT));
+        }
+        sb.append("FOR SYSTEM_TIME AS OF TIMESTAMP '");
+        sb.append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")));
+        sb.append("' ");
+        if(query.contains("where")) {
+            sb.append("where");
+            sb.append(query.toLowerCase(Locale.ROOT).split("from ")[1].split("where")[1]);
         }
         if(size != null && page != null && size > 0 && page >=0) {
-            return query +
-                    " FOR SYSTEM_TIME AS OF TIMESTAMP '" +
-                    LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
-                    "' LIMIT " + size + " OFFSET " + (page*size) +
-                    ";";
+            sb.append(" LIMIT " + size + " OFFSET " + (page*size));
         }
-        return query +
-                " FOR SYSTEM_TIME AS OF TIMESTAMP '" +
-                LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) + "';";
+        sb.append(";");
+
+        log.debug(sb.toString());
+
+        return sb.toString();
 
     }
 
