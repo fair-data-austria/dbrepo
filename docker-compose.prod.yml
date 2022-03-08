@@ -28,7 +28,7 @@ services:
     image: fda-metadata-db
     networks:
       fda-public:
-        ipv4_address: 172.29.0.5
+    #    ipv4_address: 172.29.0.5
     volumes:
       - fda-metadata-db-data:/var/lib/postgresql/data
     ports:
@@ -49,7 +49,7 @@ services:
     image: fda-discovery-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.4
+    #    ipv4_address: 172.29.0.4
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -69,7 +69,7 @@ services:
     image: fda-gateway-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.2
+    #    ipv4_address: 172.29.0.2
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -87,9 +87,9 @@ services:
     networks:
       fda-userdb:
       fda-public:
-        ipv4_address: 172.29.0.9
+    #    ipv4_address: 172.29.0.9
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
     ports:
       - "9092:9092"
@@ -109,9 +109,9 @@ services:
     image: fda-container-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.8
+    #    ipv4_address: 172.29.0.8
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
     ports:
       - "9091:9091"
@@ -131,7 +131,7 @@ services:
     build: fda-authentication-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.14
+    #    ipv4_address: 172.29.0.14
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -151,10 +151,10 @@ services:
     image: fda-query-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.12
+    #    ipv4_address: 172.29.0.12
       fda-userdb:
     environment:
-      SPRING_PROFILES_ACTIVE: docker,seeder
+      SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
     ports:
       - "9093:9093"
@@ -174,7 +174,7 @@ services:
     image: fda-table-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.11
+    #    ipv4_address: 172.29.0.11
       fda-userdb:
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -199,7 +199,7 @@ services:
     image: fda-identifier-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.13
+    #    ipv4_address: 172.29.0.13
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Europe/Vienna
@@ -217,7 +217,7 @@ services:
     image: fda-analyse-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.10
+    #    ipv4_address: 172.29.0.10
       fda-userdb:
     command: sh -c "/wait && flask run" # docker-compose should not test the implementation
     environment:
@@ -241,7 +241,7 @@ services:
     image: fda-units-service
     networks:
       fda-public:
-        ipv4_address: 172.29.0.7
+    #    ipv4_address: 172.29.0.7
     environment:
       EUREKA_SERVER: http://fda-discovery-service:9090/eureka/
       TZ: Europe/Vienna
@@ -266,7 +266,7 @@ services:
       TZ: Europe/Vienna
     networks:
       fda-public:
-        ipv4_address: 172.29.0.3
+    #    ipv4_address: 172.29.0.3
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -286,7 +286,7 @@ services:
     command: [ "elasticsearch" ]
     networks:
       fda-public:
-        ipv4_address: 172.29.0.6
+    #    ipv4_address: 172.29.0.6
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -308,7 +308,7 @@ services:
     image: fda-ui
     networks:
       fda-public:
-        ipv4_address: 172.29.0.15
+    #    ipv4_address: 172.29.0.15
     ports:
       - "443:3000"
     volumes:
@@ -323,24 +323,5 @@ services:
       KEY: "${UI_KEY}"
       CERT: "${UI_CERT}"
       TZ: Europe/Vienna
-    logging:
-      driver: json-file
-
-  fda-vienna-lines:
-    restart: on-failure
-    container_name: fda-vienna-lines
-    hostname: fda-vienna-lines
-    build: ./fda-vienna-lines
-    image: fda-vienna-lines
-    networks:
-      fda-public:
-        ipv4_address: 172.29.0.16
-    depends_on:
-      fda-query-service:
-        condition: service_healthy
-    environment:
-      TZ: Europe/Vienna
-      EXCHANGE: foo
-      KEY: vienna_public_transport_delays
     logging:
       driver: json-file
