@@ -1,14 +1,11 @@
 <template>
   <div>
-    <v-form
-      ref="form"
-      v-model="valid"
-      lazy-validation>
+    <v-form ref="form">
       <v-toolbar flat>
         <v-toolbar-title>Create Query</v-toolbar-title>
         <v-spacer />
         <v-toolbar-title>
-          <v-btn :disabled="!valid || !token" color="blue-grey white--text" @click="save">
+          <v-btn v-if="false" :disabled="!valid || !token" color="blue-grey white--text" @click="save">
             Save without execution
           </v-btn>
           <v-btn :disabled="!valid || !token" color="primary" @click="execute">
@@ -23,7 +20,6 @@
             <v-col cols="6">
               <v-select
                 v-model="table"
-                :rules="[rules.required]"
                 :items="tables"
                 item-text="name"
                 return-object
@@ -33,7 +29,6 @@
             <v-col cols="6">
               <v-select
                 v-model="select"
-                :rules="[rules.required]"
                 item-text="name"
                 :disabled="!table"
                 :items="selectItems"
@@ -55,12 +50,7 @@
           <v-row>
             <v-col>
               <p>Results</p>
-              <v-data-table
-                :headers="result.headers"
-                :items="result.rows"
-                :loading="loading"
-                :items-per-page="30"
-                class="elevation-1" />
+              <QueryResults ref="queryResults" v-model="queryId" />
             </v-col>
           </v-row>
           <v-row>
@@ -77,12 +67,9 @@
 </template>
 
 <script>
-import _ from 'lodash'
-
 export default {
   data () {
     return {
-      valid: false,
       table: null,
       tables: [],
       tableDetails: null,
@@ -91,15 +78,7 @@ export default {
         sql: ''
       },
       select: [],
-      clauses: [],
-      result: {
-        headers: [],
-        rows: []
-      },
-      rules: {
-        required: value => !!value || 'Required'
-      },
-      loading: false
+      clauses: []
     }
   },
   computed: {
@@ -108,7 +87,7 @@ export default {
       return columns || []
     },
     columnNames () {
-      return this.selectItems && this.selectItems.map(s => s.internalName)
+      return this.selectItems && this.selectItems.map(s => s.internal_name)
     },
     databaseId () {
       return this.$route.params.database_id
@@ -124,6 +103,10 @@ export default {
         return null
       }
       return { Authorization: `Bearer ${this.token}` }
+    },
+    valid () {
+      // we need to have at least one column selected
+      return this.select.length
     }
   },
   watch: {
@@ -131,7 +114,14 @@ export default {
       deep: true,
       handler () {
         this.buildQuery()
+        this.queryId = null
       }
+    },
+    table () {
+      this.queryId = null
+    },
+    select () {
+      this.queryId = null
     }
   },
   beforeMount () {
@@ -149,53 +139,8 @@ export default {
         this.$toast.error('Could not list table.')
       }
     },
-    async execute () {
-      this.$refs.form.validate()
-      this.loading = true
-      try {
-        const data = {
-          statement: this.query.sql,
-          tables: [_.pick(this.table, ['id', 'name', 'internal_name'])],
-          columns: [this.select.map(function (column) {
-            return _.pick(column, ['id', 'name', 'internal_name'])
-          })]
-        }
-        console.debug('send data', data)
-        const res = await this.$axios.put(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query`, data, {
-          headers: this.headers
-        })
-        console.debug('query result', res)
-        this.$toast.success('Successfully executed query')
-        this.loading = false
-        this.queryId = res.data.id
-        this.result.headers = this.select.map((s) => {
-          return { text: s.name, value: s.name, sortable: false }
-        })
-        this.result.rows = res.data.result
-      } catch (err) {
-        console.error('query execute', err)
-        this.$toast.error('Could not execute query')
-        this.loading = false
-      }
-    },
-    async save () {
-      this.$refs.form.validate()
-      const query = this.query.sql.replaceAll('`', '')
-      this.loading = true
-      try {
-        const res = await this.$axios.post(`/api/container/${this.$route.params.container_id}/database/${this.databaseId}/query`, { statement: query }, {
-          headers: this.headers
-        })
-        console.debug('query result', res)
-        this.$toast.success('Successfully saved query')
-        this.loading = false
-        this.queryId = res.data.id
-        this.$router.push(`/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/query/${this.queryId}`)
-      } catch (err) {
-        console.error('query save', err)
-        this.$toast.error('Could not save query')
-        this.loading = false
-      }
+    execute () {
+      this.$refs.queryResults.executeFirstTime(this)
     },
     async buildQuery () {
       if (!this.table) {
@@ -204,7 +149,7 @@ export default {
       const url = '/server-middleware/query/build'
       const data = {
         table: this.table.internal_name,
-        select: this.select.map(s => s.name),
+        select: this.select.map(s => s.internal_name),
         clauses: this.clauses
       }
       try {

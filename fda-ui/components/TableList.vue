@@ -85,8 +85,9 @@
           </v-row>
           <v-row dense>
             <v-col>
-              <v-btn color="blue-grey" class="white--text" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}`">
-                More
+              <v-btn outlined :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${item.id}`">
+                <v-icon>mdi-table</v-icon>
+                View
               </v-btn>
             </v-col>
             <v-col class="align-right">
@@ -176,7 +177,8 @@ export default {
   },
   mounted () {
     this.$root.$on('table-create', this.refresh)
-    this.refresh()
+    const table = this.$store.state.table
+    this.refresh(table ? table.id : null)
   },
   methods: {
     async details (tableId, clicked = false) {
@@ -186,8 +188,8 @@ export default {
       }
       try {
         const res = await this.$axios.get(`/api/container/${this.$route.params.container_id}/database/${this.$route.params.database_id}/table/${tableId}`)
-        console.debug('table', res.data)
         this.tableDetails = res.data
+        this.$store.commit('SET_TABLE', this.tableDetails)
       } catch (err) {
         this.tableDetails = undefined
         this.$toast.error('Could not get table details.')
@@ -205,8 +207,9 @@ export default {
         this.loading = false
         if (tableId) { this.openPanelByTableId(tableId) }
       } catch (err) {
-        this.$toast.error('Could not list table.')
+        this.$toast.error('Could not load tables.')
       }
+      this.$store.commit('SET_TABLE', null)
     },
     async deleteTable () {
       try {

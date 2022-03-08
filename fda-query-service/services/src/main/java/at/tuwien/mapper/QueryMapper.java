@@ -2,7 +2,9 @@ package at.tuwien.mapper;
 
 import at.tuwien.InsertTableRawQuery;
 import at.tuwien.api.database.query.*;
+import at.tuwien.api.database.table.TableBriefDto;
 import at.tuwien.api.database.table.TableCsvDto;
+import at.tuwien.entities.database.Database;
 import at.tuwien.exception.TableMalformedException;
 import at.tuwien.querystore.Query;
 import at.tuwien.entities.database.table.Table;
@@ -16,6 +18,7 @@ import org.mariadb.jdbc.MariaDbBlob;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.nio.charset.MalformedInputException;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -158,10 +161,73 @@ public interface QueryMapper {
             timestamp = Instant.now();
         }
         return "SELECT COUNT(*) FROM `" + nameToInternalName(table.getName()) +
-                "` FOR SYSTEM_TIME AS OF TIMESTAMP'" +
+                "` FOR SYSTEM_TIME AS OF TIMESTAMP '" +
                 LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")) +
                 "';";
     }
+
+    default String queryToRawTimestampedCountQuery(String query, Database database, Instant timestamp) throws ImageNotSupportedException {
+        /* param check */
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        if (timestamp == null) {
+            throw new IllegalArgumentException("Timestamp must be provided");
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT COUNT(*) FROM");
+        if(query.contains("where")) {
+            sb.append(query.toLowerCase(Locale.ROOT).split("from ")[1].split("where")[0]);
+        } else {
+            sb.append(query.toLowerCase(Locale.ROOT).split("from ")[1]);
+        }
+        sb.append("FOR SYSTEM_TIME AS OF TIMESTAMP '");
+        sb.append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")));
+        sb.append("' ");
+        if(query.contains("where")) {
+            sb.append("where ");
+            sb.append(query.toLowerCase(Locale.ROOT).split("from ")[1].split("where")[1]);
+        }
+        sb.append(";");
+        log.debug(sb.toString());
+        return sb.toString();
+    }
+
+    default String queryToRawTimestampedQuery(String query, Database database, Instant timestamp, Long page, Long size) throws ImageNotSupportedException {
+        /* param check */
+        if (!database.getContainer().getImage().getRepository().equals("mariadb")) {
+            throw new ImageNotSupportedException("Currently only MariaDB is supported");
+        }
+        if (timestamp == null) {
+            throw new IllegalArgumentException("Please provide a timestamp before");
+        }
+        StringBuilder sb = new StringBuilder();
+        if(query.contains("where")) {
+            sb.append(query.toLowerCase(Locale.ROOT).split("where")[0]);
+        } else {
+            sb.append(query.toLowerCase(Locale.ROOT));
+        }
+        sb.append("FOR SYSTEM_TIME AS OF TIMESTAMP '");
+        sb.append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")));
+        sb.append("' ");
+        if(query.contains("where")) {
+            sb.append("where");
+            sb.append(query.toLowerCase(Locale.ROOT).split("from ")[1].split("where")[1]);
+        }
+        if(size != null && page != null && size > 0 && page >=0) {
+            sb.append(" LIMIT " + size + " OFFSET " + (page*size));
+        }
+        sb.append(";");
+
+        log.debug(sb.toString());
+
+        return sb.toString();
+
+    }
+
+
+
+
 
     default String tableToRawFindAllQuery(Table table, Instant timestamp, Long size, Long page)
             throws ImageNotSupportedException {
@@ -184,7 +250,7 @@ public interface QueryMapper {
                         .append("`"));
         query.append(" FROM `")
                 .append(nameToInternalName(table.getName()))
-                .append("` FOR SYSTEM_TIME AS OF TIMESTAMP'")
+                .append("` FOR SYSTEM_TIME AS OF TIMESTAMP '")
                 .append(LocalDateTime.ofInstant(timestamp, ZoneId.of("Europe/Vienna")))
                 .append("'");
         if (size != null && page != null) {
@@ -261,4 +327,14 @@ public interface QueryMapper {
                 throw new IllegalArgumentException("Column type not known");
         }
     }
+
+    @Named("EscapedString")
+    default String stringToEscapedString(String name) throws ImageNotSupportedException {
+        log.debug("StringToEscapedString: {}",name);
+        if(name!=null && !name.startsWith("`") && !name.endsWith("`")) {
+            return "`"+name+"`";
+        }
+        return name;
+    }
+
 }

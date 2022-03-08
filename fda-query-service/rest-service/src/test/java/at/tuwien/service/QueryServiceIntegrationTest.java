@@ -17,6 +17,7 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jsqlparser.JSQLParserException;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
 import org.junit.jupiter.api.*;
@@ -173,7 +174,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
     @Test
     public void execute_succeeds() throws DatabaseNotFoundException, ImageNotSupportedException, InterruptedException,
-            QueryMalformedException, TableNotFoundException, QueryStoreException, ContainerNotFoundException {
+            QueryMalformedException, TableNotFoundException, QueryStoreException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement(QUERY_1_STATEMENT)
                 .build();
@@ -182,7 +183,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
+        //FIXME
+        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request, 0L, 0L);
         assertEquals(3, response.getResult().size());
         assertEquals(BigInteger.valueOf(1L), response.getResult().get(0).get(COLUMN_1_1_NAME));
         assertEquals(toInstant("2008-12-01"), response.getResult().get(0).get(COLUMN_1_2_NAME));
@@ -206,7 +208,7 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
     @Disabled
     public void execute_modifyData_fails() throws DatabaseNotFoundException, ImageNotSupportedException,
             InterruptedException, QueryMalformedException, TableNotFoundException, QueryStoreException,
-            ContainerNotFoundException {
+            ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException {
         final ExecuteStatementDto request = ExecuteStatementDto.builder()
                 .statement("DELETE FROM `weather_aus`;")
                 .build();
@@ -215,7 +217,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
         DockerConfig.startContainer(CONTAINER_1);
 
         /* test */
-        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
+        //FIXME
+        final QueryResultDto response = queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request, 0L, 0L);
         assertNotNull(response.getResult());
         assertEquals(3, response.getResult().size());
     }
@@ -231,7 +234,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(DatabaseNotFoundException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, 9999L, request);
+            //FIXME
+            queryService.execute(CONTAINER_1_ID, 9999L, request, 0L, 0L);
         });
     }
 
@@ -247,7 +251,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PersistenceException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
+            //FIXME
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request, 0L, 0L);
         });
     }
 
@@ -262,7 +267,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(PersistenceException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
+            //FIXME
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request, 0L, 0L);
         });
     }
 
@@ -277,7 +283,8 @@ public class QueryServiceIntegrationTest extends BaseUnitTest {
 
         /* test */
         assertThrows(QueryMalformedException.class, () -> {
-            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request);
+            //FIXME
+            queryService.execute(CONTAINER_1_ID, DATABASE_1_ID, request, 0L, 0L);
         });
     }
 

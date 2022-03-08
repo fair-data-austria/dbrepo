@@ -25,6 +25,7 @@ COPY ./plugins ./plugins
 COPY ./server-middleware ./server-middleware
 COPY ./static ./static
 COPY ./store ./store
+COPY ./utils ./utils
 
 RUN yarn build > /dev/null
 

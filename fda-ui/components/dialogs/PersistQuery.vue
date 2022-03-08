@@ -130,6 +130,7 @@ export default {
       }
       this.$toast.success('Query persisted.')
       this.$emit('close')
+      this.loading = false
     },
     async loadUser () {
       this.loading = true
@@ -143,6 +144,7 @@ export default {
         this.$toast.error('Failed load user data')
         console.error('load user data failed', err)
       }
+      this.loading = false
     }
   }
 }

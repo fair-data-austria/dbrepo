@@ -7,10 +7,13 @@
       </v-toolbar-title>
       <v-spacer />
       <v-toolbar-title>
+        <v-btn class="mr-2" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table`">
+          <v-icon left>mdi-arrow-left</v-icon> Back
+        </v-btn>
         <v-btn class="mr-2" :disabled="!token" :to="`/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/import`">
           <v-icon left>mdi-cloud-upload</v-icon> Import csv
         </v-btn>
-        <v-btn color="primary" :disabled="!token" :href="`/api/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/data/export`" target="_blank">
+        <v-btn v-if="false" color="primary" :disabled="!token" :href="`/api/container/${$route.params.container_id}/database/${$route.params.database_id}/table/${$route.params.table_id}/data/export`" target="_blank">
           <v-icon left>mdi-download</v-icon> Download
         </v-btn>
       </v-toolbar-title>
@@ -121,6 +124,9 @@ export default {
     version (newVersion, oldVersion) {
       console.info('selected new version', newVersion)
       this.loadData()
+    },
+    options () {
+      this.loadData()
     }
   },
   mounted () {
@@ -135,8 +141,14 @@ export default {
         console.debug('headers', res.data.columns)
         this.headers = res.data.columns.map((c) => {
           return {
-            value: c.internal_name,
-            text: this.columnAddition(c) + c.name
+            value: c.name,
+            text: this.columnAddition(c) + c.name,
+
+            // sorting is disabled for now
+            // backed has sorting functionality in 8cf84d4d3502202c5947eefb49bc6f48cebff234,
+            // branch 53-task-provide-property-information-for-metadata-db-frontend
+            // currenlty unmergable to dev
+            sortable: false
           }
         })
       } catch (err) {
@@ -154,7 +166,7 @@ export default {
         }
         const res = await this.$axios.get(url)
         console.debug('version', this.datetime, 'table data', res.data)
-        this.total = res.headers['fda-count']
+        this.total = parseInt(res.headers['fda-count'])
         this.rows = res.data.result
       } catch (err) {
         console.error('failed to load data', err)

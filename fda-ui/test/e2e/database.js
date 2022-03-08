@@ -1,6 +1,6 @@
 const test = require('ava')
+const axios = require('axios')
 const { pageMacro, before, after } = require('./_utils')
-const axios = require("axios");
 
 test.before(before)
 test.after(after)

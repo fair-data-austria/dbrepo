@@ -30,6 +30,7 @@ if (!process.env.KEY || !process.env.CERT) {
 
 export default {
   target: 'server',
+  ssr: false,
 
   telemetry: false,
 

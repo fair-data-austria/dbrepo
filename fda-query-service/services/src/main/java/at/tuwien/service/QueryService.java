@@ -5,9 +5,12 @@ import at.tuwien.api.database.query.ImportDto;
 import at.tuwien.api.database.query.QueryResultDto;
 import at.tuwien.api.database.table.TableCsvDto;
 import at.tuwien.exception.*;
+import at.tuwien.querystore.Query;
+import net.sf.jsqlparser.JSQLParserException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.sql.SQLException;
 import java.time.Instant;
 
 @Service
@@ -19,6 +22,8 @@ public interface QueryService {
      *
      * @param databaseId The database id.
      * @param query      The query.
+     * @param page
+     * @param size
      * @return The result.
      * @throws TableNotFoundException
      * @throws QueryStoreException
@@ -26,8 +31,27 @@ public interface QueryService {
      * @throws DatabaseNotFoundException
      * @throws ImageNotSupportedException
      */
-    QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto query) throws TableNotFoundException,
-            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException;
+    QueryResultDto execute(Long containerId, Long databaseId, ExecuteStatementDto query, Long page, Long size) throws TableNotFoundException,
+            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException;
+
+    /**
+     * Re-Executes an arbitrary query on the database container. We allow the user to only view the data, therefore the
+     * default "mariadb" user is allowed read-only access "SELECT".
+     *
+     * @param databaseId The database id.
+     * @param query      The query.
+     * @param page
+     * @param size
+     * @return The result.
+     * @throws TableNotFoundException
+     * @throws QueryStoreException
+     * @throws QueryMalformedException
+     * @throws DatabaseNotFoundException
+     * @throws ImageNotSupportedException
+     */
+    QueryResultDto reExecute(Long containerId, Long databaseId, Query query, Long page, Long size) throws TableNotFoundException,
+            QueryStoreException, QueryMalformedException, DatabaseNotFoundException, ImageNotSupportedException, ContainerNotFoundException, SQLException, JSQLParserException, TableMalformedException;
+
 
     /**
      * Select all data known in the database-table id tuple at a given time and return a page of specific size, using

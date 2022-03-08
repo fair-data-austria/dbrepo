@@ -18,6 +18,7 @@ import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Network;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jsqlparser.JSQLParserException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,7 +132,7 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
     @Test
     public void reExecute_succeeds() throws TableNotFoundException, QueryStoreException, QueryMalformedException,
             DatabaseNotFoundException, ImageNotSupportedException, QueryNotFoundException, InterruptedException,
-            SQLException, ContainerNotFoundException {
+            SQLException, ContainerNotFoundException, JSQLParserException, TableMalformedException {
         final QueryResultDto result = QueryResultDto.builder()
                 .id(QUERY_1_ID)
                 .result(List.of(Map.of("MinTemp", 13.4, "Rainfall", 0.6, "id", 1)))
@@ -147,35 +148,12 @@ public class QueryEndpointIntegrationTest extends BaseUnitTest {
         storeService.insert(CONTAINER_1_ID, DATABASE_1_ID, result, statement, execution);
 
         /* test */
+        //FIXME
         final ResponseEntity<QueryResultDto> response = queryEndpoint.reExecute(CONTAINER_1_ID, DATABASE_1_ID,
-                QUERY_1_ID);
+                QUERY_1_ID,0L,0L);
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(QUERY_1_ID, response.getBody().getId());
-    }
-
-    @Test
-    public void save_succeeds() throws QueryStoreException, DatabaseNotFoundException, ImageNotSupportedException,
-            InterruptedException, SQLException, ContainerNotFoundException {
-        final SaveStatementDto statement = SaveStatementDto.builder()
-                .statement(QUERY_1_STATEMENT)
-                .build();
-
-        /* mock */
-        DockerConfig.startContainer(CONTAINER_1);
-        MariaDbConfig.clearQueryStore(TABLE_1);
-
-        /* test */
-        final ResponseEntity<QueryDto> response = queryEndpoint.save(CONTAINER_1_ID, DATABASE_1_ID, statement);
-        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(QUERY_1_ID, response.getBody().getId());
-        assertEquals(CONTAINER_1_ID, response.getBody().getCid());
-        assertEquals(DATABASE_1_ID, response.getBody().getDbid());
-        assertEquals(QUERY_1_STATEMENT, response.getBody().getQuery());
-        assertEquals(QUERY_1_STATEMENT, response.getBody().getQueryNormalized());
-        assertNull(response.getBody().getResultNumber());
-        assertNull(response.getBody().getResultHash());
     }
 
 
