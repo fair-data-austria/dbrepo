@@ -59,6 +59,11 @@ export default {
       return this.error ? 'red lighten-2' : 'primary'
     }
   },
+  watch: {
+    value (v) {
+      console.log('dlg', v)
+    }
+  },
   methods: {
     cancel () {
       this.$parent.$parent.$parent.$parent.pickVersionDialog = false
